@@ -67,13 +67,9 @@ MainAssistant.prototype.setup = function()
 	// hide the list while we update ipkg
 	this.controller.get('mainList').style.display = "none";
 	
-	// start with a test for an internet connection
-	this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
-	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
-	    method: 'getstatus',
-	    onSuccess: this.onConnection.bindAsEventListener(this),
-	    onFailure: this.onConnection.bindAsEventListener(this)
-	});
+	// start with starting the service
+	this.controller.get('spinnerStatus').innerHTML = "Starting Service";
+	IPKGService.info(this.onStart.bindAsEventListener(this));
 }
 
 MainAssistant.prototype.listTapHandler = function(event)
@@ -87,6 +83,32 @@ MainAssistant.prototype.listTapHandler = function(event)
 		// push the scene
 		this.controller.stageController.pushScene(event.item.scene, event.item);
 	}
+}
+
+MainAssistant.prototype.onStart = function(payload)
+{
+	//alert(payload);
+	for (test in payload)
+	{
+		alert(test +' - '+ payload[test]);
+	}
+	
+	if (payload && payload.returnValue === false)
+	{
+		//Mojo.Controller.errorDialog('Unable to Start Service.');
+		//this.hideSpinner();
+	}
+	else
+	{
+		// check internet connection
+		this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
+		this.controller.serviceRequest('palm://com.palm.connectionmanager', {
+		    method: 'getstatus',
+		    onSuccess: this.onConnection.bindAsEventListener(this),
+		    onFailure: this.onConnection.bindAsEventListener(this)
+		});
+	}
+	
 }
 
 MainAssistant.prototype.onConnection = function(response)
@@ -110,8 +132,6 @@ MainAssistant.prototype.onUpdate = function(payload)
 	if (!payload) 
 	{
 		// if its not running, it actually never gets here, as it never returns
-		// the command below will start the service
-		// luna-send -n 1 palm://org.webosinternals.ipkgservice/list {}
 		Mojo.Controller.errorDialog('Update Error. The service probably isn\'t running.');
 		this.hideSpinner();
 	}

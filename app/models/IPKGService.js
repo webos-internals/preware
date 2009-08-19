@@ -4,6 +4,19 @@ function IPKGService() {
 
 }
 
+IPKGService.launch = function(callback) {
+	var request = new Mojo.Service.Request('palm://com.palm.vm', {
+		method:      'launch',
+		parameters:	{
+			serviceName: "org.webosinternals.ipkgservice",
+			className: "org.webosinternals.ipkgservice.IPKGService"
+		},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
+
 IPKGService.update = function(callback) {
 	var request = new Mojo.Service.Request(IPKGService.identifier, {
 		method: 'update',
