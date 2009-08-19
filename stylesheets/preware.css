@@ -1,0 +1,229 @@
+/*
+ * Global Styles
+ */
+.scene-fade-top
+{
+	position: fixed; 
+	top: 0; 
+	z-index: 11000;
+	height: 30px; 
+	width: 100%;
+	background: url(../images/scrollFade-top.png) top center repeat-x;
+	-webkit-palm-mouse-target: ignore;
+}
+.scene-fade-bottom
+{
+	position: fixed; 
+	bottom: 0; 
+	z-index: 11000;
+	height: 30px; 
+	width: 100%;
+	background: url(../images/scrollFade-bottom.png) bottom center repeat-x;
+	-webkit-palm-mouse-target: ignore;
+}
+.palm-row-wrapper .appCount
+{
+	float: right;
+    line-height: 19px;
+    height: 30px;
+    min-width: 30px;
+	vertical-align: middle;
+    -webkit-border-image: url(../images/appCount.png) 5 10 5 10 stretch stretch;
+    -webkit-box-sizing: border-box;
+    border-width: 5px 10px 5px 10px;
+	margin-top: 12px;
+	margin-right: 15px;
+}
+.palm-row-wrapper .appCount .count
+{
+	color: #e4e4e2;
+}
+
+
+
+/*
+ * Main Scene Styles
+ */
+.main #spinner
+{
+	margin-top: 100px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.main #spinner #spinnerStatus
+{
+	text-align: center;
+	padding-top: 122px;
+	color: #666;
+	font-size: 16px;
+}
+.main .palm-page-header-wrapper .icon
+{
+	width: 70px;
+	height: 70px;
+	background: url(../images/tux.png) center center no-repeat;
+}
+.main .palm-page-header-wrapper .title
+{
+	padding-left: 75px;
+}
+.main .palm-page-header-wrapper .title.main
+{
+	font-size: 30px;
+	padding-top: 5px;
+	padding-bottom: 0px;
+}
+.main .palm-page-header-wrapper .title.sub
+{
+	font-size: 14px;
+	padding-top: 0px;
+	margin-top: 0px;
+}
+.main .palm-row-wrapper
+{
+	height: 60px;
+}
+.main .palm-row-wrapper .title
+{
+	padding-top: 15px;
+}
+.main .palm-row-wrapper.disabled .title
+{
+	color: #999;
+}
+.main .palm-row-wrapper .appCount
+{
+	display: none;
+}
+.main .palm-row-wrapper.showCount .appCount
+{
+	display: inline;
+	margin-top: 14px;
+}
+
+
+/*
+ * App Category List Styles
+ */
+
+
+/*
+ * App List Scene Styles
+ */
+.app-list #searchText
+{
+	display: none;
+	z-index: 20000;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	height: 50px;
+	color: #fff;
+	padding-top: 2px;
+	padding-left: 1px;
+	border-width: 10px 25px 10px 25px;
+	-webkit-border-image: url(../images/search-box.png) 10 25 10 25 stretch stretch;
+	-webkit-box-sizing: border-box;
+}
+.app-list #searchText input
+{
+	color: #fff;
+	background: none;
+	margin-top: 0px;
+	margin-left: -1px;
+	border: 0px;
+	padding: 0px;
+}
+.app-list #spinner
+{
+	position: fixed;
+	top: 8px;
+	right: 10px;
+	z-index: 20001;
+	float: right;
+}
+.app-list .category-source 
+{
+	display: none;
+	position:relative;
+	float:right;
+	margin: 8px -16px 0px 0px;
+	font-size: 14px;
+	text-transform: uppercase;
+	font-weight: bold;
+	height:35px;
+	line-height: 33px;
+	border-width: 0px 22px 0px 16px;
+	-webkit-border-image:url(../images/header-selector.png) 0 22 0 16 stretch stretch;
+	-webkit-box-sizing: border-box;
+}
+.app-list .category-selector 
+{
+	margin-left:-5px;
+	padding-right: 2px;
+	background: transparent;
+	display:inline-block;
+	min-width: 12px;
+	max-width: 120px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	-webkit-palm-mouse-target: ignore;
+}
+.app-list .palm-row-wrapper
+{
+	position: relative;
+	height: 56px;
+}
+.app-list .palm-row-wrapper .icon
+{
+	position: absolute;
+	width: 48px;
+	height: 48px;
+	background: url(../icon.png) center center no-repeat;
+	top: 4px;
+	left: 4px;
+}
+.app-list .palm-row-wrapper .icon.img
+{
+	background: none;
+}
+.app-list .palm-row-wrapper .icon.img img
+{
+	width: 48px;
+	height: 48px;
+}
+.app-list .palm-row-wrapper .title
+{
+	position: absolute;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	padding-top: 0px;
+	padding-left: 0px;
+	left: 60px;
+	right: 5px;
+}
+.app-list .palm-row-wrapper .title.description
+{
+	top: 4px;
+}
+.app-list .palm-row-wrapper .title.package
+{
+	color: #999;
+	top: 30px;
+	font-size: 14px;
+}
+
+
+
+/*
+ * App View Scene Styles
+ */
+.app-view #appData
+{
+	padding-left: 15px;
+	padding-right: 15px;
+}
+ */

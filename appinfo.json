@@ -1,0 +1,16 @@
+{
+	"title": "Preware",
+	"id": "org.webosinternals.preware",
+	"version": "0.5.1",
+	"release_date":	"18-Aug-2009",
+	"vendor": "WebOS Internals",
+	"vendor_email":	"support@webos-internals.org",
+	"vendor_url": "http://www.webos-internals.org/wiki/Application:Preware",
+	"type": "web",
+	"main": "index.html",
+	"icon": "icon.png",
+	"removable": "true",
+	"noWindow": true,
+	"theme" : "light",
+	"noDeprecatedStyles" : true 
+}
