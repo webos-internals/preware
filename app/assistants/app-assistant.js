@@ -4,33 +4,33 @@ function AppAssistant() {
 
 AppAssistant.prototype.handleLaunch = function() {
 
-	try {
-
-		if (Mojo.Controller.appInfo.noWindow) {
-
-			var f = function(stageController) {
-
-				stageController.pushScene("main");
-
-			};
-
-			var stageName = "catalog-" + Date.now();
-			this.controller.createStageWithCallback({name: stageName, lightweight: true}, f);
-
-		} else if(params.banner) {
-
-			Mojo.Log.warn("Notifications not yet implemented.");
-
+	var stageName = 'catalog';
+	var mainStageController = this.controller.getStageController(stageName);
+	
+	try
+	{
+        if (mainStageController) 
+		{
+			// if it exists, just bring it to the front by focusing its window.
+			mainStageController.popScenesTo("main");
+			mainStageController.activate();
 		}
-
-	} catch (e) {
-
+		else 
+		{
+			var f = function(stageController)
+			{
+				stageController.pushScene("main");
+			};
+			
+			// launch the stage
+			this.controller.createStageWithCallback({name: stageName, lightweight: true}, f);
+		}
+	}
+	catch (e)
+	{
 		Mojo.Log.logException(e, "AppAssistant#handleLaunch");
-
 	}
 
 }
 
-AppAssistant.prototype.cleanup = function() {
-
-}
+AppAssistant.prototype.cleanup = function() {}

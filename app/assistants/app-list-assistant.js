@@ -1,10 +1,23 @@
-function AppListAssistant(item)
+function AppListAssistant(item, searchText, currentSort)
 {
+	// the item passed by the parent scene
 	this.item = item;
+	
+	// this holds the list (when we filter, this is what we search)
 	this.apps = [];
+	
+	// holds the model that has been filtered for use by the list
 	this.listModel = {items:[]};
+	
+	// holds the search 
 	this.searchTimer = false;
-	this.searchText = '';
+	this.searchText = (searchText ? searchText : '');
+	
+	// holds what our current sort direction is
+	this.currentSort = (currentSort ? currentSort : 'date');
+	
+	// the app view will update this if the app is changed so the list knows when to update on activation
+	this.reloadList = false;
 }
 
 AppListAssistant.prototype.setup = function()
@@ -12,29 +25,22 @@ AppListAssistant.prototype.setup = function()
 	// setup list title
 	this.controller.get('listTitle').innerHTML = this.item.name;
 	
-	// setup list attributes
-	this.listAttributes =
+	// Set up a command menu
+    this.sortModel = 
 	{
-		itemTemplate: "app-list/rowTemplate",
-		swipeToDelete: false,
-		reorderable: false
+		items: [
+			{},
+			{
+				items: [{icon: "icon-filter-alpha", command: 'alpha'},
+						{icon: "icon-filter-date",  command: 'date'}],
+				toggleCmd: this.currentSort
+			},
+			{}
+		]
 	};
 	
-	// category list has dividers
-	if (this.item.list == 'all')
-	{
-		// all list has alpha dividers
-		this.listAttributes.dividerTemplate = 'app-list/rowAlphaDivider';
-		this.listAttributes.dividerFunction = this.getAlphaDivider;
-	}
-	
-	// search model & attributes
-	this.searchAttributes =
-	{
-		focus: false,
-		autoFocus: false,
-		changeOnKeyPress: true
-	};
+	// setup sort command menu widget
+	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade', }, this.sortModel);
 	
 	// change scene if this is a single category
 	if (this.item.list == 'category')
@@ -52,9 +58,9 @@ AppListAssistant.prototype.setup = function()
 	this.updateList(true);
 	
 	// setup list widget
-	this.controller.setupWidget('appList', this.listAttributes, this.listModel);
+	this.setupList();
 	
-	// listen for tap
+	// listen for list tap
 	Mojo.Event.listen(this.controller.get('appList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
 	
 	// search spinner model
@@ -63,16 +69,37 @@ AppListAssistant.prototype.setup = function()
 	// setup spinner widget
 	this.controller.setupWidget('spinner', {spinnerSize: 'small'}, this.spinnerModel);
 	
+	// search model & attributes
+	this.searchAttributes =
+	{
+		focus: false,
+		autoFocus: false,
+		changeOnKeyPress: true
+	};
+	this.searchModel = { value: this.searchText };
+	
 	// setup search widget
-	this.controller.setupWidget('searchText', this.searchAttributes);
+	this.controller.setupWidget('searchText', this.searchAttributes, this.searchModel);
 	
 	// listen for type
 	this.searchFunction = this.filter.bind(this);
 	Mojo.Event.listen(this.controller.get('searchText'), Mojo.Event.propertyChange, this.filterDelayHandler.bindAsEventListener(this));
 	
-	// listen for typing
+	// key handler function
 	this.keyHandler = this.keyTest.bindAsEventListener(this);
-	Mojo.Event.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
+	
+	// if there isnt already search text, start listening
+	if (this.searchText == '') 
+	{
+		Mojo.Event.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
+	}
+	// if not, show the text box
+	else
+	{
+		this.controller.get('appListHeader').style.display = 'none';
+		this.controller.get('searchText').style.display = 'inline';
+		//this.controller.get('searchText').mojo.setValue(this.searchText);
+	}
 	
 }
 
@@ -161,6 +188,36 @@ AppListAssistant.prototype.filter = function(skipUpdate)
 	
 }
 
+AppListAssistant.prototype.setupList = function()
+{
+	// setup list attributes
+	this.listAttributes = 
+	{
+		itemTemplate: "app-list/rowTemplate",
+		swipeToDelete: false,
+		reorderable: false
+	};
+	
+	// setp dividers templates
+	if (this.currentSort == 'date') 
+	{
+		this.listAttributes.dividerTemplate = 'app-list/rowDateDivider';
+	}
+	else if (this.currentSort == 'alpha' && this.item.list == 'all') 
+	{
+		this.listAttributes.dividerTemplate = 'app-list/rowAlphaDivider';
+	}
+	
+	// if divider template, setup the divider function
+	if (this.listAttributes.dividerTemplate)
+	{
+		this.listAttributes.dividerFunction = this.getDivider.bind(this);
+	}
+	
+	// setup list widget
+	this.controller.setupWidget('appList', this.listAttributes, this.listModel);
+}
+
 AppListAssistant.prototype.updateList = function(skipUpdate)
 {
 	// clear the current list
@@ -203,28 +260,92 @@ AppListAssistant.prototype.updateList = function(skipUpdate)
 		}
 	}
 	
+	if (this.currentSort == 'date') 
+	{
+		this.apps.sort(function(a, b)
+		{
+			aTime = 0;
+			bTime = 0;
+			
+			if (a.SourceObj != undefined && a.SourceObj['Last-Updated']) aTime = a.SourceObj['Last-Updated'];
+			if (b.SourceObj != undefined && b.SourceObj['Last-Updated']) bTime = b.SourceObj['Last-Updated'];
+			
+			if (aTime > bTime) return -1;
+			else
+			{
+				if (aTime < bTime) return 1;
+				else return 0;
+			}
+		});
+	}
+	
+	
 	// call filter function to update list 
 	this.filter(skipUpdate);
 }
 
-// this is only used by the everything list
-AppListAssistant.prototype.getAlphaDivider = function(item)
+// handle sort toggle commands
+AppListAssistant.prototype.handleCommand = function(event)
 {
-	var firstChar = item.Description.substr(0, 1);
-	if (parseInt(firstChar) == firstChar)
+	if (event.type == Mojo.Event.command)
 	{
-		return '#';
+		switch (event.command)
+		{
+			case 'date':
+			case 'alpha':
+				this.currentSort = event.command;
+				this.controller.stageController.swapScene('app-list', this.item, this.searchText, this.currentSort);
+				break;
+				
+			default:
+				break;
+		}
 	}
-	else
+};
+
+// divider function
+AppListAssistant.prototype.getDivider = function(item)
+{
+	// how to divide when sorting by date
+	if (this.currentSort == 'date')
 	{
-		return firstChar.toUpperCase();
+		if (item.SourceObj != undefined && item.SourceObj['Last-Updated']) 
+		{
+			// a number of different date breakdowns
+			var now = Math.round(new Date().getTime()/1000.0);
+			if      (now - item.SourceObj['Last-Updated'] <= 86400)	  return 'Today';
+			else if (now - item.SourceObj['Last-Updated'] <= 172800)  return 'Yesterday';
+			else if (now - item.SourceObj['Last-Updated'] <= 604800)  return 'This Week';
+			else if (now - item.SourceObj['Last-Updated'] <= 1209600) return 'Last Week';
+			else if (now - item.SourceObj['Last-Updated'] <= 2629744) return 'This Month';
+			else if (now - item.SourceObj['Last-Updated'] <= 5259488) return 'Last Month';
+			else return 'Older'; // for things 2 months or older
+		}
+		else
+		{
+			// not all feeds will supply a last-updated value (or apps installed by the user not in any feeds)
+			return 'Unknown';
+		}
+	}
+	// how to divide when sorted by alpha (only used by the all list)
+	else if (this.currentSort == 'alpha' && this.item.list == 'all')
+	{
+		var firstChar = item.Description.substr(0, 1);
+		if (parseInt(firstChar) == firstChar) 
+		{
+			return '#';
+		}
+		else 
+		{
+			return firstChar.toUpperCase();
+		}
 	} 
 }
 
 AppListAssistant.prototype.listTapHandler = function(event)
 {
 	// push app view scene with this items info
-	this.controller.stageController.pushScene('app-view', event.item);
+	this.controller.stageController.pushScene('app-view', event.item, this);
 }
 
 AppListAssistant.prototype.menuTapHandler = function(event)
@@ -265,11 +386,26 @@ AppListAssistant.prototype.menuTapHandler = function(event)
 	});
 }
 
+AppListAssistant.prototype.setReload = function()
+{
+	this.reloadList = true;
+}
+
 AppListAssistant.prototype.activate = function(event)
 {
-	this.updateList();
+	if (this.reloadList) 
+	{
+		this.updateList();
+	}
 }
 
 AppListAssistant.prototype.deactivate = function(event) {}
 
-AppListAssistant.prototype.cleanup = function(event) {}
+AppListAssistant.prototype.cleanup = function(event)
+{
+	// clean up our listeners
+	Mojo.Event.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
+	Mojo.Event.stopListening(this.controller.get('searchText'), Mojo.Event.propertyChange, this.filterDelayHandler.bindAsEventListener(this));
+	Mojo.Event.stopListening(this.controller.get('appList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+	Mojo.Event.stopListening(this.controller.get('categorySource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
+}

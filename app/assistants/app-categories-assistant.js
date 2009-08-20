@@ -31,4 +31,8 @@ AppCategoriesAssistant.prototype.activate = function(event) {}
 
 AppCategoriesAssistant.prototype.deactivate = function(event) {}
 
-AppCategoriesAssistant.prototype.cleanup = function(event) {}
+AppCategoriesAssistant.prototype.cleanup = function(event)
+{
+	// clean up our listeners
+	Mojo.Event.stopListening(this.controller.get('categoryList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+}

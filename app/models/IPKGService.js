@@ -5,6 +5,8 @@ function IPKGService() {
 }
 
 IPKGService.launch = function(callback) {
+	// problem is, this doesn't work without com.palm.blarg
+	
 	var request = new Mojo.Service.Request('palm://com.palm.vm', {
 		method:      'launch',
 		parameters:	{

@@ -1,6 +1,10 @@
-function AppViewAssistant(item)
+function AppViewAssistant(item, listAssistant)
 {
+	// item of the list that was tapped
 	this.item = item;
+	
+	// assistant of parent list scene
+	this.listAssistant = listAssistant;
 	
 	// setup command menu
 	this.cmdMenuModel =
@@ -21,15 +25,26 @@ AppViewAssistant.prototype.setup = function()
 	// setup app title
 	this.controller.get('appTitle').innerHTML = this.item.Description;
 	
-	// temporary print app data
-	var appData = 'Package: ' + this.item.Package + '<br/>\
-				   Version: ' + this.item.Version + '<br/>\
-				   Section: ' + this.item.Section.substr(0, 1).toUpperCase() + this.item.Section.substr(1) + '<br/>\
-				   Maintainer: ' + this.item.Maintainer;
+	
+	// build appData
+	var appData = '';
+	var dataTemplate = 'app-view/dataRow';
+	appData += Mojo.View.render({object: {title: 'Package', data: this.item.Package}, template: dataTemplate});
+	if (this.item.SourceObj != undefined && this.item.SourceObj['Last-Updated'])
+	{
+		appData += Mojo.View.render({object: {title: 'Last Update', data: this.formatDate(this.item.SourceObj['Last-Updated'])}, template: dataTemplate});
+	}
+	appData += Mojo.View.render({object: {title: 'Version', data: this.item.Version}, template: dataTemplate});
+	appData += Mojo.View.render({object: {title: 'Download Size', data: this.formatSize(this.item.Size)}, template: dataTemplate});
+	//appData += Mojo.View.render({object: {title: 'Section', data: this.item.Section.substr(0, 1).toUpperCase() + this.item.Section.substr(1)}, template: dataTemplate});
+	appData += Mojo.View.render({object: {title: 'Maintainer', data: this.item.Maintainer}, template: dataTemplate});
 	if (this.item.SourceObj != undefined && this.item.SourceObj.Homepage)
 	{
-		appData += '<br/>Homepage: <a href="' + this.item.SourceObj.Homepage + '">Link</a>';
+		appData += Mojo.View.render({object: {title: 'Homepage', data: '<a href="' + this.item.SourceObj.Homepage + '">Link</a>'}, template: dataTemplate});
 	}
+	
+	
+	// fillin the div
 	this.controller.get('appData').innerHTML = appData;
 }
 
@@ -42,12 +57,14 @@ AppViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// what do the old ladies know?
 	//this.cmdMenuModel.items.push({label: $L('Back'), icon:'back', command: 'back'});
 	
+	// this is to put space around the icons
+	this.cmdMenuModel.items.push({});
+	
 	// if update, push button
 	if (this.item.Update)
 	{
 		this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-update'});
 	}
-	
 	// if installed, push remove button 
 	if (this.item.Installed)
 	{
@@ -58,6 +75,9 @@ AppViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	{
 		this.cmdMenuModel.items.push({label: $L('Install'), command: 'do-install'});
 	}
+	
+	// this is to put space around the icons
+	this.cmdMenuModel.items.push({});
 	
 	// push info button to items array
 	// hide this for now
@@ -156,6 +176,9 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 			apps[this.item.appNum].Update = false;
 			this.item.Update = false;
 			
+			// tell the list assistant it should reload the list when we return to it
+			this.listAssistant.setReload();
+			
 			// rescan luna to show or hide the app
 			IPKGService.rescan(function(){});
 			
@@ -166,7 +189,7 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 	
 	// show message
 	this.serviceMessage(msg);
-			
+	
 	// update command menu
 	this.updateCommandMenu();
 }
@@ -196,6 +219,9 @@ AppViewAssistant.prototype.onInstall = function(payload)
 			// update global and local info
 			apps[this.item.appNum].Installed = true;
 			this.item.Installed = true;
+			
+			// tell the list assistant it should reload the list when we return to it
+			this.listAssistant.setReload();
 			
 			// rescan luna to show or hide the app
 			IPKGService.rescan(function(){});
@@ -240,6 +266,9 @@ AppViewAssistant.prototype.onRemove = function(payload)
 			this.item.Update = false;
 			this.item.Installed = false;
 			
+			// tell the list assistant it should reload the list when we return to it
+			this.listAssistant.setReload();
+			
 			// rescan luna to show or hide the app
 			IPKGService.rescan(function(){});
 			
@@ -263,6 +292,53 @@ AppViewAssistant.prototype.serviceMessage = function(message)
 	    message: message,
 	    choices:[{label:$L('Ok'), value:""}]
     });
+}
+
+AppViewAssistant.prototype.formatDate = function(date)
+{
+	var dateObj = new Date(date * 1000);
+	var toReturn = '';
+	var pm = false;
+	
+	toReturn += (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '/' + dateObj.getFullYear() + ' ';
+	
+	if (dateObj.getHours() > 12) pm = true;
+	
+	if (!pm)
+	{
+		toReturn += dateObj.getHours() + ':';
+		if (dateObj.getMinutes() < 10) toReturn += '0'
+		toReturn += dateObj.getMinutes() + ' AM';
+	}
+	else
+	{
+		toReturn += (dateObj.getHours() - 12) + ':';
+		if (dateObj.getMinutes() < 10) toReturn += '0'
+		toReturn += dateObj.getMinutes() + ' PM';
+	}
+	
+	return toReturn;
+}
+
+AppViewAssistant.prototype.formatSize = function(size)
+{
+	var toReturn = size + ' B';
+	var formatSize = size;
+	
+	if (formatSize > 1024)
+	{
+		formatSize = (Math.round((size / 1024) * 100) / 100);
+		toReturn = formatSize + ' KB';
+	}
+	if (formatSize > 1024)
+	{
+		formatSize = (Math.round((size / 1024) * 100) / 100);
+		toReturn = formatSize + ' MB';
+	}
+	// I don't think we need to worry about GB here...
+	
+	// return formatted size
+	return toReturn;
 }
 
 AppViewAssistant.prototype.reScan = function()

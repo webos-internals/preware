@@ -67,9 +67,13 @@ MainAssistant.prototype.setup = function()
 	// hide the list while we update ipkg
 	this.controller.get('mainList').style.display = "none";
 	
-	// start with starting the service
-	this.controller.get('spinnerStatus').innerHTML = "Starting Service";
-	IPKGService.info(this.onStart.bindAsEventListener(this));
+	// start with checking the internet connection
+	this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
+	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
+	    method: 'getstatus',
+	    onSuccess: this.onConnection.bindAsEventListener(this),
+	    onFailure: this.onConnection.bindAsEventListener(this)
+	});
 }
 
 MainAssistant.prototype.listTapHandler = function(event)
@@ -83,32 +87,6 @@ MainAssistant.prototype.listTapHandler = function(event)
 		// push the scene
 		this.controller.stageController.pushScene(event.item.scene, event.item);
 	}
-}
-
-MainAssistant.prototype.onStart = function(payload)
-{
-	//alert(payload);
-	for (test in payload)
-	{
-		alert(test +' - '+ payload[test]);
-	}
-	
-	if (payload && payload.returnValue === false)
-	{
-		//Mojo.Controller.errorDialog('Unable to Start Service.');
-		//this.hideSpinner();
-	}
-	else
-	{
-		// check internet connection
-		this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
-		this.controller.serviceRequest('palm://com.palm.connectionmanager', {
-		    method: 'getstatus',
-		    onSuccess: this.onConnection.bindAsEventListener(this),
-		    onFailure: this.onConnection.bindAsEventListener(this)
-		});
-	}
-	
 }
 
 MainAssistant.prototype.onConnection = function(response)
