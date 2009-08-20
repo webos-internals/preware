@@ -36,7 +36,7 @@ AppViewAssistant.prototype.setup = function()
 	}
 	appData += Mojo.View.render({object: {title: 'Version', data: this.item.Version}, template: dataTemplate});
 	appData += Mojo.View.render({object: {title: 'Download Size', data: this.formatSize(this.item.Size)}, template: dataTemplate});
-	//appData += Mojo.View.render({object: {title: 'Section', data: this.item.Section.substr(0, 1).toUpperCase() + this.item.Section.substr(1)}, template: dataTemplate});
+	appData += Mojo.View.render({object: {title: 'Section', data: this.item.Section}, template: dataTemplate});
 	appData += Mojo.View.render({object: {title: 'Maintainer', data: this.item.Maintainer}, template: dataTemplate});
 	if (this.item.SourceObj != undefined && this.item.SourceObj.Homepage)
 	{

@@ -356,7 +356,7 @@ AppListAssistant.prototype.menuTapHandler = function(event)
 	{
 		categoryMenu.push(
 		{
-			label: cats[c].name.substr(0, 1).toUpperCase() + cats[c].name.substr(1),
+			label: cats[c].name,
 			command: cats[c].name
 		});
 	}

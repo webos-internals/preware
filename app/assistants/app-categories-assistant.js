@@ -11,7 +11,7 @@ AppCategoriesAssistant.prototype.setup = function()
 	{
 		this.categoryModel.items.push(
 		{
-			name: cats[c].name.substr(0, 1).toUpperCase() + cats[c].name.substr(1),
+			name: cats[c].name,
 			count: cats[c].count
 		});
 	}
@@ -23,7 +23,7 @@ AppCategoriesAssistant.prototype.setup = function()
 
 AppCategoriesAssistant.prototype.listTapHandler = function(event)
 {
-	this.controller.stageController.pushScene('app-list', {list: 'category', category: event.item.name.toLowerCase(), name: "WebOS Applications"});
+	this.controller.stageController.pushScene('app-list', {list: 'category', category: event.item.name, name: "WebOS Applications"});
 }
 
 
