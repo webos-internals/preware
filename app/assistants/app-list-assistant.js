@@ -375,7 +375,7 @@ AppListAssistant.prototype.menuTapHandler = function(event)
 			}
 			else
 			{
-				this.controller.stageController.swapScene('app-list', {list: 'category', category: value.toLowerCase(), name: "WebOS Applications"});
+				this.controller.stageController.swapScene('app-list', {list: 'category', category: value, name: "WebOS Applications"});
 				return;
 			}
 			
