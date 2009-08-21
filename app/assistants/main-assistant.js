@@ -12,6 +12,9 @@ function MainAssistant()
 		'The Most Applications Available'
 	];
 	
+	// holds the update cookie
+	//updateCookie: false,
+	
 	// main list model
 	this.mainModel = 
 	{
@@ -140,6 +143,12 @@ MainAssistant.prototype.onInfo = function(payload)
 			if (payload.info[x].Source != undefined && payload.info[x].Source.include('{')) 
 			{
 				payload.info[x].SourceObj = JSON.parse(payload.info[x].Source);
+				
+				// if the source object has a category, put it in the section field
+				if (payload.info[x].SourceObj.Category)
+				{
+					payload.info[x].Section = payload.info[x].SourceObj.Category;
+				}
 			}
 			
 			var appNum = this.appInList(payload.info[x].Package);
@@ -160,22 +169,9 @@ MainAssistant.prototype.onInfo = function(payload)
 				
 				// add this package to global app list
 				apps.push(payload.info[x]);
-				
-				// add this packages category to global category list
-				var catNum = this.catInList(payload.info[x].Section);
-				if (catNum === false) 
-				{
-					// push new category
-					cats.push({name: payload.info[x].Section, count: 1});
-				}
-				else
-				{
-					// increment category count
-					cats[catNum].count++;
-				}
 			}
 			else
-			{				
+			{
 				// check if its newer
 				var newer = this.versionNewer(apps[appNum].Version, payload.info[x].Version);
 				
@@ -212,17 +208,38 @@ MainAssistant.prototype.onInfo = function(payload)
 			}
 		}
 		
-		// sort the packages and categories
+		// sort the packages
 		apps.sort(function(a, b)
 		{
 			if (a.Description && b.Description) return ((a.Description.toLowerCase() < b.Description.toLowerCase()) ? -1 : ((a.Description.toLowerCase() > b.Description.toLowerCase()) ? 1 : 0));
 			else return -1;
 		});
+		
+		
+		// add package categorys to global category list
+		for (var a = 0; a < apps.length; a++) 
+		{
+			var catNum = this.catInList(apps[a].Section);
+			if (catNum === false) 
+			{
+				// push new category
+				cats.push({name: apps[a].Section, count: 1});
+			}
+			else
+			{
+				// increment category count
+				cats[catNum].count++;
+			}
+		}
+		
+		// sort categories
 		cats.sort(function(a, b)
 		{
-			if (a.name && b.name) return ((a.name < b.name) ? -1 : ((a.name > b.name) ? 1 : 0));
+			// this needs to be lowercase for sorting.
+			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
 			else return -1;
 		});
+		
 		
 		// update the list
 		this.updateList();
@@ -242,7 +259,7 @@ MainAssistant.prototype.updateList = function()
 	this.mainModel.items[3].style = 'disabled';
 	this.mainModel.items[3].appCount = 0;
 	
-	// loop through apps to build counts
+	// loop through apps to build counts for the list
 	if (apps.length > 0)
 	{
 		for (var a = 0; a < apps.length; a++) 

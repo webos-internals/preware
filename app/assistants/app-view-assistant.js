@@ -20,7 +20,7 @@ AppViewAssistant.prototype.setup = function()
 	this.updateCommandMenu(true);
 	
 	// setup command menu widget
-	this.controller.setupWidget(Mojo.Menu.commandMenu, undefined, this.cmdMenuModel);
+	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
 	
 	// setup app title
 	this.controller.get('appTitle').innerHTML = this.item.Description;
@@ -36,7 +36,7 @@ AppViewAssistant.prototype.setup = function()
 	}
 	appData += Mojo.View.render({object: {title: 'Version', data: this.item.Version}, template: dataTemplate});
 	appData += Mojo.View.render({object: {title: 'Download Size', data: this.formatSize(this.item.Size)}, template: dataTemplate});
-	appData += Mojo.View.render({object: {title: 'Section', data: this.item.Section}, template: dataTemplate});
+	appData += Mojo.View.render({object: {title: 'Category', data: this.item.Section}, template: dataTemplate});
 	appData += Mojo.View.render({object: {title: 'Maintainer', data: this.item.Maintainer}, template: dataTemplate});
 	if (this.item.SourceObj != undefined && this.item.SourceObj.Homepage)
 	{

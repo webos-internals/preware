@@ -9,12 +9,31 @@ function AppListAssistant(item, searchText, currentSort)
 	// holds the model that has been filtered for use by the list
 	this.listModel = {items:[]};
 	
+	// setup command menu
+	this.cmdMenuModel =
+	{
+		label: $L('Menu'), 
+		items: []
+	};
+	
 	// holds the search 
 	this.searchTimer = false;
 	this.searchText = (searchText ? searchText : '');
 	
-	// holds what our current sort direction is
-	this.currentSort = (currentSort ? currentSort : 'date');
+	// store what our current sort direction is
+	if (currentSort)
+	{
+		this.currentSort = currentSort;
+	}
+	else
+	{
+		// category and installed list get alphabetical default
+		if (this.item.list == 'category' || this.item.list == 'installed') this.currentSort = 'alpha';
+		// updates list and all get date default
+		else if (this.item.list == 'updates' || this.item.list == 'all') this.currentSort = 'date';
+		// if anything else default to alphabetical (though, this should never happen)
+		else this.currentSort = 'alpha';
+	}
 	
 	// the app view will update this if the app is changed so the list knows when to update on activation
 	this.reloadList = false;
@@ -24,23 +43,6 @@ AppListAssistant.prototype.setup = function()
 {
 	// setup list title
 	this.controller.get('listTitle').innerHTML = this.item.name;
-	
-	// Set up a command menu
-    this.sortModel = 
-	{
-		items: [
-			{},
-			{
-				items: [{icon: "icon-filter-alpha", command: 'alpha'},
-						{icon: "icon-filter-date",  command: 'date'}],
-				toggleCmd: this.currentSort
-			},
-			{}
-		]
-	};
-	
-	// setup sort command menu widget
-	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade', }, this.sortModel);
 	
 	// change scene if this is a single category
 	if (this.item.list == 'category')
@@ -62,6 +64,12 @@ AppListAssistant.prototype.setup = function()
 	
 	// listen for list tap
 	Mojo.Event.listen(this.controller.get('appList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+	
+	// Set up a command menu
+	this.updateCommandMenu(true);
+	
+	// setup sort command menu widget
+	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
 	
 	// search spinner model
 	this.spinnerModel = {spinning: false};
@@ -102,6 +110,38 @@ AppListAssistant.prototype.setup = function()
 	}
 	
 }
+
+AppListAssistant.prototype.updateCommandMenu = function(skipUpdate)
+{
+	
+	// clear current model list
+	this.cmdMenuModel.items = [];
+	
+	// this is to put space around the icons
+	this.cmdMenuModel.items.push({});
+	
+	// if updates, lets push the update all button
+	if (this.item.list == 'updates' && this.listModel.items.length > 1) 
+	{
+		this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
+	}
+	
+	// push the sort selector
+	this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}], toggleCmd: this.currentSort});
+	
+	// this is to put space around the icons
+	this.cmdMenuModel.items.push({});
+	
+	// if we don't want to skip the update, update it
+	if (!skipUpdate)
+	{
+		// update model
+		this.controller.modelChanged(this.cmdMenuModel);
+		
+		// show the menu
+		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
+	}
+}	
 
 AppListAssistant.prototype.keyTest = function(event)
 {
@@ -296,6 +336,14 @@ AppListAssistant.prototype.handleCommand = function(event)
 				this.currentSort = event.command;
 				this.controller.stageController.swapScene('app-list', this.item, this.searchText, this.currentSort);
 				break;
+			case 'do-updateAll':
+				this.controller.showAlertDialog({
+				    onChoose: function(value) {},
+				    title: $L("Update All"),
+				    message: 'This Does Nothing Yet!',
+				    choices:[{label:$L('Ok'), value:""}]
+			    });
+				break;
 				
 			default:
 				break;
@@ -396,6 +444,7 @@ AppListAssistant.prototype.activate = function(event)
 	if (this.reloadList) 
 	{
 		this.updateList();
+		this.updateCommandMenu();
 	}
 }
 

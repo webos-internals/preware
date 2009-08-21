@@ -16,5 +16,9 @@
     {
         "source": "app\/assistants\/app-categories-assistant.js",
         "scenes": "app-categories"
+    },
+    {
+        "source": "app\/assistants\/preferences-assistant.js",
+        "scenes": "preferences"
     }
 ]

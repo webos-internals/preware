@@ -105,6 +105,11 @@
 /*
  * App Category List Styles
  */
+.app-categories #categoryList .title
+{
+	text-transform: capitalize;
+}
+
 
 
 /*
@@ -165,7 +170,7 @@
 	background: transparent;
 	display:inline-block;
 	min-width: 12px;
-	max-width: 120px;
+	max-width: 85px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
