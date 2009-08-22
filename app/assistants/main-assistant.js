@@ -86,7 +86,7 @@ MainAssistant.prototype.setup = function()
 			visible: true,
 			items: [
 		            {label: "Update Feeds", command: 'do-update'},
-		            { label: "Options...", command: 'do-options' },
+		            { label: "Preferences...", command: 'do-prefs' },
 			        ]
 	}
 	
@@ -374,7 +374,7 @@ MainAssistant.prototype.handleCommand = function(event)
 		case 'do-update':
 			break;
 
-		case 'do-options':
+		case 'do-prefs':
 			break;
 
 		}
