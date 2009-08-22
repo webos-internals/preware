@@ -85,7 +85,7 @@ MainAssistant.prototype.setup = function()
 	var menuModel = {
 			visible: true,
 			items: [
-		            {label: "Update", command: 'do-update'},
+		            {label: "Update Feeds", command: 'do-update'},
 		            { label: "Options...", command: 'do-options' },
 			        ]
 	}
