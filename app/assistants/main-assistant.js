@@ -77,6 +77,20 @@ MainAssistant.prototype.setup = function()
 	    onSuccess: this.onConnection.bindAsEventListener(this),
 	    onFailure: this.onConnection.bindAsEventListener(this)
 	});
+	
+	var menuAttributes = {
+            omitDefaultItems: true
+	}
+
+	var menuModel = {
+			visible: true,
+			items: [
+		            {label: "Update", command: 'do-update'},
+		            { label: "Options...", command: 'do-options' },
+			        ]
+	}
+	
+	this.controller.setupWidget(Mojo.Menu.appMenu, menuAttributes, menuModel);
 }
 
 MainAssistant.prototype.listTapHandler = function(event)
@@ -348,6 +362,25 @@ MainAssistant.prototype.activate = function(event)
 {
 	// something may have been updated/installed/removed so lets update the list
 	this.updateList();
+}
+
+MainAssistant.prototype.handleCommand = function(event)
+{
+
+	if (event.type == Mojo.Event.command) {
+
+		switch (event.command) {
+
+		case 'do-update':
+			break;
+
+		case 'do-options':
+			break;
+
+		}
+
+	}
+
 }
 
 MainAssistant.prototype.deactivate = function(event) {}
