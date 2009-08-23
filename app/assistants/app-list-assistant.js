@@ -266,6 +266,7 @@ AppListAssistant.prototype.updateList = function(skipUpdate)
 	// build list from global array
 	for (var a = 0; a < apps.length; a++) 
 	{
+		// default to not pusing it
 		var pushIt = false;
 		
 		// all
@@ -289,10 +290,24 @@ AppListAssistant.prototype.updateList = function(skipUpdate)
 			// add the appNum so we can update it when changed by the view scene
 			tmpApp.appNum = a;
 			
+			// set this to nothing so we can fill it in later
+			tmpApp.RowClass = '';
+			
 			if (tmpApp.SourceObj != undefined && tmpApp.SourceObj.Icon)
 			{
-				tmpApp.ListIconClass = 'img';
+				tmpApp.RowClass += ' img';
 				tmpApp.ListIconImg = '<img src="' + tmpApp.SourceObj.Icon + '" />';
+			}
+			
+			if (tmpApp.Installed && !tmpApp.Update &&
+				this.item.list != 'updates' &&
+				this.item.list != 'installed') 
+			{
+				tmpApp.RowClass += ' installed';
+			}
+			if (tmpApp.Update && this.item.list != 'updates') 
+			{
+				tmpApp.RowClass += ' update';
 			}
 			
 			// push
@@ -300,6 +315,13 @@ AppListAssistant.prototype.updateList = function(skipUpdate)
 		}
 	}
 	
+	// if there are no apps to list, pop the scene (later, we may replace this with a "nothing to list" message)
+	if (this.apps.length < 1)
+	{
+		this.controller.stageController.popScene();
+	}
+	
+	// apps are sorted alphabetically by deafult, if the current sort is date, run the sort function.
 	if (this.currentSort == 'date') 
 	{
 		this.apps.sort(function(a, b)
