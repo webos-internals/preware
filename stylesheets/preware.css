@@ -73,6 +73,14 @@
 	padding-top: 5px;
 	padding-bottom: 0px;
 }
+.main .palm-page-header-wrapper .title.version
+{
+	font-size: 12px;
+	top: 11px;
+	left: 115px;
+	position: absolute;
+	text-transform: lowercase;
+}
 .main .palm-page-header-wrapper .title.sub
 {
 	font-size: 14px;

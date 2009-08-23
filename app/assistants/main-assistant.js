@@ -60,6 +60,9 @@ MainAssistant.prototype.setup = function()
 	// set random subtitle
 	this.controller.get('subTitle').innerHTML = this.randomSub[Math.floor(Math.random() * this.randomSub.length)];
 	
+	// set version string
+	this.controller.get('version').innerHTML = "v" + Mojo.Controller.appInfo.version;
+	
 	// setup spinner model
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
 	
