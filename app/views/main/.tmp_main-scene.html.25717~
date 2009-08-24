@@ -1,0 +1,22 @@
+<div class="main">
+	
+	<div class="palm-page-header multi-line">
+		<div class="palm-page-header-wrapper">
+			<div class="icon"></div>
+			<div class="title main">
+				Preware
+				<span class="version" id="version">v0.0.0</span>
+			</div>
+			<div class="title sub" id="subTitle">The Open Source Installer</div>
+		</div>
+	</div>
+	
+	<div x-mojo-element="Spinner" id="spinner">
+		<div id="spinnerStatus">Starting</div>
+	</div>
+	
+	<div class="palm-list" id="list">
+		<div id="mainList" x-mojo-element="List"></div>
+	</div>
+	
+</div>
