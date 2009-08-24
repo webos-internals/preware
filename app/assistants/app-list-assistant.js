@@ -263,57 +263,8 @@ AppListAssistant.prototype.updateList = function(skipUpdate)
 	// clear the current list
 	this.apps = [];
 	
-	// build list from global array
-	for (var a = 0; a < apps.length; a++) 
-	{
-		// default to not pusing it
-		var pushIt = false;
-		
-		// all
-		if (this.item.list == 'all') pushIt = true;
-		
-		// updates
-		if (this.item.list == 'updates' && apps[a].Update) pushIt = true;
-		
-		// installed
-		if (this.item.list == 'installed' && apps[a].Installed) pushIt = true;
-		
-		// category
-		if (this.item.list == 'category' && this.item.category == apps[a].Section) pushIt = true;
-		
-		// push it to the list if we should
-		if (pushIt) 
-		{
-			// check for icon in SourceObj
-			var tmpApp = apps[a];
-			
-			// add the appNum so we can update it when changed by the view scene
-			tmpApp.appNum = a;
-			
-			// set this to nothing so we can fill it in later
-			tmpApp.RowClass = '';
-			
-			if (tmpApp.SourceObj != undefined && tmpApp.SourceObj.Icon)
-			{
-				tmpApp.RowClass += ' img';
-				tmpApp.ListIconImg = '<img src="' + tmpApp.SourceObj.Icon + '" />';
-			}
-			
-			if (tmpApp.Installed && !tmpApp.Update &&
-				this.item.list != 'updates' &&
-				this.item.list != 'installed') 
-			{
-				tmpApp.RowClass += ' installed';
-			}
-			if (tmpApp.Update && this.item.list != 'updates') 
-			{
-				tmpApp.RowClass += ' update';
-			}
-			
-			// push
-			this.apps.push(tmpApp);
-		}
-	}
+	// load app list
+	this.apps = packages.getApps(this.item);
 	
 	// if there are no apps to list, pop the scene (later, we may replace this with a "nothing to list" message)
 	if (this.apps.length < 1)
