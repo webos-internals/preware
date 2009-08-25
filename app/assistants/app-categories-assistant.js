@@ -7,12 +7,12 @@ function AppCategoriesAssistant(item)
 AppCategoriesAssistant.prototype.setup = function()
 {
 	// build category model
-	for (var c = 0; c < cats.length; c++) 
+	for (var c = 0; c < packages.categories.length; c++) 
 	{
 		this.categoryModel.items.push(
 		{
-			name: cats[c].name,
-			count: cats[c].count
+			name: packages.categories[c].name,
+			count: packages.categories[c].count
 		});
 	}
 	

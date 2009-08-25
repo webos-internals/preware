@@ -1,5 +1,7 @@
 [
     {"source": "app\/assistants\/app-assistant.js"},
+    {"source": "app\/models\/IPKGService.js"},
+    {"source": "app\/models\/items.js"},
     {
         "source": "app\/assistants\/main-assistant.js",
         "scenes": "main"
@@ -12,7 +14,6 @@
         "source": "app\/assistants\/app-view-assistant.js",
         "scenes": "app-view"
     },
-    {"source": "app\/models\/IPKGService.js"},
     {
         "source": "app\/assistants\/app-categories-assistant.js",
         "scenes": "app-categories"

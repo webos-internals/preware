@@ -1,6 +1,5 @@
-// global arrays
-var apps = [];
-var cats = [];
+// global items object
+var packages = new packageModel();
 
 function MainAssistant()
 {
@@ -60,6 +59,9 @@ MainAssistant.prototype.setup = function()
 	// set random subtitle
 	this.controller.get('subTitle').innerHTML = this.randomSub[Math.floor(Math.random() * this.randomSub.length)];
 	
+	// set version string
+	this.controller.get('version').innerHTML = "v" + Mojo.Controller.appInfo.version;
+	
 	// setup spinner model
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
 	
@@ -77,20 +79,24 @@ MainAssistant.prototype.setup = function()
 	    onSuccess: this.onConnection.bindAsEventListener(this),
 	    onFailure: this.onConnection.bindAsEventListener(this)
 	});
-	
-	var menuAttributes = {
-            omitDefaultItems: true
-	}
 
-	var menuModel = {
-			visible: true,
-			items: [
-		            {label: "Update Feeds", command: 'do-update'},
-		            { label: "Preferences...", command: 'do-prefs' },
-			        ]
+	// setup menu model
+	var menuModel =
+	{
+		visible: true,
+		items: [
+		{
+			label: "Update Feeds",
+			command: 'do-update'
+		},
+		{
+			label: "Preferences...",
+			command: 'do-prefs'
+		}]
 	}
 	
-	this.controller.setupWidget(Mojo.Menu.appMenu, menuAttributes, menuModel);
+	// setup widget
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
 }
 
 MainAssistant.prototype.listTapHandler = function(event)
@@ -150,110 +156,8 @@ MainAssistant.prototype.onInfo = function(payload)
 	}
 	else
 	{
-		for (var x = 0; x < payload.info.length; x++)
-		{
-			// check if Source is json object
-			// basically, if it has a { in it, we'll assume its json data
-			if (payload.info[x].Source != undefined && payload.info[x].Source.include('{')) 
-			{
-				payload.info[x].SourceObj = JSON.parse(payload.info[x].Source);
-				
-				// if the source object has a category, put it in the section field
-				if (payload.info[x].SourceObj.Category)
-				{
-					payload.info[x].Section = payload.info[x].SourceObj.Category;
-				}
-			}
-			
-			var appNum = this.appInList(payload.info[x].Package);
-			if (appNum === false) 
-			{
-				// add install variable
-				if (payload.info[x].Status.include('not-installed')) 
-				{
-					payload.info[x].Installed = false;
-				}
-				else 
-				{
-					payload.info[x].Installed = true;
-				}
-				
-				// add default no-update
-				payload.info[x].Update = false;
-				
-				// add this package to global app list
-				apps.push(payload.info[x]);
-			}
-			else
-			{
-				// check if its newer
-				var newer = this.versionNewer(apps[appNum].Version, payload.info[x].Version);
-				
-				// if they're both not installed, and this is newer, replace the old one
-				if (payload.info[x].Status.include('not-installed') &&
-					apps[appNum].Status.include('not-installed') &&
-					newer)
-				{
-					apps[appNum] = payload.info[x];
-					continue;
-				}
-				
-				// if the new one is not installed and the old one is, and its older, update the old one
-				if (!payload.info[x].Status.include('not-installed') &&
-					apps[appNum].Status.include('not-installed') &&
-					!newer)
-				{
-					apps[appNum].Installed = true;
-					apps[appNum].Update = true;
-					apps[appNum].VersionOld = payload.info[x].Version;
-					continue;
-				}
-				
-				// if the new one is not installed but the old one is, and this is newer, replace the old one
-				if (!payload.info[x].Status.include('not-installed') &&
-					apps[appNum].Status.include('not-installed') &&
-					newer)
-				{
-					payload.info[x].Installed = true;
-					payload.info[x].Update = false;
-					apps[appNum] = payload.info[x];
-					continue;
-				}
-			}
-		}
-		
-		// sort the packages
-		apps.sort(function(a, b)
-		{
-			if (a.Description && b.Description) return ((a.Description.toLowerCase() < b.Description.toLowerCase()) ? -1 : ((a.Description.toLowerCase() > b.Description.toLowerCase()) ? 1 : 0));
-			else return -1;
-		});
-		
-		
-		// add package categorys to global category list
-		for (var a = 0; a < apps.length; a++) 
-		{
-			var catNum = this.catInList(apps[a].Section);
-			if (catNum === false) 
-			{
-				// push new category
-				cats.push({name: apps[a].Section, count: 1});
-			}
-			else
-			{
-				// increment category count
-				cats[catNum].count++;
-			}
-		}
-		
-		// sort categories
-		cats.sort(function(a, b)
-		{
-			// this needs to be lowercase for sorting.
-			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
-			else return -1;
-		});
-		
+		// send payload to items object
+		packages.load(payload);
 		
 		// update the list
 		this.updateList();
@@ -274,15 +178,15 @@ MainAssistant.prototype.updateList = function()
 	this.mainModel.items[3].appCount = 0;
 	
 	// loop through apps to build counts for the list
-	if (apps.length > 0)
+	if (packages.apps.length > 0)
 	{
-		for (var a = 0; a < apps.length; a++) 
+		for (var a = 0; a < packages.apps.length; a++) 
 		{
-			if (apps[a].Update)
+			if (packages.apps[a].Update)
 			{
 				this.addAppToList(0);
 			}
-			if (apps[a].Installed)
+			if (packages.apps[a].Installed)
 			{
 				this.addAppToList(3);
 			}
@@ -300,51 +204,6 @@ MainAssistant.prototype.addAppToList = function(id)
 {
 	this.mainModel.items[id].style = 'showCount';
 	this.mainModel.items[id].appCount++;
-}
-
-// determines if one version number is newer then the other.
-MainAssistant.prototype.versionNewer = function(one, two)
-{
-	// if one >= two returns false
-	// if one < two returns true
-	var v1 = one.split('.');
-	var v2 = two.split('.');
-	if (parseInt(v2[0]) > parseInt(v1[0])) return true; 
-	else if (parseInt(v2[0]) == parseInt(v1[0]) && parseInt(v2[1]) > parseInt(v1[1])) return true;
-	else if (parseInt(v2[0]) == parseInt(v1[0]) && parseInt(v2[1]) == parseInt(v1[1]) && parseInt(v2[2]) > parseInt(v1[2])) return true;
-	return false;
-}
-
-// for checking if a package is already in the global list
-MainAssistant.prototype.appInList = function(pkg)
-{
-	if (apps.length > 0)
-	{
-		for (var a = 0; a < apps.length; a++)
-		{
-			if (apps[a].Package == pkg) 
-			{
-				return a;
-			}
-		}
-	}
-	return false;
-}
-
-// for checking if a category is already in the global list
-MainAssistant.prototype.catInList = function(cat)
-{
-	if (cats.length > 0) 
-	{
-		for (var c = 0; c < cats.length; c++) 
-		{
-			if (cats[c].name == cat) 
-			{
-				return c;
-			}
-		}
-	}
-	return false;
 }
 
 // stops the spinner and displays the list

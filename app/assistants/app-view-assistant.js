@@ -173,7 +173,7 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 			//console.log('updated');
 
 			// update global and local info
-			apps[this.item.appNum].Update = false;
+			packages.apps[this.item.appNum].Update = false;
 			this.item.Update = false;
 			
 			// tell the list assistant it should reload the list when we return to it
@@ -217,7 +217,7 @@ AppViewAssistant.prototype.onInstall = function(payload)
 			//console.log('installed');
 			
 			// update global and local info
-			apps[this.item.appNum].Installed = true;
+			packages.apps[this.item.appNum].Installed = true;
 			this.item.Installed = true;
 			
 			// tell the list assistant it should reload the list when we return to it
@@ -261,8 +261,8 @@ AppViewAssistant.prototype.onRemove = function(payload)
 			//console.log('removed');
 			
 			// update global and local info
-			apps[this.item.appNum].Update = false;
-			apps[this.item.appNum].Installed = false;
+			packages.apps[this.item.appNum].Update = false;
+			packages.apps[this.item.appNum].Installed = false;
 			this.item.Update = false;
 			this.item.Installed = false;
 			

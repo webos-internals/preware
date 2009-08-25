@@ -73,6 +73,12 @@
 	padding-top: 5px;
 	padding-bottom: 0px;
 }
+.main .palm-page-header-wrapper .title .version
+{
+	font-size: 12px;
+	color: #888;
+	text-transform: lowercase;
+}
 .main .palm-page-header-wrapper .title.sub
 {
 	font-size: 14px;
@@ -186,18 +192,36 @@
 	position: absolute;
 	width: 48px;
 	height: 48px;
-	background: url(../icon.png) center center no-repeat;
-	top: 4px;
+	background: url(../images/noIcon.png) center center no-repeat;
+	top: 3px;
 	left: 4px;
 }
-.app-list .palm-row-wrapper .icon.img
+.app-list .palm-row-wrapper.img .icon
 {
 	background: none;
 }
-.app-list .palm-row-wrapper .icon.img img
+.app-list .palm-row-wrapper.img .icon img
 {
 	width: 48px;
 	height: 48px;
+}
+.app-list .palm-row-wrapper.installed .icon .sub
+{
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	top: 0px;
+	left: 32px;
+	background: url(../images/icon_installed.png) center center no-repeat;
+}
+.app-list .palm-row-wrapper.update .icon .sub
+{
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	top: 0px;
+	left: 32px;
+	background: url(../images/icon_updates.png) center center no-repeat;
 }
 .app-list .palm-row-wrapper .title
 {
