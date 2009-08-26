@@ -327,12 +327,12 @@ AppViewAssistant.prototype.formatSize = function(size)
 	
 	if (formatSize > 1024)
 	{
-		formatSize = (Math.round((size / 1024) * 100) / 100);
+		formatSize = (Math.round((formatSize / 1024) * 100) / 100);
 		toReturn = formatSize + ' KB';
 	}
 	if (formatSize > 1024)
 	{
-		formatSize = (Math.round((size / 1024) * 100) / 100);
+		formatSize = (Math.round((formatSize / 1024) * 100) / 100);
 		toReturn = formatSize + ' MB';
 	}
 	// I don't think we need to worry about GB here...
