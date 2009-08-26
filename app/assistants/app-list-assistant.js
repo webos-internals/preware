@@ -373,12 +373,12 @@ AppListAssistant.prototype.menuTapHandler = function(event)
 {
 	// build category list model
 	var categoryMenu = [];
-	for (var c = 0; c < cats.length; c++) 
+	for (var c = 0; c < packages.categories.length; c++) 
 	{
 		categoryMenu.push(
 		{
-			label: cats[c].name,
-			command: cats[c].name
+			label: packages.categories[c].name,
+			command: packages.categories[c].name
 		});
 	}
 	
@@ -401,6 +401,7 @@ AppListAssistant.prototype.menuTapHandler = function(event)
 			}
 			
 		},
+		popupClass: 'category-popup',
 		toggleCmd: this.item.category,
 		placeNear: event.target,
 		items: categoryMenu

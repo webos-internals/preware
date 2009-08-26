@@ -244,6 +244,11 @@
 	top: 30px;
 	font-size: 14px;
 }
+.category-popup.palm-popup-container
+{
+	text-transform: capitalize;
+}
+/* these would be sub of .app-list, but the commandmenu isn't part of that div */
 .icon-filter-date
 {
 	background:url(../images/icon_date.png) top center no-repeat;

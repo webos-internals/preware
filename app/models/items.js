@@ -6,6 +6,10 @@ function packageModel()
 
 packageModel.prototype.load = function(payload)
 {
+	// clear out our current data (incase this is a re-update)
+	this.apps = [];
+	this.categories = [];
+	
 	for (var x = 0; x < payload.info.length; x++)
 	{
 		// check if Source is json object
