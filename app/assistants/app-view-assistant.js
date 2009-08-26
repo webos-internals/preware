@@ -118,7 +118,7 @@ AppViewAssistant.prototype.handleCommand = function(event)
 				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 				
 				// call install service
-				IPKGService.install(this.onUpdate.bindAsEventListener(this), this.item.Package);
+				IPKGService.install(this.onUpdate.bindAsEventListener(this), this.item.Package, this.item.Description);
 				break;
 				
 			// install
@@ -127,7 +127,7 @@ AppViewAssistant.prototype.handleCommand = function(event)
 				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 				
 				// call install service
-				this.installSubscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.item.Package);
+				this.installSubscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.item.Package, this.item.Description);
 				break;
 				
 			// remove
@@ -136,7 +136,7 @@ AppViewAssistant.prototype.handleCommand = function(event)
 				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 				
 				// call remove service
-				this.removeSubscription = IPKGService.remove(this.onRemove.bindAsEventListener(this), this.item.Package);
+				this.removeSubscription = IPKGService.remove(this.onRemove.bindAsEventListener(this), this.item.Package, this.item.Description);
 				break;
 				
 			// info popup
