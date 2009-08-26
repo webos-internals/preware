@@ -86,7 +86,7 @@ IPKGService.info = function(callback, pkg) {
 IPKGService.install = function(callback, pkg) {
 	var request = new Mojo.Service.Request(IPKGService.identifier, {
 		method: 'install',
-		parameters: {"package":pkg},
+		parameters: {"package":pkg, "subscribe":true},
 		onSuccess: callback,
 		onFailure: callback
 	});
@@ -96,7 +96,7 @@ IPKGService.install = function(callback, pkg) {
 IPKGService.remove = function(callback, pkg) {
 	var request = new Mojo.Service.Request(IPKGService.identifier, {
 		method: 'remove',
-		parameters: {"package":pkg},
+		parameters: {"package":pkg, "subscribe":true},
 		onSuccess: callback,
 		onFailure: callback
 	});

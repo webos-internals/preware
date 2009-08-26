@@ -5,6 +5,12 @@ function AppViewAssistant(item, listAssistant)
 	
 	// assistant of parent list scene
 	this.listAssistant = listAssistant;
+
+	// subscription for install
+	this.installSubscription = null;
+	
+	// subscription for remove
+	this.removeSubscription = null;
 	
 	// setup command menu
 	this.cmdMenuModel =
@@ -121,7 +127,7 @@ AppViewAssistant.prototype.handleCommand = function(event)
 				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 				
 				// call install service
-				IPKGService.install(this.onInstall.bindAsEventListener(this), this.item.Package);
+				this.installSubscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.item.Package);
 				break;
 				
 			// remove
@@ -130,7 +136,7 @@ AppViewAssistant.prototype.handleCommand = function(event)
 				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 				
 				// call remove service
-				IPKGService.remove(this.onRemove.bindAsEventListener(this), this.item.Package);
+				this.removeSubscription = IPKGService.remove(this.onRemove.bindAsEventListener(this), this.item.Package);
 				break;
 				
 			// info popup
@@ -212,7 +218,7 @@ AppViewAssistant.prototype.onInstall = function(payload)
 			// message
 			var msg = 'Error Installing';
 		}
-		else 
+		else if (payload.stage == "completed")
 		{
 			//console.log('installed');
 			
@@ -227,8 +233,9 @@ AppViewAssistant.prototype.onInstall = function(payload)
 			IPKGService.rescan(function(){});
 			
 			// message
-			var msg = 'Application Installed';
+			var msg = 'Application Install Completed';
 		}
+		else return;
 	}
 	
 	// show message
@@ -256,7 +263,7 @@ AppViewAssistant.prototype.onRemove = function(payload)
 			// message
 			var msg = 'Error Removing';
 		}
-		else 
+		else if (payload.stage == "completed")
 		{
 			//console.log('removed');
 			
@@ -273,8 +280,9 @@ AppViewAssistant.prototype.onRemove = function(payload)
 			IPKGService.rescan(function(){});
 			
 			// message
-			var msg = 'Application Removed';
+			var msg = 'Application Removal Completed';
 		}
+		else return;
 	}
 	
 	// show message
@@ -354,4 +362,14 @@ AppViewAssistant.prototype.activate = function(event) {}
 
 AppViewAssistant.prototype.deactivate = function(event) {}
 
-AppViewAssistant.prototype.cleanup = function(event) {}
+AppViewAssistant.prototype.cleanup = function(event) {
+
+    if (this.installSubscription) {
+	this.installSubscription.cancel();
+    }
+
+    if (this.removeSubscription) {
+	this.removeSubscription.cancel();
+    }
+
+}

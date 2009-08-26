@@ -6,8 +6,9 @@ function MainAssistant()
 	// subtitle random list
 	this.randomSub = 
 	[
-		'The Open Source Installer',
-		'The App Installer For Users',
+		'The Open Standard Installer',
+		'The Advanced Homebrew Installer',
+		'The Advertising-Free Installer',
 		'The Most Applications Available'
 	];
 	
