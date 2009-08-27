@@ -6,6 +6,9 @@ function AppViewAssistant(item, listAssistant)
 	// assistant of parent list scene
 	this.listAssistant = listAssistant;
 
+	// subscription for update
+	this.updateSubscription = null;
+	
 	// subscription for install
 	this.installSubscription = null;
 	
@@ -118,7 +121,7 @@ AppViewAssistant.prototype.handleCommand = function(event)
 				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 				
 				// call install service
-				IPKGService.install(this.onUpdate.bindAsEventListener(this), this.item.Package, this.item.Description);
+				this.updateSubscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.item.Package, this.item.Description);
 				break;
 				
 			// install
@@ -174,7 +177,7 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 			// message
 			var msg = 'Error Updating';
 		}
-		else 
+		else if (payload.stage == "completed")
 		{
 			//console.log('updated');
 
@@ -185,11 +188,14 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 			// tell the list assistant it should reload the list when we return to it
 			this.listAssistant.setReload();
 			
+			// cancel the subscription
+			this.updateSubscription.cancel();
+			
 			// rescan luna to show or hide the app
 			IPKGService.rescan(function(){});
 			
 			// message
-			var msg = 'Application Updated';
+			var msg = 'Application Updated Completed';
 		}
 	}
 	
@@ -228,6 +234,9 @@ AppViewAssistant.prototype.onInstall = function(payload)
 			
 			// tell the list assistant it should reload the list when we return to it
 			this.listAssistant.setReload();
+			
+			// cancel the subscription
+			this.installSubscription.cancel();
 			
 			// rescan luna to show or hide the app
 			IPKGService.rescan(function(){});
@@ -275,6 +284,9 @@ AppViewAssistant.prototype.onRemove = function(payload)
 			
 			// tell the list assistant it should reload the list when we return to it
 			this.listAssistant.setReload();
+			
+			// cancel the subscription
+			this.removeSubscription.cancel();
 			
 			// rescan luna to show or hide the app
 			IPKGService.rescan(function(){});
@@ -363,6 +375,10 @@ AppViewAssistant.prototype.activate = function(event) {}
 AppViewAssistant.prototype.deactivate = function(event) {}
 
 AppViewAssistant.prototype.cleanup = function(event) {
+
+    if (this.updateSubscription) {
+	this.updateSubscription.cancel();
+    }
 
     if (this.installSubscription) {
 	this.installSubscription.cancel();
