@@ -263,6 +263,44 @@
 /*
  * App View Scene Styles
  */
-
-
+.palm-dialog-box.ipkglog-dialog #logScroller
+{
+	position: relative;
+	height: 200px;
+	margin-top: -4px;
+}
+.palm-dialog-box.ipkglog-dialog #logScroller #logData
+{
+	padding: 4px;
+	white-space: nowrap;
+	height: 100%;
+	width: 100%;
+}.palm-dialog-box.ipkglog-dialog #logScroller #logData .palm-dialog-separator
+{
+	margin-bottom: 5px;
+	margin-top: 5px;
+}
+.palm-dialog-box.ipkglog-dialog #logScroller #logData .title
+{
+	text-transform: capitalize;
+	font-size: 22px;
+	margin-bottom: 5px;
+}
+.palm-dialog-box.ipkglog-dialog #logScroller #logData .msg
+{
+	padding-left: 10px;
+	margin-bottom: 5px;
+}
+.palm-dialog-box.ipkglog-dialog #logScroller #logData .stdOut div
+{
+	padding-left: 10px;
+	margin-bottom: 5px;
+	color: #060;
+}
+.palm-dialog-box.ipkglog-dialog #logScroller #logData .stdErr div
+{
+	padding-left: 10px;
+	margin-bottom: 5px;
+	color: #600;
+}
 

@@ -9,16 +9,28 @@ AppCategoriesAssistant.prototype.setup = function()
 	// build category model
 	for (var c = 0; c < packages.categories.length; c++) 
 	{
-		this.categoryModel.items.push(
+		if (packages.categories[c].name != packages.patchCategory) 
 		{
-			name: packages.categories[c].name,
-			count: packages.categories[c].count
-		});
+			this.categoryModel.items.push(
+			{
+				name: packages.categories[c].name,
+				category: packages.categories[c].name,
+				count: packages.categories[c].count
+			});
+		}
+	}
+	
+	if (packages.categories.length < 1)
+	{
+		this.controller.stageController.popScene();
 	}
 	
 	// setup list widget
 	this.controller.setupWidget('categoryList', { itemTemplate: "app-categories/rowTemplate", swipeToDelete: false, reorderable: false }, this.categoryModel);
 	Mojo.Event.listen(this.controller.get('categoryList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+	
+	// setup menu that is no menu
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
 }
 
 AppCategoriesAssistant.prototype.listTapHandler = function(event)

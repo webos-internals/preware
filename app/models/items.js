@@ -2,6 +2,9 @@ function packageModel()
 {
 	this.apps = [];
 	this.categories = [];
+	
+	// this is for use to seperate the patches from the apps
+	this.patchCategory = 'WebOS Patches';
 }
 
 packageModel.prototype.load = function(payload)
@@ -122,8 +125,9 @@ packageModel.prototype.versionNewer = function(one, two)
 	var v1 = one.split('.');
 	var v2 = two.split('.');
 	if (parseInt(v2[0]) > parseInt(v1[0])) return true; 
-	else if (parseInt(v2[0]) == parseInt(v1[0]) && parseInt(v2[1]) > parseInt(v1[1])) return true;
-	else if (parseInt(v2[0]) == parseInt(v1[0]) && parseInt(v2[1]) == parseInt(v1[1]) && parseInt(v2[2]) > parseInt(v1[2])) return true;
+	else if (parseInt(v2[0]) == parseInt(v1[0]) && parseInt(v2[1])  > parseInt(v1[1])) return true;
+	else if (parseInt(v2[0]) == parseInt(v1[0]) && parseInt(v2[1]) == parseInt(v1[1]) && parseInt(v2[2])  > parseInt(v1[2])) return true;
+	else if (parseInt(v2[0]) == parseInt(v1[0]) && parseInt(v2[1]) == parseInt(v1[1]) && parseInt(v2[2]) == parseInt(v1[2]) && parseInt(v2[3]) > parseInt(v1[3])) return true;
 	return false;
 }
 

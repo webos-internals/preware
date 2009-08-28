@@ -64,6 +64,15 @@ IPKGService.list_upgrades = function(callback) {
 	return request;
 }
 
+IPKGService.list_configs = function(callback) {
+	var request = new Mojo.Service.Request(IPKGService.identifier, {
+		method: 'list_configs',
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
+
 IPKGService.rescan = function(callback) {
 	var request = new Mojo.Service.Request(IPKGService.identifier, {
 		method: 'rescan',

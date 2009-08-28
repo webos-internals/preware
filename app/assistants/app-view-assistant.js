@@ -21,6 +21,9 @@ function AppViewAssistant(item, listAssistant)
 		label: $L('Menu'), 
 		items: []
 	};
+	
+	// this is for storing the log
+	this.ipkglog = '';
 }
 
 AppViewAssistant.prototype.setup = function()
@@ -39,9 +42,9 @@ AppViewAssistant.prototype.setup = function()
 	var appData = '';
 	var dataTemplate = 'app-view/dataRow';
 	appData += Mojo.View.render({object: {title: 'Package', data: this.item.Package}, template: dataTemplate});
-	if (this.item.SourceObj != undefined && this.item.SourceObj['Last-Updated'])
+	if (this.item.SourceObj != undefined && this.item.SourceObj.LastUpdated)
 	{
-		appData += Mojo.View.render({object: {title: 'Last Update', data: this.formatDate(this.item.SourceObj['Last-Updated'])}, template: dataTemplate});
+		appData += Mojo.View.render({object: {title: 'Last Update', data: this.formatDate(this.item.SourceObj.LastUpdated)}, template: dataTemplate});
 	}
 	appData += Mojo.View.render({object: {title: 'Version', data: this.item.Version}, template: dataTemplate});
 	appData += Mojo.View.render({object: {title: 'Download Size', data: this.formatSize(this.item.Size)}, template: dataTemplate});
@@ -55,6 +58,20 @@ AppViewAssistant.prototype.setup = function()
 	
 	// fillin the div
 	this.controller.get('appData').innerHTML = appData;
+	
+	
+	// setup menu model
+	var menuModel =
+	{
+		visible: true,
+		items: [{
+			label: "IPKG Log...",
+			command: 'do-showLog'
+		}]
+	}
+	
+	// setup widget
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
 }
 
 AppViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
@@ -114,6 +131,15 @@ AppViewAssistant.prototype.handleCommand = function(event)
 			//case 'back':
 			//	this.controller.stageController.popScene();
 			//	break;
+			
+			// display ipkg log
+			case 'do-showLog':
+				this.controller.showDialog(
+				{
+					template: 'app-view/ipkgLogDialog',
+					assistant: new IPKGLogDialogAssistant(this)
+				});
+				break;
 				
 			// update
 			case 'do-update':
@@ -161,6 +187,9 @@ AppViewAssistant.prototype.handleCommand = function(event)
 
 AppViewAssistant.prototype.onUpdate = function(payload)
 {
+	// log payload for display
+	this.ipkgLog(payload);
+	
 	if (!payload) 
 	{
 		//console.log('update fail');
@@ -177,7 +206,7 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 			// message
 			var msg = 'Error Updating';
 		}
-		else if (payload.stage == "completed")
+		else if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
 		{
 			//console.log('updated');
 
@@ -209,6 +238,9 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 
 AppViewAssistant.prototype.onInstall = function(payload)
 {
+	// log payload for display
+	this.ipkgLog(payload);
+	
 	if (!payload) 
 	{
 		//console.log('install fail');
@@ -225,7 +257,7 @@ AppViewAssistant.prototype.onInstall = function(payload)
 			// message
 			var msg = 'Error Installing';
 		}
-		else if (payload.stage == "completed")
+		else if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
 		{
 			//console.log('installed');
 			
@@ -257,6 +289,9 @@ AppViewAssistant.prototype.onInstall = function(payload)
 
 AppViewAssistant.prototype.onRemove = function(payload)
 {
+	// log payload for display
+	this.ipkgLog(payload);
+	
 	if (!payload) 
 	{
 		//console.log('remove fail');
@@ -273,7 +308,7 @@ AppViewAssistant.prototype.onRemove = function(payload)
 			// message
 			var msg = 'Error Removing';
 		}
-		else if (payload.stage == "completed")
+		else if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
 		{
 			//console.log('removed');
 			
@@ -303,6 +338,43 @@ AppViewAssistant.prototype.onRemove = function(payload)
 			
 	// update command menu
 	this.updateCommandMenu();
+}
+
+AppViewAssistant.prototype.ipkgLog = function(payload)
+{
+	if (payload.stage)
+	{
+		if (this.ipkglog != '') this.ipkglog += '<div class="palm-dialog-separator"></div>';
+		this.ipkglog += '<div class="title">' + payload.stage + '</div>';
+		
+		var stdPlus = false;
+		if (payload.stdOut.length > 0)
+		{
+			stdPlus = true;
+			this.ipkglog += '<div class="stdOut">';
+			for (var s = 0; s < payload.stdOut.length; s++)
+			{
+				this.ipkglog += '<div>' + payload.stdOut[s] + '</div>';
+			}
+			this.ipkglog += '</div>';
+		}
+		
+		if (payload.stdErr.length > 0)
+		{
+			stdPlus = true;
+			this.ipkglog += '<div class="stdErr">';
+			for (var s = 0; s < payload.stdErr.length; s++)
+			{
+				this.ipkglog += '<div>' + payload.stdErr[s] + '</div>';
+			}
+			this.ipkglog += '</div>';
+		}
+		
+		if (!stdPlus)
+		{
+			this.ipkglog += '<div class="msg">No Output.</div>';
+		}
+	}
 }
 
 AppViewAssistant.prototype.serviceMessage = function(message)
@@ -390,3 +462,55 @@ AppViewAssistant.prototype.cleanup = function(event) {
     }
 
 }
+
+
+// IPKG Log Dialog Assistant
+
+function IPKGLogDialogAssistant(sceneAssistant)
+{
+	// we'll need this later
+	this.sceneAssistant = sceneAssistant;
+}
+
+IPKGLogDialogAssistant.prototype.setup = function(widget)
+{
+	this.widget = widget;
+	
+	// load log
+	this.sceneAssistant.controller.get('logData').innerHTML = (this.sceneAssistant.ipkglog != '' ? this.sceneAssistant.ipkglog : 'No Log');
+	
+	// start scroller widget
+	this.sceneAssistant.controller.setupWidget
+	(
+		'logScroller',
+		{ },
+		{ mode: 'dominant' }
+	);
+	
+	// setup close button
+	this.sceneAssistant.controller.setupWidget
+	(
+		'closeButton',
+		this.attributes = {},
+		this.model =
+		{
+			buttonLabel: "Ok",
+			buttonClass: "palm-button",
+			disabled: false
+		}
+	);
+	
+	// start listening to close button
+	Mojo.Event.listen(this.sceneAssistant.controller.get('closeButton'), Mojo.Event.tap, this.close.bindAsEventListener(this));
+	
+}
+
+IPKGLogDialogAssistant.prototype.close = function(event)
+{
+	// stop listening to close button
+	Mojo.Event.stopListening(this.sceneAssistant.controller.get('closeButton'), Mojo.Event.tap, this.close.bindAsEventListener(this));
+	
+	// hide the widget
+	this.widget.mojo.close();
+}
+

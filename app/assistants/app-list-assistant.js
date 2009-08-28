@@ -28,9 +28,9 @@ function AppListAssistant(item, searchText, currentSort)
 	else
 	{
 		// category and installed list get alphabetical default
-		if (this.item.list == 'category' || this.item.list == 'installed') this.currentSort = 'alpha';
-		// updates list and all get date default
-		else if (this.item.list == 'updates' || this.item.list == 'all') this.currentSort = 'date';
+		if ((this.item.list == 'category' && this.item.category != packages.patchCategory) || this.item.list == 'installed') this.currentSort = 'alpha';
+		// updates list and all get date default and patches
+		else if (this.item.list == 'updates' || this.item.list == 'all' || (this.item.list == 'category' && this.item.category == packages.patchCategory)) this.currentSort = 'date';
 		// if anything else default to alphabetical (though, this should never happen)
 		else this.currentSort = 'alpha';
 	}
@@ -45,7 +45,7 @@ AppListAssistant.prototype.setup = function()
 	this.controller.get('listTitle').innerHTML = this.item.name;
 	
 	// change scene if this is a single category
-	if (this.item.list == 'category')
+	if (this.item.list == 'category' && this.item.category != packages.patchCategory)
 	{
 		// update submenu styles
 		this.controller.get('appListHeader').className = 'palm-header left';
@@ -109,6 +109,8 @@ AppListAssistant.prototype.setup = function()
 		//this.controller.get('searchText').mojo.setValue(this.searchText);
 	}
 	
+	// setup menu that is no menu
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
 }
 
 AppListAssistant.prototype.updateCommandMenu = function(skipUpdate)
@@ -123,7 +125,8 @@ AppListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// if updates, lets push the update all button
 	if (this.item.list == 'updates' && this.listModel.items.length > 1) 
 	{
-		this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
+		// we don't want this to show yet, since it doesn't work
+		//this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
 	}
 	
 	// push the sort selector
@@ -280,8 +283,8 @@ AppListAssistant.prototype.updateList = function(skipUpdate)
 			aTime = 0;
 			bTime = 0;
 			
-			if (a.SourceObj != undefined && a.SourceObj['Last-Updated']) aTime = a.SourceObj['Last-Updated'];
-			if (b.SourceObj != undefined && b.SourceObj['Last-Updated']) bTime = b.SourceObj['Last-Updated'];
+			if (a.SourceObj != undefined && a.SourceObj.LastUpdated) aTime = a.SourceObj.LastUpdated;
+			if (b.SourceObj != undefined && b.SourceObj.LastUpdated) bTime = b.SourceObj.LastUpdated;
 			
 			if (aTime > bTime) return -1;
 			else
@@ -330,16 +333,16 @@ AppListAssistant.prototype.getDivider = function(item)
 	// how to divide when sorting by date
 	if (this.currentSort == 'date')
 	{
-		if (item.SourceObj != undefined && item.SourceObj['Last-Updated']) 
+		if (item.SourceObj != undefined && item.SourceObj.LastUpdated) 
 		{
 			// a number of different date breakdowns
 			var now = Math.round(new Date().getTime()/1000.0);
-			if      (now - item.SourceObj['Last-Updated'] <= 86400)	  return 'Today';
-			else if (now - item.SourceObj['Last-Updated'] <= 172800)  return 'Yesterday';
-			else if (now - item.SourceObj['Last-Updated'] <= 604800)  return 'This Week';
-			else if (now - item.SourceObj['Last-Updated'] <= 1209600) return 'Last Week';
-			else if (now - item.SourceObj['Last-Updated'] <= 2629744) return 'This Month';
-			else if (now - item.SourceObj['Last-Updated'] <= 5259488) return 'Last Month';
+			if      (now - item.SourceObj.LastUpdated <= 86400)	  return 'Today';
+			else if (now - item.SourceObj.LastUpdated <= 172800)  return 'Yesterday';
+			else if (now - item.SourceObj.LastUpdated <= 604800)  return 'This Week';
+			else if (now - item.SourceObj.LastUpdated <= 1209600) return 'Last Week';
+			else if (now - item.SourceObj.LastUpdated <= 2629744) return 'This Month';
+			else if (now - item.SourceObj.LastUpdated <= 5259488) return 'Last Month';
 			else return 'Older'; // for things 2 months or older
 		}
 		else
@@ -375,11 +378,14 @@ AppListAssistant.prototype.menuTapHandler = function(event)
 	var categoryMenu = [];
 	for (var c = 0; c < packages.categories.length; c++) 
 	{
-		categoryMenu.push(
+		if (packages.categories[c].name != packages.patchCategory) 
 		{
-			label: packages.categories[c].name,
-			command: packages.categories[c].name
-		});
+			categoryMenu.push(
+			{
+				label: packages.categories[c].name,
+				command: packages.categories[c].name
+			});
+		}
 	}
 	
 	// open category selector

@@ -28,13 +28,16 @@ function MainAssistant()
 		},
 		{
 			name: $L('Available Applications'),
-			style: false,
+			style: 'disabled',
 			scene: 'app-categories'
 		},
 		{
 			name: $L('Available Patches'),
 			style: 'disabled',
-			scene: false
+			list: 'category',
+			category: packages.patchCategory,
+			scene: 'app-list',
+			appCount: 0
 		},
 		{
 			name: $L('Installed Applications'),
@@ -45,7 +48,7 @@ function MainAssistant()
 		},
 		{
 			name: $L('List of Everything'),
-			style: false,
+			style: 'disabled',
 			scene: 'app-list',
 			list: 'all'
 		}]
@@ -86,13 +89,17 @@ MainAssistant.prototype.setup = function()
 	{
 		visible: true,
 		items: [
-		{
+		/*{ // we're hiding this crap for now since it doesn't do anything at all.
 			label: "Update Feeds",
 			command: 'do-update'
 		},
 		{
 			label: "Preferences...",
 			command: 'do-prefs'
+		},*/
+		{
+			label: "List Configs...",
+			command: 'do-configs'
 		}]
 	}
 	
@@ -133,8 +140,13 @@ MainAssistant.prototype.onUpdate = function(payload)
 {
 	if (!payload) 
 	{
-		// if its not running, it actually never gets here, as it never returns
-		Mojo.Controller.errorDialog('Update Error. The service probably isn\'t running.');
+		// i dont know if this will ever happen, but hey, it might
+		this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
+		this.hideSpinner();
+	}
+	else if (payload.errorCode == -1)
+	{
+		this.alertMessage('Preware', payload.errorText);
 		this.hideSpinner();
 	}
 	else if (payload.returnVal != undefined) 
@@ -152,7 +164,7 @@ MainAssistant.prototype.onInfo = function(payload)
 {
 	if (!payload) 
 	{
-		Mojo.Controller.errorDialog('Unable to get list of apps.');
+		this.alertMessage('Preware', 'Unable to get list of apps.');
 		this.hideSpinner();
 	}
 	else
@@ -175,8 +187,11 @@ MainAssistant.prototype.updateList = function()
 	this.mainModel.items[0].style = 'disabled';
 	this.mainModel.items[0].appCount = 0;
 	this.mainModel.items[1].appCount = 0;
+	this.mainModel.items[2].style = 'disabled';
+	this.mainModel.items[2].appCount = 0;
 	this.mainModel.items[3].style = 'disabled';
 	this.mainModel.items[3].appCount = 0;
+	this.mainModel.items[4].style = false;
 	
 	// loop through apps to build counts for the list
 	if (packages.apps.length > 0)
@@ -192,7 +207,14 @@ MainAssistant.prototype.updateList = function()
 				this.addAppToList(3);
 			}
 			
-			this.addAppToList(1);
+			if (packages.apps[a].Section == packages.patchCategory)
+			{
+				this.addAppToList(2);
+			}
+			else
+			{
+				this.addAppToList(1);				
+			}
 		}
 	}
 	
@@ -224,6 +246,17 @@ MainAssistant.prototype.activate = function(event)
 	this.updateList();
 }
 
+MainAssistant.prototype.alertMessage = function(title, message)
+{
+	this.controller.showAlertDialog({
+	    onChoose: function(value) {},
+		allowHTMLMessage: true,
+	    title: title,
+	    message: message,
+	    choices:[{label:$L('Ok'), value:""}]
+    });
+}
+
 MainAssistant.prototype.handleCommand = function(event)
 {
 
@@ -237,10 +270,27 @@ MainAssistant.prototype.handleCommand = function(event)
 		case 'do-prefs':
 			break;
 
+		case 'do-configs':
+			IPKGService.list_configs(this.onConfigs.bindAsEventListener(this));
+			break;
+
 		}
 
 	}
 
+}
+
+MainAssistant.prototype.onConfigs = function(payload)
+{
+	var msg = "";
+	for (var x = 0; x < payload.configs.length; x++)
+	{
+		for (p in payload.configs[x]) 
+		{
+			msg += '<b>' + p + '</b>: ' + payload.configs[x][p];
+		}
+	}
+	this.alertMessage('IPKG Configs', '<div style="font-size: 14px;">' + msg + '</div>');
 }
 
 MainAssistant.prototype.deactivate = function(event) {}
