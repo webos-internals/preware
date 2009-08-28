@@ -197,6 +197,7 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 			// message
 			var msg = 'Application Updated Completed';
 		}
+		else return;
 	}
 	
 	// show message
