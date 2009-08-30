@@ -1,7 +1,8 @@
 [
     {"source": "app\/assistants\/app-assistant.js"},
     {"source": "app\/models\/IPKGService.js"},
-    {"source": "app\/models\/items.js"},
+    {"source": "app\/models\/packages.js"},
+    {"source": "app\/models\/package.js"},
     {
         "source": "app\/assistants\/main-assistant.js",
         "scenes": "main"

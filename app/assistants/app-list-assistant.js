@@ -4,7 +4,7 @@ function AppListAssistant(item, searchText, currentSort)
 	this.item = item;
 	
 	// this holds the list (when we filter, this is what we search)
-	this.apps = [];
+	this.packages = [];
 	
 	// holds the model that has been filtered for use by the list
 	this.listModel = {items:[]};
@@ -198,7 +198,7 @@ AppListAssistant.prototype.filter = function(skipUpdate)
 	
 	//alert(this.searchText);
 	
-	for (var a = 0; a < this.apps.length; a++) 
+	for (var p = 0; p < this.packages.length; p++) 
 	{
 		var pushIt = false;
 		
@@ -206,14 +206,14 @@ AppListAssistant.prototype.filter = function(skipUpdate)
 		{
 			pushIt = true;
 		}
-		else if (this.apps[a].Description.toLowerCase().include(this.searchText.toLowerCase()))
+		else if (this.packages[p].title.toLowerCase().include(this.searchText.toLowerCase()))
 		{
 			pushIt = true;
 		}
 		
 		if (pushIt) 
 		{
-			this.listModel.items.push(this.apps[a]);
+			this.listModel.items.push(this.packages[p]);
 		}
 	}
 	
@@ -264,13 +264,13 @@ AppListAssistant.prototype.setupList = function()
 AppListAssistant.prototype.updateList = function(skipUpdate)
 {
 	// clear the current list
-	this.apps = [];
+	this.packages = [];
 	
 	// load app list
-	this.apps = packages.getApps(this.item);
+	this.packages = packages.getApps(this.item);
 	
 	// if there are no apps to list, pop the scene (later, we may replace this with a "nothing to list" message)
-	if (this.apps.length < 1)
+	if (this.packages.length < 1)
 	{
 		this.controller.stageController.popScene();
 	}
@@ -278,13 +278,13 @@ AppListAssistant.prototype.updateList = function(skipUpdate)
 	// apps are sorted alphabetically by deafult, if the current sort is date, run the sort function.
 	if (this.currentSort == 'date') 
 	{
-		this.apps.sort(function(a, b)
+		this.packages.sort(function(a, b)
 		{
 			aTime = 0;
 			bTime = 0;
 			
-			if (a.SourceObj != undefined && a.SourceObj.LastUpdated) aTime = a.SourceObj.LastUpdated;
-			if (b.SourceObj != undefined && b.SourceObj.LastUpdated) bTime = b.SourceObj.LastUpdated;
+			if (a.date) aTime = a.date;
+			if (b.date) bTime = b.date;
 			
 			if (aTime > bTime) return -1;
 			else
@@ -333,16 +333,16 @@ AppListAssistant.prototype.getDivider = function(item)
 	// how to divide when sorting by date
 	if (this.currentSort == 'date')
 	{
-		if (item.SourceObj != undefined && item.SourceObj.LastUpdated) 
+		if (item.date) 
 		{
 			// a number of different date breakdowns
 			var now = Math.round(new Date().getTime()/1000.0);
-			if      (now - item.SourceObj.LastUpdated <= 86400)	  return 'Today';
-			else if (now - item.SourceObj.LastUpdated <= 172800)  return 'Yesterday';
-			else if (now - item.SourceObj.LastUpdated <= 604800)  return 'This Week';
-			else if (now - item.SourceObj.LastUpdated <= 1209600) return 'Last Week';
-			else if (now - item.SourceObj.LastUpdated <= 2629744) return 'This Month';
-			else if (now - item.SourceObj.LastUpdated <= 5259488) return 'Last Month';
+			if      (now - item.date <= 86400)	  return 'Today';
+			else if (now - item.date <= 172800)  return 'Yesterday';
+			else if (now - item.date <= 604800)  return 'This Week';
+			else if (now - item.date <= 1209600) return 'Last Week';
+			else if (now - item.date <= 2629744) return 'This Month';
+			else if (now - item.date <= 5259488) return 'Last Month';
 			else return 'Older'; // for things 2 months or older
 		}
 		else
@@ -354,7 +354,7 @@ AppListAssistant.prototype.getDivider = function(item)
 	// how to divide when sorted by alpha (only used by the all list)
 	else if (this.currentSort == 'alpha' && this.item.list == 'all')
 	{
-		var firstChar = item.Description.substr(0, 1);
+		var firstChar = item.title.substr(0, 1);
 		if (parseInt(firstChar) == firstChar) 
 		{
 			return '#';

@@ -1,5 +1,5 @@
 // global items object
-var packages = new packageModel();
+var packages = new packagesModel();
 
 function MainAssistant()
 {
@@ -194,26 +194,26 @@ MainAssistant.prototype.updateList = function()
 	this.mainModel.items[4].style = false;
 	
 	// loop through apps to build counts for the list
-	if (packages.apps.length > 0)
+	if (packages.packages.length > 0)
 	{
-		for (var a = 0; a < packages.apps.length; a++) 
+		for (var p = 0; p < packages.packages.length; p++) 
 		{
-			if (packages.apps[a].Update)
+			if (packages.packages[p].hasUpdate)
 			{
-				this.addAppToList(0);
+				this.addPkgToList(0);
 			}
-			if (packages.apps[a].Installed)
+			if (packages.packages[p].isInstalled)
 			{
-				this.addAppToList(3);
+				this.addPkgToList(3);
 			}
 			
-			if (packages.apps[a].Section == packages.patchCategory)
+			if (packages.packages[p].category == packages.patchCategory)
 			{
-				this.addAppToList(2);
+				this.addPkgToList(2);
 			}
 			else
 			{
-				this.addAppToList(1);				
+				this.addPkgToList(1);				
 			}
 		}
 	}
@@ -223,7 +223,7 @@ MainAssistant.prototype.updateList = function()
 }
 
 // this function updates the list model by giving enabling it and adding an app
-MainAssistant.prototype.addAppToList = function(id)
+MainAssistant.prototype.addPkgToList = function(id)
 {
 	this.mainModel.items[id].style = 'showCount';
 	this.mainModel.items[id].appCount++;
@@ -287,10 +287,10 @@ MainAssistant.prototype.onConfigs = function(payload)
 	{
 		for (p in payload.configs[x]) 
 		{
-			msg += '<b>' + p + '</b>: ' + payload.configs[x][p];
+			msg += '<b>' + p + '</b>:<br />' + payload.configs[x][p];
 		}
 	}
-	this.alertMessage('IPKG Configs', '<div style="font-size: 14px;">' + msg + '</div>');
+	this.alertMessage('IPKG Configs', '<div style="font-size: 12px;">' + msg + '</div>');
 }
 
 MainAssistant.prototype.deactivate = function(event) {}
