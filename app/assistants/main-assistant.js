@@ -29,7 +29,8 @@ function MainAssistant()
 		{
 			name: $L('Available Applications'),
 			style: 'disabled',
-			scene: 'app-categories'
+			scene: 'app-groups',
+			groupBy: 'categories'
 		},
 		{
 			name: $L('Available Patches'),

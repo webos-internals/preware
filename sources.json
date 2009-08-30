@@ -16,8 +16,8 @@
         "scenes": "app-view"
     },
     {
-        "source": "app\/assistants\/app-categories-assistant.js",
-        "scenes": "app-categories"
+        "source": "app\/assistants\/app-groups-assistant.js",
+        "scenes": "app-groups"
     },
     {
         "source": "app\/assistants\/preferences-assistant.js",

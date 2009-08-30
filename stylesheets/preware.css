@@ -154,7 +154,7 @@
 	z-index: 20001;
 	float: right;
 }
-.app-list .category-source 
+.app-list .group-source 
 {
 	display: none;
 	position:relative;
@@ -169,7 +169,7 @@
 	-webkit-border-image:url(../images/header-selector.png) 0 22 0 16 stretch stretch;
 	-webkit-box-sizing: border-box;
 }
-.app-list .category-selector 
+.app-list .group-selector 
 {
 	margin-left:-5px;
 	padding-right: 2px;
@@ -244,7 +244,7 @@
 	top: 30px;
 	font-size: 14px;
 }
-.category-popup.palm-popup-container
+.group-popup.palm-popup-container
 {
 	text-transform: capitalize;
 }

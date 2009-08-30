@@ -31,6 +31,8 @@ function AppListAssistant(item, searchText, currentSort)
 		if ((this.item.list == 'category' && this.item.category != packages.patchCategory) || this.item.list == 'installed') this.currentSort = 'alpha';
 		// updates list and all get date default and patches
 		else if (this.item.list == 'updates' || this.item.list == 'all' || (this.item.list == 'category' && this.item.category == packages.patchCategory)) this.currentSort = 'date';
+		// feel lists default to date
+		else if (this.item.list == 'feed') this.currentSort = 'date';
 		// if anything else default to alphabetical (though, this should never happen)
 		else this.currentSort = 'alpha';
 	}
@@ -45,15 +47,23 @@ AppListAssistant.prototype.setup = function()
 	this.controller.get('listTitle').innerHTML = this.item.name;
 	
 	// change scene if this is a single category
-	if (this.item.list == 'category' && this.item.category != packages.patchCategory)
+	if ((this.item.list == 'category' && this.item.category != packages.patchCategory) ||
+		(this.item.list == 'feed'))
 	{
 		// update submenu styles
 		this.controller.get('appListHeader').className = 'palm-header left';
-		this.controller.get('categorySource').style.display = 'inline';
-		this.controller.get('categoryTitle').innerHTML = this.item.category;
+		this.controller.get('groupSource').style.display = 'inline';
+		if (this.item.list == 'category')
+		{
+			this.controller.get('groupTitle').innerHTML = this.item.category;
+		}
+		else if (this.item.list == 'feed')
+		{
+			this.controller.get('groupTitle').innerHTML = this.item.feed;
+		}
 		
 		// listen for tap to open menu
-		Mojo.Event.listen(this.controller.get('categorySource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
+		Mojo.Event.listen(this.controller.get('groupSource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
 	}
 	
 	// update listModel
@@ -374,16 +384,33 @@ AppListAssistant.prototype.listTapHandler = function(event)
 
 AppListAssistant.prototype.menuTapHandler = function(event)
 {
-	// build category list model
-	var categoryMenu = [];
-	for (var c = 0; c < packages.categories.length; c++) 
+	// build group list model
+	var groupMenu = [];
+	
+	if (this.item.list == 'category')
 	{
-		if (packages.categories[c].name != packages.patchCategory) 
+		var selectedValue = this.item.category;
+		for (var c = 0; c < packages.categories.length; c++) 
 		{
-			categoryMenu.push(
+			if (packages.categories[c].name != packages.patchCategory) 
 			{
-				label: packages.categories[c].name,
-				command: packages.categories[c].name
+				groupMenu.push(
+				{
+					label: packages.categories[c].name,
+					command: packages.categories[c].name
+				});
+			}
+		}
+	}
+	else if (this.item.list == 'feed')
+	{
+		var selectedValue = this.item.feed;
+		for (var f = 0; f < packages.feeds.length; f++) 
+		{
+			groupMenu.push(
+			{
+				label: packages.feeds[f].name,
+				command: packages.feeds[f].name
 			});
 		}
 	}
@@ -393,24 +420,30 @@ AppListAssistant.prototype.menuTapHandler = function(event)
 	{
 		onChoose: function(value)
 		{
-			if (value === null ||
-				value == "" ||
-				value == undefined ||
-				value == this.item.category) 
+			if (value === null || value == "" || value == undefined ||
+				(this.item.list == 'category' && value == this.item.category) ||
+				(this.item.list == 'feed' && value == this.item.feed)) 
 			{
 				return;
 			}
 			else
 			{
-				this.controller.stageController.swapScene('app-list', {list: 'category', category: value, name: "WebOS Applications"});
+				if (this.item.list == 'category')
+				{
+					this.controller.stageController.swapScene('app-list', {list: 'category', category: value, name: "WebOS Applications"});
+				}
+				else if (this.item.list == 'feed')
+				{
+					this.controller.stageController.swapScene('app-list', {list: 'feed', feed: value, name: "WebOS Applications"});
+				}
 				return;
 			}
 			
 		},
-		popupClass: 'category-popup',
-		toggleCmd: this.item.category,
+		popupClass: 'group-popup',
+		toggleCmd: selectedValue,
 		placeNear: event.target,
-		items: categoryMenu
+		items: groupMenu
 	});
 }
 
@@ -436,5 +469,5 @@ AppListAssistant.prototype.cleanup = function(event)
 	Mojo.Event.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
 	Mojo.Event.stopListening(this.controller.get('searchText'), Mojo.Event.propertyChange, this.filterDelayHandler.bindAsEventListener(this));
 	Mojo.Event.stopListening(this.controller.get('appList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
-	Mojo.Event.stopListening(this.controller.get('categorySource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
+	Mojo.Event.stopListening(this.controller.get('groupSource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
 }

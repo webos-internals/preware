@@ -15,28 +15,35 @@ packagesModel.prototype.load = function(payload)
 	this.categories = [];
 	this.feeds = [];
 	
-	for (var x = 0; x < payload.info.length; x++)
+	try
 	{
-		// load the package from the info
-		var newPkg = new packageModel(payload.info[x])
-		
-		// look for a previous package with the same name
-		var pkgNum = this.packageInList(newPkg.pkg);
-		if (pkgNum === false) 
+		for (var x = 0; x < payload.info.length; x++)
 		{
-			// add this package to global app list
-			this.packages.push(newPkg);
-		}
-		else
-		{
-			// run package update function of the old package with the new package
-			var pkgUpd = this.packages[pkgNum].infoUpdate(newPkg);
-			if (pkgUpd !== false)
+			// load the package from the info
+			var newPkg = new packageModel(payload.info[x])
+			
+			// look for a previous package with the same name
+			var pkgNum = this.packageInList(newPkg.pkg);
+			if (pkgNum === false) 
 			{
-				// if the new package is to replace the old one, do it
-				this.packages[pkgNum] = pkgUpd;
+				// add this package to global app list
+				this.packages.push(newPkg);
+			}
+			else
+			{
+				// run package update function of the old package with the new package
+				var pkgUpd = this.packages[pkgNum].infoUpdate(newPkg);
+				if (pkgUpd !== false)
+				{
+					// if the new package is to replace the old one, do it
+					this.packages[pkgNum] = pkgUpd;
+				}
 			}
 		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#load:packageList');
 	}
 	
 	// sort the packages
@@ -46,34 +53,44 @@ packagesModel.prototype.load = function(payload)
 		else return -1;
 	});
 	
-	// add package categorys to global category list
-	for (var p = 0; p < this.packages.length; p++) 
+	try
 	{
-		// build categories list
-		var catNum = this.categoryInList(this.packages[p].category);
-		if (catNum === false) 
+		// add package categorys to global category list
+		for (var p = 0; p < this.packages.length; p++) 
 		{
-			// push new category
-			this.categories.push({name: this.packages[p].category, count: 1});
+			// build categories list
+			var catNum = this.categoryInList(this.packages[p].category);
+			if (catNum === false) 
+			{
+				// push new category
+				this.categories.push({name: this.packages[p].category, count: 1});
+			}
+			else
+			{
+				// increment category count
+				this.categories[catNum].count++;
+			}
+			
+			// build feeds list
+			for (var f = 0; f < this.packages[p].feeds.length; f++) 
+			{
+				var feedNum = this.feedInList(this.packages[p].feeds[f]);
+				if (feedNum === false) 
+				{
+					// push new category
+					this.feeds.push({name: this.packages[p].feeds[f], count: 1});
+				}
+				else
+				{
+					// increment category count
+					this.feeds[feedNum].count++;
+				}
+			}
 		}
-		else
-		{
-			// increment category count
-			this.categories[catNum].count++;
-		}
-		
-		// build feeds list
-		var feedNum = this.feedInList(this.packages[p].feed);
-		if (feedNum === false) 
-		{
-			// push new category
-			this.feeds.push({name: this.packages[p].feed, count: 1});
-		}
-		else
-		{
-			// increment category count
-			this.feeds[feedNum].count++;
-		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#load:categoryfeedList');
 	}
 	
 	// sort categories
@@ -142,7 +159,7 @@ packagesModel.prototype.feedInList = function(feed)
 	{
 		for (var f = 0; f < this.feeds.length; f++) 
 		{
-			if (this.feeds[f].feed == feed) 
+			if (this.feeds[f].name == feed) 
 			{
 				return f;
 			}
@@ -172,6 +189,9 @@ packagesModel.prototype.getApps = function(item)
 		
 		// category
 		if (item.list == 'category' && item.category == this.packages[p].category) pushIt = true;
+		
+		// feed
+		if (item.list == 'feed' && this.packages[p].inFeed(item.feed)) pushIt = true;
 		
 		// push it to the list if we should
 		if (pushIt) 
