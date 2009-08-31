@@ -139,88 +139,119 @@ MainAssistant.prototype.onConnection = function(response)
 
 MainAssistant.prototype.onUpdate = function(payload)
 {
-	if (!payload) 
+	try 
 	{
-		// i dont know if this will ever happen, but hey, it might
-		this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-		this.hideSpinner();
+		if (!payload) 
+		{
+			// i dont know if this will ever happen, but hey, it might
+			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
+			this.hideSpinner();
+		}
+		else if (payload.errorCode == -1)
+		{
+			this.alertMessage('Preware', payload.errorText);
+			this.hideSpinner();
+		}
+		else if (payload.returnVal != undefined) 
+		{
+			// its returned, but we don't really care if anything was actually updated
+			//console.log(payload.returnVal);
+			
+			// lets call the function to update the global list of apps
+			this.controller.get('spinnerStatus').innerHTML = "Loading";
+			IPKGService.info(this.onInfo.bindAsEventListener(this));
+		}
 	}
-	else if (payload.errorCode == -1)
+	catch (e)
 	{
-		this.alertMessage('Preware', payload.errorText);
-		this.hideSpinner();
-	}
-	else if (payload.returnVal != undefined) 
-	{
-		// its returned, but we don't really care if anything was actually updated
-		//console.log(payload.returnVal);
-		
-		// lets call the function to update the global list of apps
-		this.controller.get('spinnerStatus').innerHTML = "Loading";
-		IPKGService.info(this.onInfo.bindAsEventListener(this));
+		Mojo.Log.logException(e, 'main#onUpdate');
+		this.alertMessage('Preware', 'onUpdate Error');
 	}
 }
 
 MainAssistant.prototype.onInfo = function(payload)
 {
-	if (!payload) 
+	try 
 	{
-		this.alertMessage('Preware', 'Unable to get list of apps.');
-		this.hideSpinner();
+		if (!payload) 
+		{
+			this.alertMessage('Preware', 'Unable to get list of apps.');
+			this.hideSpinner();
+		}
+		else if (payload.errorCode == -1) 
+		{
+			this.alertMessage('Preware', payload.errorText);
+			this.hideSpinner();
+		}
+		else 
+		{
+			this.controller.get('spinnerStatus').innerHTML = "Parsing";
+			
+			// send payload to items object
+			packages.load(payload);
+			
+			// update the list
+			this.updateList();
+			
+			// hide the spinner
+			this.hideSpinner();
+		}
 	}
-	else
+	catch (e)
 	{
-		// send payload to items object
-		packages.load(payload);
-		
-		// update the list
-		this.updateList();
-		
-		// hide the spinner
-		this.hideSpinner();
+		Mojo.Log.logException(e, 'main#onInfo');
+		this.alertMessage('Preware', 'onInfo Error');
 	}
 }
 
 // this is called to update the list (namely the counts and styles)
 MainAssistant.prototype.updateList = function()
 {
-	// reset things we may have changed in the list
-	this.mainModel.items[0].style = 'disabled';
-	this.mainModel.items[0].appCount = 0;
-	this.mainModel.items[1].appCount = 0;
-	this.mainModel.items[2].style = 'disabled';
-	this.mainModel.items[2].appCount = 0;
-	this.mainModel.items[3].style = 'disabled';
-	this.mainModel.items[3].appCount = 0;
-	this.mainModel.items[4].style = false;
-	
-	// loop through apps to build counts for the list
-	if (packages.packages.length > 0)
+	try 
 	{
-		for (var p = 0; p < packages.packages.length; p++) 
+		// reset things we may have changed in the list
+		this.mainModel.items[0].style = 'disabled';
+		this.mainModel.items[0].appCount = 0;
+		this.mainModel.items[1].appCount = 0;
+		this.mainModel.items[2].style = 'disabled';
+		this.mainModel.items[2].appCount = 0;
+		this.mainModel.items[3].style = 'disabled';
+		this.mainModel.items[3].appCount = 0;
+		this.mainModel.items[4].style = false;
+		
+		// loop through apps to build counts for the list
+		if (packages.packages.length > 0)
 		{
-			if (packages.packages[p].hasUpdate)
+			for (var p = 0; p < packages.packages.length; p++) 
 			{
-				this.addPkgToList(0);
-			}
-			if (packages.packages[p].isInstalled)
-			{
-				this.addPkgToList(3);
-			}
-			
-			if (packages.packages[p].category == packages.patchCategory)
-			{
-				this.addPkgToList(2);
-			}
-			else
-			{
-				this.addPkgToList(1);				
+				if (packages.packages[p].hasUpdate)
+				{
+					this.addPkgToList(0);
+				}
+				if (packages.packages[p].isInstalled)
+				{
+					this.addPkgToList(3);
+				}
+				
+				if (packages.packages[p].category == packages.patchCategory)
+				{
+					this.addPkgToList(2);
+				}
+				else
+				{
+					this.addPkgToList(1);				
+				}
 			}
 		}
+		
+		// update list widget
+		this.controller.get('mainList').mojo.noticeUpdatedItems(0, this.mainModel.items);
 	}
-	
-	// update list widget
-	this.controller.get('mainList').mojo.noticeUpdatedItems(0, this.mainModel.items);
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'main#updateList');
+		this.alertMessage('Preware', 'updateList Error');
+	}
 }
 
 // this function updates the list model by giving enabling it and adding an app
