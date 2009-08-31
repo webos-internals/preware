@@ -263,6 +263,73 @@
 /*
  * App View Scene Styles
  */
+.app-view .palm-header
+{
+	padding-left: 0px;
+}
+.app-view .palm-header #icon
+{
+	float: left;
+	width: 48px;
+	margin-top: 2px;
+	margin-left: -10px;
+}
+.app-view .palm-header #icon img
+{
+	width: 48px;
+}
+.app-view .palm-header #title
+{
+	float: left;
+	padding-left: 15px;
+	width: 215px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.app-view .palm-header-spacer
+{
+	height: 50px;
+}
+.app-view .palm-row .palm-row-wrapper .title.description
+{
+	margin-top: 5px;
+	font-size: 18px;
+}
+.app-view .palm-row .palm-row-wrapper .title.description p
+{
+	margin: 0px;
+	padding: 0px;
+	margin-bottom: 10px;
+}
+/*
+.app-view .palm-row .palm-row-wrapper .title.right.class
+{
+}
+*/
+.app-view #scrollerContainer.palm-row
+{
+	background: url(../images/screenshotFade.png) repeat-x;
+}
+.app-view #screenshotScroller
+{
+	height: 130px;
+	padding-top: 10px;
+	width: 100%;
+}
+.app-view #screenshotScroller #screenshots
+{
+	width: 320px;
+	text-align: center;
+	white-space: nowrap;
+	overflow: visible;
+}
+.app-view #screenshotScroller #screenshots img.screenshot
+{
+	margin-left: 13px;
+	margin-right: 13px;
+	height: 120px
+}
 .palm-dialog-box.ipkglog-dialog #logScroller
 {
 	position: relative;
@@ -303,4 +370,25 @@
 	margin-bottom: 5px;
 	color: #600;
 }
+
+
+
+/*
+ * Screenshot Scene Styles
+ */
+.ss-scene
+{
+	padding: 0px;
+}
+.ss-scene #screenshotView
+{
+	height: 510px;
+	width: 320px;
+	margin: 0px;
+	-webkit-user-drag: none;
+	border: 0px;
+	padding: 0px;
+	background-color: black;
+}
+
 

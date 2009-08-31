@@ -2,13 +2,22 @@
 	
 	<div class="scene-fade-top" x-mojo-scroll-fade="top"></div>
 	
-	<div id="appListHeader" class="palm-header">
-		<span id="appTitle"></span>
+	<div class="palm-header left">
+		<div id="icon"></div>
+		<span id="title"></span>
 	</div>
 	
 	<div class="palm-header-spacer"></div>
 	
-	<div class="palm-list" id="appData"></div>
+	<div class="palm-row" id="scrollerContainer">
+		<div class="palm-row-wrapper">
+			<div id="screenshotScroller" x-mojo-element="Scroller">
+				<div id="screenshots"></div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="palm-list" id="data"></div>
 	
 	<div class="scene-fade-bottom" x-mojo-scroll-fade="bottom"></div>
 	

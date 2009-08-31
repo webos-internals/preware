@@ -47,11 +47,15 @@ packagesModel.prototype.load = function(payload)
 	}
 	
 	// sort the packages
-	this.packages.sort(function(a, b)
+	if (this.packages.length > 0) 
 	{
-		if (a.title && b.title) return ((a.title.toLowerCase() < b.title.toLowerCase()) ? -1 : ((a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : 0));
-		else return -1;
-	});
+		this.packages.sort(function(a, b)
+		{
+			if (a.title && b.title) return ((a.title.toLowerCase() < b.title.toLowerCase()) ? -1 : ((a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : 0));
+			else return -1;
+		});
+	}
+	
 	
 	try
 	{
@@ -94,20 +98,27 @@ packagesModel.prototype.load = function(payload)
 	}
 	
 	// sort categories
-	this.categories.sort(function(a, b)
+	if (this.categories.length > 0)
 	{
-		// this needs to be lowercase for sorting.
-		if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
-		else return -1;
-	});
+		this.categories.sort(function(a, b)
+		{
+			// this needs to be lowercase for sorting.
+			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
+			else return -1;
+		});
+	}
 	
 	// sort feeds
-	this.feeds.sort(function(a, b)
+	if (this.feeds.length > 0)
 	{
-		// this needs to be lowercase for sorting.
-		if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
-		else return -1;
-	});
+		this.feeds.sort(function(a, b)
+		{
+			// this needs to be lowercase for sorting.
+			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
+			else return -1;
+		});
+	}
+	
 }
 
 packagesModel.prototype.versionNewer = function(one, two)
@@ -172,36 +183,43 @@ packagesModel.prototype.getApps = function(item)
 {
 	var returnArray = [];
 	
-	// build list from global array
-	for (var p = 0; p < this.packages.length; p++) 
+	try
 	{
-		// default to not pusing it
-		var pushIt = false;
-		
-		// all
-		if (item.list == 'all') pushIt = true;
-		
-		// updates
-		if (item.list == 'updates' && this.packages[p].hasUpdate) pushIt = true;
-		
-		// installed
-		if (item.list == 'installed' && this.packages[p].isInstalled) pushIt = true;
-		
-		// category
-		if (item.list == 'category' && item.category == this.packages[p].category) pushIt = true;
-		
-		// feed
-		if (item.list == 'feed' && this.packages[p].inFeed(item.feed)) pushIt = true;
-		
-		// push it to the list if we should
-		if (pushIt) 
+		// build list from global array
+		for (var p = 0; p < this.packages.length; p++) 
 		{
-			// get object for list
-			var tmpItem = this.packages[p].getForList(item);
+			// default to not pusing it
+			var pushIt = false;
 			
-			// push
-			returnArray.push(tmpItem);
+			// all
+			if (item.list == 'all') pushIt = true;
+			
+			// updates
+			if (item.list == 'updates' && this.packages[p].hasUpdate) pushIt = true;
+			
+			// installed
+			if (item.list == 'installed' && this.packages[p].isInstalled) pushIt = true;
+			
+			// category
+			if (item.list == 'category' && item.category == this.packages[p].category) pushIt = true;
+			
+			// feed
+			if (item.list == 'feed' && this.packages[p].inFeed(item.feed)) pushIt = true;
+			
+			// push it to the list if we should
+			if (pushIt) 
+			{
+				// get object for list
+				var tmpItem = this.packages[p].getForList(item);
+				
+				// push
+				returnArray.push(tmpItem);
+			}
 		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#getApps');
 	}
 	
 	return returnArray;

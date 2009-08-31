@@ -36,31 +36,93 @@ AppViewAssistant.prototype.setup = function()
 	// setup command menu widget
 	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
 	
-	// setup app title
-	this.controller.get('appTitle').innerHTML = this.item.title;
+	// setup app title and icon
+	this.controller.get('title').innerHTML = this.item.title;
+	if (this.item.icon) 
+	{
+		this.controller.get('icon').innerHTML = '<img src="' + this.item.icon + '" />';
+	}
 	
 	
-	// build appData
-	var appData = '';
-	var dataTemplate = 'app-view/dataRow';
-	appData += Mojo.View.render({object: {title: 'Package', data: this.item.pkg}, template: dataTemplate});
+	
+	// build screenshot html
+	var screenshots = '';
+	if (this.item.screenshots.length > 0) 
+	{
+		for (s = 0; s < this.item.screenshots.length; s++) 
+		{
+			screenshots += '<img id="ss_' + s + '" class="screenshot" src="' + this.item.screenshots[s] + '" />';
+		}
+		
+		// fill the screenshot div with data
+		this.controller.get('screenshots').innerHTML = screenshots;
+		
+		// initialize listener
+		this.screenshotTap = this.screenshotTapHandler.bindAsEventListener(this)
+		
+		// looping screenshots adding listeners
+		for (s = 0; s < this.item.screenshots.length; s++) 
+		{
+			Mojo.Event.listen(this.controller.get('ss_' + s), Mojo.Event.tap, this.screenshotTap);
+		}
+	}
+	else
+	{
+		this.controller.get('scrollerContainer').style.display = 'none';
+	}
+	
+	
+	
+	// build data html
+	var data = '';
+	var dataTemplate = 'app-view/dataRow';	
+	var dataTemplate2 = 'app-view/dataRow2';	
+	
+	if (this.item.description)
+	{
+		data += Mojo.View.render({object: {title: 'Description', data: this.item.description}, template: dataTemplate2});
+	}
 	if (this.item.date)
 	{
-		appData += Mojo.View.render({object: {title: 'Last Update', data: this.formatDate(this.item.date)}, template: dataTemplate});
+		data += Mojo.View.render({object: {title: 'Last Updated', data: this.formatDate(this.item.date)}, template: dataTemplate});
 	}
-	appData += Mojo.View.render({object: {title: 'Version', data: this.item.version}, template: dataTemplate});
-	appData += Mojo.View.render({object: {title: 'Download Size', data: this.formatSize(this.item.size)}, template: dataTemplate});
-	appData += Mojo.View.render({object: {title: 'Category', data: this.item.category}, template: dataTemplate});
-	appData += Mojo.View.render({object: {title: 'Maintainer', data: this.item.maintainer}, template: dataTemplate});
+	data += Mojo.View.render({object: {title: 'Version', data: this.item.version}, template: dataTemplate});
+	data += Mojo.View.render({object: {title: 'Download Size', data: this.formatSize(this.item.size)}, template: dataTemplate});
+	data += Mojo.View.render({object: {title: 'Maintainer', data: this.item.maintainer}, template: dataTemplate});
 	if (this.item.homepage)
 	{
-		appData += Mojo.View.render({object: {title: 'Homepage', data: '<a href="' + this.item.homepage + '">Link</a>'}, template: dataTemplate});
+		data += Mojo.View.render({object: {title: 'Homepage', data: '<a href="' + this.item.homepage + '">Link</a>'}, template: dataTemplate});
 	}
+	if (this.item.isInstalled)
+	{
+		if (this.item.dateInstalled) 
+		{
+			data += Mojo.View.render({object: {title: 'Installed', data: this.formatDate(this.item.dateInstalled)}, template: dataTemplate});
+		}
+		if (this.item.sizeInstalled) 
+		{
+			data += Mojo.View.render({object: {title: 'Installed Size', data: this.formatSize(this.item.sizeInstalled * 1024)}, template: dataTemplate});
+		}
+		if (this.item.versionInstalled && this.item.hasUpdate)
+		{
+			data += Mojo.View.render({object: {title: 'Installed Version', data: this.item.versionInstalled}, template: dataTemplate});
+		}
+	}
+	data += Mojo.View.render({object: {title: 'Category', data: this.item.category}, template: dataTemplate});
+	data += Mojo.View.render({object: {title: 'Package', data: this.item.pkg, rowStyle: 'last'}, template: dataTemplate});
+	
+	// fillin the div with data
+	this.controller.get('data').innerHTML = data;
 	
 	
-	// fillin the div
-	this.controller.get('appData').innerHTML = appData;
 	
+	// setup screenshot sideways scroller
+	this.controller.setupWidget
+	(
+		'screenshotScroller',
+		{},
+		{mode: 'horizontal-snap'}
+	);
 	
 	// setup menu model
 	var menuModel =
@@ -74,6 +136,13 @@ AppViewAssistant.prototype.setup = function()
 	
 	// setup widget
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
+}
+
+AppViewAssistant.prototype.screenshotTapHandler = function(event)
+{
+	ssNum = event.srcElement.id.replace(/ss_/, '');
+	// push the screenshots scene
+	this.controller.stageController.pushScene('screenshots', this.item.screenshots, ssNum);
 }
 
 AppViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
@@ -463,6 +532,15 @@ AppViewAssistant.prototype.cleanup = function(event)
 	{
 		this.removeSubscription.cancel();
     }
+	
+	if (this.item.screenshots.length > 0) 
+	{
+		// looping screenshots destroying listeners
+		for (s = 0; s < this.item.screenshots.length; s++) 
+		{
+			Mojo.Event.stopListening(this.controller.get('ss_' + s), Mojo.Event.tap, this.screenshotTap);
+		}
+	}
 }
 
 

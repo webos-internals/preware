@@ -16,16 +16,6 @@ function AppGroupsAssistant(item)
 
 AppGroupsAssistant.prototype.setup = function()
 {
-	// set list title
-	if (this.item.groupBy == 'categories')
-	{
-		this.controller.get('groupHeader').innerHTML = 'WebOS Application Categories';
-	}
-	else if (this.item.groupBy == 'feeds')
-	{
-		this.controller.get('groupHeader').innerHTML = 'WebOS Application Feeds';
-	}
-	
 	// build list model
 	this.buildList();
 	
@@ -35,15 +25,15 @@ AppGroupsAssistant.prototype.setup = function()
 		this.controller.stageController.popScene();
 	}
 	
+	// setup list widget
+	this.controller.setupWidget('groupList', { itemTemplate: "app-groups/rowTemplate", swipeToDelete: false, reorderable: false }, this.listModel);
+	Mojo.Event.listen(this.controller.get('groupList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+	
 	// Set up a command menu
 	this.updateCommandMenu(true);
 	
 	// setup sort command menu widget
 	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
-	
-	// setup list widget
-	this.controller.setupWidget('groupList', { itemTemplate: "app-categories/rowTemplate", swipeToDelete: false, reorderable: false }, this.listModel);
-	Mojo.Event.listen(this.controller.get('groupList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
 	
 	// setup menu that is no menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });

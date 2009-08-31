@@ -36,18 +36,20 @@ function packageModel(info)
 		
 		
 		// load up some default items incase the package has no sourceObj (like installed applications not in any feeds)
-		this.pkg =		  this.info.Package;
-		this.type =		  'Unknown';
-		this.category =	  this.info.Section;
-		this.version =	  this.info.Version;
-		this.maintainer = this.info.Maintainer;
-		this.title =	  this.info.Description;
-		this.size =		  this.info.Size;
-		this.hasUpdate =  false;
-		this.icon =		  false;
-		this.date =		  false;
-		this.feeds =	  ['Unknown'];
-		this.homepage =	  false;
+		this.pkg =		   this.info.Package;
+		this.type =		   'Unknown';
+		this.category =	   this.info.Section;
+		this.version =	   this.info.Version;
+		this.maintainer =  this.info.Maintainer;
+		this.title =	   this.info.Description;
+		this.size =		   this.info.Size;
+		this.hasUpdate =   false;
+		this.icon =		   false;
+		this.date =		   false;
+		this.feeds =	   ['Unknown'];
+		this.homepage =	   false;
+		this.description = false;
+		this.screenshots = [];
 		if (this.info.Status.include('not-installed')) 
 		{
 			this.isInstalled =   false;
@@ -78,8 +80,7 @@ function packageModel(info)
 			if (this.sourceJson.Feed)			 this.feeds =		 [this.sourceJson.Feed];
 			if (this.sourceJson.Homepage)		 this.homepage =	 this.sourceJson.Homepage;
 			if (this.sourceJson.FullDescription) this.description =	 this.sourceJson.FullDescription;
-			if (this.sourceJson.FullDescription) this.description =	 this.sourceJson.FullDescription;
-			
+			if (this.sourceJson.Screenshots)	 this.screenshots =	 this.sourceJson.Screenshots;
 		}
 		
 		// check up on what we've loaded to make sure it makes sense
@@ -167,6 +168,29 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 				if (!this.inFeed(pkg.feeds[f])) 
 				{
 					this.feeds.push(pkg.feeds[f]);
+				}
+			}
+		}
+		
+		if (this.screenshots.length == 0 && pkg.screenshots.length > 0)
+		{
+			this.screenshots = pkg.screenshots;
+		}
+		else if (this.screenshots.length > 0 && pkg.screenshots.length > 0)
+		{
+			for (var ps = 0; ps < pkg.screenshots.length; ps++) 
+			{
+				var ssFound = false;
+				for (var ts = 0; ts < this.screenshots.length; ts++) 
+				{
+					if (pkg.screenshots[ps] == this.screenshots[ts])
+					{
+						ssFound = true;
+					}
+				}
+				if (!ssFound)
+				{
+					this.screenshots.push(pkg.screenshots[ps]);
 				}
 			}
 		}

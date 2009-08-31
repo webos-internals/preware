@@ -22,5 +22,9 @@
     {
         "source": "app\/assistants\/preferences-assistant.js",
         "scenes": "preferences"
+    },
+    {
+        "source": "app\/assistants\/screenshots-assistant.js",
+        "scenes": "screenshots"
     }
 ]
