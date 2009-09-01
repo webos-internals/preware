@@ -1,7 +1,7 @@
 function ScreenshotsAssistant(screenshots, current)
 {
 	this.screenshots = screenshots;
-	this.current = current;
+	this.current = parseInt(current);
 }
 
 ScreenshotsAssistant.prototype.setup = function()
@@ -79,29 +79,43 @@ ScreenshotsAssistant.prototype.wentRight = function()
 
 ScreenshotsAssistant.prototype.activate = function(event)
 {
-	if (this.controller.window.PalmSystem)
+	try
 	{
-		this.controller.window.PalmSystem.enableFullScreenMode(true);
+		if (this.controller.window.PalmSystem)
+		{
+			this.controller.window.PalmSystem.enableFullScreenMode(true);
+		}
+		
+		if (this.current > 0 && this.screenshots[this.current - 1]) 
+		{
+			this.controller.get('screenshotView').mojo.leftUrlProvided(this.screenshots[this.current - 1]);
+		}
+		
+		this.controller.get('screenshotView').mojo.centerUrlProvided(this.screenshots[this.current]);
+		
+		if (this.screenshots[this.current + 1]) 
+		{
+			this.controller.get('screenshotView').mojo.rightUrlProvided(this.screenshots[this.current + 1]);
+		}
 	}
-	
-	if (this.current > 0 && this.screenshots[this.current - 1]) 
+	catch (e)
 	{
-		this.controller.get('screenshotView').mojo.leftUrlProvided(this.screenshots[this.current - 1]);
-	}
-	
-	this.controller.get('screenshotView').mojo.centerUrlProvided(this.screenshots[this.current]);
-	
-	if (this.screenshots[this.current + 1]) 
-	{
-		this.controller.get('screenshotView').mojo.rightUrlProvided(this.screenshots[this.current + 1]);
+		Mojo.Log.logException(e, 'screenshots#activate');
 	}
 }
 
 ScreenshotsAssistant.prototype.deactivate = function(event)
 {
-	if (this.controller.window.PalmSystem)
+	try
 	{
-		this.controller.window.PalmSystem.enableFullScreenMode(false);
+		if (this.controller.window.PalmSystem)
+		{
+			this.controller.window.PalmSystem.enableFullScreenMode(false);
+		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'screenshots#deactivate');
 	}
 }
 

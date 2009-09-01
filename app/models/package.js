@@ -17,7 +17,7 @@
  *   Source:		  where to get the source code
  *   LastUpdated:	  timestamp
  *   Feed:			  that this package comes from
- *   Type:			  Application, Service, Plugin
+ *   Type:			  Application, Service, Plugin, Patch
  *   Category:		 
  *   Homepage:		  url 
  *   Icon:			  url to image (assumed to be 64x64)

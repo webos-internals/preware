@@ -81,6 +81,7 @@ AppViewAssistant.prototype.setup = function()
 	if (this.item.description)
 	{
 		data += Mojo.View.render({object: {title: 'Description', data: this.item.description}, template: dataTemplate2});
+		alert(this.item.description);
 	}
 	if (this.item.date)
 	{
@@ -101,7 +102,7 @@ AppViewAssistant.prototype.setup = function()
 		}
 		if (this.item.sizeInstalled) 
 		{
-			data += Mojo.View.render({object: {title: 'Installed Size', data: this.formatSize(this.item.sizeInstalled * 1024)}, template: dataTemplate});
+			data += Mojo.View.render({object: {title: 'Installed Size', data: this.formatSize(this.item.sizeInstalled)}, template: dataTemplate});
 		}
 		if (this.item.versionInstalled && this.item.hasUpdate)
 		{
@@ -214,6 +215,18 @@ AppViewAssistant.prototype.handleCommand = function(event)
 				
 			// update
 			case 'do-update':
+				// temporary message for unsupported actions
+				if (this.item.type == 'Service' || this.item.type == 'Plugin')
+				{
+					this.serviceMessage('Preware doesn\'t currently support updates to ' + this.item.type.toLowerCase() + 's. Please use WebOS Quick Install to update this ' + this.item.type.toLowerCase() + '. (We plan to support it in Preware by v1.0.0)');
+					return;
+				}
+				else if (this.item.type == 'Patch')
+				{
+					this.serviceMessage('Preware doesn\'t currently support updates to patches. Instead, you should remove the current version, and then install the new version. (We plan to support it in Preware by v1.0.0)');
+					return;
+				}
+			
 				// hide commands
 				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 				
@@ -232,6 +245,13 @@ AppViewAssistant.prototype.handleCommand = function(event)
 				
 			// remove
 			case 'do-remove':
+				// temporary message for unsupported actions
+				if (this.item.type == 'Service' || this.item.type == 'Plugin')
+				{
+					this.serviceMessage('Preware doesn\'t currently support removal of ' + this.item.type.toLowerCase() + 's. Please use WebOS Quick Install to remove this ' + this.item.type.toLowerCase() + '. (We plan to support it in Preware by v1.0.0)');
+					return;
+				}
+				
 				// hide commands
 				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 				
@@ -295,7 +315,7 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 			IPKGService.rescan(function(){});
 			
 			// message
-			var msg = 'Application Updated Completed';
+			var msg = this.item.type + ' Update Completed';
 		}
 		else return;
 	}
@@ -346,7 +366,7 @@ AppViewAssistant.prototype.onInstall = function(payload)
 			IPKGService.rescan(function(){});
 			
 			// message
-			var msg = 'Application Install Completed';
+			var msg = this.item.type + ' Install Completed';
 		}
 		else return;
 	}
@@ -399,7 +419,7 @@ AppViewAssistant.prototype.onRemove = function(payload)
 			IPKGService.rescan(function(){});
 			
 			// message
-			var msg = 'Application Removal Completed';
+			var msg = this.item.type + ' Removal Completed';
 		}
 		else return;
 	}
@@ -452,7 +472,7 @@ AppViewAssistant.prototype.serviceMessage = function(message)
 {
 	this.controller.showAlertDialog({
 	    onChoose: function(value) {},
-	    title: $L("Application"),
+	    title: $L(this.item.type),
 	    message: message,
 	    choices:[{label:$L('Ok'), value:""}]
     });
