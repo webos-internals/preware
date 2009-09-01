@@ -17,7 +17,7 @@
  *   Source:		  where to get the source code
  *   LastUpdated:	  timestamp
  *   Feed:			  that this package comes from
- *   Type:			  Application, Service, Plugin
+ *   Type:			  Application, Service, Plugin, Patch
  *   Category:		 
  *   Homepage:		  url 
  *   Icon:			  url to image (assumed to be 64x64)
@@ -33,7 +33,6 @@ function packageModel(info)
 	{
 		// save the info sent to us
 		this.info = info;
-		
 		
 		// load up some default items incase the package has no sourceObj (like installed applications not in any feeds)
 		this.pkg =		   this.info.Package;

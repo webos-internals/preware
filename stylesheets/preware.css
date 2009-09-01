@@ -294,7 +294,11 @@
 .app-view .palm-row .palm-row-wrapper .title.description
 {
 	margin-top: 5px;
-	font-size: 18px;
+	font-size: 18px !important;
+}
+.app-view .palm-row .palm-row-wrapper .title.description *
+{
+	font-size: 18px !important;
 }
 .app-view .palm-row .palm-row-wrapper .title.description p
 {
@@ -382,7 +386,7 @@
 }
 .ss-scene #screenshotView
 {
-	height: 510px;
+	height: 480px;
 	width: 320px;
 	margin: 0px;
 	-webkit-user-drag: none;
