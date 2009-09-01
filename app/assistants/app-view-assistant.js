@@ -81,7 +81,6 @@ AppViewAssistant.prototype.setup = function()
 	if (this.item.description)
 	{
 		data += Mojo.View.render({object: {title: 'Description', data: this.item.description}, template: dataTemplate2});
-		alert(this.item.description);
 	}
 	if (this.item.date)
 	{

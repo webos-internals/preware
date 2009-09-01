@@ -34,7 +34,6 @@ function packageModel(info)
 		// save the info sent to us
 		this.info = info;
 		
-		
 		// load up some default items incase the package has no sourceObj (like installed applications not in any feeds)
 		this.pkg =		   this.info.Package;
 		this.type =		   'Unknown';

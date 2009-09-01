@@ -165,7 +165,7 @@ MainAssistant.prototype.onUpdate = function(payload)
 	catch (e)
 	{
 		Mojo.Log.logException(e, 'main#onUpdate');
-		this.alertMessage('Preware', 'onUpdate Error');
+		this.alertMessage('onUpdate Error', e);
 	}
 }
 
@@ -200,7 +200,7 @@ MainAssistant.prototype.onInfo = function(payload)
 	catch (e)
 	{
 		Mojo.Log.logException(e, 'main#onInfo');
-		this.alertMessage('Preware', 'onInfo Error');
+		this.alertMessage('onInfo Error', e);
 	}
 }
 
@@ -250,7 +250,7 @@ MainAssistant.prototype.updateList = function()
 	catch (e)
 	{
 		Mojo.Log.logException(e, 'main#updateList');
-		this.alertMessage('Preware', 'updateList Error');
+		this.alertMessage('updateList Error', e);
 	}
 }
 
