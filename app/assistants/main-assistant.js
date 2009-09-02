@@ -8,8 +8,9 @@ function MainAssistant()
 	[
 		'The Open Standard Installer',
 		'The Advanced Homebrew Installer',
-		'The Advertising-Free Installer',
-		'The Most Applications Available'
+		'The Universal Application Installer',
+		'Accessing All Open Standard Feeds',
+		'The Advanced Homebrew Installer' // double billing
 	];
 	
 	// holds the update cookie
