@@ -21,20 +21,20 @@
 	background: url(../images/scrollFade-bottom.png) bottom center repeat-x;
 	-webkit-palm-mouse-target: ignore;
 }
-.palm-row-wrapper .appCount
+.palm-row-wrapper .pkgCount
 {
 	float: right;
     line-height: 19px;
     height: 30px;
     min-width: 30px;
 	vertical-align: middle;
-    -webkit-border-image: url(../images/appCount.png) 5 10 5 10 stretch stretch;
+    -webkit-border-image: url(../images/pkgCount.png) 5 10 5 10 stretch stretch;
     -webkit-box-sizing: border-box;
     border-width: 5px 10px 5px 10px;
 	margin-top: 12px;
 	margin-right: 15px;
 }
-.palm-row-wrapper .appCount .count
+.palm-row-wrapper .pkgCount .count
 {
 	color: #e4e4e2;
 }
@@ -97,11 +97,11 @@
 {
 	color: #999;
 }
-.main .palm-row-wrapper .appCount
+.main .palm-row-wrapper .pkgCount
 {
 	display: none;
 }
-.main .palm-row-wrapper.showCount .appCount
+.main .palm-row-wrapper.showCount .pkgCount
 {
 	display: inline;
 	margin-top: 14px;
@@ -109,9 +109,9 @@
 
 
 /*
- * App Category List Styles
+ * Package Category List Styles
  */
-.app-categories #categoryList .title
+.pkg-groups #categoryList .title
 {
 	text-transform: capitalize;
 }
@@ -119,9 +119,9 @@
 
 
 /*
- * App List Scene Styles
+ * Package List Scene Styles
  */
-.app-list #searchText
+.pkg-list #searchText
 {
 	display: none;
 	z-index: 20000;
@@ -137,7 +137,7 @@
 	-webkit-border-image: url(../images/search-box.png) 10 25 10 25 stretch stretch;
 	-webkit-box-sizing: border-box;
 }
-.app-list #searchText input
+.pkg-list #searchText input
 {
 	color: #fff;
 	background: none;
@@ -146,7 +146,7 @@
 	border: 0px;
 	padding: 0px;
 }
-.app-list #spinner
+.pkg-list #spinner
 {
 	position: fixed;
 	top: 8px;
@@ -154,7 +154,7 @@
 	z-index: 20001;
 	float: right;
 }
-.app-list .group-source 
+.pkg-list .group-source 
 {
 	display: none;
 	position:relative;
@@ -169,7 +169,7 @@
 	-webkit-border-image:url(../images/header-selector.png) 0 22 0 16 stretch stretch;
 	-webkit-box-sizing: border-box;
 }
-.app-list .group-selector 
+.pkg-list .group-selector 
 {
 	margin-left:-5px;
 	padding-right: 2px;
@@ -182,12 +182,12 @@
 	overflow: hidden;
 	-webkit-palm-mouse-target: ignore;
 }
-.app-list .palm-row-wrapper
+.pkg-list .palm-row-wrapper
 {
 	position: relative;
 	height: 56px;
 }
-.app-list .palm-row-wrapper .icon
+.pkg-list .palm-row-wrapper .icon
 {
 	position: absolute;
 	width: 48px;
@@ -196,16 +196,16 @@
 	top: 3px;
 	left: 4px;
 }
-.app-list .palm-row-wrapper.img .icon
+.pkg-list .palm-row-wrapper.img .icon
 {
 	background: none;
 }
-.app-list .palm-row-wrapper.img .icon img
+.pkg-list .palm-row-wrapper.img .icon img
 {
 	width: 48px;
 	height: 48px;
 }
-.app-list .palm-row-wrapper.installed .icon .sub
+.pkg-list .palm-row-wrapper.installed .icon .sub
 {
 	position: absolute;
 	width: 16px;
@@ -214,7 +214,7 @@
 	left: 32px;
 	background: url(../images/icon_installed.png) center center no-repeat;
 }
-.app-list .palm-row-wrapper.update .icon .sub
+.pkg-list .palm-row-wrapper.update .icon .sub
 {
 	position: absolute;
 	width: 16px;
@@ -223,7 +223,7 @@
 	left: 32px;
 	background: url(../images/icon_updates.png) center center no-repeat;
 }
-.app-list .palm-row-wrapper .title
+.pkg-list .palm-row-wrapper .title
 {
 	position: absolute;
 	overflow: hidden;
@@ -234,11 +234,11 @@
 	left: 60px;
 	right: 5px;
 }
-.app-list .palm-row-wrapper .title.description
+.pkg-list .palm-row-wrapper .title.description
 {
 	top: 4px;
 }
-.app-list .palm-row-wrapper .title.package
+.pkg-list .palm-row-wrapper .title.package
 {
 	color: #999;
 	top: 30px;
@@ -248,7 +248,7 @@
 {
 	text-transform: capitalize;
 }
-/* these would be sub of .app-list, but the commandmenu isn't part of that div */
+/* these would be sub of .pkg-list, but the commandmenu isn't part of that div */
 .icon-filter-date
 {
 	background:url(../images/icon_date.png) top center no-repeat;

@@ -9,20 +9,20 @@
         "scenes": "main"
     },
     {
-        "source": "app\/assistants\/app-list-assistant.js",
-        "scenes": "app-list"
+        "source": "app\/assistants\/preferences-assistant.js",
+        "scenes": "preferences"
+    },
+    {
+        "source": "app\/assistants\/pkg-groups-assistant.js",
+        "scenes": "pkg-groups"
+    },
+    {
+        "source": "app\/assistants\/pkg-list-assistant.js",
+        "scenes": "pkg-list"
     },
     {
         "source": "app\/assistants\/app-view-assistant.js",
         "scenes": "app-view"
-    },
-    {
-        "source": "app\/assistants\/app-groups-assistant.js",
-        "scenes": "app-groups"
-    },
-    {
-        "source": "app\/assistants\/preferences-assistant.js",
-        "scenes": "preferences"
     },
     {
         "source": "app\/assistants\/screenshots-assistant.js",

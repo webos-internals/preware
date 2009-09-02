@@ -1,4 +1,4 @@
-function AppListAssistant(item, searchText, currentSort)
+function PkgListAssistant(item, searchText, currentSort)
 {
 	// the item passed by the parent scene
 	this.item = item;
@@ -37,11 +37,11 @@ function AppListAssistant(item, searchText, currentSort)
 		else this.currentSort = 'alpha';
 	}
 	
-	// the app view will update this if the app is changed so the list knows when to update on activation
+	// the pkg view will update this if the pkg is changed so the list knows when to update on activation
 	this.reloadList = false;
 }
 
-AppListAssistant.prototype.setup = function()
+PkgListAssistant.prototype.setup = function()
 {
 	// setup list title
 	this.controller.get('listTitle').innerHTML = this.item.name;
@@ -51,7 +51,7 @@ AppListAssistant.prototype.setup = function()
 		(this.item.list == 'feed'))
 	{
 		// update submenu styles
-		this.controller.get('appListHeader').className = 'palm-header left';
+		this.controller.get('pkgListHeader').className = 'palm-header left';
 		this.controller.get('groupSource').style.display = 'inline';
 		if (this.item.list == 'category')
 		{
@@ -73,7 +73,7 @@ AppListAssistant.prototype.setup = function()
 	this.setupList();
 	
 	// listen for list tap
-	Mojo.Event.listen(this.controller.get('appList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+	Mojo.Event.listen(this.controller.get('pkgList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
 	
 	// Set up a command menu
 	this.updateCommandMenu(true);
@@ -114,7 +114,7 @@ AppListAssistant.prototype.setup = function()
 	// if not, show the text box
 	else
 	{
-		this.controller.get('appListHeader').style.display = 'none';
+		this.controller.get('pkgListHeader').style.display = 'none';
 		this.controller.get('searchText').style.display = 'inline';
 		//this.controller.get('searchText').mojo.setValue(this.searchText);
 	}
@@ -123,7 +123,7 @@ AppListAssistant.prototype.setup = function()
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
 }
 
-AppListAssistant.prototype.updateCommandMenu = function(skipUpdate)
+PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 {
 	
 	// clear current model list
@@ -156,20 +156,20 @@ AppListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	}
 }	
 
-AppListAssistant.prototype.keyTest = function(event)
+PkgListAssistant.prototype.keyTest = function(event)
 {
 	// if its a valid character
 	if (Mojo.Char.isValidWrittenChar(event.originalEvent.charCode)) 
 	{
 		// display and focus search field
 		Mojo.Event.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
-		this.controller.get('appListHeader').style.display = 'none';
+		this.controller.get('pkgListHeader').style.display = 'none';
 		this.controller.get('searchText').style.display = 'inline';
 		this.controller.get('searchText').mojo.focus();
 	}
 }
 
-AppListAssistant.prototype.filterDelayHandler = function(event)
+PkgListAssistant.prototype.filterDelayHandler = function(event)
 {
 	// clear timer (incase one already exists)
 	clearTimeout(this.searchTimer);
@@ -187,7 +187,7 @@ AppListAssistant.prototype.filterDelayHandler = function(event)
 		// reidsplay the title text
 		this.controller.get('searchText').mojo.blur();
 		this.controller.get('searchText').style.display = 'none';
-		this.controller.get('appListHeader').style.display = 'inline';
+		this.controller.get('pkgListHeader').style.display = 'inline';
 		Mojo.Event.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
 		this.searchFunction();
 	}
@@ -202,7 +202,7 @@ AppListAssistant.prototype.filterDelayHandler = function(event)
 	}
 }
 
-AppListAssistant.prototype.filter = function(skipUpdate)
+PkgListAssistant.prototype.filter = function(skipUpdate)
 {
 	this.listModel.items = [];
 	
@@ -231,8 +231,8 @@ AppListAssistant.prototype.filter = function(skipUpdate)
 	if (!skipUpdate) 
 	{
 		// reload list
-		this.controller.get('appList').mojo.noticeUpdatedItems(0, this.listModel.items);
-	 	this.controller.get('appList').mojo.setLength(this.listModel.items.length);
+		this.controller.get('pkgList').mojo.noticeUpdatedItems(0, this.listModel.items);
+	 	this.controller.get('pkgList').mojo.setLength(this.listModel.items.length);
 		
 		// stop spinner
 		this.spinnerModel.spinning = false;
@@ -241,12 +241,12 @@ AppListAssistant.prototype.filter = function(skipUpdate)
 	
 }
 
-AppListAssistant.prototype.setupList = function()
+PkgListAssistant.prototype.setupList = function()
 {
 	// setup list attributes
 	this.listAttributes = 
 	{
-		itemTemplate: "app-list/rowTemplate",
+		itemTemplate: "pkg-list/rowTemplate",
 		swipeToDelete: false,
 		reorderable: false
 	};
@@ -254,11 +254,11 @@ AppListAssistant.prototype.setupList = function()
 	// setp dividers templates
 	if (this.currentSort == 'date') 
 	{
-		this.listAttributes.dividerTemplate = 'app-list/rowDateDivider';
+		this.listAttributes.dividerTemplate = 'pkg-list/rowDateDivider';
 	}
 	else if (this.currentSort == 'alpha' && this.item.list == 'all') 
 	{
-		this.listAttributes.dividerTemplate = 'app-list/rowAlphaDivider';
+		this.listAttributes.dividerTemplate = 'pkg-list/rowAlphaDivider';
 	}
 	
 	// if divider template, setup the divider function
@@ -268,24 +268,24 @@ AppListAssistant.prototype.setupList = function()
 	}
 	
 	// setup list widget
-	this.controller.setupWidget('appList', this.listAttributes, this.listModel);
+	this.controller.setupWidget('pkgList', this.listAttributes, this.listModel);
 }
 
-AppListAssistant.prototype.updateList = function(skipUpdate)
+PkgListAssistant.prototype.updateList = function(skipUpdate)
 {
 	// clear the current list
 	this.packages = [];
 	
-	// load app list
+	// load pkg list
 	this.packages = packages.getApps(this.item);
 	
-	// if there are no apps to list, pop the scene (later, we may replace this with a "nothing to list" message)
+	// if there are no pkgs to list, pop the scene (later, we may replace this with a "nothing to list" message)
 	if (this.packages.length < 1)
 	{
 		this.controller.stageController.popScene();
 	}
 	
-	// apps are sorted alphabetically by deafult, if the current sort is date, run the sort function.
+	// pkgs are sorted alphabetically by deafult, if the current sort is date, run the sort function.
 	if (this.currentSort == 'date') 
 	{
 		this.packages.sort(function(a, b)
@@ -311,7 +311,7 @@ AppListAssistant.prototype.updateList = function(skipUpdate)
 }
 
 // handle sort toggle commands
-AppListAssistant.prototype.handleCommand = function(event)
+PkgListAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
 	{
@@ -320,7 +320,7 @@ AppListAssistant.prototype.handleCommand = function(event)
 			case 'date':
 			case 'alpha':
 				this.currentSort = event.command;
-				this.controller.stageController.swapScene('app-list', this.item, this.searchText, this.currentSort);
+				this.controller.stageController.swapScene('pkg-list', this.item, this.searchText, this.currentSort);
 				break;
 			case 'do-updateAll':
 				this.controller.showAlertDialog({
@@ -338,7 +338,7 @@ AppListAssistant.prototype.handleCommand = function(event)
 };
 
 // divider function
-AppListAssistant.prototype.getDivider = function(item)
+PkgListAssistant.prototype.getDivider = function(item)
 {
 	// how to divide when sorting by date
 	if (this.currentSort == 'date')
@@ -357,7 +357,7 @@ AppListAssistant.prototype.getDivider = function(item)
 		}
 		else
 		{
-			// not all feeds will supply a last-updated value (or apps installed by the user not in any feeds)
+			// not all feeds will supply a last-updated value (or pkgs installed by the user not in any feeds)
 			return 'Unknown';
 		}
 	}
@@ -376,13 +376,13 @@ AppListAssistant.prototype.getDivider = function(item)
 	} 
 }
 
-AppListAssistant.prototype.listTapHandler = function(event)
+PkgListAssistant.prototype.listTapHandler = function(event)
 {
-	// push app view scene with this items info
+	// push pkg view scene with this items info
 	this.controller.stageController.pushScene('app-view', event.item, this);
 }
 
-AppListAssistant.prototype.menuTapHandler = function(event)
+PkgListAssistant.prototype.menuTapHandler = function(event)
 {
 	// build group list model
 	var groupMenu = [];
@@ -430,11 +430,11 @@ AppListAssistant.prototype.menuTapHandler = function(event)
 			{
 				if (this.item.list == 'category')
 				{
-					this.controller.stageController.swapScene('app-list', {list: 'category', category: value, name: "WebOS Applications"});
+					this.controller.stageController.swapScene('pkg-list', {list: 'category', category: value, name: "WebOS Applications"});
 				}
 				else if (this.item.list == 'feed')
 				{
-					this.controller.stageController.swapScene('app-list', {list: 'feed', feed: value, name: "WebOS Applications"});
+					this.controller.stageController.swapScene('pkg-list', {list: 'feed', feed: value, name: "WebOS Applications"});
 				}
 				return;
 			}
@@ -447,12 +447,12 @@ AppListAssistant.prototype.menuTapHandler = function(event)
 	});
 }
 
-AppListAssistant.prototype.setReload = function()
+PkgListAssistant.prototype.setReload = function()
 {
 	this.reloadList = true;
 }
 
-AppListAssistant.prototype.activate = function(event)
+PkgListAssistant.prototype.activate = function(event)
 {
 	if (this.reloadList) 
 	{
@@ -461,13 +461,13 @@ AppListAssistant.prototype.activate = function(event)
 	}
 }
 
-AppListAssistant.prototype.deactivate = function(event) {}
+PkgListAssistant.prototype.deactivate = function(event) {}
 
-AppListAssistant.prototype.cleanup = function(event)
+PkgListAssistant.prototype.cleanup = function(event)
 {
 	// clean up our listeners
 	Mojo.Event.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
 	Mojo.Event.stopListening(this.controller.get('searchText'), Mojo.Event.propertyChange, this.filterDelayHandler.bindAsEventListener(this));
-	Mojo.Event.stopListening(this.controller.get('appList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+	Mojo.Event.stopListening(this.controller.get('pkgList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
 	Mojo.Event.stopListening(this.controller.get('groupSource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
 }

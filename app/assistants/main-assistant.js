@@ -23,14 +23,14 @@ function MainAssistant()
 		{
 			name: $L('Application Updates'),	// displays in list
 			style: 'disabled',					// class for use in the list display
-			scene: 'app-list',					// scene that will be pushed on tap 
-			list: 'updates',					// variable used by the app-list scene to display the correct list other scenes will have different variables
-			appCount: 0							// count of apps for display in list, will only display if style is set to 'showCount'
+			scene: 'pkg-list',					// scene that will be pushed on tap 
+			list: 'updates',					// variable used by the pkg-list scene to display the correct list other scenes will have different variables
+			pkgCount: 0							// count of pkgs for display in list, will only display if style is set to 'showCount'
 		},
 		{
 			name: $L('Available Applications'),
 			style: 'disabled',
-			scene: 'app-groups',
+			scene: 'pkg-groups',
 			groupBy: 'categories'
 		},
 		{
@@ -38,20 +38,20 @@ function MainAssistant()
 			style: 'disabled',
 			list: 'category',
 			category: packages.patchCategory,
-			scene: 'app-list',
-			appCount: 0
+			scene: 'pkg-list',
+			pkgCount: 0
 		},
 		{
 			name: $L('Installed Applications'),
 			style: 'disabled',
-			scene: 'app-list',
+			scene: 'pkg-list',
 			list: 'installed',
-			appCount: 0
+			pkgCount: 0
 		},
 		{
 			name: $L('List of Everything'),
 			style: 'disabled',
-			scene: 'app-list',
+			scene: 'pkg-list',
 			list: 'all'
 		}]
 	};
@@ -138,7 +138,7 @@ MainAssistant.prototype.onConnection = function(response)
 	}
 	else
 	{
-		// if not, go right to loading the app info
+		// if not, go right to loading the pkg info
 		this.controller.get('spinnerStatus').innerHTML = "Loading";
 		IPKGService.info(this.onInfo.bindAsEventListener(this));
 	}
@@ -172,7 +172,7 @@ MainAssistant.prototype.onUpdate = function(payload)
 			// its returned, but we don't really care if anything was actually updated
 			//console.log(payload.returnVal);
 			
-			// lets call the function to update the global list of apps
+			// lets call the function to update the global list of pkgs
 			this.controller.get('spinnerStatus').innerHTML = "Loading";
 			IPKGService.info(this.onInfo.bindAsEventListener(this));
 		}
@@ -193,7 +193,7 @@ MainAssistant.prototype.onInfo = function(payload)
 	{
 		if (!payload) 
 		{
-			this.alertMessage('Preware', 'Unable to get list of apps.');
+			this.alertMessage('Preware', 'Unable to get list of packages.');
 			this.doneInitializing();
 		}
 		else if (payload.errorCode == -1) 
@@ -240,15 +240,15 @@ MainAssistant.prototype.updateList = function()
 	{
 		// reset things we may have changed in the list
 		this.mainModel.items[0].style = 'disabled';
-		this.mainModel.items[0].appCount = 0;
-		this.mainModel.items[1].appCount = 0;
+		this.mainModel.items[0].pkgCount = 0;
+		this.mainModel.items[1].pkgCount = 0;
 		this.mainModel.items[2].style = 'disabled';
-		this.mainModel.items[2].appCount = 0;
+		this.mainModel.items[2].pkgCount = 0;
 		this.mainModel.items[3].style = 'disabled';
-		this.mainModel.items[3].appCount = 0;
+		this.mainModel.items[3].pkgCount = 0;
 		this.mainModel.items[4].style = false;
 		
-		// loop through apps to build counts for the list
+		// loop through pkgs to build counts for the list
 		if (packages.packages.length > 0)
 		{
 			for (var p = 0; p < packages.packages.length; p++) 
@@ -283,11 +283,11 @@ MainAssistant.prototype.updateList = function()
 	}
 }
 
-// this function updates the list model by giving enabling it and adding an app
+// this function updates the list model by giving enabling it and adding an pkg
 MainAssistant.prototype.addPkgToList = function(id)
 {
 	this.mainModel.items[id].style = 'showCount';
-	this.mainModel.items[id].appCount++;
+	this.mainModel.items[id].pkgCount++;
 }
 
 // stops the spinner and displays the list

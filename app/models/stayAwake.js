@@ -1,5 +1,7 @@
 /* 
- * This class is for handling service calls to com.palm.power to make sure the app stays away when we need it
+ * This class is for handling service calls to com.palm.power
+ * to make sure the service stays away when we're using it
+ * like during startup and installation/update/removal
  */
 
 
@@ -8,12 +10,12 @@ function stayAwake()
 	try
 	{
 		// setup stuff
+		this.isStarted = false;
 		this.appId = 'org.webosinternals.preware-serviceAction';
-		this.duration = '900000'; // 15 minute  in milliseconds
+		this.duration   = '900000'; // 15 minute in milliseconds
 		//this.duration = '60000';  //  1 minute
 		//this.duration = '30000';  // 30 seconds
 		//this.duration = '1000';   //  1 seconds
-		this.isStarted = false;
 	}
 	catch (e)
 	{

@@ -1,4 +1,4 @@
-function AppGroupsAssistant(item)
+function PkgGroupsAssistant(item)
 {
 	// the item passed by the parent scene
 	this.item = item;
@@ -14,7 +14,7 @@ function AppGroupsAssistant(item)
 	};
 }
 
-AppGroupsAssistant.prototype.setup = function()
+PkgGroupsAssistant.prototype.setup = function()
 {
 	// build list model
 	this.buildList();
@@ -26,7 +26,7 @@ AppGroupsAssistant.prototype.setup = function()
 	}
 	
 	// setup list widget
-	this.controller.setupWidget('groupList', { itemTemplate: "app-groups/rowTemplate", swipeToDelete: false, reorderable: false }, this.listModel);
+	this.controller.setupWidget('groupList', { itemTemplate: "pkg-groups/rowTemplate", swipeToDelete: false, reorderable: false }, this.listModel);
 	Mojo.Event.listen(this.controller.get('groupList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
 	
 	// Set up a command menu
@@ -39,19 +39,19 @@ AppGroupsAssistant.prototype.setup = function()
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
 }
 
-AppGroupsAssistant.prototype.listTapHandler = function(event)
+PkgGroupsAssistant.prototype.listTapHandler = function(event)
 {
 	if (this.item.groupBy == 'categories')
 	{
-		this.controller.stageController.pushScene('app-list', {list: 'category', category: event.item.name, name: "WebOS Applications"});
+		this.controller.stageController.pushScene('pkg-list', {list: 'category', category: event.item.name, name: "WebOS Applications"});
 	}
 	else if (this.item.groupBy == 'feeds')
 	{
-		this.controller.stageController.pushScene('app-list', {list: 'feed', feed: event.item.name, name: "WebOS Applications"});
+		this.controller.stageController.pushScene('pkg-list', {list: 'feed', feed: event.item.name, name: "WebOS Applications"});
 	}
 }
 
-AppGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
+PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 {
 	
 	// clear current model list
@@ -77,7 +77,7 @@ AppGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	}
 }
 
-AppGroupsAssistant.prototype.buildList = function()
+PkgGroupsAssistant.prototype.buildList = function()
 {
 	this.listModel.items = [];
 	
@@ -111,7 +111,7 @@ AppGroupsAssistant.prototype.buildList = function()
 }
 
 // handle sort toggle commands
-AppGroupsAssistant.prototype.handleCommand = function(event)
+PkgGroupsAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
 	{
@@ -120,7 +120,7 @@ AppGroupsAssistant.prototype.handleCommand = function(event)
 			case 'categories':
 			case 'feeds':
 				this.item.groupBy = event.command;
-				this.controller.stageController.swapScene('app-groups', this.item);
+				this.controller.stageController.swapScene('pkg-groups', this.item);
 				break;
 				
 			default:
@@ -129,11 +129,11 @@ AppGroupsAssistant.prototype.handleCommand = function(event)
 	}
 };
 
-AppGroupsAssistant.prototype.activate = function(event) {}
+PkgGroupsAssistant.prototype.activate = function(event) {}
 
-AppGroupsAssistant.prototype.deactivate = function(event) {}
+PkgGroupsAssistant.prototype.deactivate = function(event) {}
 
-AppGroupsAssistant.prototype.cleanup = function(event)
+PkgGroupsAssistant.prototype.cleanup = function(event)
 {
 	// clean up our listeners
 	Mojo.Event.stopListening(this.controller.get('groupList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
