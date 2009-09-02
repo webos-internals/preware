@@ -57,6 +57,9 @@ function MainAssistant()
 	
 	// spinner model
 	this.spinnerModel = {spinning: true};
+	
+	// load stayawake class
+	this.stayAwake = new stayAwake();
 }
 
 MainAssistant.prototype.setup = function()
@@ -76,14 +79,6 @@ MainAssistant.prototype.setup = function()
 	
 	// hide the list while we update ipkg
 	this.controller.get('mainList').style.display = "none";
-	
-	// start with checking the internet connection
-	this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
-	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
-	    method: 'getstatus',
-	    onSuccess: this.onConnection.bindAsEventListener(this),
-	    onFailure: this.onConnection.bindAsEventListener(this)
-	});
 
 	// setup menu model
 	var menuModel =
@@ -106,6 +101,17 @@ MainAssistant.prototype.setup = function()
 	
 	// setup widget
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
+	
+	// this is the start of the stayawake class to keep it awake till we're done with it
+	this.stayAwake.start();
+	
+	// start with checking the internet connection
+	this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
+	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
+	    method: 'getstatus',
+	    onSuccess: this.onConnection.bindAsEventListener(this),
+	    onFailure: this.onConnection.bindAsEventListener(this)
+	});
 }
 
 MainAssistant.prototype.listTapHandler = function(event)
@@ -145,12 +151,20 @@ MainAssistant.prototype.onUpdate = function(payload)
 		{
 			// i dont know if this will ever happen, but hey, it might
 			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-			this.hideSpinner();
+			this.doneInitializing();
 		}
 		else if (payload.errorCode == -1)
 		{
-			this.alertMessage('Preware', payload.errorText);
-			this.hideSpinner();
+			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+				this.doneInitializing();
+			}
+			else
+			{
+				this.alertMessage('Preware', payload.errorText);
+				this.doneInitializing();
+			}
 		}
 		else if (payload.returnVal != undefined) 
 		{
@@ -166,6 +180,9 @@ MainAssistant.prototype.onUpdate = function(payload)
 	{
 		Mojo.Log.logException(e, 'main#onUpdate');
 		this.alertMessage('onUpdate Error', e);
+		
+		// we're done here
+		this.doneInitializing();
 	}
 }
 
@@ -176,12 +193,20 @@ MainAssistant.prototype.onInfo = function(payload)
 		if (!payload) 
 		{
 			this.alertMessage('Preware', 'Unable to get list of apps.');
-			this.hideSpinner();
+			this.doneInitializing();
 		}
 		else if (payload.errorCode == -1) 
 		{
-			this.alertMessage('Preware', payload.errorText);
-			this.hideSpinner();
+			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+				this.doneInitializing();
+			}
+			else
+			{
+				this.alertMessage('Preware', payload.errorText);
+				this.doneInitializing();
+			}
 		}
 		else 
 		{
@@ -193,14 +218,17 @@ MainAssistant.prototype.onInfo = function(payload)
 			// update the list
 			this.updateList();
 			
-			// hide the spinner
-			this.hideSpinner();
+			// we're done here
+			this.doneInitializing();
 		}
 	}
 	catch (e)
 	{
 		Mojo.Log.logException(e, 'main#onInfo');
 		this.alertMessage('onInfo Error', e);
+		
+		// we're done here
+		this.doneInitializing();
 	}
 }
 
@@ -262,7 +290,7 @@ MainAssistant.prototype.addPkgToList = function(id)
 }
 
 // stops the spinner and displays the list
-MainAssistant.prototype.hideSpinner = function()
+MainAssistant.prototype.doneInitializing = function()
 {
 	// stop and hide the spinner
 	this.spinnerModel.spinning = false;
@@ -270,6 +298,9 @@ MainAssistant.prototype.hideSpinner = function()
 	
 	// show the list
 	this.controller.get('mainList').style.display = "inline";
+	
+	// we're done loading so let the phone sleep if it needs to
+	this.stayAwake.end();
 }
 
 MainAssistant.prototype.activate = function(event)
@@ -327,4 +358,8 @@ MainAssistant.prototype.onConfigs = function(payload)
 
 MainAssistant.prototype.deactivate = function(event) {}
 
-MainAssistant.prototype.cleanup = function(event) {}
+MainAssistant.prototype.cleanup = function(event)
+{
+	// should maybe stop the power timer?
+	this.stayAwake.end();
+}
