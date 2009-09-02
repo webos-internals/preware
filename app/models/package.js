@@ -46,9 +46,11 @@ function packageModel(info)
 		this.icon =		   false;
 		this.date =		   false;
 		this.feeds =	   ['Unknown'];
+		this.feedString =  'Unknown';
 		this.homepage =	   false;
 		this.description = false;
 		this.screenshots = [];
+		this.depends =	   [];
 		if (this.info.Status.include('not-installed')) 
 		{
 			this.isInstalled =   false;
@@ -60,6 +62,23 @@ function packageModel(info)
 			this.isInstalled =   true;
 			this.dateInstalled = this.info['Installed-Time'];
 			this.sizeInstalled = this.info['Installed-Size'];
+		}
+		if (this.info.Depends)
+		{
+			var dSplit = this.info.Depends.split(',');
+			for (var d = 0; d < dSplit.length; d++)
+			{
+				var dRx = new RegExp(/(.*)\((.*)\)/);
+				var match = dRx.exec(dSplit[d]);
+				if (match)
+				{
+					this.depends.push({pkg: match[1].replace(/^\s*/, "").replace(/\s*$/, ""), version: match[2].replace(/^\s*/, "").replace(/\s*$/, "")});
+				}
+				else
+				{
+					this.depends.push({pkg: dSplit[d].replace(/^\s*/, "").replace(/\s*$/, ""), version: false});
+				}
+			}
 		}
 		
 		
@@ -76,10 +95,14 @@ function packageModel(info)
 			if (this.sourceJson.Title)			 this.title =		 this.sourceJson.Title;
 			if (this.sourceJson.Icon)			 this.icon =		 this.sourceJson.Icon;
 			if (this.sourceJson.LastUpdated)	 this.date =		 this.sourceJson.LastUpdated;
-			if (this.sourceJson.Feed)			 this.feeds =		 [this.sourceJson.Feed];
 			if (this.sourceJson.Homepage)		 this.homepage =	 this.sourceJson.Homepage;
 			if (this.sourceJson.FullDescription) this.description =	 this.sourceJson.FullDescription;
 			if (this.sourceJson.Screenshots)	 this.screenshots =	 this.sourceJson.Screenshots;
+			if (this.sourceJson.Feed) 
+			{
+				this.feeds = [this.sourceJson.Feed];
+				this.feedString = this.sourceJson.Feed;
+			}
 		}
 		
 		// check up on what we've loaded to make sure it makes sense
@@ -159,6 +182,7 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 		if (this.feeds[0] == 'Unknown') 
 		{
 			this.feeds = pkg.feeds;
+			this.feedString = pkg.feedString;
 		}
 		else if (pkg.feeds[0] != 'Unknown')
 		{
@@ -167,7 +191,16 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 				if (!this.inFeed(pkg.feeds[f])) 
 				{
 					this.feeds.push(pkg.feeds[f]);
+					this.feedString += ', ' + pkg.feeds[f];
 				}
+			}
+		}
+		
+		if (pkg.depends.length > 0) 
+		{
+			for (var d = 0; d < pkg.depends.length; d++) 
+			{
+				this.depends.push(pkg.depends[d]);
 			}
 		}
 		
@@ -233,15 +266,29 @@ packageModel.prototype.getForList = function(item)
 			listObj.icon = '<img src="' + this.icon + '" />';
 		}
 		
-		if (this.isInstalled && !this.hasUpdate &&
+		if (item) 
+		{
+			if (this.isInstalled && !this.hasUpdate &&
 			item.list != 'updates' &&
 			item.list != 'installed') 
-		{
-			listObj.rowClass += ' installed';
+			{
+				listObj.rowClass += ' installed';
+			}
+			if (this.hasUpdate && item.list != 'updates') 
+			{
+				listObj.rowClass += ' update';
+			}
 		}
-		if (this.hasUpdate && item.list != 'updates') 
+		else
 		{
-			listObj.rowClass += ' update';
+			if (this.isInstalled && !this.hasUpdate) 
+			{
+				listObj.rowClass += ' installed';
+			}
+			if (this.hasUpdate) 
+			{
+				listObj.rowClass += ' update';
+			}
 		}
 	}
 	catch (e)
@@ -250,4 +297,44 @@ packageModel.prototype.getForList = function(item)
 	}
 	
 	return listObj;
+}
+
+// this function will return a list of packages this package depends on
+packageModel.prototype.getDependencies = function()
+{
+	
+}
+
+// this function will return a list of packages dependent on the current package
+packageModel.prototype.getDependent = function()
+{
+	var returnArray = [];
+	
+	if (packages.packages.length > 0)
+	{
+		for (var p = 0; p < packages.packages.length; p++)
+		{
+			// this is for real
+			if (packages.packages[p].depends.length > 0)
+			{
+				for (var d = 0; d < packages.packages[p].depends.length; d++)
+				{
+					if (packages.packages[p].depends[d].pkg == this.pkg)
+					{
+						//alert(packages.packages[p].title);
+						returnArray.push(p);
+					}
+				}
+			}
+			
+			/*// this is for testing
+			if (p <= 6)
+			{
+				returnArray.push(p);
+			}
+			*/
+		}
+	}
+	
+	return returnArray;
 }

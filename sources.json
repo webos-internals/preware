@@ -21,8 +21,8 @@
         "scenes": "pkg-list"
     },
     {
-        "source": "app\/assistants\/app-view-assistant.js",
-        "scenes": "app-view"
+        "source": "app\/assistants\/pkg-view-assistant.js",
+        "scenes": "pkg-view"
     },
     {
         "source": "app\/assistants\/screenshots-assistant.js",

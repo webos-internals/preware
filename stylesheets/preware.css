@@ -261,24 +261,24 @@
 
 
 /*
- * App View Scene Styles
+ * Package View Scene Styles
  */
-.app-view .palm-header
+.pkg-view .palm-header
 {
 	padding-left: 0px;
 }
-.app-view .palm-header #icon
+.pkg-view .palm-header #icon
 {
 	float: left;
 	width: 48px;
 	margin-top: 2px;
 	margin-left: -10px;
 }
-.app-view .palm-header #icon img
+.pkg-view .palm-header #icon img
 {
 	width: 48px;
 }
-.app-view .palm-header #title
+.pkg-view .palm-header #title
 {
 	float: left;
 	padding-left: 15px;
@@ -287,52 +287,72 @@
 	white-space: nowrap;
 	overflow: hidden;
 }
-.app-view .palm-header-spacer
+.pkg-view .palm-header-spacer
 {
 	height: 50px;
 }
-.app-view .palm-row .palm-row-wrapper .title.description
+.pkg-view .palm-row .palm-row-wrapper .title.description
 {
 	margin-top: 5px;
 	font-size: 18px !important;
 }
-.app-view .palm-row .palm-row-wrapper .title.description *
+.pkg-view .palm-row .palm-row-wrapper .title.description *
 {
 	font-size: 18px !important;
 }
-.app-view .palm-row .palm-row-wrapper .title.description p
+.pkg-view .palm-row .palm-row-wrapper .title.description p
 {
 	margin: 0px;
 	padding: 0px;
 	margin-bottom: 10px;
 }
 /*
-.app-view .palm-row .palm-row-wrapper .title.right.class
+.pkg-view .palm-row .palm-row-wrapper .title.right.class
 {
 }
 */
-.app-view #scrollerContainer.palm-row
+.pkg-view #scrollerContainer.palm-row.screenshots
 {
 	background: url(../images/screenshotFade.png) repeat-x;
 }
-.app-view #screenshotScroller
+.pkg-view #scrollerContainer.palm-row.apps
+{
+	background: url(../images/appFade.png) repeat-x;
+}
+.pkg-view #scrollerContainer.palm-row.screenshots #viewScroller
 {
 	height: 130px;
 	padding-top: 10px;
 	width: 100%;
 }
-.app-view #screenshotScroller #screenshots
+.pkg-view #scrollerContainer.palm-row.apps #viewScroller
+{
+	height: 64px;
+	padding-top: 10px;
+	width: 100%;
+}
+.pkg-view #viewScroller #scrollItems
 {
 	width: 320px;
 	text-align: center;
 	white-space: nowrap;
 	overflow: visible;
 }
-.app-view #screenshotScroller #screenshots img.screenshot
+.pkg-view #viewScroller #scrollItems img.screenshot
 {
 	margin-left: 13px;
 	margin-right: 13px;
 	height: 120px
+}
+.pkg-view #viewScroller #scrollItems img.app
+{
+	margin-left: 13px;
+	margin-right: 13px;
+	height: 54px
+}
+.pkg-view #viewScroller #scrollItems img.app.notInstalled
+{
+	opacity: 0.4;
 }
 .palm-dialog-box.ipkglog-dialog #logScroller
 {

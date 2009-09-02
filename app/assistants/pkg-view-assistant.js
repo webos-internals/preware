@@ -1,4 +1,4 @@
-function AppViewAssistant(item, listAssistant)
+function PkgViewAssistant(item, listAssistant)
 {
 	// item of the list that was tapped
 	// load it from the global package array based on the pkgNum in the list item
@@ -28,7 +28,7 @@ function AppViewAssistant(item, listAssistant)
 	this.ipkglog = '';
 }
 
-AppViewAssistant.prototype.setup = function()
+PkgViewAssistant.prototype.setup = function()
 {
 	// build command menu
 	this.updateCommandMenu(true);
@@ -36,7 +36,7 @@ AppViewAssistant.prototype.setup = function()
 	// setup command menu widget
 	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
 	
-	// setup app title and icon
+	// setup PkgViewAssistant title and icon
 	this.controller.get('title').innerHTML = this.item.title;
 	if (this.item.icon) 
 	{
@@ -45,17 +45,22 @@ AppViewAssistant.prototype.setup = function()
 	
 	
 	
-	// build screenshot html
-	var screenshots = '';
-	if (this.item.screenshots.length > 0) 
+	// build scroll items html
+	// screenshots for applications and patches
+	// app icons for plugins and services
+	var scrollItems = '';
+	this.dependents = this.item.getDependent();
+	if ((this.item.type == 'Application' || this.item.type == 'Patch') &&
+		this.item.screenshots.length > 0) 
 	{
+		this.controller.get('scrollerContainer').className = 'palm-row screenshots';
 		for (s = 0; s < this.item.screenshots.length; s++) 
 		{
-			screenshots += '<img id="ss_' + s + '" class="screenshot" src="' + this.item.screenshots[s] + '" />';
+			scrollItems += '<img id="ss_' + s + '" class="screenshot" src="' + this.item.screenshots[s] + '" />';
 		}
 		
 		// fill the screenshot div with data
-		this.controller.get('screenshots').innerHTML = screenshots;
+		this.controller.get('scrollItems').innerHTML = scrollItems;
 		
 		// initialize listener
 		this.screenshotTap = this.screenshotTapHandler.bindAsEventListener(this)
@@ -64,6 +69,27 @@ AppViewAssistant.prototype.setup = function()
 		for (s = 0; s < this.item.screenshots.length; s++) 
 		{
 			Mojo.Event.listen(this.controller.get('ss_' + s), Mojo.Event.tap, this.screenshotTap);
+		}
+	}
+	else if ((this.item.type == 'Service' || this.item.type == 'Plugin') &&
+			this.dependents.length > 0) 
+	{
+		this.controller.get('scrollerContainer').className = 'palm-row apps';
+		for (d = 0; d < this.dependents.length; d++) 
+		{
+			scrollItems += '<img id="app_' + this.dependents[d] + '" class="app' + (!packages.packages[this.dependents[d]].isInstalled?' notInstalled':'') + '" src="' + (packages.packages[this.dependents[d]].icon?packages.packages[this.dependents[d]].icon:'images/noIcon.png') + '" />';
+		}
+		
+		// fill the screenshot div with data
+		this.controller.get('scrollItems').innerHTML = scrollItems;
+		
+		// initialize listener
+		this.appTap = this.appTapHandler.bindAsEventListener(this)
+		
+		// looping apps adding listeners
+		for (d = 0; d < this.dependents.length; d++) 
+		{
+			Mojo.Event.listen(this.controller.get('app_' + this.dependents[d]), Mojo.Event.tap, this.appTap);
 		}
 	}
 	else
@@ -75,8 +101,8 @@ AppViewAssistant.prototype.setup = function()
 	
 	// build data html
 	var data = '';
-	var dataTemplate = 'app-view/dataRow';	
-	var dataTemplate2 = 'app-view/dataRow2';	
+	var dataTemplate = 'pkg-view/dataRow';	
+	var dataTemplate2 = 'pkg-view/dataRow2';	
 	
 	if (this.item.description)
 	{
@@ -108,6 +134,7 @@ AppViewAssistant.prototype.setup = function()
 			data += Mojo.View.render({object: {title: 'Installed Version', data: this.item.versionInstalled}, template: dataTemplate});
 		}
 	}
+	data += Mojo.View.render({object: {title: 'Feed' + (this.item.feeds.length>1?'s':''), data: this.item.feedString}, template: dataTemplate});
 	data += Mojo.View.render({object: {title: 'Category', data: this.item.category}, template: dataTemplate});
 	data += Mojo.View.render({object: {title: 'Package', data: this.item.pkg, rowStyle: 'last'}, template: dataTemplate});
 	
@@ -119,7 +146,7 @@ AppViewAssistant.prototype.setup = function()
 	// setup screenshot sideways scroller
 	this.controller.setupWidget
 	(
-		'screenshotScroller',
+		'viewScroller',
 		{},
 		{mode: 'horizontal-snap'}
 	);
@@ -138,14 +165,21 @@ AppViewAssistant.prototype.setup = function()
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
 }
 
-AppViewAssistant.prototype.screenshotTapHandler = function(event)
+PkgViewAssistant.prototype.screenshotTapHandler = function(event)
 {
 	ssNum = event.srcElement.id.replace(/ss_/, '');
 	// push the screenshots scene
 	this.controller.stageController.pushScene('screenshots', this.item.screenshots, ssNum);
 }
 
-AppViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
+PkgViewAssistant.prototype.appTapHandler = function(event)
+{
+	appNum = event.srcElement.id.replace(/app_/, '');
+	// push the pkg view scene
+	this.controller.stageController.pushScene('pkg-view', packages.packages[appNum].getForList(), this.listAssistant);
+}
+
+PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 {
 	// clear current model list
 	this.cmdMenuModel.items = [];
@@ -192,7 +226,7 @@ AppViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 }
 
 // this function handles the commands from the commandMenu
-AppViewAssistant.prototype.handleCommand = function(event)
+PkgViewAssistant.prototype.handleCommand = function(event)
 {
 	if(event.type == Mojo.Event.command)
 	{
@@ -207,7 +241,7 @@ AppViewAssistant.prototype.handleCommand = function(event)
 			case 'do-showLog':
 				this.controller.showDialog(
 				{
-					template: 'app-view/ipkgLogDialog',
+					template: 'pkg-view/ipkgLogDialog',
 					assistant: new IPKGLogDialogAssistant(this)
 				});
 				break;
@@ -275,7 +309,7 @@ AppViewAssistant.prototype.handleCommand = function(event)
 	}
 }
 
-AppViewAssistant.prototype.onUpdate = function(payload)
+PkgViewAssistant.prototype.onUpdate = function(payload)
 {
 	// log payload for display
 	this.ipkgLog(payload);
@@ -310,7 +344,7 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 			// cancel the subscription
 			this.updateSubscription.cancel();
 			
-			// rescan luna to show or hide the app
+			// rescan luna to show or hide the pkg
 			IPKGService.rescan(function(){});
 			
 			// message
@@ -326,7 +360,7 @@ AppViewAssistant.prototype.onUpdate = function(payload)
 	this.updateCommandMenu();
 }
 
-AppViewAssistant.prototype.onInstall = function(payload)
+PkgViewAssistant.prototype.onInstall = function(payload)
 {
 	// log payload for display
 	this.ipkgLog(payload);
@@ -361,7 +395,7 @@ AppViewAssistant.prototype.onInstall = function(payload)
 			// cancel the subscription
 			this.installSubscription.cancel();
 			
-			// rescan luna to show or hide the app
+			// rescan luna to show or hide the pkg
 			IPKGService.rescan(function(){});
 			
 			// message
@@ -377,7 +411,7 @@ AppViewAssistant.prototype.onInstall = function(payload)
 	this.updateCommandMenu();
 }
 
-AppViewAssistant.prototype.onRemove = function(payload)
+PkgViewAssistant.prototype.onRemove = function(payload)
 {
 	// log payload for display
 	this.ipkgLog(payload);
@@ -414,7 +448,7 @@ AppViewAssistant.prototype.onRemove = function(payload)
 			// cancel the subscription
 			this.removeSubscription.cancel();
 			
-			// rescan luna to show or hide the app
+			// rescan luna to show or hide the pkg
 			IPKGService.rescan(function(){});
 			
 			// message
@@ -430,7 +464,7 @@ AppViewAssistant.prototype.onRemove = function(payload)
 	this.updateCommandMenu();
 }
 
-AppViewAssistant.prototype.ipkgLog = function(payload)
+PkgViewAssistant.prototype.ipkgLog = function(payload)
 {
 	if (payload.stage)
 	{
@@ -467,7 +501,7 @@ AppViewAssistant.prototype.ipkgLog = function(payload)
 	}
 }
 
-AppViewAssistant.prototype.serviceMessage = function(message)
+PkgViewAssistant.prototype.serviceMessage = function(message)
 {
 	this.controller.showAlertDialog({
 	    onChoose: function(value) {},
@@ -477,7 +511,7 @@ AppViewAssistant.prototype.serviceMessage = function(message)
     });
 }
 
-AppViewAssistant.prototype.formatDate = function(date)
+PkgViewAssistant.prototype.formatDate = function(date)
 {
 	var dateObj = new Date(date * 1000);
 	var toReturn = '';
@@ -503,7 +537,7 @@ AppViewAssistant.prototype.formatDate = function(date)
 	return toReturn;
 }
 
-AppViewAssistant.prototype.formatSize = function(size)
+PkgViewAssistant.prototype.formatSize = function(size)
 {
 	var toReturn = size + ' B';
 	var formatSize = size;
@@ -524,7 +558,7 @@ AppViewAssistant.prototype.formatSize = function(size)
 	return toReturn;
 }
 
-AppViewAssistant.prototype.reScan = function()
+PkgViewAssistant.prototype.reScan = function()
 {
 	var request = new Mojo.Service.Request("palm://com.palm.applicationManager", {
 		method: 'rescan',
@@ -533,11 +567,11 @@ AppViewAssistant.prototype.reScan = function()
 	});
 }
 
-AppViewAssistant.prototype.activate = function(event) {}
+PkgViewAssistant.prototype.activate = function(event) {}
 
-AppViewAssistant.prototype.deactivate = function(event) {}
+PkgViewAssistant.prototype.deactivate = function(event) {}
 
-AppViewAssistant.prototype.cleanup = function(event)
+PkgViewAssistant.prototype.cleanup = function(event)
 {
     if (this.updateSubscription)
 	{
@@ -552,7 +586,8 @@ AppViewAssistant.prototype.cleanup = function(event)
 		this.removeSubscription.cancel();
     }
 	
-	if (this.item.screenshots.length > 0) 
+	if ((this.item.type == 'Application' || this.item.type == 'Patch') &&
+		this.item.screenshots.length > 0) 
 	{
 		// looping screenshots destroying listeners
 		for (s = 0; s < this.item.screenshots.length; s++) 
@@ -560,8 +595,12 @@ AppViewAssistant.prototype.cleanup = function(event)
 			Mojo.Event.stopListening(this.controller.get('ss_' + s), Mojo.Event.tap, this.screenshotTap);
 		}
 	}
+	else if ((this.item.type == 'Service' || this.item.type == 'Plugin') &&
+			this.dependents.length > 0) 
+	{
+		// looping apps destroying listeners
+	}
 }
-
 
 // IPKG Log Dialog Assistant
 
@@ -612,4 +651,3 @@ IPKGLogDialogAssistant.prototype.close = function(event)
 	// hide the widget
 	this.widget.mojo.close();
 }
-

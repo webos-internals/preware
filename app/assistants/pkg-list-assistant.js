@@ -379,7 +379,7 @@ PkgListAssistant.prototype.getDivider = function(item)
 PkgListAssistant.prototype.listTapHandler = function(event)
 {
 	// push pkg view scene with this items info
-	this.controller.stageController.pushScene('app-view', event.item, this);
+	this.controller.stageController.pushScene('pkg-view', event.item, this);
 }
 
 PkgListAssistant.prototype.menuTapHandler = function(event)
