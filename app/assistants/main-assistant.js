@@ -13,51 +13,8 @@ function MainAssistant()
 		'The Advanced Homebrew Installer' // double billing
 	];
 	
-	// holds the update cookie
-	//updateCookie: false,
-	
-	// main list model
-	this.mainModel = 
-	{
-		items: [
-		{
-			name: $L('Application Updates'),	// displays in list
-			style: 'disabled',					// class for use in the list display
-			scene: 'pkg-list',					// scene that will be pushed on tap 
-			list: 'updates',					// variable used by the pkg-list scene to display the correct list other scenes will have different variables
-			pkgCount: 0							// count of pkgs for display in list, will only display if style is set to 'showCount'
-		},
-		{
-			name: $L('Available Applications'),
-			style: 'disabled',
-			scene: 'pkg-groups',
-			groupBy: 'categories'
-		},
-		{
-			name: $L('Available Patches'),
-			style: 'disabled',
-			list: 'category',
-			category: packages.patchCategory,
-			scene: 'pkg-list',
-			pkgCount: 0
-		},
-		{
-			name: $L('Installed Applications'),
-			style: 'disabled',
-			scene: 'pkg-list',
-			list: 'installed',
-			pkgCount: 0
-		},
-		{
-			name: $L('List of Everything'),
-			style: 'disabled',
-			scene: 'pkg-list',
-			list: 'all'
-		}]
-	};
-	
-	// spinner model
-	this.spinnerModel = {spinning: true};
+	// holds the preferences cookie
+	this.prefs = new prefCookie();
 	
 	// load stayawake class
 	this.stayAwake = new stayAwake();
@@ -71,10 +28,16 @@ MainAssistant.prototype.setup = function()
 	// set version string
 	this.controller.get('version').innerHTML = "v" + Mojo.Controller.appInfo.version;
 	
-	// setup spinner model
+	// spinner model
+	this.spinnerModel = {spinning: true};
+	
+	// setup spinner widget
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
 	
 	// setup list model
+	this.mainModel = { items: [] };
+	
+	// setup list widget
 	this.controller.setupWidget('mainList', { itemTemplate: "main/rowTemplate", swipeToDelete: false, reorderable: false }, this.mainModel);
 	Mojo.Event.listen(this.controller.get('mainList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
 	
@@ -89,11 +52,11 @@ MainAssistant.prototype.setup = function()
 		/*{ // we're hiding this crap for now since it doesn't do anything at all.
 			label: "Update Feeds",
 			command: 'do-update'
-		},
+		},*/
 		{
 			label: "Preferences...",
 			command: 'do-prefs'
-		},*/
+		},
 		{
 			label: "List Configs...",
 			command: 'do-configs'
@@ -152,19 +115,19 @@ MainAssistant.prototype.onUpdate = function(payload)
 		{
 			// i dont know if this will ever happen, but hey, it might
 			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-			this.doneInitializing();
+			this.doneUpdating();
 		}
 		else if (payload.errorCode == -1)
 		{
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
 				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
-				this.doneInitializing();
+				this.doneUpdating();
 			}
 			else
 			{
 				this.alertMessage('Preware', payload.errorText);
-				this.doneInitializing();
+				this.doneUpdating();
 			}
 		}
 		else if (payload.returnVal != undefined) 
@@ -183,7 +146,7 @@ MainAssistant.prototype.onUpdate = function(payload)
 		this.alertMessage('onUpdate Error', e);
 		
 		// we're done here
-		this.doneInitializing();
+		this.doneUpdating();
 	}
 }
 
@@ -194,19 +157,19 @@ MainAssistant.prototype.onInfo = function(payload)
 		if (!payload) 
 		{
 			this.alertMessage('Preware', 'Unable to get list of packages.');
-			this.doneInitializing();
+			this.doneUpdating();
 		}
 		else if (payload.errorCode == -1) 
 		{
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
 				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
-				this.doneInitializing();
+				this.doneUpdating();
 			}
 			else
 			{
 				this.alertMessage('Preware', payload.errorText);
-				this.doneInitializing();
+				this.doneUpdating();
 			}
 		}
 		else 
@@ -216,11 +179,8 @@ MainAssistant.prototype.onInfo = function(payload)
 			// send payload to items object
 			packages.load(payload);
 			
-			// update the list
-			this.updateList();
-			
 			// we're done here
-			this.doneInitializing();
+			this.doneUpdating();
 		}
 	}
 	catch (e)
@@ -229,7 +189,7 @@ MainAssistant.prototype.onInfo = function(payload)
 		this.alertMessage('onInfo Error', e);
 		
 		// we're done here
-		this.doneInitializing();
+		this.doneUpdating();
 	}
 }
 
@@ -238,15 +198,81 @@ MainAssistant.prototype.updateList = function()
 {
 	try 
 	{
-		// reset things we may have changed in the list
-		this.mainModel.items[0].style = 'disabled';
-		this.mainModel.items[0].pkgCount = 0;
-		this.mainModel.items[1].pkgCount = 0;
-		this.mainModel.items[2].style = 'disabled';
-		this.mainModel.items[2].pkgCount = 0;
-		this.mainModel.items[3].style = 'disabled';
-		this.mainModel.items[3].pkgCount = 0;
-		this.mainModel.items[4].style = false;
+		// clear main list model of its items
+		this.mainModel.items = [];
+		
+		this.mainModel.items.push(
+		{
+			name: $L('Available Updates'),	// displays in list
+			style: 'disabled',				// class for use in the list display
+			scene: 'pkg-list',				// scene that will be pushed on tap 
+			pkgType: 'all',					// 
+			pkgValue: 'updates',			// 
+			pkgCount: 0						// count of pkgs for display in list, will only display if style is set to 'showCount'
+		});
+		
+		this.mainModel.items.push(
+		{
+			name: $L('Available Applications'),
+			style: 'disabled',
+			scene: 'pkg-groups',
+			list: 'categories',
+			pkgType: 'Application',
+			pkgValue: 'group',
+			pkgCount: 0
+		});
+		
+		this.mainModel.items.push(
+		{
+			name: $L('Available Patches'),
+			style: 'disabled',
+			scene: 'pkg-list',
+			pkgType: 'Patch',
+			pkgValue: 'all',
+			pkgCount: 0
+		});
+		
+		if (this.prefs.get().showOther)
+		{
+			this.mainModel.items.push(
+			{
+				name: $L('Available Plugins'),
+				//style: 'disabled',
+				scene: 'pkg-list',
+				pkgType: 'Plugin',
+				pkgValue: 'all',
+				pkgCount: 0
+			});
+			
+			this.mainModel.items.push(
+			{
+				name: $L('Available Services'),
+				//style: 'disabled',
+				scene: 'pkg-list',
+				pkgType: 'Service',
+				pkgValue: 'all',
+				pkgCount: 0
+			});
+		}
+		
+		this.mainModel.items.push(
+		{
+			name: $L('Installed Packages'),
+			style: 'disabled',
+			scene: 'pkg-list',
+			pkgType: 'all',
+			pkgValue: 'installed',
+			pkgCount: 0
+		});
+		
+		this.mainModel.items.push(
+		{
+			name: $L('List of Everything'),
+			style: 'disabled',
+			scene: 'pkg-list',
+			pkgType: 'all',
+			pkgValue: 'all'
+		});
 		
 		// loop through pkgs to build counts for the list
 		if (packages.packages.length > 0)
@@ -259,7 +285,14 @@ MainAssistant.prototype.updateList = function()
 				}
 				if (packages.packages[p].isInstalled)
 				{
-					this.addPkgToList(3);
+					if (this.prefs.get().showOther) 
+					{
+						this.addPkgToList(5);
+					}
+					else
+					{
+						this.addPkgToList(3);
+					}
 				}
 				
 				if (packages.packages[p].category == packages.patchCategory)
@@ -271,10 +304,15 @@ MainAssistant.prototype.updateList = function()
 					this.addPkgToList(1);				
 				}
 			}
+			
+			// enable everything list
+			this.mainModel.items[(this.mainModel.items.length-1)].style = false;
+			
 		}
 		
 		// update list widget
 		this.controller.get('mainList').mojo.noticeUpdatedItems(0, this.mainModel.items);
+	 	this.controller.get('mainList').mojo.setLength(this.mainModel.items.length);
 	}
 	catch (e)
 	{
@@ -291,11 +329,14 @@ MainAssistant.prototype.addPkgToList = function(id)
 }
 
 // stops the spinner and displays the list
-MainAssistant.prototype.doneInitializing = function()
+MainAssistant.prototype.doneUpdating = function()
 {
 	// stop and hide the spinner
 	this.spinnerModel.spinning = false;
 	this.controller.modelChanged(this.spinnerModel);
+	
+	// update the list
+	this.updateList();
 	
 	// show the list
 	this.controller.get('mainList').style.display = "inline";
@@ -332,6 +373,7 @@ MainAssistant.prototype.handleCommand = function(event)
 			break;
 
 		case 'do-prefs':
+			this.controller.stageController.pushScene('preferences');
 			break;
 
 		case 'do-configs':

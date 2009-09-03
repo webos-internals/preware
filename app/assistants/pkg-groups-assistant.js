@@ -16,6 +16,9 @@ function PkgGroupsAssistant(item)
 
 PkgGroupsAssistant.prototype.setup = function()
 {
+	// setup list title
+	this.controller.get('groupTitle').innerHTML = this.item.name;
+	
 	// build list model
 	this.buildList();
 	
@@ -41,13 +44,15 @@ PkgGroupsAssistant.prototype.setup = function()
 
 PkgGroupsAssistant.prototype.listTapHandler = function(event)
 {
-	if (this.item.groupBy == 'categories')
+	this.item.pkgGroup = event.item.name;
+	
+	if (this.item.list == 'categories')
 	{
-		this.controller.stageController.pushScene('pkg-list', {list: 'category', category: event.item.name, name: "WebOS Applications"});
+		this.controller.stageController.pushScene('pkg-list', this.item);
 	}
-	else if (this.item.groupBy == 'feeds')
+	else if (this.item.list == 'feeds')
 	{
-		this.controller.stageController.pushScene('pkg-list', {list: 'feed', feed: event.item.name, name: "WebOS Applications"});
+		this.controller.stageController.pushScene('pkg-list', this.item);
 	}
 }
 
@@ -61,7 +66,7 @@ PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	this.cmdMenuModel.items.push({});
 	
 	// push the sort selector
-	this.cmdMenuModel.items.push({items: [{label: $L('Categories'), command: 'categories'}, {label: $L('Feeds'),  command: 'feeds'}], toggleCmd: this.item.groupBy});
+	this.cmdMenuModel.items.push({items: [{label: $L('Categories'), command: 'categories'}, {label: $L('Feeds'),  command: 'feeds'}], toggleCmd: this.item.list});
 	
 	// this is to put space around the icons
 	this.cmdMenuModel.items.push({});
@@ -81,7 +86,7 @@ PkgGroupsAssistant.prototype.buildList = function()
 {
 	this.listModel.items = [];
 	
-	if (this.item.groupBy == 'categories') 
+	if (this.item.list == 'categories') 
 	{
 		for (var c = 0; c < packages.categories.length; c++) 
 		{
@@ -96,7 +101,7 @@ PkgGroupsAssistant.prototype.buildList = function()
 			}
 		}
 	}
-	else if (this.item.groupBy == 'feeds')
+	else if (this.item.list == 'feeds')
 	{
 		for (var f = 0; f < packages.feeds.length; f++) 
 		{
@@ -119,7 +124,7 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 		{
 			case 'categories':
 			case 'feeds':
-				this.item.groupBy = event.command;
+				this.item.list = event.command;
 				this.controller.stageController.swapScene('pkg-groups', this.item);
 				break;
 				

@@ -27,6 +27,7 @@ function PkgListAssistant(item, searchText, currentSort)
 	}
 	else
 	{
+		/*
 		// category and installed list get alphabetical default
 		if ((this.item.list == 'category' && this.item.category != packages.patchCategory) || this.item.list == 'installed') this.currentSort = 'alpha';
 		// updates list and all get date default and patches
@@ -35,6 +36,9 @@ function PkgListAssistant(item, searchText, currentSort)
 		else if (this.item.list == 'feed') this.currentSort = 'date';
 		// if anything else default to alphabetical (though, this should never happen)
 		else this.currentSort = 'alpha';
+		*/
+		
+		this.currentSort = 'date';
 	}
 	
 	// the pkg view will update this if the pkg is changed so the list knows when to update on activation
@@ -46,21 +50,13 @@ PkgListAssistant.prototype.setup = function()
 	// setup list title
 	this.controller.get('listTitle').innerHTML = this.item.name;
 	
-	// change scene if this is a single category
-	if ((this.item.list == 'category' && this.item.category != packages.patchCategory) ||
-		(this.item.list == 'feed'))
+	// change scene if this is a single group
+	if (this.item.pkgValue == 'group')
 	{
 		// update submenu styles
 		this.controller.get('pkgListHeader').className = 'palm-header left';
 		this.controller.get('groupSource').style.display = 'inline';
-		if (this.item.list == 'category')
-		{
-			this.controller.get('groupTitle').innerHTML = this.item.category;
-		}
-		else if (this.item.list == 'feed')
-		{
-			this.controller.get('groupTitle').innerHTML = this.item.feed;
-		}
+		this.controller.get('groupTitle').innerHTML = this.item.pkgGroup;
 		
 		// listen for tap to open menu
 		Mojo.Event.listen(this.controller.get('groupSource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
@@ -133,7 +129,7 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	this.cmdMenuModel.items.push({});
 	
 	// if updates, lets push the update all button
-	if (this.item.list == 'updates' && this.listModel.items.length > 1) 
+	if (this.item.pkgValue == 'updates' && this.listModel.items.length > 1) 
 	{
 		// we don't want this to show yet, since it doesn't work
 		//this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
@@ -256,7 +252,7 @@ PkgListAssistant.prototype.setupList = function()
 	{
 		this.listAttributes.dividerTemplate = 'pkg-list/rowDateDivider';
 	}
-	else if (this.currentSort == 'alpha' && this.item.list == 'all') 
+	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all') 
 	{
 		this.listAttributes.dividerTemplate = 'pkg-list/rowAlphaDivider';
 	}
@@ -277,7 +273,7 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 	this.packages = [];
 	
 	// load pkg list
-	this.packages = packages.getApps(this.item);
+	this.packages = packages.getPackages(this.item);
 	
 	// if there are no pkgs to list, pop the scene (later, we may replace this with a "nothing to list" message)
 	if (this.packages.length < 1)
@@ -362,7 +358,7 @@ PkgListAssistant.prototype.getDivider = function(item)
 		}
 	}
 	// how to divide when sorted by alpha (only used by the all list)
-	else if (this.currentSort == 'alpha' && this.item.list == 'all')
+	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all')
 	{
 		var firstChar = item.title.substr(0, 1);
 		if (parseInt(firstChar) == firstChar) 
@@ -387,9 +383,8 @@ PkgListAssistant.prototype.menuTapHandler = function(event)
 	// build group list model
 	var groupMenu = [];
 	
-	if (this.item.list == 'category')
+	if (this.item.list == 'categories')
 	{
-		var selectedValue = this.item.category;
 		for (var c = 0; c < packages.categories.length; c++) 
 		{
 			if (packages.categories[c].name != packages.patchCategory) 
@@ -402,9 +397,8 @@ PkgListAssistant.prototype.menuTapHandler = function(event)
 			}
 		}
 	}
-	else if (this.item.list == 'feed')
+	else if (this.item.list == 'feeds')
 	{
-		var selectedValue = this.item.feed;
 		for (var f = 0; f < packages.feeds.length; f++) 
 		{
 			groupMenu.push(
@@ -421,27 +415,23 @@ PkgListAssistant.prototype.menuTapHandler = function(event)
 		onChoose: function(value)
 		{
 			if (value === null || value == "" || value == undefined ||
-				(this.item.list == 'category' && value == this.item.category) ||
-				(this.item.list == 'feed' && value == this.item.feed)) 
+				(this.item.pkgValue == 'group' && this.item.pkgGroup == value)) 
 			{
 				return;
 			}
 			else
 			{
-				if (this.item.list == 'category')
+				this.item.pkgGroup = value;
+				if (this.item.pkgValue == 'group')
 				{
-					this.controller.stageController.swapScene('pkg-list', {list: 'category', category: value, name: "WebOS Applications"});
-				}
-				else if (this.item.list == 'feed')
-				{
-					this.controller.stageController.swapScene('pkg-list', {list: 'feed', feed: value, name: "WebOS Applications"});
+					this.controller.stageController.swapScene('pkg-list', this.item);
 				}
 				return;
 			}
 			
 		},
 		popupClass: 'group-popup',
-		toggleCmd: selectedValue,
+		toggleCmd: this.item.pkgGroup,
 		placeNear: event.target,
 		items: groupMenu
 	});

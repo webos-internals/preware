@@ -179,7 +179,7 @@ packagesModel.prototype.feedInList = function(feed)
 	return false;
 }
 
-packagesModel.prototype.getApps = function(item)
+packagesModel.prototype.getPackages = function(item)
 {
 	var returnArray = [];
 	
@@ -191,6 +191,27 @@ packagesModel.prototype.getApps = function(item)
 			// default to not pusing it
 			var pushIt = false;
 			
+			
+			if (item.pkgType != 'all') 
+			{
+				if (item.pkgType == this.packages[p].type) pushIt = true;
+			}
+			else 
+			{
+				pushIt = true;
+			}
+			
+			if (item.pkgValue == 'group')
+			{
+				if (item.list == 'categories' && item.pkgGroup != this.packages[p].category) pushIt = false;
+				if (item.list == 'feeds' && !this.packages[p].inFeed(item.pkgGroup)) pushIt = false;
+			}
+			else if (item.pkgValue == 'updates' && !this.packages[p].hasUpdate) pushIt = false;
+			else if (item.pkgValue == 'installed' && !this.packages[p].isInstalled) pushIt = false;
+			
+			
+			
+			/*
 			// all
 			if (item.list == 'all') pushIt = true;
 			
@@ -205,6 +226,7 @@ packagesModel.prototype.getApps = function(item)
 			
 			// feed
 			if (item.list == 'feed' && this.packages[p].inFeed(item.feed)) pushIt = true;
+			*/
 			
 			// push it to the list if we should
 			if (pushIt) 

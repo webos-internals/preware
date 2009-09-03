@@ -3,6 +3,7 @@
     {"source": "app\/models\/IPKGService.js"},
     {"source": "app\/models\/packages.js"},
     {"source": "app\/models\/package.js"},
+	{"source": "app\/models\/prefCookie.js"},
     {"source": "app\/models\/stayAwake.js"},
     {
         "source": "app\/assistants\/main-assistant.js",
