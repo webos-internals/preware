@@ -45,15 +45,7 @@ PkgGroupsAssistant.prototype.setup = function()
 PkgGroupsAssistant.prototype.listTapHandler = function(event)
 {
 	this.item.pkgGroup = event.item.name;
-	
-	if (this.item.list == 'categories')
-	{
-		this.controller.stageController.pushScene('pkg-list', this.item);
-	}
-	else if (this.item.list == 'feeds')
-	{
-		this.controller.stageController.pushScene('pkg-list', this.item);
-	}
+	this.controller.stageController.pushScene('pkg-list', this.item);
 }
 
 PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
@@ -86,33 +78,7 @@ PkgGroupsAssistant.prototype.buildList = function()
 {
 	this.listModel.items = [];
 	
-	if (this.item.list == 'categories') 
-	{
-		for (var c = 0; c < packages.categories.length; c++) 
-		{
-			if (packages.categories[c].name != packages.patchCategory) 
-			{
-				this.listModel.items.push(
-				{
-					name: packages.categories[c].name,
-					category: packages.categories[c].name,
-					count: packages.categories[c].count
-				});
-			}
-		}
-	}
-	else if (this.item.list == 'feeds')
-	{
-		for (var f = 0; f < packages.feeds.length; f++) 
-		{
-			this.listModel.items.push(
-			{
-				name: packages.feeds[f].name,
-				feed: packages.feeds[f].name,
-				count: packages.feeds[f].count
-			});
-		}
-	}
+	this.listModel.items = packages.getGroups(this.item);
 }
 
 // handle sort toggle commands

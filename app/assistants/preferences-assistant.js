@@ -107,6 +107,10 @@ PreferencesAssistant.prototype.toggleChanged = function(event)
 
 PreferencesAssistant.prototype.activate = function(event) {}
 
-PreferencesAssistant.prototype.deactivate = function(event) {}
+PreferencesAssistant.prototype.deactivate = function(event)
+{
+	// reload global storage of preferences when we get rid of this stage
+	var tmp = prefs.get(true);
+}
 
 PreferencesAssistant.prototype.cleanup = function(event) {}

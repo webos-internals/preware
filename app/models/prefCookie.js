@@ -5,32 +5,35 @@ function prefCookie()
 	this.load();
 }
 
-prefCookie.prototype.get = function()
+prefCookie.prototype.get = function(reload)
 {
 	try 
 	{
-		// setup our default preferences
-		this.prefs = 
+		if (!this.prefs || reload) 
 		{
-			// Startup Group
-			updateInterval: 'launch',
+			// setup our default preferences
+			this.prefs = 
+			{
+				// Startup Group
+				updateInterval: 'launch',
+				
+				// Main Scene Group
+				showOther: false,
+				
+				// Background Group
+				backgroundUpdates: 'disabled',
+				autoInstallUpdates: false
+			};
 			
-			// Main Scene Group
-			showOther: false,
-			
-			// Background Group
-			backgroundUpdates: 'disabled',
-			autoInstallUpdates: false
-		};
-		
-		var cookieData = this.cookie.get();
-		if (cookieData) 
-		{
-			this.prefs = cookieData;
-		}
-		else 
-		{
-			this.put(this.prefs);
+			var cookieData = this.cookie.get();
+			if (cookieData) 
+			{
+				this.prefs = cookieData;
+			}
+			else 
+			{
+				this.put(this.prefs);
+			}
 		}
 		
 		return this.prefs;
@@ -41,12 +44,12 @@ prefCookie.prototype.get = function()
 	}
 }
 
-prefCookie.prototype.put = function(prefs)
+prefCookie.prototype.put = function(obj)
 {
 	try
 	{
 		this.load();
-		this.cookie.put(prefs);
+		this.cookie.put(obj);
 	} 
 	catch (e) 
 	{

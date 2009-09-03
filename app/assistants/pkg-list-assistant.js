@@ -381,33 +381,7 @@ PkgListAssistant.prototype.listTapHandler = function(event)
 PkgListAssistant.prototype.menuTapHandler = function(event)
 {
 	// build group list model
-	var groupMenu = [];
-	
-	if (this.item.list == 'categories')
-	{
-		for (var c = 0; c < packages.categories.length; c++) 
-		{
-			if (packages.categories[c].name != packages.patchCategory) 
-			{
-				groupMenu.push(
-				{
-					label: packages.categories[c].name,
-					command: packages.categories[c].name
-				});
-			}
-		}
-	}
-	else if (this.item.list == 'feeds')
-	{
-		for (var f = 0; f < packages.feeds.length; f++) 
-		{
-			groupMenu.push(
-			{
-				label: packages.feeds[f].name,
-				command: packages.feeds[f].name
-			});
-		}
-	}
+	var groupMenu =  packages.getGroups(this.item);
 	
 	// open category selector
 	this.controller.popupSubmenu(

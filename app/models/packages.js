@@ -67,12 +67,7 @@ packagesModel.prototype.load = function(payload)
 			if (catNum === false) 
 			{
 				// push new category
-				this.categories.push({name: this.packages[p].category, count: 1});
-			}
-			else
-			{
-				// increment category count
-				this.categories[catNum].count++;
+				this.categories.push({name: this.packages[p].category});
 			}
 			
 			// build feeds list
@@ -82,12 +77,7 @@ packagesModel.prototype.load = function(payload)
 				if (feedNum === false) 
 				{
 					// push new category
-					this.feeds.push({name: this.packages[p].feeds[f], count: 1});
-				}
-				else
-				{
-					// increment category count
-					this.feeds[feedNum].count++;
+					this.feeds.push({name: this.packages[p].feeds[f]});
 				}
 			}
 		}
@@ -179,6 +169,63 @@ packagesModel.prototype.feedInList = function(feed)
 	return false;
 }
 
+packagesModel.prototype.getGroups = function(item)
+{
+	var returnArray = [];
+	
+	try
+	{
+		if (item.list == 'categories') 
+		{
+			for (var c = 0; c < this.categories.length; c++)
+			{
+				item.pkgGroup = this.categories[c].name;
+				var count = this.getPackages(item).length;
+				if (count > 0) 
+				{
+					returnArray.push(
+					{
+						// this is for group list
+						name: packages.categories[c].name,
+						count: count,
+						
+						// this is for group selector
+						label: packages.categories[c].name,
+						command: packages.categories[c].name
+					});
+				}
+			}
+		}
+		else if (item.list == 'feeds')
+		{
+			for (var f = 0; f < this.feeds.length; f++)
+			{
+				item.pkgGroup = this.feeds[f].name;
+				var count = this.getPackages(item).length;
+				if (count > 0) 
+				{
+					returnArray.push(
+					{
+						// this is for group list
+						name: this.feeds[f].name,
+						count: count,
+						
+						// this is for group selector
+						label: this.feeds[f].name,
+						command: this.feeds[f].name
+					});
+				}
+			}
+		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#getGroups');
+	}
+	
+	return returnArray;
+}
+
 packagesModel.prototype.getPackages = function(item)
 {
 	var returnArray = [];
@@ -186,7 +233,7 @@ packagesModel.prototype.getPackages = function(item)
 	try
 	{
 		// build list from global array
-		for (var p = 0; p < this.packages.length; p++) 
+		for (var p = 0; p < this.packages.length; p++)
 		{
 			// default to not pusing it
 			var pushIt = false;
@@ -195,6 +242,14 @@ packagesModel.prototype.getPackages = function(item)
 			if (item.pkgType != 'all') 
 			{
 				if (item.pkgType == this.packages[p].type) pushIt = true;
+				
+				// for now, we want to show services and plugins in the application lists if they aren't splitting them up in the main list
+				// once we handle dependencies we can delete this code
+				if (!prefs.get().showOther && item.pkgType == "Application" &&
+					(this.packages[p].type == "Plugin" || this.packages[p].type == "Service"))
+				{
+					pushIt = true;
+				}
 			}
 			else 
 			{
@@ -203,30 +258,15 @@ packagesModel.prototype.getPackages = function(item)
 			
 			if (item.pkgValue == 'group')
 			{
-				if (item.list == 'categories' && item.pkgGroup != this.packages[p].category) pushIt = false;
-				if (item.list == 'feeds' && !this.packages[p].inFeed(item.pkgGroup)) pushIt = false;
+				if (item.pkgGroup)
+				{
+					if (item.list == 'categories' && this.packages[p].category != item.pkgGroup) pushIt = false;
+					if (item.list == 'feeds' && !this.packages[p].inFeed(item.pkgGroup)) pushIt = false;
+				}
 			}
 			else if (item.pkgValue == 'updates' && !this.packages[p].hasUpdate) pushIt = false;
 			else if (item.pkgValue == 'installed' && !this.packages[p].isInstalled) pushIt = false;
 			
-			
-			
-			/*
-			// all
-			if (item.list == 'all') pushIt = true;
-			
-			// updates
-			if (item.list == 'updates' && this.packages[p].hasUpdate) pushIt = true;
-			
-			// installed
-			if (item.list == 'installed' && this.packages[p].isInstalled) pushIt = true;
-			
-			// category
-			if (item.list == 'category' && item.category == this.packages[p].category) pushIt = true;
-			
-			// feed
-			if (item.list == 'feed' && this.packages[p].inFeed(item.feed)) pushIt = true;
-			*/
 			
 			// push it to the list if we should
 			if (pushIt) 
@@ -241,7 +281,7 @@ packagesModel.prototype.getPackages = function(item)
 	}
 	catch (e)
 	{
-		Mojo.Log.logException(e, 'packagesModel#getApps');
+		Mojo.Log.logException(e, 'packagesModel#getPackages');
 	}
 	
 	return returnArray;

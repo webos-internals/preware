@@ -1,6 +1,9 @@
 // global items object
 var packages = new packagesModel();
 
+// holds the preferences cookie
+var prefs = new prefCookie();
+
 function MainAssistant()
 {
 	// subtitle random list
@@ -12,9 +15,6 @@ function MainAssistant()
 		'Accessing All Open Standard Feeds',
 		'The Advanced Homebrew Installer' // double billing
 	];
-	
-	// holds the preferences cookie
-	this.prefs = new prefCookie();
 	
 	// load stayawake class
 	this.stayAwake = new stayAwake();
@@ -232,7 +232,7 @@ MainAssistant.prototype.updateList = function()
 			pkgCount: 0
 		});
 		
-		if (this.prefs.get().showOther)
+		if (prefs.get().showOther)
 		{
 			this.mainModel.items.push(
 			{
@@ -274,40 +274,21 @@ MainAssistant.prototype.updateList = function()
 			pkgValue: 'all'
 		});
 		
-		// loop through pkgs to build counts for the list
+		// if we have packages we need to get out list counts
 		if (packages.packages.length > 0)
 		{
-			for (var p = 0; p < packages.packages.length; p++) 
+			for (var i = 0; i < (this.mainModel.items.length-1); i++)
 			{
-				if (packages.packages[p].hasUpdate)
+				var count = packages.getPackages(this.mainModel.items[i]).length;
+				if (count > 0) 
 				{
-					this.addPkgToList(0);
-				}
-				if (packages.packages[p].isInstalled)
-				{
-					if (this.prefs.get().showOther) 
-					{
-						this.addPkgToList(5);
-					}
-					else
-					{
-						this.addPkgToList(3);
-					}
-				}
-				
-				if (packages.packages[p].category == packages.patchCategory)
-				{
-					this.addPkgToList(2);
-				}
-				else
-				{
-					this.addPkgToList(1);				
+					this.mainModel.items[i].style = 'showCount';
+					this.mainModel.items[i].pkgCount = count;
 				}
 			}
 			
 			// enable everything list
 			this.mainModel.items[(this.mainModel.items.length-1)].style = false;
-			
 		}
 		
 		// update list widget
@@ -319,13 +300,6 @@ MainAssistant.prototype.updateList = function()
 		Mojo.Log.logException(e, 'main#updateList');
 		this.alertMessage('updateList Error', e);
 	}
-}
-
-// this function updates the list model by giving enabling it and adding an pkg
-MainAssistant.prototype.addPkgToList = function(id)
-{
-	this.mainModel.items[id].style = 'showCount';
-	this.mainModel.items[id].pkgCount++;
 }
 
 // stops the spinner and displays the list

@@ -1,6 +1,4 @@
-function AppAssistant() {
-
-}
+function AppAssistant() {}
 
 AppAssistant.prototype.handleLaunch = function() {
 
