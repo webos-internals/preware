@@ -116,6 +116,7 @@ function packageModel(info)
 		{
 			this.type = 'Application';
 		}
+		
 	}
 	catch (e)
 	{
@@ -147,6 +148,16 @@ packageModel.prototype.infoUpdate = function(newPackage)
 			this.versionInstalled = newPackage.version;
 			this.infoLoadMissing(newPackage);
 			return false;
+		}
+		
+		// if the old one is installed and the new one is not, and its newer, update the new one
+		if (!newPackage.isInstalled && this.isInstalled && newer)
+		{
+			newPackage.isInstalled = true;
+			newPackage.hasUpdate = true;
+			newPackage.versionInstalled = this.version;
+			newPackage.infoLoadMissing(this);
+			return newPackage;
 		}
 		
 		// if the new one is installed but the old one is not, and this is newer, replace the old one
@@ -276,22 +287,22 @@ packageModel.prototype.getForList = function(item)
 		{
 			if (this.isInstalled && !this.hasUpdate &&
 			item.list != 'updates' &&
-			item.list != 'installed') 
+			item.list != 'installed')
 			{
 				listObj.rowClass += ' installed';
 			}
-			if (this.hasUpdate && item.list != 'updates') 
+			if (this.hasUpdate && item.list != 'updates')
 			{
 				listObj.rowClass += ' update';
 			}
 		}
 		else
 		{
-			if (this.isInstalled && !this.hasUpdate) 
+			if (this.isInstalled && !this.hasUpdate)
 			{
 				listObj.rowClass += ' installed';
 			}
-			if (this.hasUpdate) 
+			if (this.hasUpdate)
 			{
 				listObj.rowClass += ' update';
 			}
