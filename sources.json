@@ -1,5 +1,6 @@
 [
     {"source": "app\/assistants\/app-assistant.js"},
+    {"source": "app\/models\/utility.js"},
     {"source": "app\/models\/IPKGService.js"},
     {"source": "app\/models\/packages.js"},
     {"source": "app\/models\/package.js"},

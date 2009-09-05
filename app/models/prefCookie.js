@@ -16,19 +16,26 @@ prefCookie.prototype.get = function(reload)
 			{
 				// Startup Group
 				updateInterval: 'launch',
+				lastUpdate: 0, // will be updated every time update is successful
 				
 				// Main Scene Group
-				showOther: false,
+				showLibraries: false,
 				
 				// Background Group
 				backgroundUpdates: 'disabled',
-				autoInstallUpdates: false
+				autoInstallUpdates: false,
+				
+				// Hidden Advanced Group
+				allowServiceUpdates: false
 			};
 			
 			var cookieData = this.cookie.get();
 			if (cookieData) 
 			{
-				this.prefs = cookieData;
+				for (i in cookieData) 
+				{
+					this.prefs[i] = cookieData[i];
+				}
 			}
 			else 
 			{
@@ -44,12 +51,20 @@ prefCookie.prototype.get = function(reload)
 	}
 }
 
-prefCookie.prototype.put = function(obj)
+prefCookie.prototype.put = function(obj, value)
 {
 	try
 	{
 		this.load();
-		this.cookie.put(obj);
+		if (value)
+		{
+			this.prefs[obj] = value;
+			this.cookie.put(this.prefs);
+		}
+		else
+		{
+			this.cookie.put(obj);
+		}
 	} 
 	catch (e) 
 	{

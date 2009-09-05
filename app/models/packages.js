@@ -243,10 +243,16 @@ packagesModel.prototype.getPackages = function(item)
 			{
 				if (item.pkgType == this.packages[p].type) pushIt = true;
 				
-				// for now, we want to show services and plugins in the application lists if they aren't splitting them up in the main list
+				// for now, we want to show libraries in the application lists if they aren't splitting them up in the main list
 				// once we handle dependencies we can delete this code
-				if (!prefs.get().showOther && item.pkgType == "Application" &&
-					(this.packages[p].type == "Plugin" || this.packages[p].type == "Service"))
+				if (!prefs.get().showLibraries && item.pkgType == "Application" &&
+					(this.packages[p].type == "Plugin" || this.packages[p].type == "Service" || this.packages[p].type == "LinuxBinary"))
+				{
+					pushIt = true;
+				}
+				
+				if (item.pkgType == "Libraries" &&
+					(this.packages[p].type == "Plugin" || this.packages[p].type == "Service" || this.packages[p].type == "LinuxBinary"))
 				{
 					pushIt = true;
 				}

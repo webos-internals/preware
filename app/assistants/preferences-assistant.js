@@ -3,12 +3,21 @@ function PreferencesAssistant()
 	// setup default preferences in the prefCookie.js model
 	this.cookie = new prefCookie();
 	this.prefs = this.cookie.get();
+	
+	// for secret group
+	this.secretString = '';
+	this.secretAnswer = 'iknowwhatimdoing';
 }
 
 PreferencesAssistant.prototype.setup = function()
 {
 	try
 	{
+		// setup handlers for preferences
+		this.toggleChangeHandler = this.toggleChanged.bindAsEventListener(this)
+		this.listChangedHandler  = this.listChanged.bindAsEventListener(this)
+		
+		
 		// Startup Group
 		this.controller.setupWidget
 		(
@@ -25,27 +34,31 @@ PreferencesAssistant.prototype.setup = function()
 			},
 			this.prefs
 		);
+		if (this.prefs.lastUpdate) 
+		{
+			this.controller.get('lastUpdate').innerHTML = formatDate(this.prefs.lastUpdate);
+		}
 		
-		this.controller.listen('updateInterval', Mojo.Event.propertyChange, this.listChanged.bindAsEventListener(this));
+		this.controller.listen('updateInterval', Mojo.Event.propertyChange, this.listChangedHandler);
 		
 		
 		
 		// Main Scene Group
 		this.controller.setupWidget
 		(
-			'showOther',
+			'showLibraries',
 			{
 	  			trueLabel:  'Yes',
 	 			falseLabel: 'No',
-	  			fieldName:  'showOther'
+	  			fieldName:  'showLibraries'
 			},
 			{
-				value : this.prefs.showOther,
+				value : this.prefs.showLibraries,
 	 			disabled: false
 			}
 		);
 		
-		this.controller.listen('showOther', Mojo.Event.propertyChange, this.toggleChanged.bindAsEventListener(this));
+		this.controller.listen('showLibraries', Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		
 		
@@ -61,7 +74,11 @@ PreferencesAssistant.prototype.setup = function()
 				],
 				modelProperty: 'backgroundUpdates'
 			},
-			this.prefs
+			//this.prefs
+			{
+				backgroundUpdates: 'disabled',
+        		disabled: true
+			}
 		);
 		this.controller.setupWidget
 		(
@@ -73,12 +90,37 @@ PreferencesAssistant.prototype.setup = function()
 			},
 			{
 				value : this.prefs.autoInstallUpdates,
+	 			disabled: true
+			}
+		);
+		
+		this.controller.listen('backgroundUpdates',  Mojo.Event.propertyChange, this.listChangedHandler);
+		this.controller.listen('autoInstallUpdates', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		
+		
+		
+		// Secret Group
+		this.keyPressHandler = this.keyPress.bindAsEventListener(this)
+		Mojo.Event.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyPressHandler);
+		
+		this.controller.setupWidget
+		(
+			'allowServiceUpdates',
+			{
+	  			trueLabel:  'Yes',
+	 			falseLabel: 'No',
+	  			fieldName:  'allowServiceUpdates'
+			},
+			{
+				value : this.prefs.allowServiceUpdates,
 	 			disabled: false
 			}
 		);
 		
-		this.controller.listen('backgroundUpdates',  Mojo.Event.propertyChange, this.listChanged.bindAsEventListener(this));
-		this.controller.listen('autoInstallUpdates', Mojo.Event.propertyChange, this.toggleChanged.bindAsEventListener(this));
+		this.controller.listen('allowServiceUpdates', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		
+		// hide secret group
+		this.controller.get('secretPreferences').style.display = 'none';
 		
 		
 		
@@ -96,14 +138,38 @@ PreferencesAssistant.prototype.setup = function()
 PreferencesAssistant.prototype.listChanged = function(event)
 {
 	this.cookie.put(this.prefs);
-};
+}
 
 PreferencesAssistant.prototype.toggleChanged = function(event)
 {
 	this.prefs[event.target.id] = event.value;
 	this.cookie.put(this.prefs);
-};
+}
 
+PreferencesAssistant.prototype.keyPress = function(event)
+{
+	this.secretString += String.fromCharCode(event.originalEvent.charCode);
+	
+	if (event.originalEvent.charCode == 8)
+	{
+		this.secretString = '';
+	}
+	
+	if (this.secretString.length == this.secretAnswer.length)
+	{
+		if (this.secretString === this.secretAnswer)
+		{
+			// show settings
+			this.controller.get('secretPreferences').style.display = '';
+			this.controller.getSceneScroller().mojo.revealElement(this.controller.get('secretPreferences'));
+			this.secretString = '';
+		}
+	}
+	else if (this.secretString.length > this.secretAnswer.length)
+	{
+		this.secretString = '';
+	}
+}
 
 PreferencesAssistant.prototype.activate = function(event) {}
 

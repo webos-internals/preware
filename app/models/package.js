@@ -110,9 +110,7 @@ function packageModel(info)
 		{
 			this.category = 'Unsorted';
 		}
-		
-		// fix weird types so they work
-		if (this.type == 'Unknown' || this.type == 'LinuxBinary')
+		if (!this.type || this.type == 'Unknown')
 		{
 			this.type = 'Application';
 		}

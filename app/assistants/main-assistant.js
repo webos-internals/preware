@@ -40,22 +40,19 @@ MainAssistant.prototype.setup = function()
 	// setup list widget
 	this.controller.setupWidget('mainList', { itemTemplate: "main/rowTemplate", swipeToDelete: false, reorderable: false }, this.mainModel);
 	Mojo.Event.listen(this.controller.get('mainList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
-	
-	// hide the list while we update ipkg
-	this.controller.get('mainList').style.display = "none";
 
 	// setup menu model
 	var menuModel =
 	{
 		visible: true,
 		items: [
-		/*{ // we're hiding this crap for now since it doesn't do anything at all.
-			label: "Update Feeds",
-			command: 'do-update'
-		},*/
 		{
-			label: "Preferences...",
+			label: "Preferences",
 			command: 'do-prefs'
+		},
+		{
+			label: "Update Feeds...",
+			command: 'do-update'
 		},
 		{
 			label: "List Configs...",
@@ -66,6 +63,51 @@ MainAssistant.prototype.setup = function()
 	// setup widget
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
 	
+	// call for feed update depending on update interval
+	if (prefs.get().updateInterval == 'launch')
+	{
+		// we should update then load
+		this.updateFeeds();
+	}
+	else if (prefs.get().updateInterval == 'manual')
+	{
+		// straight to loading
+		this.updateFeeds(true);
+	}
+	else if (prefs.get().updateInterval == 'daily')
+	{
+		var now = Math.round(new Date().getTime()/1000.0);
+		// if more then a day has passed since last update, update
+		if (now - prefs.get().lastUpdate > 86400)
+		{
+			// we should update then load
+			this.updateFeeds();
+		}
+		else
+		{
+			// straight to loading
+			this.updateFeeds(true);
+		}
+	}
+	else
+	{
+		// this really shouldn't happen, but if it does, lets update
+		this.updateFeeds();
+	}
+}
+
+MainAssistant.prototype.updateFeeds = function(onlyLoad)
+{
+	// the onlyLoad specifies if we should go straight to loading or not
+	// even if there is an internet connection
+	
+	// start and show the spinner
+	this.spinnerModel.spinning = true;
+	this.controller.modelChanged(this.spinnerModel);
+	
+	// hide the list while we update ipkg
+	this.controller.get('mainList').style.display = "none";
+	
 	// this is the start of the stayawake class to keep it awake till we're done with it
 	this.stayAwake.start();
 	
@@ -73,8 +115,8 @@ MainAssistant.prototype.setup = function()
 	this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
 	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
 	    method: 'getstatus',
-	    onSuccess: this.onConnection.bindAsEventListener(this),
-	    onFailure: this.onConnection.bindAsEventListener(this)
+	    onSuccess: this.onConnection.bindAsEventListener(this, onlyLoad),
+	    onFailure: this.onConnection.bindAsEventListener(this, onlyLoad)
 	});
 }
 
@@ -91,9 +133,9 @@ MainAssistant.prototype.listTapHandler = function(event)
 	}
 }
 
-MainAssistant.prototype.onConnection = function(response)
+MainAssistant.prototype.onConnection = function(response, onlyLoad)
 {
-	if (response && response.returnValue === true && response.isInternetConnectionAvailable === true)
+	if (response && response.returnValue === true && response.isInternetConnectionAvailable === true && !onlyLoad)
 	{
 		// initiate update if we have a connection
 		this.controller.get('spinnerStatus').innerHTML = "Updating";
@@ -134,6 +176,9 @@ MainAssistant.prototype.onUpdate = function(payload)
 		{
 			// its returned, but we don't really care if anything was actually updated
 			//console.log(payload.returnVal);
+			
+			// well updating looks to have finished, lets log the date:
+			prefs.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
 			
 			// lets call the function to update the global list of pkgs
 			this.controller.get('spinnerStatus').innerHTML = "Loading";
@@ -232,24 +277,14 @@ MainAssistant.prototype.updateList = function()
 			pkgCount: 0
 		});
 		
-		if (prefs.get().showOther)
+		if (prefs.get().showLibraries)
 		{
 			this.mainModel.items.push(
 			{
-				name: $L('Available Plugins'),
+				name: $L('Available Libraries'),
 				//style: 'disabled',
 				scene: 'pkg-list',
-				pkgType: 'Plugin',
-				pkgValue: 'all',
-				pkgCount: 0
-			});
-			
-			this.mainModel.items.push(
-			{
-				name: $L('Available Services'),
-				//style: 'disabled',
-				scene: 'pkg-list',
-				pkgType: 'Service',
+				pkgType: 'Libraries',
 				pkgValue: 'all',
 				pkgCount: 0
 			});
@@ -343,11 +378,12 @@ MainAssistant.prototype.handleCommand = function(event)
 
 		switch (event.command) {
 
-		case 'do-update':
-			break;
-
 		case 'do-prefs':
 			this.controller.stageController.pushScene('preferences');
+			break;
+
+		case 'do-update':
+			this.updateFeeds();
 			break;
 
 		case 'do-configs':

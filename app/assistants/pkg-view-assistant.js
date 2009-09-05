@@ -108,35 +108,36 @@ PkgViewAssistant.prototype.setup = function()
 	{
 		data += Mojo.View.render({object: {title: 'Description', data: this.item.description}, template: dataTemplate2});
 	}
-	if (this.item.date)
-	{
-		data += Mojo.View.render({object: {title: 'Last Updated', data: this.formatDate(this.item.date)}, template: dataTemplate});
-	}
-	data += Mojo.View.render({object: {title: 'Version', data: this.item.version}, template: dataTemplate});
-	data += Mojo.View.render({object: {title: 'Download Size', data: this.formatSize(this.item.size)}, template: dataTemplate});
-	data += Mojo.View.render({object: {title: 'Maintainer', data: this.item.maintainer}, template: dataTemplate});
 	if (this.item.homepage)
 	{
-		data += Mojo.View.render({object: {title: 'Homepage', data: '<a href="' + this.item.homepage + '">Link</a>'}, template: dataTemplate});
+		data += Mojo.View.render({object: {title: 'Homepage', data: '<a href="' + this.item.homepage + '">' + getDomain(this.item.homepage) + '</a>'}, template: dataTemplate});
 	}
+	data += Mojo.View.render({object: {title: 'Maintainer', data: this.item.maintainer}, template: dataTemplate});
+	data += Mojo.View.render({object: {title: 'Version', data: this.item.version}, template: dataTemplate});
+	if (this.item.date)
+	{
+		data += Mojo.View.render({object: {title: 'Last Updated', data: formatDate(this.item.date)}, template: dataTemplate});
+	}
+	data += Mojo.View.render({object: {title: 'Download Size', data: formatSize(this.item.size)}, template: dataTemplate});
 	if (this.item.isInstalled)
 	{
-		if (this.item.dateInstalled) 
-		{
-			data += Mojo.View.render({object: {title: 'Installed', data: this.formatDate(this.item.dateInstalled)}, template: dataTemplate});
-		}
-		if (this.item.sizeInstalled) 
-		{
-			data += Mojo.View.render({object: {title: 'Installed Size', data: this.formatSize(this.item.sizeInstalled)}, template: dataTemplate});
-		}
 		if (this.item.versionInstalled && this.item.hasUpdate)
 		{
 			data += Mojo.View.render({object: {title: 'Installed Version', data: this.item.versionInstalled}, template: dataTemplate});
 		}
+		if (this.item.dateInstalled) 
+		{
+			data += Mojo.View.render({object: {title: 'Installed', data: formatDate(this.item.dateInstalled)}, template: dataTemplate});
+		}
+		if (this.item.sizeInstalled) 
+		{
+			data += Mojo.View.render({object: {title: 'Installed Size', data: formatSize(this.item.sizeInstalled)}, template: dataTemplate});
+		}
 	}
-	data += Mojo.View.render({object: {title: 'Feed' + (this.item.feeds.length>1?'s':''), data: this.item.feedString}, template: dataTemplate});
+	data += Mojo.View.render({object: {title: 'Id', data: this.item.pkg}, template: dataTemplate});
+	data += Mojo.View.render({object: {title: 'Type', data: this.item.type}, template: dataTemplate});
 	data += Mojo.View.render({object: {title: 'Category', data: this.item.category}, template: dataTemplate});
-	data += Mojo.View.render({object: {title: 'Package', data: this.item.pkg, rowStyle: 'last'}, template: dataTemplate});
+	data += Mojo.View.render({object: {title: 'Feed' + (this.item.feeds.length>1?'s':''), data: this.item.feedString, rowStyle: 'last'}, template: dataTemplate});
 	
 	// fillin the div with data
 	this.controller.get('data').innerHTML = data;
@@ -249,12 +250,12 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			// update
 			case 'do-update':
 				// temporary message for unsupported actions
-				if (this.item.type == 'Service' || this.item.type == 'Plugin')
+				if ((this.item.type == 'Service' || this.item.type == 'Plugin') && !prefs.get().allowServiceUpdates)
 				{
 					this.serviceMessage('Preware doesn\'t currently support updates to ' + this.item.type.toLowerCase() + 's. Please use WebOS Quick Install to update this ' + this.item.type.toLowerCase() + '. (We plan to support it in Preware by v1.0.0)');
 					return;
 				}
-				else if (this.item.type == 'Patch')
+				else if ((this.item.type == 'Patch') && !prefs.get().allowServiceUpdates)
 				{
 					this.serviceMessage('Preware doesn\'t currently support updates to patches. Instead, you should remove the current version, and then install the new version. (We plan to support it in Preware by v1.0.0)');
 					return;
@@ -279,7 +280,7 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			// remove
 			case 'do-remove':
 				// temporary message for unsupported actions
-				if (this.item.type == 'Service' || this.item.type == 'Plugin')
+				if ((this.item.type == 'Service' || this.item.type == 'Plugin') && !prefs.get().allowServiceUpdates)
 				{
 					this.serviceMessage('Preware doesn\'t currently support removal of ' + this.item.type.toLowerCase() + 's. Please use WebOS Quick Install to remove this ' + this.item.type.toLowerCase() + '. (We plan to support it in Preware by v1.0.0)');
 					return;
@@ -323,9 +324,16 @@ PkgViewAssistant.prototype.onUpdate = function(payload)
 	}
 	else
 	{
-		if (payload.returnVal > 0) 
+		if (payload.returnVal > 0) // keep this around for ipkgservice < 0.8.2
 		{
 			//console.log('update error');
+			
+			// message
+			var msg = 'Error Updating';
+		}
+		if (!payload.returnValue)
+		{
+			//console.log('remove error');
 			
 			// message
 			var msg = 'Error Updating';
@@ -374,9 +382,16 @@ PkgViewAssistant.prototype.onInstall = function(payload)
 	}
 	else 
 	{
-		if (payload.returnVal > 0)
+		if (payload.returnVal > 0) // keep this around for ipkgservice < 0.8.2
 		{
 			//console.log('install error');
+			
+			// message
+			var msg = 'Error Installing';
+		}
+		if (!payload.returnValue)
+		{
+			//console.log('remove error');
 			
 			// message
 			var msg = 'Error Installing';
@@ -425,7 +440,14 @@ PkgViewAssistant.prototype.onRemove = function(payload)
 	}
 	else
 	{
-		if (payload.returnVal > 0)
+		if (payload.returnVal > 0) // keep this around for ipkgservice < 0.8.2
+		{
+			//console.log('remove error');
+			
+			// message
+			var msg = 'Error Removing';
+		}
+		if (!payload.returnValue)
 		{
 			//console.log('remove error');
 			
@@ -472,6 +494,16 @@ PkgViewAssistant.prototype.ipkgLog = function(payload)
 		this.ipkglog += '<div class="title">' + payload.stage + '</div>';
 		
 		var stdPlus = false;
+		
+		if (payload.errorCode || payload.errorText)
+		{
+			stdPlus = true;
+			this.ipkglog += '<div class="stdErr">';
+			this.ipkglog += '<b>' + payload.errorCode + '</b>: '
+			this.ipkglog += payload.errorText;
+			this.ipkglog += '</div>';
+		}
+		
 		if (payload.stdOut.length > 0)
 		{
 			stdPlus = true;
@@ -499,6 +531,15 @@ PkgViewAssistant.prototype.ipkgLog = function(payload)
 			this.ipkglog += '<div class="msg">No Output.</div>';
 		}
 	}
+	
+	/*// debug display
+	alert('--- IPKG Log ---');
+	for (p in payload)
+	{
+		alert(p + ': ' + payload[p]);
+	}
+	*/
+	
 }
 
 PkgViewAssistant.prototype.serviceMessage = function(message)
@@ -509,53 +550,6 @@ PkgViewAssistant.prototype.serviceMessage = function(message)
 	    message: message,
 	    choices:[{label:$L('Ok'), value:""}]
     });
-}
-
-PkgViewAssistant.prototype.formatDate = function(date)
-{
-	var dateObj = new Date(date * 1000);
-	var toReturn = '';
-	var pm = false;
-	
-	toReturn += (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '/' + dateObj.getFullYear() + ' ';
-	
-	if (dateObj.getHours() > 12) pm = true;
-	
-	if (!pm)
-	{
-		toReturn += dateObj.getHours() + ':';
-		if (dateObj.getMinutes() < 10) toReturn += '0'
-		toReturn += dateObj.getMinutes() + ' AM';
-	}
-	else
-	{
-		toReturn += (dateObj.getHours() - 12) + ':';
-		if (dateObj.getMinutes() < 10) toReturn += '0'
-		toReturn += dateObj.getMinutes() + ' PM';
-	}
-	
-	return toReturn;
-}
-
-PkgViewAssistant.prototype.formatSize = function(size)
-{
-	var toReturn = size + ' B';
-	var formatSize = size;
-	
-	if (formatSize > 1024)
-	{
-		formatSize = (Math.round((formatSize / 1024) * 100) / 100);
-		toReturn = formatSize + ' KB';
-	}
-	if (formatSize > 1024)
-	{
-		formatSize = (Math.round((formatSize / 1024) * 100) / 100);
-		toReturn = formatSize + ' MB';
-	}
-	// I don't think we need to worry about GB here...
-	
-	// return formatted size
-	return toReturn;
 }
 
 PkgViewAssistant.prototype.reScan = function()

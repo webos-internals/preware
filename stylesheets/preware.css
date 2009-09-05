@@ -115,6 +115,7 @@
 .prefs .palm-row-wrapper .label.left
 {
 	padding-left: 6px;
+	-webkit-palm-mouse-target: ignore;
 }
 .prefs .palm-list-selector .label
 {
@@ -124,7 +125,10 @@
 {
 	text-align: right;
 }
-
+.prefs .palm-group.disabled
+{
+	opacity: 0.35;
+}
 
 
 /*

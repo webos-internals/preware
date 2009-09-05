@@ -13,9 +13,16 @@
 		<div class="palm-group-title">Startup</div>
 		<div class="palm-list">
 			
-			<div class="palm-row single">
+			<div class="palm-row first">
 				<div class="palm-row-wrapper">
 					<div id="updateInterval" x-mojo-element="ListSelector"></div>
+				</div>
+			</div>
+			
+			<div class="palm-row last">
+				<div class="palm-row-wrapper">
+					<div class="label left">Last Update</div>
+					<div class="title right" id="lastUpdate">Never</div>
 				</div>
 			</div>
 			
@@ -28,15 +35,15 @@
 			
 			<div class="palm-row single">
 				<div class="palm-row-wrapper">
-					<div class="label left">Show Services & Plugins</div>
-					<div id="showOther" x-mojo-element="ToggleButton" class="toggle-text"></div>
+					<div class="label left">Show Libraries</div>
+					<div id="showLibraries" x-mojo-element="ToggleButton" class="toggle-text"></div>
 				</div>
 			</div>
 			
 		</div>
 	</div>
 	
-	<div class="palm-group">
+	<div class="palm-group disabled">
 		<div class="palm-group-title">Background</div>
 		<div class="palm-list">
 			
@@ -50,6 +57,20 @@
 				<div class="palm-row-wrapper">
 					<div class="label left">Automatically Install</div>
 					<div id="autoInstallUpdates" x-mojo-element="ToggleButton" class="toggle-text"></div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	
+	<div class="palm-group" id="secretPreferences">
+		<div class="palm-group-title">Secret</div>
+		<div class="palm-list">
+			
+			<div class="palm-row last">
+				<div class="palm-row-wrapper">
+					<div class="label left">Allow Service Updates</div>
+					<div id="allowServiceUpdates" x-mojo-element="ToggleButton" class="toggle-text"></div>
 				</div>
 			</div>
 			
