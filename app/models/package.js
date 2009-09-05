@@ -106,12 +106,12 @@ function packageModel(info)
 		}
 		
 		// check up on what we've loaded to make sure it makes sense
-		if (this.category == 'misc')
+		if (!this.category || this.category == 'misc')
 		{
 			this.category = 'Unsorted';
 		}
 		
-		// here we handle types that don't make sense, and make sense out of them
+		// fix weird types so they work
 		if (this.type == 'Unknown' || this.type == 'LinuxBinary')
 		{
 			this.type = 'Application';
