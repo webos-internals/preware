@@ -46,7 +46,7 @@
  */
 .main #spinner
 {
-	margin-top: 100px;
+	margin-top: 72px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -56,6 +56,26 @@
 	padding-top: 122px;
 	color: #666;
 	font-size: 16px;
+}
+.main #spinner #spinnerStatus span.light
+{
+	color: #999;
+}
+.main .progress
+{
+	margin-top: 42px;
+	height: 15px;
+	width: 114px;
+	margin-left: auto;
+	margin-right: auto;
+	background: url(../images/progress-back.png) center center no-repeat;
+}
+.main .progress .progress-bar
+{
+	height: 15px;
+	width: 50%;
+	margin-left: 0px;
+	background: url(../images/progress-front.png) top left no-repeat;
 }
 .main .palm-page-header-wrapper .icon
 {

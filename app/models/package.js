@@ -51,13 +51,13 @@ function packageModel(info)
 		this.description = false;
 		this.screenshots = [];
 		this.depends =	   [];
-		if (this.info.Status.include('not-installed')) 
+		if ((this.info.Status.include('not-installed') && this.info.Status != '') || this.info.Status == '')
 		{
 			this.isInstalled =   false;
 			this.dateInstalled = false;
 			this.sizeInstalled = false;
 		}
-		else 
+		else
 		{
 			this.isInstalled =   true;
 			this.dateInstalled = this.info['Installed-Time'];

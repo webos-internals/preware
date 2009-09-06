@@ -9,179 +9,111 @@ function packagesModel()
 	this.patchCategory = 'WebOS Patches';
 }
 
-/* // we're  not using this anymore
-packagesModel.prototype.load = function(payload)
+packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
 {
-	// clear out our current data (incase this is a re-update)
-	this.packages = [];
-	this.categories = [];
-	this.feeds = [];
-	
-	try
-	{
-		for (var x = 0; x < payload.info.length; x++)
-		{
-			// load the package from the info
-			var newPkg = new packageModel(payload.info[x])
-			
-			// look for a previous package with the same name
-			var pkgNum = this.packageInList(newPkg.pkg);
-			if (pkgNum === false) 
-			{
-				// add this package to global app list
-				this.packages.push(newPkg);
-			}
-			else
-			{
-				// run package update function of the old package with the new package
-				var pkgUpd = this.packages[pkgNum].infoUpdate(newPkg);
-				if (pkgUpd !== false)
-				{
-					// if the new package is to replace the old one, do it
-					this.packages[pkgNum] = pkgUpd;
-				}
-			}
-		}
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'packagesModel#load:packageList');
-	}
-	
-	// sort the packages
-	if (this.packages.length > 0) 
-	{
-		this.packages.sort(function(a, b)
-		{
-			if (a.title && b.title) return ((a.title.toLowerCase() < b.title.toLowerCase()) ? -1 : ((a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : 0));
-			else return -1;
-		});
-	}
-	
-	
-	try
-	{
-		// add package categorys to global category list
-		for (var p = 0; p < this.packages.length; p++) 
-		{
-			// build categories list
-			var catNum = this.categoryInList(this.packages[p].category);
-			if (catNum === false) 
-			{
-				// push new category
-				this.categories.push({name: this.packages[p].category});
-			}
-			
-			// build feeds list
-			for (var f = 0; f < this.packages[p].feeds.length; f++) 
-			{
-				var feedNum = this.feedInList(this.packages[p].feeds[f]);
-				if (feedNum === false) 
-				{
-					// push new category
-					this.feeds.push({name: this.packages[p].feeds[f]});
-				}
-			}
-		}
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'packagesModel#load:categoryfeedList');
-	}
-	
-	// sort categories
-	if (this.categories.length > 0)
-	{
-		this.categories.sort(function(a, b)
-		{
-			// this needs to be lowercase for sorting.
-			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
-			else return -1;
-		});
-	}
-	
-	// sort feeds
-	if (this.feeds.length > 0)
-	{
-		this.feeds.sort(function(a, b)
-		{
-			// this needs to be lowercase for sorting.
-			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
-			else return -1;
-		});
-	}
-	
-}
-*/
-
-packagesModel.prototype.load = function(payload, mainAssistant)
-{
-	// clear out our current data (incase this is a re-update)
-	this.packages = [];
-	this.categories = [];
-	this.feeds = [];
-	
-	this.mainAssistant = mainAssistant;
-	
 	try 
 	{
-		// build an array of the packages
-		this.pkgs = [];
-		for (var p in payload) 
+		// clear out our current data (incase this is a re-update)
+		this.packages = [];
+		
+		// get our current data
+		this.feeds = feeds;
+		this.feedNum = 1;
+		this.mainAssistant = mainAssistant;
+		
+		if (this.feeds.length > 0)
 		{
-			this.pkgs.push(p);
+			this.mainAssistant.controller.get('spinnerStatus').innerHTML = "Loading";
+			this.mainAssistant.controller.get('progress').style.display = "";
+			
+			this.infoStatusRequest(0);
 		}
-		
-		if (this.pkgs[0]) this.infoRequest(0);
-		
-	}
-	catch (e)
+	} 
+	catch (e) 
 	{
-		Mojo.Log.logException(e, 'packagesModel#load:packageList');
+		Mojo.Log.logException(e, 'packagesModel#loadFeeds');
 	}
-	
 }
 
-packagesModel.prototype.infoRequest = function(num)
+packagesModel.prototype.infoStatusRequest = function(num)
 {
-	//alert('Start: ' + (num+1) + ' of ' + this.pkgs.length);
+	//alert(this.feeds[num] + ' 1');
+	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br><span class="light">' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1) + '<span>';
+	this.mainAssistant.controller.get('progress-bar').style.width = Math.round(((this.feedNum)/(this.feeds.length*2)) * 100) + '%';
+	this.feedNum++;
 	
-	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>' + (num+1) + ' of ' + this.pkgs.length;
-	
-	IPKGService.info(this.infoResponse.bindAsEventListener(this, num), this.pkgs[num]);
+	IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, num, 'status'), this.feeds[num]);
 }
 
-packagesModel.prototype.infoResponse = function(payload, num)
+packagesModel.prototype.infoListRequest = function(num)
 {
-	try
+	//alert(this.feeds[num] + ' 2');
+	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1);
+	this.mainAssistant.controller.get('progress-bar').style.width = Math.round(((this.feedNum)/(this.feeds.length*2)) * 100) + '%';
+	this.feedNum++;
+	
+	IPKGService.rawlist(this.infoResponse.bindAsEventListener(this, num, 'list'), this.feeds[num]);
+}
+
+packagesModel.prototype.infoResponse = function(payload, num, type)
+{
+	try 
 	{
 		if (!payload || payload.errorCode == -1) 
 		{
-			// error or something
+			// some sort of error
 		}
 		else 
 		{
-			for (var x = 0; x < payload.info.length; x++)
+			if (payload.contents) 
 			{
-				// load the package from the info
-				var newPkg = new packageModel(payload.info[x])
+				var test = payload.contents.split(/\n/);
+				var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
+				var curPkg = false;
 				
-				// look for a previous package with the same name
-				var pkgNum = this.packageInList(newPkg.pkg);
-				if (pkgNum === false) 
+				for (var x = 0; x <= test.length; x++) 
 				{
-					// add this package to global app list
-					this.packages.push(newPkg);
-				}
-				else
-				{
-					// run package update function of the old package with the new package
-					var pkgUpd = this.packages[pkgNum].infoUpdate(newPkg);
-					if (pkgUpd !== false)
+					var match = lineRegExp.exec(test[x]);
+					if (match) 
 					{
-						// if the new package is to replace the old one, do it
-						this.packages[pkgNum] = pkgUpd;
+						if (match[1] == 'Package' && !curPkg) 
+						{
+							curPkg = 
+							{
+								Size: 0,
+								Status: '',
+								Architecture: '',
+								Section: '',
+								Package: '',
+								Filename: '',
+								Depends: '',
+								Maintainer: '',
+								Version: '',
+								Description: '',
+								MD5Sum: '',
+								'Installed-Time': 0,
+								'Installed-Size': 0,
+								Source: ''
+							};
+						}
+						if (match[1] && match[2]) 
+						{
+							curPkg[match[1]] = match[2];
+						}
 					}
+					else
+					{
+						if (curPkg) 
+						{
+							this.loadPackage(curPkg);
+							curPkg = false;
+						}
+					}
+				}
+				
+				if (curPkg) 
+				{
+					this.loadPackage(curPkg);
 				}
 			}
 		}
@@ -191,23 +123,57 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		Mojo.Log.logException(e, 'packagesModel#infoResponse');
 	}
 	
-	//alert('End: ' + (num+1) + ' of ' + this.pkgs.length);
-	
-	if (this.pkgs[(num+1)]) 
+	if (type == 'status') 
 	{
-		// start next
-		this.infoRequest((num+1));
+		this.infoListRequest(num);
 	}
-	else
+	else 
 	{
-		// we're done
-		this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Finishing';
-		this.doneLoading();
+		if (this.feeds[(num + 1)]) 
+		{
+			// start next
+			this.infoStatusRequest((num + 1));
+		}
+		else 
+		{
+			// we're done
+			this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Complete';
+			this.mainAssistant.controller.get('progress-bar').style.width = '100%';
+			this.doneLoading();
+		}
+	}
+}
+
+packagesModel.prototype.loadPackage = function(packageObj)
+{
+	// load the package from the info
+	var newPkg = new packageModel(packageObj)
+	
+	// look for a previous package with the same name
+	var pkgNum = this.packageInList(newPkg.pkg);
+	if (pkgNum === false) 
+	{
+		// add this package to global app list
+		this.packages.push(newPkg);
+	}
+	else 
+	{
+		// run package update function of the old package with the new package
+		var pkgUpd = this.packages[pkgNum].infoUpdate(newPkg);
+		if (pkgUpd !== false) 
+		{
+			// if the new package is to replace the old one, do it
+			this.packages[pkgNum] = pkgUpd;
+		}
 	}
 }
 
 packagesModel.prototype.doneLoading = function()
 {
+	// clear out our current data (incase this is a re-update)
+	this.categories = [];
+	this.feeds = [];
+	
 	// sort the packages
 	if (this.packages.length > 0) 
 	{

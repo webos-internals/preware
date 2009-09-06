@@ -34,6 +34,10 @@ MainAssistant.prototype.setup = function()
 	// setup spinner widget
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
 	
+	// hide progress bar
+	this.controller.get('progress').style.display = '';
+	this.controller.get('progress-bar').style.width = '0%';
+	
 	// setup list model
 	this.mainModel = { items: [] };
 	
@@ -145,8 +149,7 @@ MainAssistant.prototype.onConnection = function(response, onlyLoad)
 	{
 		// if not, go right to loading the pkg info
 		this.controller.get('spinnerStatus').innerHTML = "Loading";
-		//IPKGService.info(this.onInfo.bindAsEventListener(this));
-		IPKGService.list(this.onInfo.bindAsEventListener(this));
+		IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 	}
 }
 
@@ -183,8 +186,7 @@ MainAssistant.prototype.onUpdate = function(payload)
 			
 			// lets call the function to update the global list of pkgs
 			this.controller.get('spinnerStatus').innerHTML = "Loading";
-			//IPKGService.info(this.onInfo.bindAsEventListener(this));
-			IPKGService.list(this.onInfo.bindAsEventListener(this));
+			IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 		}
 	}
 	catch (e)
@@ -197,13 +199,13 @@ MainAssistant.prototype.onUpdate = function(payload)
 	}
 }
 
-MainAssistant.prototype.onInfo = function(payload)
+MainAssistant.prototype.onFeeds = function(payload)
 {
 	try 
 	{
 		if (!payload) 
 		{
-			this.alertMessage('Preware', 'Unable to get list of packages.');
+			this.alertMessage('Preware', 'Unable to get data.');
 			this.doneUpdating();
 		}
 		else if (payload.errorCode == -1) 
@@ -221,24 +223,59 @@ MainAssistant.prototype.onInfo = function(payload)
 		}
 		else 
 		{
-			//this.controller.get('spinnerStatus').innerHTML = "Parsing";
+			// clear feeds array
+			var feeds = [];
+			
+			// load feeds
+			for (var x = 0; x < payload.configs.length; x++)
+			{
+				for (p in payload.configs[x]) 
+				{
+					var tmpSplit = payload.configs[x][p].split(' ');
+					if (tmpSplit[1])
+					{
+						feeds.push(tmpSplit[1]);
+					}
+				}
+			}
+			
+			// sort them (mostly so precentral is in the middle so it doesnt seem like it hangs at the end.)
+			feeds.sort();
 			
 			// send payload to items object
-			//packages.load(payload);
-			packages.load(payload, this);
-			
-			// we're done here
-			//this.doneUpdating();
+			packages.loadFeeds(feeds, this);
 		}
 	}
 	catch (e)
 	{
-		Mojo.Log.logException(e, 'main#onInfo');
-		this.alertMessage('onInfo Error', e);
+		Mojo.Log.logException(e, 'main#onFeeds');
+		this.alertMessage('onFeeds Error', e);
 		
 		// we're done here
 		this.doneUpdating();
 	}
+}
+
+// stops the spinner and displays the list
+MainAssistant.prototype.doneUpdating = function()
+{
+	// stop and hide the spinner
+	this.spinnerModel.spinning = false;
+	this.controller.modelChanged(this.spinnerModel);
+	
+	// update the list
+	this.updateList();
+	
+	// show the list
+	this.controller.get('mainList').style.display = 'inline';
+	
+	this.controller.get('progress').style.display = 'none';
+	this.controller.get('progress-bar').style.width = '0%';
+	
+	// we're done loading so let the phone sleep if it needs to
+	this.stayAwake.end();
+	
+	alert(packages.packages.length);
 }
 
 // this is called to update the list (namely the counts and styles)
@@ -352,25 +389,6 @@ MainAssistant.prototype.updateList = function()
 		Mojo.Log.logException(e, 'main#updateList');
 		this.alertMessage('updateList Error', e);
 	}
-}
-
-// stops the spinner and displays the list
-MainAssistant.prototype.doneUpdating = function()
-{
-	// stop and hide the spinner
-	this.spinnerModel.spinning = false;
-	this.controller.modelChanged(this.spinnerModel);
-	
-	// update the list
-	this.updateList();
-	
-	// show the list
-	this.controller.get('mainList').style.display = "inline";
-	
-	// we're done loading so let the phone sleep if it needs to
-	this.stayAwake.end();
-	
-	//alert(packages.packages.length);
 }
 
 MainAssistant.prototype.activate = function(event)
