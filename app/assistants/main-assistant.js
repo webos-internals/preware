@@ -309,6 +309,17 @@ MainAssistant.prototype.updateList = function()
 		
 		this.mainModel.items.push(
 		{
+			name: $L('Available Feeds'),
+			style: 'disabled',
+			scene: 'pkg-groups',
+			list: 'categories',
+			pkgType: 'Feed',
+			pkgValue: 'group',
+			pkgCount: 0
+		});
+		
+		this.mainModel.items.push(
+		{
 			name: $L('Available Patches'),
 			style: 'disabled',
 			scene: 'pkg-list',
