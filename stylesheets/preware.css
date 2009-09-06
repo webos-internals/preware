@@ -367,15 +367,39 @@
 	margin-right: 13px;
 	height: 120px
 }
-.pkg-view #viewScroller #scrollItems img.app
+.pkg-view #viewScroller #scrollItems div.app
 {
+	position: relative;
+	display: inline;
 	margin-left: 13px;
 	margin-right: 13px;
-	height: 54px
+	height: 54px;
+	width: 54px;
 }
-.pkg-view #viewScroller #scrollItems img.app.notInstalled
+.pkg-view #viewScroller #scrollItems div.app img
 {
-	opacity: 0.4;
+	width: 54px;
+}
+.pkg-view #viewScroller #scrollItems div.app .sub
+{
+	position: absolute;
+	display: inline;
+	width: 0px;
+	height: 0px;
+}
+.pkg-view #viewScroller #scrollItems div.app.installed .sub
+{
+	width: 16px;
+	height: 16px;
+	margin-left: 38px;
+	background: url(../images/icon_installed.png) center center no-repeat;
+}
+.pkg-view #viewScroller #scrollItems div.app.update .sub
+{
+	width: 16px;
+	height: 16px;
+	margin-left: 38px;
+	background: url(../images/icon_updates.png) center center no-repeat;
 }
 .palm-dialog-box.ipkglog-dialog #logScroller
 {

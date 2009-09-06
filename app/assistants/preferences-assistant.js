@@ -62,6 +62,41 @@ PreferencesAssistant.prototype.setup = function()
 		
 		
 		
+		// List Scene Group
+		this.controller.setupWidget
+		(
+			'listSort',
+			{
+				label: 'Default Sort',
+				choices:
+				[
+					{label:'Category Default',	value:'default'},
+					{label:'Alphabetically',	value:'alpha'},
+					{label:'Last Updated',		value:'date'}
+				],
+				modelProperty: 'listSort'
+			},
+			this.prefs
+		);
+		this.controller.setupWidget
+		(
+			'listInstalled',
+			{
+	  			trueLabel:  'Yes',
+	 			falseLabel: 'No',
+	  			fieldName:  'listInstalled'
+			},
+			{
+				value : this.prefs.listInstalled,
+	 			disabled: false
+			}
+		);
+		
+		this.controller.listen('listSort', Mojo.Event.propertyChange, this.listChangedHandler);
+		this.controller.listen('listInstalled', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		
+		
+		
 		// Background Group
 		this.controller.setupWidget
 		(

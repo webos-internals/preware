@@ -57,8 +57,23 @@ PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// this is to put space around the icons
 	this.cmdMenuModel.items.push({});
 	
-	// push the sort selector
-	this.cmdMenuModel.items.push({items: [{label: $L('Categories'), command: 'categories'}, {label: $L('Feeds'),  command: 'feeds'}], toggleCmd: this.item.list});
+	
+	// start our sort item
+	var sortItem = {items: [], toggleCmd: this.item.list};
+	
+	// push the sort selector for library grouping
+	if (this.item.pkgType == 'libraries') 
+	{
+		sortItem.items.push({label: $L('Types'), command: 'types'});
+	}
+	
+	// push default sort selectors
+	sortItem.items.push({label: $L('Categories'), command: 'categories'});
+	sortItem.items.push({label: $L('Feeds'), command: 'feeds'});
+	
+	// push the sort item
+	this.cmdMenuModel.items.push(sortItem);
+	
 	
 	// this is to put space around the icons
 	this.cmdMenuModel.items.push({});
@@ -90,8 +105,12 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 		{
 			case 'categories':
 			case 'feeds':
-				this.item.list = event.command;
-				this.controller.stageController.swapScene('pkg-groups', this.item);
+			case 'types':
+				if (this.item.list !== event.command) 
+				{
+					this.item.list = event.command;
+					this.controller.stageController.swapScene('pkg-groups', this.item);
+				}
 				break;
 				
 			default:

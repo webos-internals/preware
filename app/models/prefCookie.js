@@ -21,6 +21,10 @@ prefCookie.prototype.get = function(reload)
 				// Main Scene Group
 				showLibraries: false,
 				
+				// List Scene Group
+				listSort: 'default',
+				listInstalled: false,
+				
 				// Background Group
 				backgroundUpdates: 'disabled',
 				autoInstallUpdates: false,

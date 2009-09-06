@@ -248,7 +248,7 @@ MainAssistant.prototype.updateList = function()
 		
 		this.mainModel.items.push(
 		{
-			name: $L('Available Updates'),	// displays in list
+			name: $L('Package Updates'),	// displays in list
 			style: 'disabled',				// class for use in the list display
 			scene: 'pkg-list',				// scene that will be pushed on tap 
 			pkgType: 'all',					// 
@@ -279,13 +279,26 @@ MainAssistant.prototype.updateList = function()
 		
 		if (prefs.get().showLibraries)
 		{
+			/*
 			this.mainModel.items.push(
 			{
 				name: $L('Available Libraries'),
-				//style: 'disabled',
+				style: 'disabled',
 				scene: 'pkg-list',
-				pkgType: 'Libraries',
+				pkgType: 'libraries',
 				pkgValue: 'all',
+				pkgCount: 0
+			});
+			*/
+			// a group of types instead of straight to the list feels more right
+			this.mainModel.items.push(
+			{
+				name: $L('Available Libraries'),
+				style: 'disabled',
+				scene: 'pkg-groups',
+				list: 'types',
+				pkgType: 'libraries',
+				pkgValue: 'group',
 				pkgCount: 0
 			});
 		}
@@ -312,6 +325,7 @@ MainAssistant.prototype.updateList = function()
 		// if we have packages we need to get out list counts
 		if (packages.packages.length > 0)
 		{
+			// '-1' so we don't add a count to the everything list
 			for (var i = 0; i < (this.mainModel.items.length-1); i++)
 			{
 				var count = packages.getPackages(this.mainModel.items[i]).length;

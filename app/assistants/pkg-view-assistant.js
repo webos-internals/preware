@@ -77,7 +77,10 @@ PkgViewAssistant.prototype.setup = function()
 		this.controller.get('scrollerContainer').className = 'palm-row apps';
 		for (d = 0; d < this.dependents.length; d++) 
 		{
-			scrollItems += '<img id="app_' + this.dependents[d] + '" class="app' + (!packages.packages[this.dependents[d]].isInstalled?' notInstalled':'') + '" src="' + (packages.packages[this.dependents[d]].icon?packages.packages[this.dependents[d]].icon:'images/noIcon.png') + '" />';
+			scrollItems += '<div id="app_' + this.dependents[d] + '" class="app' + (packages.packages[this.dependents[d]].isInstalled?(packages.packages[this.dependents[d]].hasUpdate?' update':' installed'):'') + '">';
+			scrollItems += '<div class="sub"></div>';
+			scrollItems += '<img src="' + (packages.packages[this.dependents[d]].icon?packages.packages[this.dependents[d]].icon:'images/noIcon.png') + '" />';
+			scrollItems += '</div>';
 		}
 		
 		// fill the screenshot div with data

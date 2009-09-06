@@ -3,6 +3,7 @@ function packagesModel()
 	this.packages = [];
 	this.categories = [];
 	this.feeds = [];
+	this.types = [{name: 'Application'}, {name: 'Patch'}, {name: 'Service'}, {name: 'Plugin'}, {name: 'LinuxBinary'}];
 	
 	// this is for use to seperate the patches from the apps
 	this.patchCategory = 'WebOS Patches';
@@ -175,12 +176,21 @@ packagesModel.prototype.getGroups = function(item)
 	
 	try
 	{
+		// temporary item for getting list counts
+		var itemL =
+		{
+			list: item.list,
+			pkgType: item.pkgType,
+			pkgValue: item.pkgValue,
+			pkgGroup: ''
+		};
+			
 		if (item.list == 'categories') 
 		{
 			for (var c = 0; c < this.categories.length; c++)
 			{
-				item.pkgGroup = this.categories[c].name;
-				var count = this.getPackages(item).length;
+				itemL.pkgGroup = this.categories[c].name;
+				var count = this.getPackages(itemL).length;
 				if (count > 0) 
 				{
 					returnArray.push(
@@ -200,8 +210,8 @@ packagesModel.prototype.getGroups = function(item)
 		{
 			for (var f = 0; f < this.feeds.length; f++)
 			{
-				item.pkgGroup = this.feeds[f].name;
-				var count = this.getPackages(item).length;
+				itemL.pkgGroup = this.feeds[f].name;
+				var count = this.getPackages(itemL).length;
 				if (count > 0) 
 				{
 					returnArray.push(
@@ -213,6 +223,27 @@ packagesModel.prototype.getGroups = function(item)
 						// this is for group selector
 						label: this.feeds[f].name,
 						command: this.feeds[f].name
+					});
+				}
+			}
+		}
+		else if (item.list == 'types')
+		{
+			for (var t = 0; t < this.types.length; t++)
+			{
+				itemL.pkgGroup = this.types[t].name;
+				var count = this.getPackages(itemL).length;
+				if (count > 0) 
+				{
+					returnArray.push(
+					{
+						// this is for group list
+						name: this.types[t].name,
+						count: count,
+						
+						// this is for group selector
+						label: this.types[t].name,
+						command: this.types[t].name
 					});
 				}
 			}
@@ -239,6 +270,8 @@ packagesModel.prototype.getPackages = function(item)
 			var pushIt = false;
 			
 			
+			
+			// push packages that meet the type
 			if (item.pkgType != 'all') 
 			{
 				if (item.pkgType == this.packages[p].type) pushIt = true;
@@ -251,7 +284,7 @@ packagesModel.prototype.getPackages = function(item)
 					pushIt = true;
 				}
 				
-				if (item.pkgType == "Libraries" &&
+				if (item.pkgType == "libraries" &&
 					(this.packages[p].type == "Plugin" || this.packages[p].type == "Service" || this.packages[p].type == "LinuxBinary"))
 				{
 					pushIt = true;
@@ -262,16 +295,25 @@ packagesModel.prototype.getPackages = function(item)
 				pushIt = true;
 			}
 			
+			
+			// dont push packages that dont meet the value
 			if (item.pkgValue == 'group')
 			{
 				if (item.pkgGroup)
 				{
 					if (item.list == 'categories' && this.packages[p].category != item.pkgGroup) pushIt = false;
 					if (item.list == 'feeds' && !this.packages[p].inFeed(item.pkgGroup)) pushIt = false;
+					if (item.list == 'types' && this.packages[p].type != item.pkgGroup) pushIt = false;
 				}
 			}
 			else if (item.pkgValue == 'updates' && !this.packages[p].hasUpdate) pushIt = false;
 			else if (item.pkgValue == 'installed' && !this.packages[p].isInstalled) pushIt = false;
+			
+			
+			// dont push packages that are installed in most lists if the user doesnt want to see them
+			if (!prefs.get().listInstalled && this.packages[p].isInstalled && item.pkgValue != 'installed' && item.pkgValue != 'updates' &&
+				!(item.pkgType == 'all' && item.pkgValue == 'all')) pushIt = false;
+			
 			
 			
 			// push it to the list if we should

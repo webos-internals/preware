@@ -27,18 +27,31 @@ function PkgListAssistant(item, searchText, currentSort)
 	}
 	else
 	{
-		/*
-		// category and installed list get alphabetical default
-		if ((this.item.list == 'category' && this.item.category != packages.patchCategory) || this.item.list == 'installed') this.currentSort = 'alpha';
-		// updates list and all get date default and patches
-		else if (this.item.list == 'updates' || this.item.list == 'all' || (this.item.list == 'category' && this.item.category == packages.patchCategory)) this.currentSort = 'date';
-		// feel lists default to date
-		else if (this.item.list == 'feed') this.currentSort = 'date';
-		// if anything else default to alphabetical (though, this should never happen)
-		else this.currentSort = 'alpha';
-		*/
+		if (prefs.get().listSort == 'alpha') 
+		{
+			this.currentSort = 'alpha';
+		}
+		else if (prefs.get().listSort == 'date') 
+		{
+			this.currentSort = 'date';
+		}
+		else // listSort is empty or 'default 
+		{
+			if (this.item.list == 'categories' ||
+				this.item.list == 'installed') 
+			{
+				this.currentSort = 'alpha';
+			}
+			else if (this.item.pkgType == 'updates' ||
+					this.item.pkgType == 'libraries' ||
+					this.item.pkgType == 'all' ||
+					this.item.list == 'feeds') 
+			{
+				this.currentSort = 'date';
+			}
+			else this.currentSort = 'alpha';
+		}
 		
-		this.currentSort = 'date';
 	}
 	
 	// the pkg view will update this if the pkg is changed so the list knows when to update on activation
@@ -252,7 +265,7 @@ PkgListAssistant.prototype.setupList = function()
 	{
 		this.listAttributes.dividerTemplate = 'pkg-list/rowDateDivider';
 	}
-	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all') 
+	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all' && this.item.pkgValue == 'all') 
 	{
 		this.listAttributes.dividerTemplate = 'pkg-list/rowAlphaDivider';
 	}
@@ -315,9 +328,13 @@ PkgListAssistant.prototype.handleCommand = function(event)
 		{
 			case 'date':
 			case 'alpha':
-				this.currentSort = event.command;
-				this.controller.stageController.swapScene('pkg-list', this.item, this.searchText, this.currentSort);
+				if (this.currentSort !== event.command) 
+				{
+					this.currentSort = event.command;
+					this.controller.stageController.swapScene('pkg-list', this.item, this.searchText, this.currentSort);
+				}
 				break;
+				
 			case 'do-updateAll':
 				this.controller.showAlertDialog({
 				    onChoose: function(value) {},
@@ -382,6 +399,8 @@ PkgListAssistant.prototype.menuTapHandler = function(event)
 {
 	// build group list model
 	var groupMenu =  packages.getGroups(this.item);
+	
+	alert(this.item.pkgGroup);
 	
 	// open category selector
 	this.controller.popupSubmenu(

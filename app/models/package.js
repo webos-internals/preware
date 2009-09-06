@@ -343,11 +343,15 @@ packageModel.prototype.getDependent = function()
 			}
 			
 			/*// this is for testing
-			if (p <= 6)
+			if (packages.packages[p].pkg == 'ws.junk.blocked')
 			{
 				returnArray.push(p);
 			}
-			*/
+			if (p <= 2)
+			{
+				returnArray.push(p);
+			}*/
+			
 		}
 	}
 	
