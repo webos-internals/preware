@@ -311,10 +311,9 @@ MainAssistant.prototype.updateList = function()
 		{
 			name: $L('Available Feeds'),
 			style: 'disabled',
-			scene: 'pkg-groups',
-			list: 'categories',
+			scene: 'pkg-list',
 			pkgType: 'Feed',
-			pkgValue: 'group',
+			pkgValue: 'all',
 			pkgCount: 0
 		});
 		
