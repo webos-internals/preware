@@ -9,6 +9,7 @@ function packagesModel()
 	this.patchCategory = 'WebOS Patches';
 }
 
+/* // we're  not using this anymore
 packagesModel.prototype.load = function(payload)
 {
 	// clear out our current data (incase this is a re-update)
@@ -110,6 +111,167 @@ packagesModel.prototype.load = function(payload)
 		});
 	}
 	
+}
+*/
+
+packagesModel.prototype.load = function(payload, mainAssistant)
+{
+	// clear out our current data (incase this is a re-update)
+	this.packages = [];
+	this.categories = [];
+	this.feeds = [];
+	
+	this.mainAssistant = mainAssistant;
+	
+	try 
+	{
+		// build an array of the packages
+		this.pkgs = [];
+		for (var p in payload) 
+		{
+			this.pkgs.push(p);
+		}
+		
+		if (this.pkgs[0]) this.infoRequest(0);
+		
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#load:packageList');
+	}
+	
+}
+
+packagesModel.prototype.infoRequest = function(num)
+{
+	//alert('Start: ' + (num+1) + ' of ' + this.pkgs.length);
+	
+	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>' + (num+1) + ' of ' + this.pkgs.length;
+	
+	IPKGService.info(this.infoResponse.bindAsEventListener(this, num), this.pkgs[num]);
+}
+
+packagesModel.prototype.infoResponse = function(payload, num)
+{
+	try
+	{
+		if (!payload || payload.errorCode == -1) 
+		{
+			// error or something
+		}
+		else 
+		{
+			for (var x = 0; x < payload.info.length; x++)
+			{
+				// load the package from the info
+				var newPkg = new packageModel(payload.info[x])
+				
+				// look for a previous package with the same name
+				var pkgNum = this.packageInList(newPkg.pkg);
+				if (pkgNum === false) 
+				{
+					// add this package to global app list
+					this.packages.push(newPkg);
+				}
+				else
+				{
+					// run package update function of the old package with the new package
+					var pkgUpd = this.packages[pkgNum].infoUpdate(newPkg);
+					if (pkgUpd !== false)
+					{
+						// if the new package is to replace the old one, do it
+						this.packages[pkgNum] = pkgUpd;
+					}
+				}
+			}
+		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#infoResponse');
+	}
+	
+	//alert('End: ' + (num+1) + ' of ' + this.pkgs.length);
+	
+	if (this.pkgs[(num+1)]) 
+	{
+		// start next
+		this.infoRequest((num+1));
+	}
+	else
+	{
+		// we're done
+		this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Finishing';
+		this.doneLoading();
+	}
+}
+
+packagesModel.prototype.doneLoading = function()
+{
+	// sort the packages
+	if (this.packages.length > 0) 
+	{
+		this.packages.sort(function(a, b)
+		{
+			if (a.title && b.title) return ((a.title.toLowerCase() < b.title.toLowerCase()) ? -1 : ((a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : 0));
+			else return -1;
+		});
+	}
+	
+	try
+	{
+		// add package categorys to global category list
+		for (var p = 0; p < this.packages.length; p++) 
+		{
+			// build categories list
+			var catNum = this.categoryInList(this.packages[p].category);
+			if (catNum === false) 
+			{
+				// push new category
+				this.categories.push({name: this.packages[p].category});
+			}
+			
+			// build feeds list
+			for (var f = 0; f < this.packages[p].feeds.length; f++) 
+			{
+				var feedNum = this.feedInList(this.packages[p].feeds[f]);
+				if (feedNum === false) 
+				{
+					// push new category
+					this.feeds.push({name: this.packages[p].feeds[f]});
+				}
+			}
+		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#doneLoading:categoryfeedList');
+	}
+	
+	// sort categories
+	if (this.categories.length > 0)
+	{
+		this.categories.sort(function(a, b)
+		{
+			// this needs to be lowercase for sorting.
+			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
+			else return -1;
+		});
+	}
+	
+	// sort feeds
+	if (this.feeds.length > 0)
+	{
+		this.feeds.sort(function(a, b)
+		{
+			// this needs to be lowercase for sorting.
+			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
+			else return -1;
+		});
+	}
+	
+	// tell the main scene we're done updating
+	this.mainAssistant.doneUpdating();
 }
 
 packagesModel.prototype.versionNewer = function(one, two)

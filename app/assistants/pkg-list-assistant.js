@@ -38,14 +38,15 @@ function PkgListAssistant(item, searchText, currentSort)
 		else // listSort is empty or 'default 
 		{
 			if (this.item.list == 'categories' ||
-				this.item.list == 'installed') 
+				this.item.pkgValue == 'installed') 
 			{
 				this.currentSort = 'alpha';
 			}
-			else if (this.item.pkgType == 'updates' ||
+			else if (this.item.pkgValue == 'updates' ||
 					this.item.pkgType == 'libraries' ||
 					this.item.pkgType == 'all' ||
-					this.item.list == 'feeds') 
+					this.item.list == 'feeds' ||
+					this.item.list == 'types') 
 			{
 				this.currentSort = 'date';
 			}

@@ -145,7 +145,8 @@ MainAssistant.prototype.onConnection = function(response, onlyLoad)
 	{
 		// if not, go right to loading the pkg info
 		this.controller.get('spinnerStatus').innerHTML = "Loading";
-		IPKGService.info(this.onInfo.bindAsEventListener(this));
+		//IPKGService.info(this.onInfo.bindAsEventListener(this));
+		IPKGService.list(this.onInfo.bindAsEventListener(this));
 	}
 }
 
@@ -182,7 +183,8 @@ MainAssistant.prototype.onUpdate = function(payload)
 			
 			// lets call the function to update the global list of pkgs
 			this.controller.get('spinnerStatus').innerHTML = "Loading";
-			IPKGService.info(this.onInfo.bindAsEventListener(this));
+			//IPKGService.info(this.onInfo.bindAsEventListener(this));
+			IPKGService.list(this.onInfo.bindAsEventListener(this));
 		}
 	}
 	catch (e)
@@ -219,13 +221,14 @@ MainAssistant.prototype.onInfo = function(payload)
 		}
 		else 
 		{
-			this.controller.get('spinnerStatus').innerHTML = "Parsing";
+			//this.controller.get('spinnerStatus').innerHTML = "Parsing";
 			
 			// send payload to items object
-			packages.load(payload);
+			//packages.load(payload);
+			packages.load(payload, this);
 			
 			// we're done here
-			this.doneUpdating();
+			//this.doneUpdating();
 		}
 	}
 	catch (e)
@@ -366,6 +369,8 @@ MainAssistant.prototype.doneUpdating = function()
 	
 	// we're done loading so let the phone sleep if it needs to
 	this.stayAwake.end();
+	
+	//alert(packages.packages.length);
 }
 
 MainAssistant.prototype.activate = function(event)

@@ -46,6 +46,16 @@ IPKGService.list = function(callback) {
 	return request;
 }
 
+IPKGService.rawlist = function(callback, feed) {
+	var request = new Mojo.Service.Request(IPKGService.identifier, {
+		method: 'rawlist',
+		parameters: {"feed":feed},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
+
 IPKGService.list_installed = function(callback) {
 	var request = new Mojo.Service.Request(IPKGService.identifier, {
 		method: 'list_installed',
