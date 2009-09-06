@@ -284,12 +284,12 @@ packageModel.prototype.getForList = function(item)
 		if (item) 
 		{
 			if (this.isInstalled && !this.hasUpdate &&
-			item.list != 'updates' &&
-			item.list != 'installed')
+				item.pkgValue != 'updates' &&
+				item.pkgValue != 'installed')
 			{
 				listObj.rowClass += ' installed';
 			}
-			if (this.hasUpdate && item.list != 'updates')
+			if (this.hasUpdate && item.pkgValue != 'updates')
 			{
 				listObj.rowClass += ' update';
 			}
@@ -342,15 +342,17 @@ packageModel.prototype.getDependent = function()
 				}
 			}
 			
-			/*// this is for testing
+			// this is for testing
+			/*
 			if (packages.packages[p].pkg == 'ws.junk.blocked')
 			{
 				returnArray.push(p);
 			}
-			if (p <= 2)
+			if (p > 150 && p <= 155)
 			{
 				returnArray.push(p);
-			}*/
+			}
+			*/
 			
 		}
 	}

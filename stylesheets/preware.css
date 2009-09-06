@@ -367,6 +367,16 @@
 	margin-right: 13px;
 	height: 120px
 }
+.pkg-view #viewScroller #scrollItems div.appReset
+{
+	background: #fff; /* for some reason, if i remove this, it stops working */
+	position: relative;
+	display: inline;
+	margin-left: 0px;
+	margin-right: 0px;
+	height: 54px;
+	width: 0px;
+}
 .pkg-view #viewScroller #scrollItems div.app
 {
 	position: relative;
@@ -383,9 +393,10 @@
 .pkg-view #viewScroller #scrollItems div.app .sub
 {
 	position: absolute;
-	display: inline;
+	display: inline-block;
 	width: 0px;
 	height: 0px;
+	-webkit-palm-mouse-target: ignore;
 }
 .pkg-view #viewScroller #scrollItems div.app.installed .sub
 {

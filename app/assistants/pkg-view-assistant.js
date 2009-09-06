@@ -75,11 +75,12 @@ PkgViewAssistant.prototype.setup = function()
 			this.dependents.length > 0) 
 	{
 		this.controller.get('scrollerContainer').className = 'palm-row apps';
+		scrollItems += '<div class="appReset"></div>';
 		for (d = 0; d < this.dependents.length; d++) 
 		{
-			scrollItems += '<div id="app_' + this.dependents[d] + '" class="app' + (packages.packages[this.dependents[d]].isInstalled?(packages.packages[this.dependents[d]].hasUpdate?' update':' installed'):'') + '">';
+			scrollItems += '<div class="app' + (packages.packages[this.dependents[d]].isInstalled?(packages.packages[this.dependents[d]].hasUpdate?' update':' installed'):'') + '">';
 			scrollItems += '<div class="sub"></div>';
-			scrollItems += '<img src="' + (packages.packages[this.dependents[d]].icon?packages.packages[this.dependents[d]].icon:'images/noIcon.png') + '" />';
+			scrollItems += '<img id="app_' + this.dependents[d] + '" src="' + (packages.packages[this.dependents[d]].icon?packages.packages[this.dependents[d]].icon:'images/noIcon.png') + '" />';
 			scrollItems += '</div>';
 		}
 		
