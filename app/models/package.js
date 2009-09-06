@@ -115,6 +115,8 @@ function packageModel(info)
 			this.type = 'Application';
 		}
 		
+		if (this.type == 'LinuxBinary') alert(this.pkg);
+		
 	}
 	catch (e)
 	{
@@ -131,16 +133,17 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		// check if its newer
 		var newer = packages.versionNewer(this.version, newPackage.version);
 		
-		// if they're both not installed, and this is newer, replace the old one
+		
 		if (!newPackage.isInstalled && !this.isInstalled && newer)
 		{
+			//alert(1);
 			newPackage.infoLoadMissing(this);
 			return newPackage;
 		}
 		
-		// if the new one is installed and the old one is not, and its older, update the old one
 		if (newPackage.isInstalled && !this.isInstalled && !newer)
 		{
+			//alert(2);
 			this.isInstalled = true;
 			this.hasUpdate = true;
 			this.versionInstalled = newPackage.version;
@@ -148,19 +151,20 @@ packageModel.prototype.infoUpdate = function(newPackage)
 			return false;
 		}
 		
-		// if the old one is installed and the new one is not, and its newer, update the new one
-		if (!newPackage.isInstalled && this.isInstalled && newer)
+		
+		if (!newPackage.isInstalled && this.isInstalled && !newer)
 		{
-			newPackage.isInstalled = true;
-			newPackage.hasUpdate = true;
-			newPackage.versionInstalled = this.version;
-			newPackage.infoLoadMissing(this);
-			return newPackage;
+			//alert(3);
+			this.isInstalled = true;
+			this.hasUpdate = false;
+			this.versionInstalled = newPackage.version;
+			this.infoLoadMissing(newPackage);
+			return false;
 		}
 		
-		// if the new one is installed but the old one is not, and this is newer, replace the old one
 		if (newPackage.isInstalled && !this.isInstalled && newer)
 		{
+			//alert(4);
 			newPackage.isInstalled = true;
 			newPackage.hasUpdate = false;
 			newPackage.versionInstalled = this.version;
@@ -168,6 +172,17 @@ packageModel.prototype.infoUpdate = function(newPackage)
 			return newPackage;
 		}
 		
+		if (!newPackage.isInstalled && this.isInstalled && newer)
+		{
+			//alert(5);
+			newPackage.isInstalled = true;
+			newPackage.hasUpdate = true;
+			newPackage.versionInstalled = this.version;
+			newPackage.infoLoadMissing(this);
+			return newPackage;
+		}
+		
+		//alert(6);
 		this.infoLoadMissing(newPackage);
 		return false;
 	}

@@ -114,6 +114,7 @@ packagesModel.prototype.infoResponse = function(payload, num, type)
 				if (curPkg) 
 				{
 					this.loadPackage(curPkg);
+					curPkg = false;
 				}
 			}
 		}
