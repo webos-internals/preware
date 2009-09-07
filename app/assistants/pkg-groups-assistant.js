@@ -61,8 +61,8 @@ PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// start our sort item
 	var sortItem = {items: [], toggleCmd: this.item.list};
 	
-	// push the sort selector for library grouping
-	if (this.item.pkgType == 'libraries') 
+	// push the sort selector for type grouping
+	if (this.item.pkgType == 'all') 
 	{
 		sortItem.items.push({label: $L('Types'), command: 'types'});
 	}

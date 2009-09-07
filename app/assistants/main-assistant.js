@@ -49,19 +49,21 @@ MainAssistant.prototype.setup = function()
 	var menuModel =
 	{
 		visible: true,
-		items: [
-		{
-			label: "Preferences",
-			command: 'do-prefs'
-		},
-		{
-			label: "Update Feeds...",
-			command: 'do-update'
-		},
-		{
-			label: "List Configs...",
-			command: 'do-configs'
-		}]
+		items:
+		[
+			{
+				label: "Preferences",
+				command: 'do-prefs'
+			},
+			{
+				label: "Update Feeds...",
+				command: 'do-update'
+			},
+			{
+				label: "List Configs...",
+				command: 'do-configs'
+			}
+		]
 	}
 	
 	// setup widget
@@ -296,58 +298,38 @@ MainAssistant.prototype.updateList = function()
 			pkgCount: 0						// count of pkgs for display in list, will only display if style is set to 'showCount'
 		});
 		
-		this.mainModel.items.push(
+		if (!prefs.get().showAllTypes) 
 		{
-			name: $L('Available Applications'),
-			style: 'disabled',
-			scene: 'pkg-groups',
-			list: 'categories',
-			pkgType: 'Application',
-			pkgValue: 'group',
-			pkgCount: 0
-		});
-		
-		this.mainModel.items.push(
-		{
-			name: $L('Available Feeds'),
-			style: 'disabled',
-			scene: 'pkg-list',
-			pkgType: 'Feed',
-			pkgValue: 'all',
-			pkgCount: 0
-		});
-		
-		this.mainModel.items.push(
-		{
-			name: $L('Available Patches'),
-			style: 'disabled',
-			scene: 'pkg-list',
-			pkgType: 'Patch',
-			pkgValue: 'all',
-			pkgCount: 0
-		});
-		
-		if (prefs.get().showLibraries)
-		{
-			/*
 			this.mainModel.items.push(
 			{
-				name: $L('Available Libraries'),
+				name: $L('Available Applications'),
+				style: 'disabled',
+				scene: 'pkg-groups',
+				list: 'categories',
+				pkgType: 'Application',
+				pkgValue: 'group',
+				pkgCount: 0
+			});
+			
+			this.mainModel.items.push(
+			{
+				name: $L('Available Patches'),
 				style: 'disabled',
 				scene: 'pkg-list',
-				pkgType: 'libraries',
+				pkgType: 'Patch',
 				pkgValue: 'all',
 				pkgCount: 0
 			});
-			*/
-			// a group of types instead of straight to the list feels more right
+		}
+		else
+		{
 			this.mainModel.items.push(
 			{
-				name: $L('Available Libraries'),
+				name: $L('Available Packages'),
 				style: 'disabled',
 				scene: 'pkg-groups',
 				list: 'types',
-				pkgType: 'libraries',
+				pkgType: 'all',
 				pkgValue: 'group',
 				pkgCount: 0
 			});

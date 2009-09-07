@@ -3,7 +3,7 @@ function packagesModel()
 	this.packages = [];
 	this.categories = [];
 	this.feeds = [];
-	this.types = [{name: 'Application'}, {name: 'Patch'}, {name: 'Service'}, {name: 'Plugin'}, {name: 'LinuxBinary'}];
+	this.types = [];
 	
 	// this is for use to seperate the patches from the apps
 	this.patchCategory = 'WebOS Patches';
@@ -70,6 +70,11 @@ packagesModel.prototype.infoResponse = function(payload, num, type)
 				var test = payload.contents.split(/\n/);
 				var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
 				var curPkg = false;
+				
+				if (test[x] && test[x].include('PreYour'))
+				{
+					alert(x + ': ' + test[x]);
+				}
 				
 				for (var x = 0; x <= test.length; x++) 
 				{
@@ -208,6 +213,14 @@ packagesModel.prototype.doneLoading = function()
 					this.feeds.push({name: this.packages[p].feeds[f]});
 				}
 			}
+			
+			// build types list
+			var typeNum = this.typeInList(this.packages[p].type);
+			if (typeNum === false) 
+			{
+				// push new category
+				this.types.push({name: this.packages[p].type});
+			}
 		}
 	}
 	catch (e)
@@ -230,6 +243,17 @@ packagesModel.prototype.doneLoading = function()
 	if (this.feeds.length > 0)
 	{
 		this.feeds.sort(function(a, b)
+		{
+			// this needs to be lowercase for sorting.
+			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
+			else return -1;
+		});
+	}
+	
+	// sort types
+	if (this.types.length > 0)
+	{
+		this.types.sort(function(a, b)
 		{
 			// this needs to be lowercase for sorting.
 			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
@@ -293,6 +317,21 @@ packagesModel.prototype.feedInList = function(feed)
 			if (this.feeds[f].name == feed) 
 			{
 				return f;
+			}
+		}
+	}
+	return false;
+}
+
+packagesModel.prototype.typeInList = function(type)
+{
+	if (this.types.length > 0) 
+	{
+		for (var t = 0; t < this.types.length; t++) 
+		{
+			if (this.types[t].name == type) 
+			{
+				return t;
 			}
 		}
 	}
@@ -405,16 +444,11 @@ packagesModel.prototype.getPackages = function(item)
 			{
 				if (item.pkgType == this.packages[p].type) pushIt = true;
 				
-				// for now, we want to show libraries in the application lists if they aren't splitting them up in the main list
+				// for now, we want to show all types in the application lists if they aren't splitting them up in the main list
 				// once we handle dependencies we can delete this code
-				if (!prefs.get().showLibraries && item.pkgType == "Application" &&
-					(this.packages[p].type == "Plugin" || this.packages[p].type == "Service" || this.packages[p].type == "LinuxBinary"))
-				{
-					pushIt = true;
-				}
-				
-				if (item.pkgType == "libraries" &&
-					(this.packages[p].type == "Plugin" || this.packages[p].type == "Service" || this.packages[p].type == "LinuxBinary"))
+				if (!prefs.get().showAllTypes && item.pkgType == "Application" &&
+					(this.packages[p].type == "Plugin" || this.packages[p].type == "Service" ||
+					this.packages[p].type == "LinuxBinary" || this.packages[p].type == "Feed"))
 				{
 					pushIt = true;
 				}

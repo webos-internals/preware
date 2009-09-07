@@ -43,7 +43,6 @@ function PkgListAssistant(item, searchText, currentSort)
 				this.currentSort = 'alpha';
 			}
 			else if (this.item.pkgValue == 'updates' ||
-					this.item.pkgType == 'libraries' ||
 					this.item.pkgType == 'all' ||
 					this.item.list == 'feeds' ||
 					this.item.list == 'types') 

@@ -115,7 +115,10 @@ function packageModel(info)
 			this.type = 'Application';
 		}
 		
-		if (this.type == 'LinuxBinary') alert(this.pkg);
+		if (this.pkg.include('ryanhope'))
+		{
+			//alert(this.pkg + ' - ' + this.version);
+		}
 		
 	}
 	catch (e)

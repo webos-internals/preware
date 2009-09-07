@@ -46,19 +46,19 @@ PreferencesAssistant.prototype.setup = function()
 		// Main Scene Group
 		this.controller.setupWidget
 		(
-			'showLibraries',
+			'showAllTypes',
 			{
 	  			trueLabel:  'Yes',
 	 			falseLabel: 'No',
-	  			fieldName:  'showLibraries'
+	  			fieldName:  'showAllTypes'
 			},
 			{
-				value : this.prefs.showLibraries,
+				value : this.prefs.showAllTypes,
 	 			disabled: false
 			}
 		);
 		
-		this.controller.listen('showLibraries', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		this.controller.listen('showAllTypes', Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		
 		

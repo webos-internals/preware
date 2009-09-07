@@ -19,7 +19,7 @@ prefCookie.prototype.get = function(reload)
 				lastUpdate: 0, // will be updated every time update is successful
 				
 				// Main Scene Group
-				showLibraries: false,
+				showAllTypes: false,
 				
 				// List Scene Group
 				listSort: 'default',
