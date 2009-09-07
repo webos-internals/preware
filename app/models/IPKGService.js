@@ -19,6 +19,15 @@ IPKGService.launch = function(callback) {
 	return request;
 }
 
+IPKGService.version = function(callback) {
+	var request = new Mojo.Service.Request(IPKGService.identifier, {
+		method: 'version',
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
+
 IPKGService.update = function(callback) {
 	var request = new Mojo.Service.Request(IPKGService.identifier, {
 		method: 'update',
