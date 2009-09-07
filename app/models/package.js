@@ -50,7 +50,7 @@ function packageModel(info)
 		this.homepage =	   false;
 		this.description = false;
 		this.screenshots = [];
-		this.depends =	   false;
+		this.depends =	   [];
 		if ((this.info.Status.include('not-installed') && this.info.Status != '') || this.info.Status == '')
 		{
 			this.isInstalled =   false;
@@ -63,9 +63,9 @@ function packageModel(info)
 			this.dateInstalled = this.info['Installed-Time'];
 			this.sizeInstalled = this.info['Installed-Size'];
 		}
+		
 		if (this.info.Depends)
 		{
-			this.depends = [];
 			var dSplit = this.info.Depends.split(',');
 			for (var d = 0; d < dSplit.length; d++)
 			{
@@ -85,11 +85,11 @@ function packageModel(info)
 		
 		// check if Source is json object
 		// basically, if it has a { in it, we'll assume its json data
-		if (this.info.Source != undefined && this.info.Source.include('{')) 
+		if (this.info.Source && this.info.Source.include('{')) 
 		{
 			// parse json to object
 			this.sourceJson = JSON.parse(this.info.Source);
-			
+
 			// check if the object has data we can load or overwrite the defaults with
 			if (this.sourceJson.Type)			 this.type =		 this.sourceJson.Type;
 			if (this.sourceJson.Category)		 this.category =	 this.sourceJson.Category;
@@ -207,7 +207,6 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 		if (!this.isInstalled)			 this.isInstalled =		pkg.isInstalled;
 		if (!this.dateInstalled)		 this.dateInstalled =	pkg.dateInstalled;
 		if (!this.sizeInstalled)		 this.sizeInstalled =	pkg.sizeInstalled;
-		//if (!this.depends)				 this.depends =			pkg.depends;
 		
 		if (this.feeds[0] == 'Unknown') 
 		{
@@ -226,11 +225,27 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 			}
 		}
 		
-		if (pkg.depends.length > 0) 
+		if (this.depends.length == 0 && pkg.depends.length > 0) 
 		{
-			for (var d = 0; d < pkg.depends.length; d++) 
+			this.depends = pkg.depends;
+		}
+		else if (this.depends.length > 0 && pkg.depends.length > 0) 
+		{
+			for (var pd = 0; pd < pkg.depends.length; pd++) 
 			{
-				this.depends.push(pkg.depends[d]);
+				var depFound = false;
+				for (var td = 0; td < this.depends.length; td++) 
+				{
+					if (pkg.depends[pd].pkg == this.depends[td].pkg)
+					{
+						depFound = true;
+					}
+				}
+				
+				if (!depFound) 
+				{
+					this.depends.push(pkg.depends[pd]);
+				}
 			}
 		}
 		

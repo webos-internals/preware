@@ -44,108 +44,119 @@ PkgViewAssistant.prototype.setup = function()
 	}
 	
 	
-	
-	// build scroll items html
-	// screenshots for applications and patches
-	// app icons for plugins and services
-	var scrollItems = '';
-	this.dependents = this.item.getDependent();
-	if ((this.item.type == 'Application' || this.item.type == 'Patch') &&
-		this.item.screenshots.length > 0) 
+	try
 	{
-		this.controller.get('scrollerContainer').className = 'palm-row screenshots';
-		for (s = 0; s < this.item.screenshots.length; s++) 
+		// build scroll items html
+		// screenshots for applications and patches
+		// app icons for plugins and services
+		var scrollItems = '';
+		this.dependents = this.item.getDependent();
+		if ((this.item.type == 'Application' || this.item.type == 'Patch') &&
+			this.item.screenshots.length > 0) 
 		{
-			scrollItems += '<img id="ss_' + s + '" class="screenshot" src="' + this.item.screenshots[s] + '" />';
+			this.controller.get('scrollerContainer').className = 'palm-row screenshots';
+			for (s = 0; s < this.item.screenshots.length; s++) 
+			{
+				scrollItems += '<img id="ss_' + s + '" class="screenshot" src="' + this.item.screenshots[s] + '" />';
+			}
+			
+			// fill the screenshot div with data
+			this.controller.get('scrollItems').innerHTML = scrollItems;
+			
+			// initialize listener
+			this.screenshotTap = this.screenshotTapHandler.bindAsEventListener(this)
+			
+			// looping screenshots adding listeners
+			for (s = 0; s < this.item.screenshots.length; s++) 
+			{
+				Mojo.Event.listen(this.controller.get('ss_' + s), Mojo.Event.tap, this.screenshotTap);
+			}
 		}
+		else if ((this.item.type == 'Service' || this.item.type == 'Plugin') &&
+				this.dependents.length > 0) 
+		{
+			this.controller.get('scrollerContainer').className = 'palm-row apps';
+			scrollItems += '<div class="appReset"></div>';
+			for (d = 0; d < this.dependents.length; d++) 
+			{
+				scrollItems += '<div class="app' + (packages.packages[this.dependents[d]].isInstalled?(packages.packages[this.dependents[d]].hasUpdate?' update':' installed'):'') + '">';
+				scrollItems += '<div class="sub"></div>';
+				scrollItems += '<img id="app_' + this.dependents[d] + '" src="' + (packages.packages[this.dependents[d]].icon?packages.packages[this.dependents[d]].icon:'images/noIcon.png') + '" />';
+				scrollItems += '</div>';
+			}
+			
+			// fill the screenshot div with data
+			this.controller.get('scrollItems').innerHTML = scrollItems;
+			
+			// initialize listener
+			this.appTap = this.appTapHandler.bindAsEventListener(this)
+			
+			// looping apps adding listeners
+			for (d = 0; d < this.dependents.length; d++) 
+			{
+				Mojo.Event.listen(this.controller.get('app_' + this.dependents[d]), Mojo.Event.tap, this.appTap);
+			}
+		}
+		else
+		{
+			this.controller.get('scrollerContainer').style.display = 'none';
+		}
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'pkg-view#setup:images');
+	}
+	
+	
+	try
+	{
+		// build data html
+		var data = '';
+		var dataTemplate = 'pkg-view/dataRow';	
+		var dataTemplate2 = 'pkg-view/dataRow2';	
 		
-		// fill the screenshot div with data
-		this.controller.get('scrollItems').innerHTML = scrollItems;
+		if (this.item.description)
+		{
+			data += Mojo.View.render({object: {title: 'Description', data: this.item.description}, template: dataTemplate2});
+		}
+		if (this.item.homepage)
+		{
+			data += Mojo.View.render({object: {title: 'Homepage', data: '<a href="' + this.item.homepage + '">' + getDomain(this.item.homepage) + '</a>'}, template: dataTemplate});
+		}
+		data += Mojo.View.render({object: {title: 'Maintainer', data: this.item.maintainer}, template: dataTemplate});
+		data += Mojo.View.render({object: {title: 'Version', data: this.item.version}, template: dataTemplate});
+		if (this.item.date)
+		{
+			data += Mojo.View.render({object: {title: 'Last Updated', data: formatDate(this.item.date)}, template: dataTemplate});
+		}
+		data += Mojo.View.render({object: {title: 'Download Size', data: formatSize(this.item.size)}, template: dataTemplate});
+		if (this.item.isInstalled)
+		{
+			if (this.item.versionInstalled && this.item.hasUpdate)
+			{
+				data += Mojo.View.render({object: {title: 'Installed Version', data: this.item.versionInstalled}, template: dataTemplate});
+			}
+			if (this.item.dateInstalled) 
+			{
+				data += Mojo.View.render({object: {title: 'Installed', data: formatDate(this.item.dateInstalled)}, template: dataTemplate});
+			}
+			if (this.item.sizeInstalled) 
+			{
+				data += Mojo.View.render({object: {title: 'Installed Size', data: formatSize(this.item.sizeInstalled)}, template: dataTemplate});
+			}
+		}
+		data += Mojo.View.render({object: {title: 'Id', data: this.item.pkg}, template: dataTemplate});
+		data += Mojo.View.render({object: {title: 'Type', data: this.item.type}, template: dataTemplate});
+		data += Mojo.View.render({object: {title: 'Category', data: this.item.category}, template: dataTemplate});
+		data += Mojo.View.render({object: {title: 'Feed' + (this.item.feeds.length>1?'s':''), data: this.item.feedString, rowStyle: 'last'}, template: dataTemplate});
 		
-		// initialize listener
-		this.screenshotTap = this.screenshotTapHandler.bindAsEventListener(this)
-		
-		// looping screenshots adding listeners
-		for (s = 0; s < this.item.screenshots.length; s++) 
-		{
-			Mojo.Event.listen(this.controller.get('ss_' + s), Mojo.Event.tap, this.screenshotTap);
-		}
+		// fillin the div with data
+		this.controller.get('data').innerHTML = data;
 	}
-	else if ((this.item.type == 'Service' || this.item.type == 'Plugin') &&
-			this.dependents.length > 0) 
+	catch (e) 
 	{
-		this.controller.get('scrollerContainer').className = 'palm-row apps';
-		scrollItems += '<div class="appReset"></div>';
-		for (d = 0; d < this.dependents.length; d++) 
-		{
-			scrollItems += '<div class="app' + (packages.packages[this.dependents[d]].isInstalled?(packages.packages[this.dependents[d]].hasUpdate?' update':' installed'):'') + '">';
-			scrollItems += '<div class="sub"></div>';
-			scrollItems += '<img id="app_' + this.dependents[d] + '" src="' + (packages.packages[this.dependents[d]].icon?packages.packages[this.dependents[d]].icon:'images/noIcon.png') + '" />';
-			scrollItems += '</div>';
-		}
-		
-		// fill the screenshot div with data
-		this.controller.get('scrollItems').innerHTML = scrollItems;
-		
-		// initialize listener
-		this.appTap = this.appTapHandler.bindAsEventListener(this)
-		
-		// looping apps adding listeners
-		for (d = 0; d < this.dependents.length; d++) 
-		{
-			Mojo.Event.listen(this.controller.get('app_' + this.dependents[d]), Mojo.Event.tap, this.appTap);
-		}
+		Mojo.Log.logException(e, 'pkg-view#setup:data');
 	}
-	else
-	{
-		this.controller.get('scrollerContainer').style.display = 'none';
-	}
-	
-	
-	
-	// build data html
-	var data = '';
-	var dataTemplate = 'pkg-view/dataRow';	
-	var dataTemplate2 = 'pkg-view/dataRow2';	
-	
-	if (this.item.description)
-	{
-		data += Mojo.View.render({object: {title: 'Description', data: this.item.description}, template: dataTemplate2});
-	}
-	if (this.item.homepage)
-	{
-		data += Mojo.View.render({object: {title: 'Homepage', data: '<a href="' + this.item.homepage + '">' + getDomain(this.item.homepage) + '</a>'}, template: dataTemplate});
-	}
-	data += Mojo.View.render({object: {title: 'Maintainer', data: this.item.maintainer}, template: dataTemplate});
-	data += Mojo.View.render({object: {title: 'Version', data: this.item.version}, template: dataTemplate});
-	if (this.item.date)
-	{
-		data += Mojo.View.render({object: {title: 'Last Updated', data: formatDate(this.item.date)}, template: dataTemplate});
-	}
-	data += Mojo.View.render({object: {title: 'Download Size', data: formatSize(this.item.size)}, template: dataTemplate});
-	if (this.item.isInstalled)
-	{
-		if (this.item.versionInstalled && this.item.hasUpdate)
-		{
-			data += Mojo.View.render({object: {title: 'Installed Version', data: this.item.versionInstalled}, template: dataTemplate});
-		}
-		if (this.item.dateInstalled) 
-		{
-			data += Mojo.View.render({object: {title: 'Installed', data: formatDate(this.item.dateInstalled)}, template: dataTemplate});
-		}
-		if (this.item.sizeInstalled) 
-		{
-			data += Mojo.View.render({object: {title: 'Installed Size', data: formatSize(this.item.sizeInstalled)}, template: dataTemplate});
-		}
-	}
-	data += Mojo.View.render({object: {title: 'Id', data: this.item.pkg}, template: dataTemplate});
-	data += Mojo.View.render({object: {title: 'Type', data: this.item.type}, template: dataTemplate});
-	data += Mojo.View.render({object: {title: 'Category', data: this.item.category}, template: dataTemplate});
-	data += Mojo.View.render({object: {title: 'Feed' + (this.item.feeds.length>1?'s':''), data: this.item.feedString, rowStyle: 'last'}, template: dataTemplate});
-	
-	// fillin the div with data
-	this.controller.get('data').innerHTML = data;
-	
 	
 	
 	// setup screenshot sideways scroller

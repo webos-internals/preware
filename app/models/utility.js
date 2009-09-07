@@ -52,8 +52,12 @@ formatSize = function(size)
 // formats a url to something that can be a link
 function getDomain (url)
 {
-	var r = new RegExp("(http|ftp|https)://(.*?)/.*$");
+	var r = new RegExp("^(?:http(?:s)?://)?([^/]+)");
 	var matched = url.match(r);
-	var stripped = matched[2].replace(/www./, '');
-	return stripped;
+	if (matched) 
+	{
+		var stripped = matched[1].replace(/www./, '');
+		return stripped;
+	}
+	return 'Link';
 }
