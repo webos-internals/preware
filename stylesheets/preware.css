@@ -57,10 +57,6 @@
 	color: #666;
 	font-size: 16px;
 }
-.main #spinner #spinnerStatus span.light
-{
-	color: #999;
-}
 .main .progress
 {
 	margin-top: 42px;

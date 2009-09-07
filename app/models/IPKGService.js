@@ -56,10 +56,9 @@ IPKGService.rawlist = function(callback, feed) {
 	return request;
 }
 
-IPKGService.rawstatus = function(callback, feed) {
+IPKGService.rawstatus = function(callback) {
 	var request = new Mojo.Service.Request(IPKGService.identifier, {
 		method: 'rawstatus',
-		parameters: {"feed":feed},
 		onSuccess: callback,
 		onFailure: callback
 	});

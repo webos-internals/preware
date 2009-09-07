@@ -18,7 +18,6 @@ packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
 		
 		// get our current data
 		this.feeds = feeds;
-		this.feedNum = 1;
 		this.mainAssistant = mainAssistant;
 		
 		if (this.feeds.length > 0)
@@ -26,7 +25,7 @@ packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
 			this.mainAssistant.controller.get('spinnerStatus').innerHTML = "Loading";
 			this.mainAssistant.controller.get('progress').style.display = "";
 			
-			this.infoStatusRequest(0);
+			this.infoStatusRequest();
 		}
 	} 
 	catch (e) 
@@ -35,27 +34,24 @@ packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
 	}
 }
 
-packagesModel.prototype.infoStatusRequest = function(num)
+packagesModel.prototype.infoStatusRequest = function()
 {
-	//alert(this.feeds[num] + ' 1');
-	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br><span class="light">' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1) + '<span>';
-	this.mainAssistant.controller.get('progress-bar').style.width = Math.round(((this.feedNum)/(this.feeds.length*2)) * 100) + '%';
-	this.feedNum++;
+	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>Status';
+	this.mainAssistant.controller.get('progress-bar').style.width = Math.round((1/(this.feeds.length+1)) * 100) + '%';
 	
-	IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, num, 'status'), this.feeds[num]);
+	IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, -1));
 }
 
 packagesModel.prototype.infoListRequest = function(num)
 {
-	//alert(this.feeds[num] + ' 2');
 	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1);
-	this.mainAssistant.controller.get('progress-bar').style.width = Math.round(((this.feedNum)/(this.feeds.length*2)) * 100) + '%';
+	this.mainAssistant.controller.get('progress-bar').style.width = Math.round(((num+2)/(this.feeds.length+1)) * 100) + '%';
 	this.feedNum++;
 	
-	IPKGService.rawlist(this.infoResponse.bindAsEventListener(this, num, 'list'), this.feeds[num]);
+	IPKGService.rawlist(this.infoResponse.bindAsEventListener(this, num), this.feeds[num]);
 }
 
-packagesModel.prototype.infoResponse = function(payload, num, type)
+packagesModel.prototype.infoResponse = function(payload, num)
 {
 	try 
 	{
@@ -71,13 +67,19 @@ packagesModel.prototype.infoResponse = function(payload, num, type)
 				var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
 				var curPkg = false;
 				
-				if (test[x] && test[x].include('PreYour'))
-				{
-					alert(x + ': ' + test[x]);
-				}
-				
 				for (var x = 0; x <= test.length; x++) 
 				{
+				
+					if (this.feeds[num] == 'preyourmind')
+					{
+						alert(x + ': ' + test[x]);
+					}
+					
+					//if (test[x] && test[x].include('PreYour'))
+					//{
+					//	alert(x + ': ' + test[x]);
+					//}
+					
 					var match = lineRegExp.exec(test[x]);
 					if (match) 
 					{
@@ -129,24 +131,17 @@ packagesModel.prototype.infoResponse = function(payload, num, type)
 		Mojo.Log.logException(e, 'packagesModel#infoResponse');
 	}
 	
-	if (type == 'status') 
+	if (this.feeds[(num + 1)]) 
 	{
-		this.infoListRequest(num);
+		// start next
+		this.infoListRequest((num + 1));
 	}
 	else 
 	{
-		if (this.feeds[(num + 1)]) 
-		{
-			// start next
-			this.infoStatusRequest((num + 1));
-		}
-		else 
-		{
-			// we're done
-			this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Complete';
-			this.mainAssistant.controller.get('progress-bar').style.width = '100%';
-			this.doneLoading();
-		}
+		// we're done
+		this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Complete';
+		this.mainAssistant.controller.get('progress-bar').style.width = '100%';
+		this.doneLoading();
 	}
 }
 
