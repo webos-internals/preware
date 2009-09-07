@@ -305,12 +305,7 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 			if (a.date) aTime = a.date;
 			if (b.date) bTime = b.date;
 			
-			if (aTime > bTime) return -1;
-			else
-			{
-				if (aTime < bTime) return 1;
-				else return 0;
-			}
+			return bTime - aTime;
 		});
 	}
 	

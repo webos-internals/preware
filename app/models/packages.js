@@ -180,8 +180,16 @@ packagesModel.prototype.doneLoading = function()
 	{
 		this.packages.sort(function(a, b)
 		{
-			if (a.title && b.title) return ((a.title.toLowerCase() < b.title.toLowerCase()) ? -1 : ((a.title.toLowerCase() > b.title.toLowerCase()) ? 1 : 0));
-			else return -1;
+			if (a.title && b.title)
+				{
+				strA = a.title.toLowerCase();
+				strB = b.title.toLowerCase();
+				return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
+				}
+			else
+				{
+				return -1;
+				}
 		});
 	}
 	
@@ -229,8 +237,16 @@ packagesModel.prototype.doneLoading = function()
 		this.categories.sort(function(a, b)
 		{
 			// this needs to be lowercase for sorting.
-			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
-			else return -1;
+			if (a.name && b.name)
+				{
+				strA = a.name.toLowerCase();
+				strB = b.name.toLowerCase();
+				return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
+				}
+			else
+				{
+				return -1;
+				}
 		});
 	}
 	
@@ -240,8 +256,16 @@ packagesModel.prototype.doneLoading = function()
 		this.feeds.sort(function(a, b)
 		{
 			// this needs to be lowercase for sorting.
-			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
-			else return -1;
+			if (a.name && b.name)
+				{
+				strA = a.name.toLowerCase();
+				strB = b.name.toLowerCase();
+				return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
+				}
+			else
+				{
+				return -1;
+				}
 		});
 	}
 	
@@ -251,8 +275,16 @@ packagesModel.prototype.doneLoading = function()
 		this.types.sort(function(a, b)
 		{
 			// this needs to be lowercase for sorting.
-			if (a.name.toLowerCase() && b.name.toLowerCase()) return ((a.name.toLowerCase() < b.name.toLowerCase()) ? -1 : ((a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : 0));
-			else return -1;
+			if (a.name && b.name)
+				{
+				strA = a.name.toLowerCase();
+				strB = b.name.toLowerCase();
+				return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
+				}
+			else
+				{
+				return -1;
+				}
 		});
 	}
 	
