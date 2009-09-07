@@ -18,6 +18,9 @@ function MainAssistant()
 	
 	// load stayawake class
 	this.stayAwake = new stayAwake();
+	
+	// required ipkgservice
+	this.ipkgServiceVersion = 2;
 }
 
 MainAssistant.prototype.setup = function()
@@ -35,7 +38,7 @@ MainAssistant.prototype.setup = function()
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
 	
 	// hide progress bar
-	this.controller.get('progress').style.display = '';
+	this.controller.get('progress').style.display = 'none';
 	this.controller.get('progress-bar').style.width = '0%';
 	
 	// setup list model
@@ -119,6 +122,8 @@ MainAssistant.prototype.updateFeeds = function(onlyLoad)
 	
 	// start with checking the internet connection
 	this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
+	this.controller.get('progress').style.display = 'none';
+	this.controller.get('progress-bar').style.width = '0%';
 	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
 	    method: 'getstatus',
 	    onSuccess: this.onConnection.bindAsEventListener(this, onlyLoad),
@@ -141,17 +146,67 @@ MainAssistant.prototype.listTapHandler = function(event)
 
 MainAssistant.prototype.onConnection = function(response, onlyLoad)
 {
-	if (response && response.returnValue === true && response.isInternetConnectionAvailable === true && !onlyLoad)
+	var hasNet = false;
+	if (response && response.returnValue === true && response.isInternetConnectionAvailable === true)
 	{
-		// initiate update if we have a connection
-		this.controller.get('spinnerStatus').innerHTML = "Updating";
-		IPKGService.update(this.onUpdate.bindAsEventListener(this));
+		var hasNet = true;
+	}
+	
+	// run version check
+	this.controller.get('spinnerStatus').innerHTML = "Checking Version";
+	IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
+}
+
+MainAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
+{
+	if (!payload) 
+	{
+		// i dont know if this will ever happen, but hey, it might
+		this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
+		this.doneUpdating();
+	}
+	else if (payload.errorCode == -1)
+	{
+		if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+		{
+			this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+			this.doneUpdating();
+		}
+		else
+		{
+			this.alertMessage('Preware', payload.errorText);
+			this.doneUpdating();
+		}
+	}
+	else if (payload.errorCode == "ErrorGenericUnknownMethod")
+	{
+		// this is if this version is too old for the version number stuff
+		this.alertMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [1]');
+		this.doneUpdating();
 	}
 	else
 	{
-		// if not, go right to loading the pkg info
-		this.controller.get('spinnerStatus').innerHTML = "Loading";
-		IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
+		if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) 
+		{
+			// this is if this version is too old for the version number stuff
+			this.alertMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [2]');
+			this.doneUpdating();
+		}
+		else 
+		{
+			if (hasNet && !onlyLoad) 
+			{
+				// initiate update if we have a connection
+				this.controller.get('spinnerStatus').innerHTML = "Updating";
+				IPKGService.update(this.onUpdate.bindAsEventListener(this));
+			}
+			else 
+			{
+				// if not, go right to loading the pkg info
+				this.controller.get('spinnerStatus').innerHTML = "Loading";
+				IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
+			}
+		}
 	}
 }
 
@@ -167,6 +222,8 @@ MainAssistant.prototype.onUpdate = function(payload)
 		}
 		else if (payload.errorCode == -1)
 		{
+			// we probably dont need to check this stuff here,
+			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
 				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
@@ -207,11 +264,14 @@ MainAssistant.prototype.onFeeds = function(payload)
 	{
 		if (!payload) 
 		{
-			this.alertMessage('Preware', 'Unable to get data.');
+			// i dont know if this will ever happen, but hey, it might
+			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
 			this.doneUpdating();
 		}
 		else if (payload.errorCode == -1) 
 		{
+			// we probably dont need to check this stuff here,
+			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
 				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
