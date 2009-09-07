@@ -231,12 +231,20 @@ MainAssistant.prototype.onFeeds = function(payload)
 			// load feeds
 			for (var x = 0; x < payload.configs.length; x++)
 			{
-				for (p in payload.configs[x]) 
+				for (var p in payload.configs[x]) 
 				{
-					var tmpSplit = payload.configs[x][p].split(' ');
-					if (tmpSplit[1])
+					var tmpSplit1 = payload.configs[x][p].split('<br>');
+					for (var c = 0; c < tmpSplit1.length; c++)
 					{
-						feeds.push(tmpSplit[1]);
+						if (tmpSplit1[c]) 
+						{
+							var tmpSplit2 = tmpSplit1[c].split(' ');
+							if (tmpSplit2[1]) 
+							{
+								feeds.push(tmpSplit2[1]);
+								//alert(tmpSplit2[1]);
+							}
+						}
 					}
 				}
 			}

@@ -70,10 +70,10 @@ packagesModel.prototype.infoResponse = function(payload, num)
 				for (var x = 0; x <= test.length; x++) 
 				{
 				
-					if (this.feeds[num] == 'preyourmind')
-					{
-						alert(x + ': ' + test[x]);
-					}
+					//if (this.feeds[num] == 'webosinternals')
+					//{
+					//	alert(x + ': ' + test[x]);
+					//}
 					
 					//if (test[x] && test[x].include('PreYour'))
 					//{
@@ -441,9 +441,7 @@ packagesModel.prototype.getPackages = function(item)
 				
 				// for now, we want to show all types in the application lists if they aren't splitting them up in the main list
 				// once we handle dependencies we can delete this code
-				if (!prefs.get().showAllTypes && item.pkgType == "Application" &&
-					(this.packages[p].type == "Plugin" || this.packages[p].type == "Service" ||
-					this.packages[p].type == "LinuxBinary" || this.packages[p].type == "Feed"))
+				if (!prefs.get().showAllTypes && item.pkgType == "Application" && this.packages[p].type != 'Patch')
 				{
 					pushIt = true;
 				}

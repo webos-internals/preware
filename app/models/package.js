@@ -50,7 +50,7 @@ function packageModel(info)
 		this.homepage =	   false;
 		this.description = false;
 		this.screenshots = [];
-		this.depends =	   [];
+		this.depends =	   false;
 		if ((this.info.Status.include('not-installed') && this.info.Status != '') || this.info.Status == '')
 		{
 			this.isInstalled =   false;
@@ -65,6 +65,7 @@ function packageModel(info)
 		}
 		if (this.info.Depends)
 		{
+			this.depends = [];
 			var dSplit = this.info.Depends.split(',');
 			for (var d = 0; d < dSplit.length; d++)
 			{
@@ -113,11 +114,6 @@ function packageModel(info)
 		if (!this.type || this.type == 'Unknown')
 		{
 			this.type = 'Application';
-		}
-		
-		if (this.pkg.include('ryanhope'))
-		{
-			//alert(this.pkg + ' - ' + this.version);
 		}
 		
 	}
@@ -199,18 +195,19 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 {
 	try
 	{
-		if (this.type ==	 'Unknown')	 this.type =			 pkg.type;
-		if (this.category == 'Unsorted') this.category =		 pkg.category;
-		if (!this.maintainer)			 this.maintainer =		 pkg.Maintainer;
-		if (!this.title)				 this.title =			 pkg.title;
-		if (!this.size)					 this.size =			 pkg.size;
-		if (!this.icon)					 this.icon =			 pkg.icon;
-		if (!this.date)					 this.date =			 pkg.date;
-		if (!this.homepage)				 this.homepage =		 pkg.homepage;
-		if (!this.description)			 this.description =		 pkg.description;
-		if (!this.isInstalled)			 this.isInstalled =		 pkg.isInstalled;
-		if (!this.dateInstalled)		 this.dateInstalled =	 pkg.dateInstalled;
-		if (!this.sizeInstalled)		 this.sizeInstalled =	 pkg.sizeInstalled;
+		if (this.type == 'Unknown' || this.type == 'Application') this.type = pkg.type;
+		if (this.category == 'Unsorted') this.category =		pkg.category;
+		if (!this.maintainer)			 this.maintainer =		pkg.Maintainer;
+		if (!this.title)				 this.title =			pkg.title;
+		if (!this.size)					 this.size =			pkg.size;
+		if (!this.icon)					 this.icon =			pkg.icon;
+		if (!this.date)					 this.date =			pkg.date;
+		if (!this.homepage)				 this.homepage =		pkg.homepage;
+		if (!this.description)			 this.description =		pkg.description;
+		if (!this.isInstalled)			 this.isInstalled =		pkg.isInstalled;
+		if (!this.dateInstalled)		 this.dateInstalled =	pkg.dateInstalled;
+		if (!this.sizeInstalled)		 this.sizeInstalled =	pkg.sizeInstalled;
+		//if (!this.depends)				 this.depends =			pkg.depends;
 		
 		if (this.feeds[0] == 'Unknown') 
 		{
