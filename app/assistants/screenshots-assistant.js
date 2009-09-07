@@ -77,10 +77,34 @@ ScreenshotsAssistant.prototype.wentRight = function()
 	}
 }
 
+/*// for whatever reason i cant get this to work
+ScreenshotsAssistant.prototype.orientationChanged = function(orientation)
+{
+	switch (orientation)
+	{
+		case 'left':
+		case 'right':
+			this.controller.get('screenshotView').className = 'sideways';
+			break;
+			
+		case 'up':
+		case 'down':
+			this.controller.get('screenshotView').className = '';
+			break;
+	}
+}
+*/
+
 ScreenshotsAssistant.prototype.activate = function(event)
 {
 	try
 	{
+		/*// for whatever reason i cant get this to work
+		if (this.controller.stageController.setWindowOrientation) {
+        	this.controller.stageController.setWindowOrientation("free");
+    	}
+    	*/
+		
 		if (this.controller.window.PalmSystem)
 		{
 			this.controller.window.PalmSystem.enableFullScreenMode(true);

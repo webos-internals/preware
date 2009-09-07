@@ -479,6 +479,7 @@
 .ss-scene
 {
 	padding: 0px;
+	background: black;
 }
 .ss-scene #screenshotView
 {
@@ -489,6 +490,11 @@
 	border: 0px;
 	padding: 0px;
 	background-color: black;
+}
+.ss-scene #screenshotView.sideways
+{
+	width: 480px;
+	height: 320px;
 }
 
 

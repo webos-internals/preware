@@ -35,7 +35,7 @@ MainAssistant.prototype.setup = function()
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
 	
 	// hide progress bar
-	this.controller.get('progress').style.display = '';
+	this.controller.get('progress').style.display = 'none';
 	this.controller.get('progress-bar').style.width = '0%';
 	
 	// setup list model
@@ -119,6 +119,8 @@ MainAssistant.prototype.updateFeeds = function(onlyLoad)
 	
 	// start with checking the internet connection
 	this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
+	this.controller.get('progress').style.display = 'none';
+	this.controller.get('progress-bar').style.width = '0%';
 	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
 	    method: 'getstatus',
 	    onSuccess: this.onConnection.bindAsEventListener(this, onlyLoad),
