@@ -67,18 +67,13 @@ packagesModel.prototype.infoResponse = function(payload, num)
 				var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
 				var curPkg = false;
 				
-				for (var x = 0; x <= test.length; x++) 
+				for (var x = 0; x < test.length; x++) 
 				{
 				
-					//if (this.feeds[num] == 'webosinternals')
-					//{
-					//	alert(x + ': ' + test[x]);
-					//}
-					
-					//if (test[x] && test[x].include('PreYour'))
-					//{
-					//	alert(x + ': ' + test[x]);
-					//}
+					/*if (this.feeds[num] == 'preyourmind')
+					{
+						alert(x + ': ' + test[x]);
+					}*/
 					
 					var match = lineRegExp.exec(test[x]);
 					if (match) 
@@ -358,7 +353,6 @@ packagesModel.prototype.packageInList = function(pkg)
 	}
 	return false;
 }
-
 packagesModel.prototype.categoryInList = function(cat)
 {
 	if (this.categories.length > 0) 
@@ -373,7 +367,6 @@ packagesModel.prototype.categoryInList = function(cat)
 	}
 	return false;
 }
-
 packagesModel.prototype.feedInList = function(feed)
 {
 	if (this.feeds.length > 0) 
@@ -388,7 +381,6 @@ packagesModel.prototype.feedInList = function(feed)
 	}
 	return false;
 }
-
 packagesModel.prototype.typeInList = function(type)
 {
 	if (this.types.length > 0) 
@@ -490,7 +482,6 @@ packagesModel.prototype.getGroups = function(item)
 	
 	return returnArray;
 }
-
 packagesModel.prototype.getPackages = function(item)
 {
 	var returnArray = [];
@@ -561,3 +552,4 @@ packagesModel.prototype.getPackages = function(item)
 	
 	return returnArray;
 }
+

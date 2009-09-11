@@ -51,6 +51,9 @@ function packageModel(info)
 		this.description = false;
 		this.screenshots = [];
 		this.depends =	   [];
+		this.flags =	   {install: {RestartLuna:false, RestartJava:false},
+							remove: {RestartLuna:false, RestartJava:false}};
+		
 		if ((this.info.Status.include('not-installed') && this.info.Status != '') || this.info.Status == '')
 		{
 			this.isInstalled =   false;
@@ -66,22 +69,23 @@ function packageModel(info)
 		
 		if (this.info.Depends)
 		{
+			//alert(this.info.Depends);
 			var dSplit = this.info.Depends.split(',');
 			for (var d = 0; d < dSplit.length; d++)
 			{
-				var dRx = new RegExp(/(.*)\((.*)\)/);
-				var match = dRx.exec(dSplit[d]);
+				//var r = new RegExp(/(.*)\((.*)\)/); // this regex sucks
+				var r = new RegExp("^([^\(]*)[\s]*[\(]?([^0-9]*)[\s]*([0-9.]*)[\)]?"); // this one is win
+				var match = dSplit[d].match(r);
 				if (match)
 				{
-					this.depends.push({pkg: match[1].replace(/^\s*/, "").replace(/\s*$/, ""), version: match[2].replace(/^\s*/, "").replace(/\s*$/, "")});
-				}
-				else
-				{
-					this.depends.push({pkg: dSplit[d].replace(/^\s*/, "").replace(/\s*$/, ""), version: false});
+					//for(var m = 0; m < match.length; m++) alert(m + ' [' + match[m] + ']');
+					if (match[2]) match[2] = trim(match[2]); else match[2] = false;
+					if (match[3]) match[3] = trim(match[3]); else match[3] = false;
+					
+					this.depends.push({pkg: trim(match[1]), match: match[2], version: match[3]});
 				}
 			}
 		}
-		
 		
 		// check if Source is json object
 		// basically, if it has a { in it, we'll assume its json data
@@ -99,11 +103,26 @@ function packageModel(info)
 			if (this.sourceJson.Homepage)		 this.homepage =	 this.sourceJson.Homepage;
 			if (this.sourceJson.FullDescription) this.description =	 this.sourceJson.FullDescription;
 			if (this.sourceJson.Screenshots)	 this.screenshots =	 this.sourceJson.Screenshots;
+			
 			if (this.sourceJson.Feed) 
 			{
 				this.feeds = [this.sourceJson.Feed];
 				this.feedString = this.sourceJson.Feed;
 			}
+			
+			if (this.sourceJson.PostInstallFlags) 
+			{
+				//alert('PostInstallFlags: ' + this.sourceJson.PostInstallFlags);
+				if (this.sourceJson.PostInstallFlags == 'RestartLuna') this.flags.install.RestartLuna = true;
+				if (this.sourceJson.PostInstallFlags == 'RestartJava') this.flags.install.RestartJava = true;
+			}
+			if (this.sourceJson.PostRemoveFlags) 
+			{
+				//alert('PostRemoveFlags: ' + this.sourceJson.PostRemoveFlags);
+				if (this.sourceJson.PostRemoveFlags == 'RestartLuna') this.flags.remove.RestartLuna = true;
+				if (this.sourceJson.PostRemoveFlags == 'RestartJava') this.flags.remove.RestartJava = true;
+			}
+			
 		}
 		
 		// check up on what we've loaded to make sure it makes sense
@@ -191,6 +210,8 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		return false;
 	}
 }
+
+// this function tries to load missing info in this package from the new one
 packageModel.prototype.infoLoadMissing = function(pkg)
 {
 	try
@@ -208,6 +229,7 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 		if (!this.dateInstalled)		 this.dateInstalled =	pkg.dateInstalled;
 		if (!this.sizeInstalled)		 this.sizeInstalled =	pkg.sizeInstalled;
 		
+		// join feeds
 		if (this.feeds[0] == 'Unknown') 
 		{
 			this.feeds = pkg.feeds;
@@ -225,6 +247,7 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 			}
 		}
 		
+		// join deps
 		if (this.depends.length == 0 && pkg.depends.length > 0) 
 		{
 			this.depends = pkg.depends;
@@ -249,6 +272,7 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 			}
 		}
 		
+		// join screenshots
 		if (this.screenshots.length == 0 && pkg.screenshots.length > 0)
 		{
 			this.screenshots = pkg.screenshots;
@@ -271,6 +295,13 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 				}
 			}
 		}
+		
+		// get flags
+		if (!this.flags.install.RestartLuna && pkg.flags.install.RestartLuna) this.flags.install.RestartLuna = true;
+		if (!this.flags.install.RestartJava && pkg.flags.install.RestartJava) this.flags.install.RestartJava = true;
+		if (!this.flags.remove.RestartLuna  && pkg.flags.remove.RestartLuna)  this.flags.remove.RestartLuna  = true;
+		if (!this.flags.remove.RestartJava  && pkg.flags.remove.RestartJava)  this.flags.remove.RestartJava  = true;
+		
 	}
 	catch (e)
 	{
@@ -278,6 +309,7 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 	}
 }
 
+// checks if this package is in the feed
 packageModel.prototype.inFeed = function(feed)
 {
 	for (var f = 0; f < this.feeds.length; f++)
@@ -389,3 +421,4 @@ packageModel.prototype.getDependent = function()
 	
 	return returnArray;
 }
+

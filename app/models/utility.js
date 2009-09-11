@@ -50,14 +50,22 @@ formatSize = function(size)
 }
 
 // formats a url to something that can be a link
-function getDomain (url)
+getDomain = function(url)
 {
 	var r = new RegExp("^(?:http(?:s)?://)?([^/]+)");
-	var matched = url.match(r);
-	if (matched) 
+	var match = url.match(r);
+	if (match) 
 	{
-		var stripped = matched[1].replace(/www./, '');
+		var stripped = match[1].replace(/www./, '');
 		return stripped;
 	}
 	return 'Link';
 }
+
+// trim function
+trim = function(str)
+{
+	return str.replace(/^\s*/, "").replace(/\s*$/, "");
+}
+
+

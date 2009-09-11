@@ -302,7 +302,7 @@ MainAssistant.prototype.onFeeds = function(payload)
 							if (tmpSplit2[1]) 
 							{
 								feeds.push(tmpSplit2[1]);
-								//alert(tmpSplit2[1]);
+								//alert(x + '-' + p + ': ' + tmpSplit2[1]);
 							}
 						}
 					}
