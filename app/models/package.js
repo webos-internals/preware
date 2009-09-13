@@ -25,7 +25,6 @@
  *   Screenshots:	  array of urls
  */
 
-
 // initialize function which loads all the data from the info object
 function packageModel(info)
 {
@@ -458,6 +457,34 @@ packageModel.prototype.getDependencies = function(justNeeded)
 	return returnArray;
 }
 
+// same as above, but recursive, and untested,
+// as to my knowledge no packages in preware are dependent on a package that is dependent on another package yet
+// should be tested thoroughly when that is the case
+packageModel.prototype.getDependenciesRecursive = function(justNeeded)
+{
+	var returnArray = [];
+	
+	var depTest = this.getDependencies(justNeeded);
+	if (depTest.length > 0)
+	{
+		for (var p = 0; p < depTest.length; p++)
+		{
+			returnArray.push(depTest[p]);
+			
+			var recTest = packages.packages[depTest[p]].getDependenciesRecursive(justNeeded);
+			if (recTest.length > 0)
+			{
+				for (var r = 0; r < recTest.length; r++) 
+				{
+					returnArray.push(recTest[r]);
+				}
+			}
+		}
+	}
+	
+	return returnArray;
+}
+
 // this function will return a list of packages dependent on the current package (in the form of a list of indexes from the packages list)
 packageModel.prototype.getDependent = function()
 {
@@ -497,5 +524,38 @@ packageModel.prototype.getDependent = function()
 	}
 	
 	return returnArray;
+}
+
+
+/* --------------- */
+
+packageModel.prototype.doInstall = function(assistant)
+{
+	
+}
+
+packageModel.prototype.doUpdate = function(assistant)
+{
+	
+}
+
+packageModel.prototype.doRemove = function(assistant)
+{
+	
+}
+
+packageModel.prototype.onInstall = function(payload)
+{
+	
+}
+
+packageModel.prototype.onUpdate = function(payload)
+{
+	
+}
+
+packageModel.prototype.onRemove = function(payload)
+{
+	
 }
 
