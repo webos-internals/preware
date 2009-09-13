@@ -242,6 +242,7 @@ PkgListAssistant.prototype.filter = function(skipUpdate)
 		// reload list
 		this.controller.get('pkgList').mojo.noticeUpdatedItems(0, this.listModel.items);
 	 	this.controller.get('pkgList').mojo.setLength(this.listModel.items.length);
+		this.controller.get('pkgList').mojo.revealItem(0, true);
 		
 		// stop spinner
 		this.spinnerModel.spinning = false;
