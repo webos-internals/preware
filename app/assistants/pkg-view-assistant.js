@@ -211,13 +211,13 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// this is to put space around the icons
 	this.cmdMenuModel.items.push({});
 	
-	// if installed push the launch button first
+	// if installed push the launch button first if its an application
 	if (this.item.isInstalled && this.item.type == "Application")
 	{
 		this.cmdMenuModel.items.push({label: $L('Launch'), command: 'do-launch'});
 	}
-	// if update, push button
-	if (this.item.hasUpdate)
+	// if update, push button, but only if this isn't a patch
+	if (this.item.hasUpdate && this.item.type != "Patch")
 	{
 		this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-update'});
 	}
