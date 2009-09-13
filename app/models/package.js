@@ -59,13 +59,16 @@ function packageModel(info)
 			this.isInstalled =   false;
 			this.dateInstalled = false;
 			this.sizeInstalled = false;
+			//this.versionInstalled = false;
 		}
 		else
 		{
 			this.isInstalled =   true;
 			this.dateInstalled = this.info['Installed-Time'];
 			this.sizeInstalled = this.info['Installed-Size'];
+			//this.versionInstalled = this.version;
 		}
+		this.versionInstalled = false;
 		
 		if (this.info.Depends)
 		{
@@ -113,14 +116,14 @@ function packageModel(info)
 			if (this.sourceJson.PostInstallFlags) 
 			{
 				//alert('PostInstallFlags: ' + this.sourceJson.PostInstallFlags);
-				if (this.sourceJson.PostInstallFlags == 'RestartLuna') this.flags.install.RestartLuna = true;
-				if (this.sourceJson.PostInstallFlags == 'RestartJava') this.flags.install.RestartJava = true;
+				if (this.sourceJson.PostInstallFlags.include('RestartLuna')) this.flags.install.RestartLuna = true;
+				if (this.sourceJson.PostInstallFlags.include('RestartJava')) this.flags.install.RestartJava = true;
 			}
 			if (this.sourceJson.PostRemoveFlags) 
 			{
 				//alert('PostRemoveFlags: ' + this.sourceJson.PostRemoveFlags);
-				if (this.sourceJson.PostRemoveFlags == 'RestartLuna') this.flags.remove.RestartLuna = true;
-				if (this.sourceJson.PostRemoveFlags == 'RestartJava') this.flags.remove.RestartJava = true;
+				if (this.sourceJson.PostRemoveFlags.include('RestartLuna')) this.flags.remove.RestartLuna = true;
+				if (this.sourceJson.PostRemoveFlags.include('RestartJava')) this.flags.remove.RestartJava = true;
 			}
 			
 		}
@@ -376,13 +379,86 @@ packageModel.prototype.getForList = function(item)
 	return listObj;
 }
 
-// this function will return a list of packages this package depends on
-packageModel.prototype.getDependencies = function()
+// this function will return a list of packages this package depends on (in the form of a list of indexes from the packages list)
+packageModel.prototype.getDependencies = function(justNeeded)
 {
+	var returnArray = [];
 	
+	if (this.depends.length > 0)
+	{
+		for (var d = 0; d < this.depends.length; d++)
+		{
+			
+			if (packages.packages.length > 0) 
+			{
+				for (var p = 0; p < packages.packages.length; p++) 
+				{
+					if (packages.packages[p].pkg == this.depends[d].pkg) 
+					{
+						//alert(packages.packages[p].title);
+						//for (var t in this.depends[d]) alert(t + ': ' + this.depends[d][t]);
+						
+						if (!justNeeded) 
+						{
+							returnArray.push(p);
+						}
+						// if we want just whats needed, check the version numbers etc
+						else
+						{
+							if (packages.packages[p].isInstalled)
+							{
+								// if it doesn't have dependent version information, being installed is all we need
+								if (this.depends[d].match && this.depends[d].version) 
+								{
+									// if it doesn't have an update, we'll just assume the installed version is ok because its all they're going to get
+									if (packages.packages[p].hasUpdate)
+									{
+										// there really should always be an installed version number if there is an update...
+										if (packages.packages[p].versionInstalled) 
+										{
+											// first we check against the installed version
+											// eval seems like the best way to do these tests? (in simple tests while writing this, it seemed to work)
+											eval('var versionTest = (packages.packages[p].versionInstalled ' + this.depends[d].match + ' this.depends[d].version);');
+											if (!versionTest) 
+											{
+												// if the installed version didn't pass the thest, check the update version
+												eval('var versionTest = (packages.packages[p].version ' + this.depends[d].match + ' this.depends[d].version);');
+												if (versionTest) 
+												{
+													// if the update passes the test, this package is "needed"
+													returnArray.push(p);
+												}
+											}
+										}
+										// really, this shouldn't happen... but if it does, this will test against the "version" field
+										else
+										{
+											eval('var versionTest = (packages.packages[p].version ' + this.depends[d].match + ' this.depends[d].version);');
+											if (versionTest) 
+											{
+												returnArray.push(p);
+											}
+										}
+									}
+								}
+							}
+							// if its not installed then we'll assume we need it nomatter what
+							else
+							{
+								returnArray.push(p);
+							}
+						}
+					}
+				}
+			}
+			
+		}
+	}
+	
+	return returnArray;
 }
 
-// this function will return a list of packages dependent on the current package
+// this function will return a list of packages dependent on the current package (in the form of a list of indexes from the packages list)
 packageModel.prototype.getDependent = function()
 {
 	var returnArray = [];
@@ -391,6 +467,7 @@ packageModel.prototype.getDependent = function()
 	{
 		for (var p = 0; p < packages.packages.length; p++)
 		{
+			
 			// this is for real
 			if (packages.packages[p].depends.length > 0)
 			{
