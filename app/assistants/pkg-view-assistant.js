@@ -347,7 +347,7 @@ PkgViewAssistant.prototype.ipkgLog = function(payload)
 			this.ipkglog += '</div>';
 		}
 		
-		if (payload.stdOut.length > 0)
+		if (payload.stdOut && payload.stdOut.length > 0)
 		{
 			stdPlus = true;
 			this.ipkglog += '<div class="stdOut">';
@@ -358,7 +358,7 @@ PkgViewAssistant.prototype.ipkgLog = function(payload)
 			this.ipkglog += '</div>';
 		}
 		
-		if (payload.stdErr.length > 0)
+		if (payload.stdErr && payload.stdErr.length > 0)
 		{
 			stdPlus = true;
 			this.ipkglog += '<div class="stdErr">';

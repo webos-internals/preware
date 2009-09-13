@@ -640,7 +640,11 @@ packageModel.prototype.onInstall = function(payload)
 			{
 				var msg = 'Error Installing [3]';
 			}
-			if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			if (payload.stage == "failed")
+			{
+				var msg = 'Error Installing [4]';
+			}
+			else if (payload.stage == "completed") // || payload.errorText == "org.webosinternals.ipkgservice is not running."
 			{
 				// update info
 				this.isInstalled = true;
@@ -648,8 +652,8 @@ packageModel.prototype.onInstall = function(payload)
 				// cancel the subscription
 				this.subscription.cancel();
 				
-				// rescan luna to show or hide the pkg
-				IPKGService.rescan(function(){});
+				// do finishing stuff
+				this.doneInstall();
 				
 				// message
 				var msg = this.type + ' Install Completed';
@@ -683,7 +687,11 @@ packageModel.prototype.onUpdate = function(payload)
 			{
 				var msg = 'Error Updating [3]';
 			}
-			if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			if (payload.stage == "failed")
+			{
+				var msg = 'Error Updating [4]';
+			}
+			else if (payload.stage == "completed") // || payload.errorText == "org.webosinternals.ipkgservice is not running."
 			{
 				// update info
 				this.hasUpdate = false;
@@ -691,8 +699,8 @@ packageModel.prototype.onUpdate = function(payload)
 				// cancel the subscription
 				this.subscription.cancel();
 				
-				// rescan luna to show or hide the pkg
-				IPKGService.rescan(function(){});
+				// do finishing stuff
+				this.doneUpdate();
 				
 				// message
 				var msg = this.type + ' Update Completed';
@@ -726,7 +734,11 @@ packageModel.prototype.onRemove = function(payload)
 			{
 				var msg = 'Error Removing [3]';
 			}
-			if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			if (payload.stage == "failed")
+			{
+				var msg = 'Error Removing [4]';
+			}
+			else if (payload.stage == "completed") // || payload.errorText == "org.webosinternals.ipkgservice is not running."
 			{
 				// update info
 				this.hasUpdate = false;
@@ -735,8 +747,8 @@ packageModel.prototype.onRemove = function(payload)
 				// cancel the subscription
 				this.subscription.cancel();
 				
-				// rescan luna to show or hide the pkg
-				IPKGService.rescan(function(){});
+				// do finishing stuff
+				this.doneRemove();
 				
 				// message
 				var msg = this.type + ' Removal Completed';
@@ -754,3 +766,53 @@ packageModel.prototype.onRemove = function(payload)
 	}
 }
 
+packageModel.prototype.doneInstall = function()
+{
+	try 
+	{
+		if (this.flags.install.RestartJava) 
+		{
+			IPKGService.restartjava(function(){});
+		}
+		if (this.flags.install.RestartLuna) 
+		{
+			IPKGService.restartluna(function(){});
+		}
+		IPKGService.rescan(function(){});
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packageModel#doneInstall');
+	}
+}
+packageModel.prototype.doneUpdate = function()
+{
+	try 
+	{
+		// done update is really just done install... (for now?) 
+		this.doneInstall();
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packageModel#doneUpdate');
+	}
+}
+packageModel.prototype.doneRemove = function()
+{
+	try 
+	{
+		if (this.flags.remove.RestartJava) 
+		{
+			IPKGService.restartjava(function(){});
+		}
+		if (this.flags.remove.RestartLuna) 
+		{
+			IPKGService.restartluna(function(){});
+		}
+		IPKGService.rescan(function(){});
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packageModel#doneRemove');
+	}
+}
