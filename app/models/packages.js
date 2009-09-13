@@ -33,7 +33,6 @@ packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
 		Mojo.Log.logException(e, 'packagesModel#loadFeeds');
 	}
 }
-
 packagesModel.prototype.infoStatusRequest = function()
 {
 	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>Status';
@@ -41,7 +40,6 @@ packagesModel.prototype.infoStatusRequest = function()
 	
 	IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, -1));
 }
-
 packagesModel.prototype.infoListRequest = function(num)
 {
 	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1);
@@ -50,7 +48,6 @@ packagesModel.prototype.infoListRequest = function(num)
 	
 	IPKGService.rawlist(this.infoResponse.bindAsEventListener(this, num), this.feeds[num]);
 }
-
 packagesModel.prototype.infoResponse = function(payload, num)
 {
 	try 
@@ -139,7 +136,6 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		this.doneLoading();
 	}
 }
-
 packagesModel.prototype.loadPackage = function(packageObj)
 {
 	// load the package from the info
@@ -163,7 +159,6 @@ packagesModel.prototype.loadPackage = function(packageObj)
 		}
 	}
 }
-
 packagesModel.prototype.doneLoading = function()
 {
 	// clear out our current data (incase this is a re-update)
@@ -552,4 +547,3 @@ packagesModel.prototype.getPackages = function(item)
 	
 	return returnArray;
 }
-

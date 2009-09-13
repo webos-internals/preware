@@ -345,7 +345,7 @@ MainAssistant.prototype.doneUpdating = function()
 	// we're done loading so let the phone sleep if it needs to
 	this.stayAwake.end();
 	
-	alert(packages.packages.length);
+	//alert(packages.packages.length);
 }
 
 // this is called to update the list (namely the counts and styles)

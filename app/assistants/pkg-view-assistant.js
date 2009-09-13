@@ -5,17 +5,8 @@ function PkgViewAssistant(item, listAssistant)
 	this.pkgNum = item.pkgNum;
 	this.item = packages.packages[this.pkgNum];
 	
-	// assistant of parent list scene
+	// save this for later
 	this.listAssistant = listAssistant;
-
-	// subscription for update
-	this.updateSubscription = null;
-	
-	// subscription for install
-	this.installSubscription = null;
-	
-	// subscription for remove
-	this.removeSubscription = null;
 	
 	// setup command menu
 	this.cmdMenuModel =
@@ -38,14 +29,50 @@ PkgViewAssistant.prototype.setup = function()
 	
 	// setup PkgViewAssistant title and icon
 	this.controller.get('title').innerHTML = this.item.title;
-	if (this.item.icon) 
+	if (this.item.icon)
 	{
 		this.controller.get('icon').innerHTML = '<img src="' + this.item.icon + '" />';
 	}
 	
+	// spinner model
+	this.spinnerModel = {spinning: false};
 	
+	// setup spinner widget
+	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
+	
+	// setup screenshot sideways scroller
+	this.controller.setupWidget
+	(
+		'viewScroller',
+		{},
+		{mode: 'horizontal-snap'}
+	);
+	
+	// setup menu model
+	var menuModel =
+	{
+		visible: true,
+		items: [{
+			label: "IPKG Log...",
+			command: 'do-showLog'
+		}]
+	}
+	
+	// setup widget
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
+	
+	// lastly... build screens data
+	this.setupImages();
+	this.setupData();
+}
+
+PkgViewAssistant.prototype.setupImages = function()
+{
 	try
 	{
+		// clear the div
+		this.controller.get('scrollItems').innerHTML = '';
+		
 		// build scroll items html
 		// screenshots for applications and patches
 		// app icons for plugins and services
@@ -104,12 +131,16 @@ PkgViewAssistant.prototype.setup = function()
 	}
 	catch (e) 
 	{
-		Mojo.Log.logException(e, 'pkg-view#setup:images');
+		Mojo.Log.logException(e, 'pkg-view#setupImages');
 	}
-	
-	
+}
+PkgViewAssistant.prototype.setupData = function()
+{
 	try
 	{
+		// clear the div
+		this.controller.get('data').innerHTML = '';
+		
 		// build data html
 		var data = '';
 		var dataTemplate = 'pkg-view/dataRow';	
@@ -155,30 +186,8 @@ PkgViewAssistant.prototype.setup = function()
 	}
 	catch (e) 
 	{
-		Mojo.Log.logException(e, 'pkg-view#setup:data');
+		Mojo.Log.logException(e, 'pkg-view#setupData');
 	}
-	
-	
-	// setup screenshot sideways scroller
-	this.controller.setupWidget
-	(
-		'viewScroller',
-		{},
-		{mode: 'horizontal-snap'}
-	);
-	
-	// setup menu model
-	var menuModel =
-	{
-		visible: true,
-		items: [{
-			label: "IPKG Log...",
-			command: 'do-showLog'
-		}]
-	}
-	
-	// setup widget
-	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
 }
 
 PkgViewAssistant.prototype.screenshotTapHandler = function(event)
@@ -187,7 +196,6 @@ PkgViewAssistant.prototype.screenshotTapHandler = function(event)
 	// push the screenshots scene
 	this.controller.stageController.pushScene('screenshots', this.item.screenshots, ssNum);
 }
-
 PkgViewAssistant.prototype.appTapHandler = function(event)
 {
 	appNum = event.srcElement.id.replace(/app_/, '');
@@ -200,13 +208,14 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// clear current model list
 	this.cmdMenuModel.items = [];
 	
-	// push back button to model list
-	// what do the old ladies know?
-	//this.cmdMenuModel.items.push({label: $L('Back'), icon:'back', command: 'back'});
-	
 	// this is to put space around the icons
 	this.cmdMenuModel.items.push({});
 	
+	// if installed push the launch button first
+	if (this.item.isInstalled && this.item.type == "Application")
+	{
+		this.cmdMenuModel.items.push({label: $L('Launch'), command: 'do-launch'});
+	}
 	// if update, push button
 	if (this.item.hasUpdate)
 	{
@@ -240,18 +249,12 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 	}
 }
-
-// this function handles the commands from the commandMenu
 PkgViewAssistant.prototype.handleCommand = function(event)
 {
 	if(event.type == Mojo.Event.command)
 	{
 		switch (event.command)
 		{
-			// pop the scene
-			//case 'back':
-			//	this.controller.stageController.popScene();
-			//	break;
 			
 			// display ipkg log
 			case 'do-showLog':
@@ -262,60 +265,24 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 				});
 				break;
 				
-			// update
-			case 'do-update':
-				// temporary message for unsupported actions
-				if ((this.item.type == 'Service' || this.item.type == 'Plugin') && !prefs.get().allowServiceUpdates)
-				{
-					this.serviceMessage('Preware doesn\'t currently support updates to ' + this.item.type.toLowerCase() + 's. Please use WebOS Quick Install to update this ' + this.item.type.toLowerCase() + '. (We plan to support it in Preware by v1.0.0)');
-					return;
-				}
-				else if ((this.item.type == 'Patch') && !prefs.get().allowServiceUpdates)
-				{
-					this.serviceMessage('Preware doesn\'t currently support updates to patches. Instead, you should remove the current version, and then install the new version. (We plan to support it in Preware by v1.0.0)');
-					return;
-				}
-			
-				// hide commands
-				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
-				
-				// call install service
-				this.updateSubscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.item.pkg, this.item.title);
+			// launch
+			case 'do-launch':
+				this.item.launch();
 				break;
 				
 			// install
 			case 'do-install':
-				// hide commands
-				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
+				this.item.doInstall(this);
+				break;
 				
-				// call install service
-				this.installSubscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.item.pkg, this.item.title);
+			// update
+			case 'do-update':
+				this.item.doUpdate(this);
 				break;
 				
 			// remove
 			case 'do-remove':
-				// temporary message for unsupported actions
-				if ((this.item.type == 'Service' || this.item.type == 'Plugin') && !prefs.get().allowServiceUpdates)
-				{
-					this.serviceMessage('Preware doesn\'t currently support removal of ' + this.item.type.toLowerCase() + 's. Please use WebOS Quick Install to remove this ' + this.item.type.toLowerCase() + '. (We plan to support it in Preware by v1.0.0)');
-					return;
-				}
-				
-				// hide commands
-				this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
-				
-				// call remove service
-				this.removeSubscription = IPKGService.remove(this.onRemove.bindAsEventListener(this), this.item.pkg, this.item.title);
-				break;
-				
-			// info popup
-			case 'info':
-				this.controller.showAlertDialog({
-				    onChoose: function(value) {},
-				    title: $L("Info"),
-				    message: 'Version: ' + this.item.version,
-				    choices:[{label:$L('Ok'), value:""}]
-			    });
+				this.item.doRemove(this);
 				break;
 				
 			default:
@@ -325,191 +292,52 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 	}
 }
 
-PkgViewAssistant.prototype.onUpdate = function(payload)
-{
-	// log payload for display
-	this.ipkgLog(payload);
-	
-	if (!payload) 
-	{
-		//console.log('update fail');
-		
-		// message
-		var msg = 'Service Error Updating';
-	}
-	else
-	{
-		if (payload.returnVal > 0) // keep this around for ipkgservice < 0.8.2
-		{
-			//console.log('update error');
-			
-			// message
-			var msg = 'Error Updating';
-		}
-		if (!payload.returnValue)
-		{
-			//console.log('remove error');
-			
-			// message
-			var msg = 'Error Updating';
-		}
-		else if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
-		{
-			//console.log('updated');
 
-			// update global and local info
-			packages.packages[this.pkgNum].hasUpdate = false;
-			this.item.hasUpdate = false;
-			
-			// tell the list assistant it should reload the list when we return to it
-			this.listAssistant.setReload();
-			
-			// cancel the subscription
-			this.updateSubscription.cancel();
-			
-			// rescan luna to show or hide the pkg
-			IPKGService.rescan(function(){});
-			
-			// message
-			var msg = this.item.type + ' Update Completed';
-		}
-		else return;
-	}
+/* 
+ * this functions are called by the package model when doing stuff
+ * anywhere the package model will be installing stuff these functions are needed
+ */
+PkgViewAssistant.prototype.startAction = function()
+{
+	// start action is to hide this menu
+	this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 	
-	// show message
-	this.serviceMessage(msg);
+	// to update the spinner
+	this.spinnerModel.spinning = true;
+	this.controller.modelChanged(this.spinnerModel);
 	
-	// update command menu
+	// and to hide the data while we do the action
+	this.controller.get('viewDataContainer').style.display = "none";
+}
+PkgViewAssistant.prototype.displayAction = function(msg)
+{
+	this.controller.get('spinnerStatus').innerHTML = msg;
+}
+PkgViewAssistant.prototype.endAction = function()
+{
+	// end action action is to stop the spinner
+	this.spinnerModel.spinning = false;
+	this.controller.modelChanged(this.spinnerModel);
+	
+	// update the screens data
+	this.setupData();
+	
+	// show the data
+	this.controller.get('viewDataContainer').style.display = 'inline';
+	
+	// go ahead and tell the list it needs to update 
+	this.listAssistant.setReload();
+	
+	// and to show this menu again
 	this.updateCommandMenu();
 }
-
-PkgViewAssistant.prototype.onInstall = function(payload)
-{
-	// log payload for display
-	this.ipkgLog(payload);
-	
-	if (!payload) 
-	{
-		//console.log('install fail');
-			
-		// message
-		var msg = 'Service Error Installing';
-	}
-	else 
-	{
-		if (payload.returnVal > 0) // keep this around for ipkgservice < 0.8.2
-		{
-			//console.log('install error');
-			
-			// message
-			var msg = 'Error Installing';
-		}
-		if (!payload.returnValue)
-		{
-			//console.log('remove error');
-			
-			// message
-			var msg = 'Error Installing';
-		}
-		else if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
-		{
-			//console.log('installed');
-			
-			// update global and local info
-			packages.packages[this.pkgNum].isInstalled = true;
-			this.item.isInstalled = true;
-			
-			// tell the list assistant it should reload the list when we return to it
-			this.listAssistant.setReload();
-			
-			// cancel the subscription
-			this.installSubscription.cancel();
-			
-			// rescan luna to show or hide the pkg
-			IPKGService.rescan(function(){});
-			
-			// message
-			var msg = this.item.type + ' Install Completed';
-		}
-		else return;
-	}
-	
-	// show message
-	this.serviceMessage(msg);
-	
-	// update command menu
-	this.updateCommandMenu();
-}
-
-PkgViewAssistant.prototype.onRemove = function(payload)
-{
-	// log payload for display
-	this.ipkgLog(payload);
-	
-	if (!payload) 
-	{
-		//console.log('remove fail');
-			
-		// message
-		var msg = 'Service Error Removing';
-	}
-	else
-	{
-		if (payload.returnVal > 0) // keep this around for ipkgservice < 0.8.2
-		{
-			//console.log('remove error');
-			
-			// message
-			var msg = 'Error Removing';
-		}
-		if (!payload.returnValue)
-		{
-			//console.log('remove error');
-			
-			// message
-			var msg = 'Error Removing';
-		}
-		else if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
-		{
-			//console.log('removed');
-			
-			// update global and local info
-			packages.packages[this.pkgNum].hasUpdate = false;
-			packages.packages[this.pkgNum].isInstalled = false;
-			this.item.hasUpdate = false;
-			this.item.isInstalled = false;
-			
-			// tell the list assistant it should reload the list when we return to it
-			this.listAssistant.setReload();
-			
-			// cancel the subscription
-			this.removeSubscription.cancel();
-			
-			// rescan luna to show or hide the pkg
-			IPKGService.rescan(function(){});
-			
-			// message
-			var msg = this.item.type + ' Removal Completed';
-		}
-		else return;
-	}
-	
-	// show message
-	this.serviceMessage(msg);
-			
-	// update command menu
-	this.updateCommandMenu();
-}
-
 PkgViewAssistant.prototype.ipkgLog = function(payload)
 {
 	if (payload.stage)
 	{
 		if (this.ipkglog != '') this.ipkglog += '<div class="palm-dialog-separator"></div>';
 		this.ipkglog += '<div class="title">' + payload.stage + '</div>';
-		
 		var stdPlus = false;
-		
 		if (payload.errorCode || payload.errorText)
 		{
 			stdPlus = true;
@@ -546,18 +374,16 @@ PkgViewAssistant.prototype.ipkgLog = function(payload)
 			this.ipkglog += '<div class="msg">No Output.</div>';
 		}
 	}
-	
-	/*// debug display
+	/*
+	// debug display
 	alert('--- IPKG Log ---');
 	for (p in payload)
 	{
 		alert(p + ': ' + payload[p]);
 	}
 	*/
-	
 }
-
-PkgViewAssistant.prototype.serviceMessage = function(message)
+PkgViewAssistant.prototype.message = function(message)
 {
 	this.controller.showAlertDialog({
 	    onChoose: function(value) {},
@@ -566,33 +392,18 @@ PkgViewAssistant.prototype.serviceMessage = function(message)
 	    choices:[{label:$L('Ok'), value:""}]
     });
 }
+/* end functions called by the package model */
 
-PkgViewAssistant.prototype.reScan = function()
-{
-	var request = new Mojo.Service.Request("palm://com.palm.applicationManager", {
-		method: 'rescan',
-		onSuccess: function(payload) { alert('rescan success'); },
-		onFailure: function(payload) { alert('rescan error'); }
-	});
-}
 
 PkgViewAssistant.prototype.activate = function(event) {}
-
 PkgViewAssistant.prototype.deactivate = function(event) {}
 
 PkgViewAssistant.prototype.cleanup = function(event)
 {
-    if (this.updateSubscription)
+	// cancel out any running subscription
+    if (this.item.subscription)
 	{
-		this.updateSubscription.cancel();
-    }
-    if (this.installSubscription)
-	{
-		this.installSubscription.cancel();
-    }
-    if (this.removeSubscription)
-	{
-		this.removeSubscription.cancel();
+		this.item.subscription.cancel();
     }
 	
 	if ((this.item.type == 'Application' || this.item.type == 'Patch') &&
@@ -611,14 +422,14 @@ PkgViewAssistant.prototype.cleanup = function(event)
 	}
 }
 
-// IPKG Log Dialog Assistant
 
+
+// IPKG Log Dialog Assistant
 function IPKGLogDialogAssistant(sceneAssistant)
 {
 	// we'll need this later
 	this.sceneAssistant = sceneAssistant;
 }
-
 IPKGLogDialogAssistant.prototype.setup = function(widget)
 {
 	this.widget = widget;
@@ -651,7 +462,6 @@ IPKGLogDialogAssistant.prototype.setup = function(widget)
 	Mojo.Event.listen(this.sceneAssistant.controller.get('closeButton'), Mojo.Event.tap, this.close.bindAsEventListener(this));
 	
 }
-
 IPKGLogDialogAssistant.prototype.close = function(event)
 {
 	// stop listening to close button
@@ -660,3 +470,5 @@ IPKGLogDialogAssistant.prototype.close = function(event)
 	// hide the widget
 	this.widget.mojo.close();
 }
+
+

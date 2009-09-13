@@ -194,9 +194,9 @@ PreferencesAssistant.prototype.keyPress = function(event)
 	{
 		if (this.secretString === this.secretAnswer)
 		{
-			// show settings
-			this.controller.get('secretPreferences').style.display = '';
-			this.controller.getSceneScroller().mojo.revealElement(this.controller.get('secretPreferences'));
+			// dont show the secret settings because they're no longer needed
+			//this.controller.get('secretPreferences').style.display = '';
+			//this.controller.getSceneScroller().mojo.revealElement(this.controller.get('secretPreferences'));
 			this.secretString = '';
 		}
 	}

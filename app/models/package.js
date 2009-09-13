@@ -30,6 +30,12 @@ function packageModel(info)
 {
 	try
 	{
+		// for when we're doing a subscription of some service
+		this.subscription = false;
+		
+		// for storing an assistant when we get one for certain functions
+		this.assistant = false;
+		
 		// save the info sent to us
 		this.info = info;
 		
@@ -529,33 +535,222 @@ packageModel.prototype.getDependent = function()
 
 /* --------------- */
 
+packageModel.prototype.launch = function()
+{
+	if (this.isInstalled && this.type == 'Application') 
+	{
+		var request = new Mojo.Service.Request('palm://com.palm.applicationManager', 
+		{
+			method: 'launch',
+			parameters: 
+			{
+				id: this.pkg
+			}
+		});
+	}
+}
+
 packageModel.prototype.doInstall = function(assistant)
 {
-	
+	try 
+	{
+		this.assistant = assistant;
+		
+		this.assistant.displayAction('Installing');
+		this.assistant.startAction();
+		
+		// call install service
+		this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.pkg, this.title);
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packageModel#doInstall');
+	}
 }
-
 packageModel.prototype.doUpdate = function(assistant)
 {
-	
+	try 
+	{
+		this.assistant = assistant;
+		
+		/*
+		if ((this.type == 'Service' || this.type == 'Plugin') && !prefs.get().allowServiceUpdates)
+		{
+			this.assistant.message('Preware doesn\'t currently support updates to ' + this.type.toLowerCase() + 's. Please use WebOS Quick Install to update this ' + this.type.toLowerCase() + '. (We plan to support it in Preware by v1.0.0)');
+			return;
+		}
+		else if ((this.type == 'Patch') && !prefs.get().allowServiceUpdates)
+		{
+			this.assistant.message('Preware doesn\'t currently support updates to patches. Instead, you should remove the current version, and then install the new version. (We plan to support it in Preware by v1.0.0)');
+			return;
+		}
+		*/
+		
+		this.assistant.displayAction('Updating');
+		this.assistant.startAction();
+		
+		// call install service for update, yes
+		this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.pkg, this.title);
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packageModel#doUpdate');
+	}
 }
-
 packageModel.prototype.doRemove = function(assistant)
 {
-	
+	try 
+	{
+		this.assistant = assistant;
+		
+		/*
+		if ((this.type == 'Service' || this.type == 'Plugin') && !prefs.get().allowServiceUpdates)
+		{
+			this.assistant.message('Preware doesn\'t currently support removal of ' + this.type.toLowerCase() + 's. Please use WebOS Quick Install to remove this ' + this.type.toLowerCase() + '. (We plan to support it in Preware by v1.0.0)');
+			return;
+		}
+		*/
+		
+		this.assistant.displayAction('Removing');
+		this.assistant.startAction();
+		
+		// call remove service
+		this.subscription = IPKGService.remove(this.onRemove.bindAsEventListener(this), this.pkg, this.title);
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packageModel#doRemove');
+	}
 }
 
 packageModel.prototype.onInstall = function(payload)
 {
-	
+	try 
+	{
+		// log payload for display
+		this.assistant.ipkgLog(payload);
+		
+		if (!payload) 
+		{
+			var msg = 'Error Installing [1]';
+		}
+		else 
+		{
+			if (!payload.returnValue)
+			{
+				var msg = 'Error Installing [3]';
+			}
+			if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				// update info
+				this.isInstalled = true;
+				
+				// cancel the subscription
+				this.subscription.cancel();
+				
+				// rescan luna to show or hide the pkg
+				IPKGService.rescan(function(){});
+				
+				// message
+				var msg = this.type + ' Install Completed';
+			}
+			else return;
+		}
+		
+		this.assistant.message(msg);
+		
+		this.assistant.endAction();
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packageModel#onInstall');
+	}
 }
-
 packageModel.prototype.onUpdate = function(payload)
 {
-	
+	try 
+	{
+		// log payload for display
+		this.assistant.ipkgLog(payload);
+		
+		if (!payload) 
+		{
+			var msg = 'Service Error Updating [1]';
+		}
+		else
+		{
+			if (!payload.returnValue)
+			{
+				var msg = 'Error Updating [3]';
+			}
+			if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				// update info
+				this.hasUpdate = false;
+				
+				// cancel the subscription
+				this.subscription.cancel();
+				
+				// rescan luna to show or hide the pkg
+				IPKGService.rescan(function(){});
+				
+				// message
+				var msg = this.type + ' Update Completed';
+			}
+			else return;
+		}
+		
+		this.assistant.message(msg);
+		
+		this.assistant.endAction();
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packageModel#onUpdate');
+	}
 }
-
 packageModel.prototype.onRemove = function(payload)
 {
-	
+	try 
+	{
+		// log payload for display
+		this.assistant.ipkgLog(payload);
+		
+		if (!payload) 
+		{
+			var msg = 'Service Error Removing [1]';
+		}
+		else
+		{
+			if (!payload.returnValue)
+			{
+				var msg = 'Error Removing [3]';
+			}
+			if (payload.stage == "completed" || payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				// update info
+				this.hasUpdate = false;
+				this.isInstalled = false;
+				
+				// cancel the subscription
+				this.subscription.cancel();
+				
+				// rescan luna to show or hide the pkg
+				IPKGService.rescan(function(){});
+				
+				// message
+				var msg = this.type + ' Removal Completed';
+			}
+			else return;
+		}
+		
+		this.assistant.message(msg);
+		
+		this.assistant.endAction();
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packageModel#onRemove');
+	}
 }
 
