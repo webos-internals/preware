@@ -8,7 +8,7 @@
 	z-index: 11000;
 	height: 30px; 
 	width: 100%;
-	background: url(../images/scrollFade-top.png) top center repeat-x;
+	background: url(../images/palm-default/scrollFade-top.png) top center repeat-x;
 	-webkit-palm-mouse-target: ignore;
 }
 .scene-fade-bottom
@@ -18,8 +18,16 @@
 	z-index: 11000;
 	height: 30px; 
 	width: 100%;
-	background: url(../images/scrollFade-bottom.png) bottom center repeat-x;
+	background: url(../images/palm-default/scrollFade-bottom.png) bottom center repeat-x;
 	-webkit-palm-mouse-target: ignore;
+}
+body.palm-dark .scene-fade-top
+{
+	background: url(../images/palm-dark/scrollFade-top.png) top center repeat-x;
+}
+body.palm-dark .scene-fade-bottom
+{
+	background: url(../images/palm-dark/scrollFade-bottom.png) bottom center repeat-x;
 }
 .palm-row-wrapper .pkgCount
 {
@@ -28,17 +36,24 @@
     height: 30px;
     min-width: 30px;
 	vertical-align: middle;
-    -webkit-border-image: url(../images/pkgCount.png) 5 10 5 10 stretch stretch;
+    -webkit-border-image: url(../images/palm-default/pkgCount.png) 5 10 5 10 stretch stretch;
     -webkit-box-sizing: border-box;
     border-width: 5px 10px 5px 10px;
 	margin-top: 12px;
 	margin-right: 15px;
 }
+body.palm-dark .palm-row-wrapper .pkgCount
+{
+    -webkit-border-image: url(../images/palm-dark/pkgCount.png) 5 10 5 10 stretch stretch;
+}
 .palm-row-wrapper .pkgCount .count
 {
 	color: #e4e4e2;
 }
-
+body.palm-dark .palm-row-wrapper .pkgCount .count
+{
+	color: #393e43;
+}
 
 
 /*
@@ -59,6 +74,10 @@
 	color: #666;
 	font-size: 16px;
 }
+body.palm-dark .main #spinner #spinnerStatus
+{
+	color: #999;
+}
 .main .progress
 {
 	margin-top: 42px;
@@ -66,14 +85,22 @@
 	width: 114px;
 	margin-left: auto;
 	margin-right: auto;
-	background: url(../images/progress-back.png) center center no-repeat;
+	background: url(../images/palm-default/progress-back.png) center center no-repeat;
 }
 .main .progress .progress-bar
 {
 	height: 15px;
 	width: 50%;
 	margin-left: 0px;
-	background: url(../images/progress-front.png) top left no-repeat;
+	background: url(../images/palm-default/progress-front.png) top left no-repeat;
+}
+body.palm-dark .main .progress
+{
+	background: url(../images/palm-dark/progress-back.png) center center no-repeat;
+}
+body.palm-dark .main .progress .progress-bar
+{
+	background: url(../images/palm-dark/progress-front.png) top left no-repeat;
 }
 .main .palm-page-header-wrapper .icon
 {
@@ -319,6 +346,10 @@
 	color: #666;
 	font-size: 16px;
 }
+body.palm-dark .pkg-view #spinner #spinnerStatus
+{
+	color: #999;
+}
 .pkg-view .palm-header
 {
 	padding-left: 0px;
@@ -369,11 +400,19 @@
 */
 .pkg-view #scrollerContainer.palm-row.screenshots
 {
-	background: url(../images/screenshotFade.png) repeat-x;
+	background: url(../images/palm-default/screenshotFade.png) repeat-x;
 }
 .pkg-view #scrollerContainer.palm-row.apps
 {
-	background: url(../images/appFade.png) repeat-x;
+	background: url(../images/palm-default/appFade.png) repeat-x;
+}
+body.palm-dark .pkg-view #scrollerContainer.palm-row.screenshots
+{
+	background: url(../images/palm-dark/screenshotFade.png) repeat-x;
+}
+body.palm-dark .pkg-view #scrollerContainer.palm-row.apps
+{
+	background: url(../images/palm-dark/appFade.png) repeat-x;
 }
 .pkg-view #scrollerContainer.palm-row.screenshots #viewScroller
 {

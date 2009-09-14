@@ -2,10 +2,23 @@
 	
 	<div class="scene-fade-top" x-mojo-scroll-fade="top"></div>
 	
-	<div class="palm-page-header">
+	<div class="palm-page-header multi-line">
 		<div class="palm-page-header-wrapper">
 			<div class="icon"></div>
 			<div class="title">Preferences</div>
+		</div>
+	</div>
+	
+	<div class="palm-group">
+		<div class="palm-group-title">Global</div>
+		<div class="palm-list">
+			
+			<div class="palm-row single"> <!-- x-mojo-tap-highlight="momentary" //-->
+				<div class="palm-row-wrapper">
+					<div id="theme" x-mojo-element="ListSelector"></div>
+				</div>
+			</div>
+			
 		</div>
 	</div>
 	
@@ -87,7 +100,7 @@
 		<div class="palm-group-title">Secret</div>
 		<div class="palm-list">
 			
-			<div class="palm-row last">
+			<div class="palm-row single">
 				<div class="palm-row-wrapper">
 					<div class="label left">Allow Service Updates</div>
 					<div id="allowServiceUpdates" x-mojo-element="ToggleButton" class="toggle-text"></div>

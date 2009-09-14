@@ -18,6 +18,26 @@ PreferencesAssistant.prototype.setup = function()
 		this.listChangedHandler  = this.listChanged.bindAsEventListener(this)
 		
 		
+		// Global Group
+		this.controller.setupWidget
+		(
+			'theme',
+			{
+				label: 'Theme',
+				choices:
+				[
+					{label:'Palm Default',	value:'palm-default'},
+					{label:'Palm Dark',		value:'palm-dark'}
+				],
+				modelProperty: 'theme'
+			},
+			this.prefs
+		);
+		
+		this.controller.listen('theme', Mojo.Event.propertyChange, this.themeChanged.bindAsEventListener(this));
+		
+		
+		
 		// Startup Group
 		this.controller.setupWidget
 		(
@@ -172,6 +192,13 @@ PreferencesAssistant.prototype.setup = function()
 
 PreferencesAssistant.prototype.listChanged = function(event)
 {
+	this.cookie.put(this.prefs);
+}
+
+PreferencesAssistant.prototype.themeChanged = function(event)
+{
+	// set the theme right away with the body class
+	this.controller.document.body.className = event.value;
 	this.cookie.put(this.prefs);
 }
 

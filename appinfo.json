@@ -11,6 +11,5 @@
 	"icon": "icon.png",
 	"removable": "true",
 	"noWindow": true,
-	"theme" : "light",
 	"noDeprecatedStyles" : true 
 }

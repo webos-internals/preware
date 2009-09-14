@@ -25,6 +25,9 @@ function MainAssistant()
 
 MainAssistant.prototype.setup = function()
 {
+	// set theme
+	this.controller.document.body.className = prefs.get().theme;
+	
 	// set random subtitle
 	this.controller.get('subTitle').innerHTML = this.randomSub[Math.floor(Math.random() * this.randomSub.length)];
 	

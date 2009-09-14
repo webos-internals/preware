@@ -14,6 +14,9 @@ prefCookie.prototype.get = function(reload)
 			// setup our default preferences
 			this.prefs = 
 			{
+				// Global Group
+				theme: 'palm-default',
+				
 				// Startup Group
 				updateInterval: 'launch',
 				lastUpdate: 0, // will be updated every time update is successful
