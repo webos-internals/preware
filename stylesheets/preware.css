@@ -302,6 +302,11 @@ body.palm-dark .main .progress .progress-bar
 	left: 60px;
 	right: 5px;
 }
+.pkg-list .palm-row-wrapper .title .highlight
+{
+	font-weight: bold;
+	text-decoration: underline;
+}
 .pkg-list .palm-row-wrapper .title.description
 {
 	top: 4px;
