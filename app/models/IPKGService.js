@@ -36,7 +36,10 @@ IPKGService.update = function(callback) {
 IPKGService.rawlist = function(callback, feed) {
 	var request = new Mojo.Service.Request(IPKGService.identifier, {
 		method: 'rawlist',
-		parameters: {"feed":feed},
+		parameters: {
+			"subscribe":true, // new in apiVersion 4
+			"feed":feed
+		},
 		onSuccess: callback,
 		onFailure: callback
 	});

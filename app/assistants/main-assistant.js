@@ -20,7 +20,7 @@ function MainAssistant()
 	this.stayAwake = new stayAwake();
 	
 	// required ipkgservice
-	this.ipkgServiceVersion = 2;
+	this.ipkgServiceVersion = 4;
 }
 
 MainAssistant.prototype.setup = function()

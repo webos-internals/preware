@@ -5,8 +5,9 @@ function packagesModel()
 	this.feeds = [];
 	this.types = [];
 	
-	// this is for use to seperate the patches from the apps
-	this.patchCategory = 'WebOS Patches';
+	// we'll need these for the subscription based rawlist
+	this.subscription = false;
+	this.rawData = '';
 }
 
 packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
@@ -35,87 +36,86 @@ packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
 }
 packagesModel.prototype.infoStatusRequest = function()
 {
+	// update display
 	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>Status';
 	this.mainAssistant.controller.get('progress-bar').style.width = Math.round((1/(this.feeds.length+1)) * 100) + '%';
 	
+	// request the rawdata
 	IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, -1));
 }
 packagesModel.prototype.infoListRequest = function(num)
 {
+	// cancel the last subscription, this may not be needed
+	if (this.subscription)
+	{
+		this.subscription.cancel();
+	}
+	
+	// update display
 	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1);
 	this.mainAssistant.controller.get('progress-bar').style.width = Math.round(((num+2)/(this.feeds.length+1)) * 100) + '%';
 	this.feedNum++;
 	
-	IPKGService.rawlist(this.infoResponse.bindAsEventListener(this, num), this.feeds[num]);
+	// subscribe to new feed
+	this.subscription = IPKGService.rawlist(this.infoResponse.bindAsEventListener(this, num), this.feeds[num]);
 }
 packagesModel.prototype.infoResponse = function(payload, num)
 {
-	try 
+	var doneLoading = false;
+	
+	try
 	{
 		if (!payload || payload.errorCode == -1) 
 		{
-			// some sort of error
+			// some sort of error message perhapse?
+			return;
 		}
-		else 
+		
+		// no stage means its not a subscription, and we shouold hav all the contents right now
+		if (!payload.stage)
 		{
 			if (payload.contents) 
 			{
-				var test = payload.contents.split(/\n/);
-				var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
-				var curPkg = false;
-				
-				for (var x = 0; x < test.length; x++) 
+				this.parsePackages(payload.contents);
+			}
+			
+			// flag so the end of this function knows to move on to the next feed
+			doneLoading = true;
+		}
+		else
+		{
+			//alert('--- ' + num + ' ---');
+			//for (p in payload) alert(p);
+			//alert('stage: ' + payload.stage);
+			//alert('filesize: ' + payload.filesize);
+			//alert('chunksize: ' + payload.chunksize);
+			//alert('datasize: ' + payload.datasize);
+			
+			if (payload.stage == 'start')
+			{
+				// at start we clear the old data to make sure its empty
+				this.rawData = '';
+			}
+			else if (payload.stage == 'middle')
+			{
+				// in the middle, we append the data
+				if (payload.contents) 
 				{
-				
-					/*if (this.feeds[num] == 'preyourmind')
-					{
-						alert(x + ': ' + test[x]);
-					}*/
-					
-					var match = lineRegExp.exec(test[x]);
-					if (match) 
-					{
-						if (match[1] == 'Package' && !curPkg) 
-						{
-							curPkg = 
-							{
-								Size: 0,
-								Status: '',
-								Architecture: '',
-								Section: '',
-								Package: '',
-								Filename: '',
-								Depends: '',
-								Maintainer: '',
-								Version: '',
-								Description: '',
-								MD5Sum: '',
-								'Installed-Time': 0,
-								'Installed-Size': 0,
-								Source: ''
-							};
-						}
-						if (match[1] && match[2]) 
-						{
-							curPkg[match[1]] = match[2];
-						}
-					}
-					else
-					{
-						if (curPkg) 
-						{
-							this.loadPackage(curPkg);
-							curPkg = false;
-						}
-					}
-				}
-				
-				if (curPkg) 
-				{
-					this.loadPackage(curPkg);
-					curPkg = false;
+					this.rawData += payload.contents;
 				}
 			}
+			else if (payload.stage == 'end')
+			{
+				// at end, we parse the data we've recieved this whole time
+				if (this.rawData != '') 
+				{
+					this.parsePackages(this.rawData);
+				}
+				
+				// flag so the end of this function knows to move on to the next feed
+				doneLoading = true;
+			}
+			
 		}
 	}
 	catch (e)
@@ -123,17 +123,88 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		Mojo.Log.logException(e, 'packagesModel#infoResponse');
 	}
 	
-	if (this.feeds[(num + 1)]) 
+	if (doneLoading) 
 	{
-		// start next
-		this.infoListRequest((num + 1));
+		if (this.feeds[(num + 1)]) 
+		{
+			// start next
+			this.infoListRequest((num + 1));
+		}
+		else 
+		{
+			// we're done
+			this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Complete';
+			this.mainAssistant.controller.get('progress-bar').style.width = '100%';
+			this.doneLoading();
+		}
 	}
-	else 
+}
+packagesModel.prototype.parsePackages = function(rawData)
+{
+	try 
 	{
-		// we're done
-		this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Complete';
-		this.mainAssistant.controller.get('progress-bar').style.width = '100%';
-		this.doneLoading();
+		if (rawData) 
+		{
+			var test = rawData.split(/\n/);
+			var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
+			var curPkg = false;
+			
+			for (var x = 0; x < test.length; x++) 
+			{
+			
+				/*if (this.feeds[num] == 'preyourmind')
+				{
+					alert(x + ': ' + test[x]);
+				}*/
+				
+				var match = lineRegExp.exec(test[x]);
+				if (match) 
+				{
+					if (match[1] == 'Package' && !curPkg) 
+					{
+						curPkg = 
+						{
+							Size: 0,
+							Status: '',
+							Architecture: '',
+							Section: '',
+							Package: '',
+							Filename: '',
+							Depends: '',
+							Maintainer: '',
+							Version: '',
+							Description: '',
+							MD5Sum: '',
+							'Installed-Time': 0,
+							'Installed-Size': 0,
+							Source: ''
+						};
+					}
+					if (match[1] && match[2]) 
+					{
+						curPkg[match[1]] = match[2];
+					}
+				}
+				else
+				{
+					if (curPkg) 
+					{
+						this.loadPackage(curPkg);
+						curPkg = false;
+					}
+				}
+			}
+			
+			if (curPkg) 
+			{
+				this.loadPackage(curPkg);
+				curPkg = false;
+			}
+		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#parsePackages');
 	}
 }
 packagesModel.prototype.loadPackage = function(packageObj)
@@ -161,9 +232,16 @@ packagesModel.prototype.loadPackage = function(packageObj)
 }
 packagesModel.prototype.doneLoading = function()
 {
+	// cancel the last subscription, this may not be needed
+	if (this.subscription)
+	{
+		this.subscription.cancel();
+	}
+	
 	// clear out our current data (incase this is a re-update)
 	this.categories = [];
 	this.feeds = [];
+	this.rawData = ''; // and clear this so its not sitting around full of data
 	
 	// sort the packages
 	if (this.packages.length > 0) 
