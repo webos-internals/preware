@@ -562,8 +562,10 @@ packageModel.prototype.doInstall = function(assistant)
 {
 	try 
 	{
+		// save assistant
 		this.assistant = assistant;
 		
+		// start action
 		this.assistant.displayAction('Installing');
 		this.assistant.startAction();
 		
@@ -579,21 +581,10 @@ packageModel.prototype.doUpdate = function(assistant)
 {
 	try 
 	{
+		// save assistant
 		this.assistant = assistant;
 		
-		/*
-		if ((this.type == 'Service' || this.type == 'Plugin') && !prefs.get().allowServiceUpdates)
-		{
-			this.assistant.message('Preware doesn\'t currently support updates to ' + this.type.toLowerCase() + 's. Please use WebOS Quick Install to update this ' + this.type.toLowerCase() + '. (We plan to support it in Preware by v1.0.0)');
-			return;
-		}
-		else if ((this.type == 'Patch') && !prefs.get().allowServiceUpdates)
-		{
-			this.assistant.message('Preware doesn\'t currently support updates to patches. Instead, you should remove the current version, and then install the new version. (We plan to support it in Preware by v1.0.0)');
-			return;
-		}
-		*/
-		
+		// start action
 		this.assistant.displayAction('Updating');
 		this.assistant.startAction();
 		
@@ -609,16 +600,10 @@ packageModel.prototype.doRemove = function(assistant)
 {
 	try 
 	{
+		// save assistant
 		this.assistant = assistant;
 		
-		/*
-		if ((this.type == 'Service' || this.type == 'Plugin') && !prefs.get().allowServiceUpdates)
-		{
-			this.assistant.message('Preware doesn\'t currently support removal of ' + this.type.toLowerCase() + 's. Please use WebOS Quick Install to remove this ' + this.type.toLowerCase() + '. (We plan to support it in Preware by v1.0.0)');
-			return;
-		}
-		*/
-		
+		// start action
 		this.assistant.displayAction('Removing');
 		this.assistant.startAction();
 		
@@ -660,16 +645,42 @@ packageModel.prototype.onInstall = function(payload)
 				// cancel the subscription
 				this.subscription.cancel();
 				
-				// do finishing stuff
-				this.doneInstall();
-				
 				// message
 				var msg = this.type + ' Install Completed';
+				
+				// do finishing stuff
+				if (this.hasFlags('install')) 
+				{
+					this.assistant.actionMessage(
+						msg + ':<br /><br />' + this.actionMessage('install'),
+						[{label:$L('Ok'), value:'ok'}],
+						this.actionFunction.bindAsEventListener(this, 'install')
+					);
+					return;
+				}
+				else
+				{
+					// we run this anyways to get the rescan
+					this.runFlags('install');
+				}
+			}
+			// we keep this around for services without flags that have a javarestart in their scripts
+			// of course, it might get here on accident, but thats a risk we'll have to take for now [2]
+			else if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				// update info
+				this.isInstalled = true;
+				
+				// cancel the subscription
+				this.subscription.cancel();
+				
+				// message
+				var msg = this.type + ' Install Completed [2]';
 			}
 			else return;
 		}
 		
-		this.assistant.message(msg);
+		this.assistant.simpleMessage(msg);
 		
 		this.assistant.endAction();
 	}
@@ -707,16 +718,42 @@ packageModel.prototype.onUpdate = function(payload)
 				// cancel the subscription
 				this.subscription.cancel();
 				
-				// do finishing stuff
-				this.doneUpdate();
-				
 				// message
 				var msg = this.type + ' Update Completed';
+				
+				// do finishing stuff
+				if (this.hasFlags('update')) 
+				{
+					this.assistant.actionMessage(
+						msg + ':<br /><br />' + this.actionMessage('update'),
+						[{label:$L('Ok'), value:'ok'}],
+						this.actionFunction.bindAsEventListener(this, 'update')
+					);
+					return;
+				}
+				else
+				{
+					// we run this anyways to get the rescan
+					this.runFlags('update');
+				}
+			}
+			// we keep this around for services without flags that have a javarestart in their scripts
+			// of course, it might get here on accident, but thats a risk we'll have to take for now
+			else if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				// update info
+				this.hasUpdate = false;
+				
+				// cancel the subscription
+				this.subscription.cancel();
+				
+				// message
+				var msg = this.type + ' Update Completed [2]';
 			}
 			else return;
 		}
 		
-		this.assistant.message(msg);
+		this.assistant.simpleMessage(msg);
 		
 		this.assistant.endAction();
 	}
@@ -746,7 +783,7 @@ packageModel.prototype.onRemove = function(payload)
 			{
 				var msg = 'Error Removing [4]';
 			}
-			else if (payload.stage == "completed") // || payload.errorText == "org.webosinternals.ipkgservice is not running."
+			else if (payload.stage == "completed")
 			{
 				// update info
 				this.hasUpdate = false;
@@ -755,16 +792,43 @@ packageModel.prototype.onRemove = function(payload)
 				// cancel the subscription
 				this.subscription.cancel();
 				
-				// do finishing stuff
-				this.doneRemove();
-				
 				// message
 				var msg = this.type + ' Removal Completed';
+				
+				// do finishing stuff
+				if (this.hasFlags('remove')) 
+				{
+					this.assistant.actionMessage(
+						msg + ':<br /><br />' + this.actionMessage('remove'),
+						[{label:$L('Ok'), value:'ok'}],
+						this.actionFunction.bindAsEventListener(this, 'remove')
+					);
+					return;
+				}
+				else
+				{
+					// we run this anyways to get the rescan
+					this.runFlags('remove');
+				}
+			}
+			// we keep this around for services without flags that have a javarestart in their scripts
+			// of course, it might get here on accident, but thats a risk we'll have to take for now
+			else if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				// update info
+				this.hasUpdate = false;
+				this.isInstalled = false;
+				
+				// cancel the subscription
+				this.subscription.cancel();
+				
+				// message
+				var msg = this.type + ' Removal Completed [2]';
 			}
 			else return;
 		}
 		
-		this.assistant.message(msg);
+		this.assistant.simpleMessage(msg);
 		
 		this.assistant.endAction();
 	}
@@ -774,53 +838,91 @@ packageModel.prototype.onRemove = function(payload)
 	}
 }
 
-packageModel.prototype.doneInstall = function()
+packageModel.prototype.actionFunction = function(value, type)
 {
-	try 
+	if (value == 'ok') 
+	{
+		this.runFlags(type);
+		this.assistant.endAction();
+	}
+	return true;
+}
+packageModel.prototype.actionMessage = function(type)
+{
+	var msg = '';
+	if (type == 'install' || type == 'update') 
 	{
 		if (this.flags.install.RestartJava) 
 		{
-			IPKGService.restartjava(function(){});
+			msg += '<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />';
 		}
 		if (this.flags.install.RestartLuna) 
 		{
-			IPKGService.restartluna(function(){});
+			msg += '<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />';
 		}
+	}
+	else if (type == 'remove')
+	{
+		if (this.flags.remove.RestartJava) 
+		{
+			msg += '<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />';
+		}
+		if (this.flags.remove.RestartLuna) 
+		{
+			msg += '<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />';
+		}
+	}
+	return msg;
+}
+packageModel.prototype.hasFlags = function(type)
+{
+	if (type == 'install' || type == 'update') 
+	{
+		if (this.flags.install.RestartLuna || this.flags.install.RestartJava) 
+		{
+			return true;
+		}
+	}
+	else if (type == 'remove')
+	{
+		if (this.flags.remove.RestartLuna || this.flags.remove.RestartJava)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+packageModel.prototype.runFlags = function(type)
+{
+	try 
+	{
+		if (type == 'install' || type == 'update') 
+		{
+			if (this.flags.install.RestartJava) 
+			{
+				IPKGService.restartjava(function(){});
+			}
+			if (this.flags.install.RestartLuna) 
+			{
+				IPKGService.restartluna(function(){});
+			}
+		}
+		else if (type == 'remove')
+		{
+			if (this.flags.remove.RestartJava) 
+			{
+				IPKGService.restartjava(function(){});
+			}
+			if (this.flags.remove.RestartLuna) 
+			{
+				IPKGService.restartluna(function(){});
+			}
+		}
+		// this is always ran...
 		IPKGService.rescan(function(){});
 	}
 	catch (e) 
 	{
 		Mojo.Log.logException(e, 'packageModel#doneInstall');
-	}
-}
-packageModel.prototype.doneUpdate = function()
-{
-	try 
-	{
-		// done update is really just done install... (for now?) 
-		this.doneInstall();
-	}
-	catch (e) 
-	{
-		Mojo.Log.logException(e, 'packageModel#doneUpdate');
-	}
-}
-packageModel.prototype.doneRemove = function()
-{
-	try 
-	{
-		if (this.flags.remove.RestartJava) 
-		{
-			IPKGService.restartjava(function(){});
-		}
-		if (this.flags.remove.RestartLuna) 
-		{
-			IPKGService.restartluna(function(){});
-		}
-		IPKGService.rescan(function(){});
-	}
-	catch (e) 
-	{
-		Mojo.Log.logException(e, 'packageModel#doneRemove');
 	}
 }

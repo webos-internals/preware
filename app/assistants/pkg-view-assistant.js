@@ -386,13 +386,27 @@ PkgViewAssistant.prototype.ipkgLog = function(payload)
 	}
 	*/
 }
-PkgViewAssistant.prototype.message = function(message)
+PkgViewAssistant.prototype.simpleMessage = function(message)
 {
-	this.controller.showAlertDialog({
-	    onChoose: function(value) {},
-	    title: $L(this.item.type),
-	    message: message,
-	    choices:[{label:$L('Ok'), value:""}]
+	this.controller.showAlertDialog(
+	{
+	    title:				$L(this.item.type),
+		allowHTMLMessage:	true,
+	    message:			message,
+	    choices:			[{label:$L('Ok'), value:''}],
+		onChoose:			function(value){}
+    });
+}
+PkgViewAssistant.prototype.actionMessage = function(message, choices, actions)
+{
+	this.controller.showAlertDialog(
+	{
+	    title:				$L(this.item.type),
+		allowHTMLMessage:	true,
+		preventCancel:		true,
+	    message:			message,
+	    choices:			choices,
+	    onChoose:			actions
     });
 }
 /* end functions called by the package model */
