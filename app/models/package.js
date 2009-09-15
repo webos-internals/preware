@@ -637,7 +637,7 @@ packageModel.prototype.onInstall = function(payload)
 			{
 				var msg = 'Error Installing [4]';
 			}
-			else if (payload.stage == "completed") // || payload.errorText == "org.webosinternals.ipkgservice is not running."
+			else if (payload.stage == "completed")
 			{
 				// update info
 				this.isInstalled = true;
@@ -675,7 +675,7 @@ packageModel.prototype.onInstall = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' Install Completed [2]';
+				var msg = this.type + ' Install Probably Not Completed';
 			}
 			else return;
 		}
@@ -710,7 +710,7 @@ packageModel.prototype.onUpdate = function(payload)
 			{
 				var msg = 'Error Updating [4]';
 			}
-			else if (payload.stage == "completed") // || payload.errorText == "org.webosinternals.ipkgservice is not running."
+			else if (payload.stage == "completed")
 			{
 				// update info
 				this.hasUpdate = false;
@@ -748,7 +748,7 @@ packageModel.prototype.onUpdate = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' Update Completed [2]';
+				var msg = this.type + ' Update Probably Not Completed';
 			}
 			else return;
 		}
@@ -823,7 +823,7 @@ packageModel.prototype.onRemove = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' Removal Completed [2]';
+				var msg = this.type + ' Removal Probably Not Completed';
 			}
 			else return;
 		}
