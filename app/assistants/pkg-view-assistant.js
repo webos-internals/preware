@@ -308,6 +308,9 @@ PkgViewAssistant.prototype.startAction = function()
 	
 	// and to hide the data while we do the action
 	this.controller.get('viewDataContainer').style.display = "none";
+	
+	// and make sure the scene scroller is at the top
+	this.controller.sceneScroller.mojo.scrollTo(0, 0);
 }
 PkgViewAssistant.prototype.displayAction = function(msg)
 {
