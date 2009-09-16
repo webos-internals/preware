@@ -159,25 +159,25 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		// check if its newer
 		var newer = packages.versionNewer(this.version, newPackage.version);
 		
-		alert('--- --- ---');
-		alert('Old: ' + this.pkg + ' v' + this.version);
-		alert('     = isInstalled: ' + this.isInstalled);
-		alert('     = hasUpdate: ' + this.hasUpdate);
-		alert('New: ' + newPackage.pkg + ' v' + newPackage.version);
-		alert('     = isInstalled: ' + newPackage.isInstalled);
-		alert('     = hasUpdate: ' + newPackage.hasUpdate);
-		alert('Newer: ' + newer);
+		//alert('--- --- ---');
+		//alert('Old: ' + this.pkg + ' v' + this.version);
+		//alert('     = isInstalled: ' + this.isInstalled);
+		//alert('     = hasUpdate: ' + this.hasUpdate);
+		//alert('New: ' + newPackage.pkg + ' v' + newPackage.version);
+		//alert('     = isInstalled: ' + newPackage.isInstalled);
+		//alert('     = hasUpdate: ' + newPackage.hasUpdate);
+		//alert('Newer: ' + newer);
 		
 		if (!newPackage.isInstalled && !this.isInstalled && newer)
 		{
-			alert('Replace Type: 1');
+			//alert('Replace Type: 1');
 			newPackage.infoLoadMissing(this);
 			return newPackage;
 		}
 		
 		if (newPackage.isInstalled && !this.isInstalled && !newer)
 		{
-			alert('Replace Type: 2');
+			//alert('Replace Type: 2');
 			this.isInstalled = true;
 			this.hasUpdate = true;
 			this.versionInstalled = newPackage.version;
@@ -188,7 +188,7 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		
 		if (!newPackage.isInstalled && this.isInstalled && !newer)
 		{
-			alert('Replace Type: 3');
+			//alert('Replace Type: 3');
 			this.isInstalled = true;
 			this.hasUpdate = false;
 			this.versionInstalled = newPackage.version;
@@ -198,7 +198,7 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		
 		if (newPackage.isInstalled && !this.isInstalled && newer)
 		{
-			alert('Replace Type: 4');
+			//alert('Replace Type: 4');
 			newPackage.isInstalled = true;
 			newPackage.hasUpdate = false;
 			newPackage.versionInstalled = this.version;
@@ -208,7 +208,7 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		
 		if (!newPackage.isInstalled && this.isInstalled && newer)
 		{
-			alert('Replace Type: 5');
+			//alert('Replace Type: 5');
 			newPackage.isInstalled = true;
 			newPackage.hasUpdate = true;
 			newPackage.versionInstalled = this.version;
@@ -216,7 +216,7 @@ packageModel.prototype.infoUpdate = function(newPackage)
 			return newPackage;
 		}
 		
-		alert('Replace Type: 6');
+		//alert('Replace Type: 6');
 		this.infoLoadMissing(newPackage);
 		return false;
 	}
