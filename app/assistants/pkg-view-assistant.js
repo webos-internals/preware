@@ -84,7 +84,6 @@ PkgViewAssistant.prototype.setupImages = function()
 			this.controller.get('scrollerContainer').className = 'palm-row screenshots';
 			for (s = 0; s < this.item.screenshots.length; s++) 
 			{
-				alert(this.item.screenshots[s]);
 				scrollItems += '<img id="ss_' + s + '" class="screenshot" src="' + this.item.screenshots[s] + '" />';
 			}
 			
