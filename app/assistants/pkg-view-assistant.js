@@ -78,7 +78,7 @@ PkgViewAssistant.prototype.setupImages = function()
 		// app icons for plugins and services
 		var scrollItems = '';
 		this.dependents = this.item.getDependent();
-		if ((this.item.type == 'Application' || this.item.type == 'Patch') &&
+		if ((this.item.type == 'Application' || this.item.type == 'Patch' || this.item.type == 'Theme') &&
 			this.item.screenshots.length > 0) 
 		{
 			this.controller.get('scrollerContainer').className = 'palm-row screenshots';
