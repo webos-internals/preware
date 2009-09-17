@@ -384,6 +384,16 @@ MainAssistant.prototype.updateList = function()
 			
 			this.mainModel.items.push(
 			{
+				name: $L('Available Themes'),
+				style: 'disabled',
+				scene: 'pkg-list',
+				pkgType: 'Theme',
+				pkgValue: 'all',
+				pkgCount: 0
+			});
+			
+			this.mainModel.items.push(
+			{
 				name: $L('Available Patches'),
 				style: 'disabled',
 				scene: 'pkg-list',

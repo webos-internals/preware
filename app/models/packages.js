@@ -576,7 +576,7 @@ packagesModel.prototype.getPackages = function(item)
 				
 				// for now, we want to show all types in the application lists if they aren't splitting them up in the main list
 				// once we handle dependencies we can delete this code
-				if (!prefs.get().showAllTypes && item.pkgType == "Application" && this.packages[p].type != 'Patch')
+				if (!prefs.get().showAllTypes && item.pkgType == "Application" && this.packages[p].type != 'Patch' && this.packages[p].type != 'Theme')
 				{
 					pushIt = true;
 				}
