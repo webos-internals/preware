@@ -140,7 +140,7 @@ packagesModel.prototype.versionNewer = function(one, two)
 			}
 
 			// Test numeric parts
-			if (p1[m].match(/[^0-9]/) && p2[m].match(/[^0-9]/)) {
+			if (p1[m].match(/[0-9]/) && p2[m].match(/[0-9]/)) {
 
 			   // Calculate the values of the two sections.
 			   var i1 = parseInt(p1[m], 10);
