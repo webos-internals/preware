@@ -126,13 +126,13 @@ packagesModel.prototype.versionNewer = function(one, two)
 			if ((m == p1.length) && (m == p2.length)) return false;
 
 			// If part1 is alpha, and part2 is numeric, then part1 is greater.
-			if (p1[m].test(/[^0-9]/) and p2[m].test(/[0-9]/))  return false;
+			if (p1[m].match(/[^0-9]/) and p2[m].match(/[0-9]/))  return false;
 
 			// If part1 is numeric, and part2 is alpha, then part2 is greater.
-			if (p1[m].test(/[0-9]/) and p2[m].test(/[/^0-9]/))  return true;
+			if (p1[m].match(/[0-9]/) and p2[m].match(/[^0-9]/))  return true;
 
 			// Test non-numeric parts
-			if (p1[m].test(/[^0-9]/) && p2[m].test(/[^0-9]/)) {
+			if (p1[m].match(/[^0-9]/) && p2[m].match(/[^0-9]/)) {
 
 			   // Need to loop through characters here, adding 256 if non-alpha.
 			   // Return on the first difference between the characters in the part.
@@ -140,7 +140,7 @@ packagesModel.prototype.versionNewer = function(one, two)
 			}
 
 			// Test numeric parts
-			if (p1[m].test(/[^0-9]/) && p2[m].test(/[^0-9]/)) {
+			if (p1[m].match(/[^0-9]/) && p2[m].match(/[^0-9]/)) {
 
 			   // Calculate the values of the two sections.
 			   var i1 = parseInt(p1[m], 10);
