@@ -35,8 +35,8 @@ packagesModel.prototype.versionNewer = function(one, two)
 		if ((j == v1.length) && (j == v2.length)) return false;
 
 		// Split the sections into alpha and numeric parts.
-		var p1 = v1[j].match(/([^0-9]*)([0-9]*)/g);
-		var p2 = v2[j].match(/([^0-9]*)([0-9]*)/g);
+		var p1 = v1[j].match(/[^0-9]+|[0-9]+/g);
+		var p2 = v2[j].match(/[^0-9]+|[0-9]+/g);
 
 		// Loop over the array of parts, using the largest one as the limit.
 		var lastp = p1.length > p2.length ? p1.length : p2.length;
