@@ -35,9 +35,14 @@ PkgGroupsAssistant.prototype.setup = function()
 	this.buildList();
 	
 	// pop the scene if its 
-	if (this.listModel.items.length < 1)
+	if ((this.listModel.items.length < 1 ||
+		(this.listModel.items.length < 2 && this.item.pkgGroup[0] == 'categories')))
 	{
 		this.controller.stageController.popScene();
+	}
+	else if (this.listModel.items.length == 2 && this.item.pkgGroup[0] == 'categories')
+	{
+		this.listTapHandler({item: this.listModel.items[1]}, true);
 	}
 	
 	// setup list widget
@@ -54,7 +59,7 @@ PkgGroupsAssistant.prototype.setup = function()
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
 }
 
-PkgGroupsAssistant.prototype.listTapHandler = function(event)
+PkgGroupsAssistant.prototype.listTapHandler = function(event, swap)
 {
 	var newItem =
 	{
@@ -82,12 +87,20 @@ PkgGroupsAssistant.prototype.listTapHandler = function(event)
 	
 	if (newItem.pkgType && newItem.pkgCat || newItem.pkgType && newItem.pkgFeed && newItem.pkgCat)
 	{
-		this.controller.stageController.pushScene('pkg-list', newItem);
+		if (swap) 
+		{
+			this.controller.stageController.swapScene('pkg-list', newItem);
+		}
+		else 
+		{
+			this.controller.stageController.pushScene('pkg-list', newItem);
+		}
 	}
 	else
 	{
 		var catFound = false
 		var newPkgGroup = [];
+		
 		if (newItem.pkgGroup.length > 1) 
 		{
 			for (var g = 1; g < newItem.pkgGroup.length; g++) 
@@ -99,6 +112,7 @@ PkgGroupsAssistant.prototype.listTapHandler = function(event)
 				}
 			}
 		}
+		
 		if (!catFound)
 		{
 			if (newItem.pkgType) 
@@ -117,8 +131,17 @@ PkgGroupsAssistant.prototype.listTapHandler = function(event)
 				}
 			}
 		}
+		
 		newItem.pkgGroup = newPkgGroup;
-		this.controller.stageController.pushScene('pkg-groups', newItem);
+		
+		if (swap) 
+		{
+			this.controller.stageController.swapScene('pkg-groups', newItem);
+		}
+		else 
+		{
+			this.controller.stageController.pushScene('pkg-groups', newItem);
+		}
 	}
 }
 
@@ -158,7 +181,7 @@ PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	}
 	else
 	{
-		sortItem.items.push({label: $L(this.item.pkgGroup[0].substr(0, 1).toUpperCase() + this.item.pkgGroup[0].substr(1)), command: this.item.pkgGroup[0], disabled: true});
+		this.cmdMenuModel.items.push({label: $L(this.item.pkgGroup[0].substr(0, 1).toUpperCase() + this.item.pkgGroup[0].substr(1)), command: this.item.pkgGroup[0], disabled: true});
 	}
 	
 	// push the sort item

@@ -486,26 +486,6 @@ packagesModel.prototype.getGroups = function(item)
 		
 		if (item.pkgGroup[0] == 'types')
 		{
-			/*
-			itemL.pkgType = 'all';
-			var count = this.getPackages(itemL).length;
-			if (count > 0) 
-			{
-				returnArray.push(
-				{
-					// this is because its special
-					style: 'all',
-					
-					// this is for group list
-					name: 'all',
-					count: count,
-					
-					// this is for group selector
-					label: 'all',
-					command: 'all'
-				});
-			}
-			*/
 			for (var t = 0; t < this.types.length; t++)
 			{
 				itemL.pkgType = this.types[t].name;
@@ -527,26 +507,6 @@ packagesModel.prototype.getGroups = function(item)
 		}
 		else if (item.pkgGroup[0] == 'feeds')
 		{
-			/*
-			itemL.pkgFeed = 'all';
-			var count = this.getPackages(itemL).length;
-			if (count > 0) 
-			{
-				returnArray.push(
-				{
-					// this is because its special
-					style: 'all',
-					
-					// this is for group list
-					name: 'all',
-					count: count,
-					
-					// this is for group selector
-					label: 'all',
-					command: 'all'
-				});
-			}
-			*/
 			for (var f = 0; f < this.feeds.length; f++)
 			{
 				itemL.pkgFeed = this.feeds[f].name;
@@ -568,6 +528,7 @@ packagesModel.prototype.getGroups = function(item)
 		}
 		else if (item.pkgGroup[0] == 'categories') 
 		{
+			// we push this all category first...
 			itemL.pkgCat = 'all';
 			var count = this.getPackages(itemL).length;
 			if (count > 0) 
