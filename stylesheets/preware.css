@@ -179,9 +179,13 @@ body.palm-dark .main .progress .progress-bar
 /*
  * Package Category List Styles
  */
-.pkg-groups #categoryList .title
+.pkg-groups #groupList .title
 {
 	text-transform: capitalize;
+}
+.pkg-groups #groupList .palm-row-wrapper.all .title
+{
+	font-weight: bold;
 }
 
 

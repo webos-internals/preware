@@ -3,6 +3,15 @@ function PkgListAssistant(item, searchText, currentSort)
 	// the item passed by the parent scene
 	this.item = item;
 	
+	/*
+	alert('-- list --');
+	alert('group: '+this.item.pkgGroup)
+	alert('list:  '+this.item.pkgList);
+	alert('type:  '+this.item.pkgType);
+	alert('feed:  '+this.item.pkgFeed);
+	alert('cat:   '+this.item.pkgCat);
+	*/
+	
 	// this holds the list (when we filter, this is what we search)
 	this.packages = [];
 	

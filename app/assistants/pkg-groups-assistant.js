@@ -3,6 +3,18 @@ function PkgGroupsAssistant(item)
 	// the item passed by the parent scene
 	this.item = item;
 	
+	/*
+	alert('-- group --');
+	alert('group: '+this.item.pkgGroup)
+	alert('list:  '+this.item.pkgList);
+	alert('type:  '+this.item.pkgType);
+	alert('feed:  '+this.item.pkgFeed);
+	alert('cat:   '+this.item.pkgCat);
+	*/
+	
+	// remove this style business or it will screw up everything as its passed along
+	this.item.style = false;
+	
 	// setup blank list model
 	this.listModel = {items:[]};
 	
@@ -44,8 +56,70 @@ PkgGroupsAssistant.prototype.setup = function()
 
 PkgGroupsAssistant.prototype.listTapHandler = function(event)
 {
-	this.item.pkgGroup = event.item.name;
-	this.controller.stageController.pushScene('pkg-list', this.item);
+	var newItem =
+	{
+		name:     this.item.name,
+		pkgGroup: this.item.pkgGroup,
+		pkgList:  this.item.pkgList,
+		pkgType:  this.item.pkgType,
+		pkgFeed:  this.item.pkgFeed,
+		pkgCat:   this.item.pkgCat
+	};
+	
+	switch (this.item.pkgGroup[0])
+	{
+		case 'types':
+			newItem.pkgType = event.item.name;
+			break;
+		case 'feeds':
+			newItem.pkgFeed = event.item.name;
+			break;
+		case 'categories':
+			newItem.pkgCat  = event.item.name;
+			break;
+		default: break; // this really, really shouldn't ever happen
+	}
+	
+	if (newItem.pkgType && newItem.pkgCat || newItem.pkgType && newItem.pkgFeed && newItem.pkgCat)
+	{
+		this.controller.stageController.pushScene('pkg-list', newItem);
+	}
+	else
+	{
+		var catFound = false
+		var newPkgGroup = [];
+		if (newItem.pkgGroup.length > 1) 
+		{
+			for (var g = 1; g < newItem.pkgGroup.length; g++) 
+			{
+				newPkgGroup.push(newItem.pkgGroup[g]);
+				if (newItem.pkgGroup[g] == 'categories')
+				{
+					catFound = true;
+				}
+			}
+		}
+		if (!catFound)
+		{
+			if (newItem.pkgType) 
+			{
+				var newPkgGroup = ['categories'];
+			}
+			else
+			{
+				var newPkgGroup = [];
+			}
+			if (newItem.pkgGroup.length > 1) 
+			{
+				for (var g = 1; g < newItem.pkgGroup.length; g++) 
+				{
+					newPkgGroup.push(newItem.pkgGroup[g]);
+				}
+			}
+		}
+		newItem.pkgGroup = newPkgGroup;
+		this.controller.stageController.pushScene('pkg-groups', newItem);
+	}
 }
 
 PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
@@ -58,18 +132,34 @@ PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	this.cmdMenuModel.items.push({});
 	
 	
-	// start our sort item
-	var sortItem = {items: [], toggleCmd: this.item.list};
+	// start our sort item to the first of the array
+	var sortItem = {items: [], toggleCmd: this.item.pkgGroup[0]};
 	
-	// push the sort selector for type grouping
-	if (this.item.pkgType == 'all') 
+	// loop group array and add the buttons if there is more then 1 button
+	if (this.item.pkgGroup.length > 1)
 	{
-		sortItem.items.push({label: $L('Types'), command: 'types'});
+		for (var g = 0; g < this.item.pkgGroup.length; g++)
+		{
+			sortItem.items.push({label: $L(this.item.pkgGroup[g].substr(0, 1).toUpperCase() + this.item.pkgGroup[g].substr(1)), command: this.item.pkgGroup[g]});
+		}
+		// we want to sort this so the order isn't changed when the grouping is
+		sortItem.items.sort(function(a, b)
+		{
+			// this needs to be lowercase for sorting.
+			if (a.command && b.command)
+			{
+				return ((a.command < b.command) ? -1 : ((a.command > b.command) ? 1 : 0));
+			}
+			else
+			{
+				return -1;
+			}
+		});
 	}
-	
-	// push default sort selectors
-	sortItem.items.push({label: $L('Categories'), command: 'categories'});
-	sortItem.items.push({label: $L('Feeds'), command: 'feeds'});
+	else
+	{
+		sortItem.items.push({label: $L(this.item.pkgGroup[0].substr(0, 1).toUpperCase() + this.item.pkgGroup[0].substr(1)), command: this.item.pkgGroup[0], disabled: true});
+	}
 	
 	// push the sort item
 	this.cmdMenuModel.items.push(sortItem);
@@ -103,12 +193,23 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 	{
 		switch (event.command)
 		{
-			case 'categories':
-			case 'feeds':
 			case 'types':
-				if (this.item.list !== event.command) 
+			case 'feeds':
+			case 'categories':
+				if (this.item.pkgGroup[0] !== event.command) 
 				{
-					this.item.list = event.command;
+					var newPkgGroup = [event.command];
+					if (this.item.pkgGroup.length > 1) 
+					{
+						for (var g = 0; g < this.item.pkgGroup.length; g++) 
+						{
+							if (this.item.pkgGroup[g] !== event.command) 
+							{
+								newPkgGroup.push(this.item.pkgGroup[g]);
+							}
+						}
+					}
+					this.item.pkgGroup = newPkgGroup;
 					this.controller.stageController.swapScene('pkg-groups', this.item);
 				}
 				break;

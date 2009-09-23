@@ -478,38 +478,78 @@ packagesModel.prototype.getGroups = function(item)
 		// temporary item for getting list counts
 		var itemL =
 		{
-			list: item.list,
-			pkgType: item.pkgType,
-			pkgValue: item.pkgValue,
-			pkgGroup: ''
+			pkgList:  item.pkgList,
+			pkgType:  item.pkgType,
+			pkgFeed:  item.pkgFeed,
+			pkgCat:   item.pkgCat
 		};
-			
-		if (item.list == 'categories') 
+		
+		if (item.pkgGroup[0] == 'types')
 		{
-			for (var c = 0; c < this.categories.length; c++)
+			/*
+			itemL.pkgType = 'all';
+			var count = this.getPackages(itemL).length;
+			if (count > 0) 
 			{
-				itemL.pkgGroup = this.categories[c].name;
+				returnArray.push(
+				{
+					// this is because its special
+					style: 'all',
+					
+					// this is for group list
+					name: 'all',
+					count: count,
+					
+					// this is for group selector
+					label: 'all',
+					command: 'all'
+				});
+			}
+			*/
+			for (var t = 0; t < this.types.length; t++)
+			{
+				itemL.pkgType = this.types[t].name;
 				var count = this.getPackages(itemL).length;
 				if (count > 0) 
 				{
 					returnArray.push(
 					{
 						// this is for group list
-						name: packages.categories[c].name,
+						name: this.types[t].name,
 						count: count,
 						
 						// this is for group selector
-						label: packages.categories[c].name,
-						command: packages.categories[c].name
+						label: this.types[t].name,
+						command: this.types[t].name
 					});
 				}
 			}
 		}
-		else if (item.list == 'feeds')
+		else if (item.pkgGroup[0] == 'feeds')
 		{
+			/*
+			itemL.pkgFeed = 'all';
+			var count = this.getPackages(itemL).length;
+			if (count > 0) 
+			{
+				returnArray.push(
+				{
+					// this is because its special
+					style: 'all',
+					
+					// this is for group list
+					name: 'all',
+					count: count,
+					
+					// this is for group selector
+					label: 'all',
+					command: 'all'
+				});
+			}
+			*/
 			for (var f = 0; f < this.feeds.length; f++)
 			{
-				itemL.pkgGroup = this.feeds[f].name;
+				itemL.pkgFeed = this.feeds[f].name;
 				var count = this.getPackages(itemL).length;
 				if (count > 0) 
 				{
@@ -526,23 +566,41 @@ packagesModel.prototype.getGroups = function(item)
 				}
 			}
 		}
-		else if (item.list == 'types')
+		else if (item.pkgGroup[0] == 'categories') 
 		{
-			for (var t = 0; t < this.types.length; t++)
+			itemL.pkgCat = 'all';
+			var count = this.getPackages(itemL).length;
+			if (count > 0) 
 			{
-				itemL.pkgGroup = this.types[t].name;
+				returnArray.push(
+				{
+					// this is because its special
+					style: 'all',
+					
+					// this is for group list
+					name: 'all',
+					count: count,
+					
+					// this is for group selector
+					label: 'all',
+					command: 'all'
+				});
+			}
+			for (var c = 0; c < this.categories.length; c++)
+			{
+				itemL.pkgCat = this.categories[c].name;
 				var count = this.getPackages(itemL).length;
 				if (count > 0) 
 				{
 					returnArray.push(
 					{
 						// this is for group list
-						name: this.types[t].name,
+						name: packages.categories[c].name,
 						count: count,
 						
 						// this is for group selector
-						label: this.types[t].name,
-						command: this.types[t].name
+						label: packages.categories[c].name,
+						command: packages.categories[c].name
 					});
 				}
 			}
@@ -569,42 +627,48 @@ packagesModel.prototype.getPackages = function(item)
 			
 			
 			
-			// push packages that meet the type
-			if (item.pkgType != 'all') 
-			{
-				if (item.pkgType == this.packages[p].type) pushIt = true;
-				
-				// for now, we want to show all types in the application lists if they aren't splitting them up in the main list
-				// once we handle dependencies we can delete this code
-				if (!prefs.get().showAllTypes && item.pkgType == "Application" && this.packages[p].type != 'Patch' && this.packages[p].type != 'Theme')
-				{
-					pushIt = true;
-				}
-			}
-			else 
+			// push packages that meet the listing
+			if (item.pkgList == 'all')
 			{
 				pushIt = true;
-			}
-			
-			
-			// dont push packages that dont meet the value
-			if (item.pkgValue == 'group')
-			{
-				if (item.pkgGroup)
+				// if is installed and installed is not to be shown, dont push it
+				if (this.packages[p].isInstalled && !prefs.get().listInstalled) 
 				{
-					if (item.list == 'categories' && this.packages[p].category != item.pkgGroup) pushIt = false;
-					if (item.list == 'feeds' && !this.packages[p].inFeed(item.pkgGroup)) pushIt = false;
-					if (item.list == 'types' && this.packages[p].type != item.pkgGroup) pushIt = false;
+					pushIt = false;
+					// if it is installed and is not to be shown but its the "list of everything", push it anyways
+					if (item.pkgType == 'all' && item.pkgFeed == 'all' && item.pkgCat == 'all')
+					{
+						pushIt = true;
+					}
 				}
 			}
-			else if (item.pkgValue == 'updates' && !this.packages[p].hasUpdate) pushIt = false;
-			else if (item.pkgValue == 'installed' && !this.packages[p].isInstalled) pushIt = false;
+			else if (item.pkgList == 'updates' && this.packages[p].hasUpdate) pushIt = true;
+			else if (item.pkgList == 'installed' && this.packages[p].isInstalled) pushIt = true;
 			
 			
-			// dont push packages that are installed in most lists if the user doesnt want to see them
-			if (!prefs.get().listInstalled && this.packages[p].isInstalled && item.pkgValue != 'installed' && item.pkgValue != 'updates' &&
-				!(item.pkgType == 'all' && item.pkgValue == 'all')) pushIt = false;
+			// check type and dont push if not right
+			//if (item.pkgType != 'all' && item.pkgType != '' && item.pkgType != this.packages[p].type) pushIt = false;
+			if (item.pkgType != 'all' && item.pkgType != '' && item.pkgType != this.packages[p].type) 
+			{
+				// for now, we want to show all types in the application lists if they aren't splitting them up in the main list
+				// once we handle dependencies we can delete this code
+				if (!prefs.get().showAllTypes &&
+					item.pkgType == "Application" &&
+					this.packages[p].type != 'Patch' &&
+					this.packages[p].type != 'Theme') 
+				{
+				}
+				else
+				{
+					pushIt = false;
+				}
+			}
 			
+			// check feed and dont push if not right
+			if (item.pkgFeed != 'all' && item.pkgFeed != '' && !this.packages[p].inFeed(item.pkgFeed)) pushIt = false;
+			
+			// check category and dont push if not right
+			if (item.pkgCat != 'all' && item.pkgCat != '' && item.pkgCat != this.packages[p].category) pushIt = false;
 			
 			
 			// push it to the list if we should

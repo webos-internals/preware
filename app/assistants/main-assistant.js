@@ -361,44 +361,52 @@ MainAssistant.prototype.updateList = function()
 		
 		this.mainModel.items.push(
 		{
-			name: $L('Package Updates'),	// displays in list
-			style: 'disabled',				// class for use in the list display
-			scene: 'pkg-list',				// scene that will be pushed on tap 
-			pkgType: 'all',					// 
-			pkgValue: 'updates',			// 
-			pkgCount: 0						// count of pkgs for display in list, will only display if style is set to 'showCount'
+			name:     $L('Package Updates'),	// displays in list
+			style:    'disabled',				// class for use in the list display
+			scene:    'pkg-list',				// scene that will be pushed on tap 
+			pkgList:  'updates',				// 
+			pkgType:  'all',					// 
+			pkgFeed:  'all',					// 
+			pkgCat:   'all',					// 
+			pkgCount: 0							// count of pkgs for display in list, will only display if style is set to 'showCount'
 		});
 		
 		if (!prefs.get().showAllTypes) 
 		{
 			this.mainModel.items.push(
 			{
-				name: $L('Available Applications'),
-				style: 'disabled',
-				scene: 'pkg-groups',
-				list: 'categories',
-				pkgType: 'Application',
-				pkgValue: 'group',
+				name:     $L('Available Applications'),
+				style:    'disabled',
+				scene:    'pkg-groups',
+				pkgGroup: ['categories','feeds'],
+				pkgList:  'all',
+				pkgType:  'Application',
+				pkgFeed:  '',
+				pkgCat:   '',
 				pkgCount: 0
 			});
 			
 			this.mainModel.items.push(
 			{
-				name: $L('Available Themes'),
-				style: 'disabled',
-				scene: 'pkg-list',
-				pkgType: 'Theme',
-				pkgValue: 'all',
+				name:     $L('Available Themes'),
+				style:    'disabled',
+				scene:    'pkg-list',
+				pkgList:  'all',
+				pkgType:  'Theme',
+				pkgFeed:  'all',
+				pkgCat:   'all',
 				pkgCount: 0
 			});
 			
 			this.mainModel.items.push(
 			{
-				name: $L('Available Patches'),
-				style: 'disabled',
-				scene: 'pkg-list',
-				pkgType: 'Patch',
-				pkgValue: 'all',
+				name:     $L('Available Patches'),
+				style:    'disabled',
+				scene:    'pkg-list',
+				pkgList:  'all',
+				pkgType:  'Patch',
+				pkgFeed:  'all',
+				pkgCat:   'all',
 				pkgCount: 0
 			});
 		}
@@ -406,40 +414,48 @@ MainAssistant.prototype.updateList = function()
 		{
 			this.mainModel.items.push(
 			{
-				name: $L('Available Packages'),
-				style: 'disabled',
-				scene: 'pkg-groups',
-				list: 'types',
-				pkgType: 'all',
-				pkgValue: 'group',
+				name:     $L('Available Packages'),
+				style:    'disabled',
+				scene:    'pkg-groups',
+				pkgGroup: ['types','feeds'],
+				pkgList:  'all',
+				pkgType:  '',
+				pkgFeed:  '',
+				pkgCat:   '',
 				pkgCount: 0
 			});
 		}
 		
 		this.mainModel.items.push(
 		{
-			name: $L('Installed Packages'),
-			style: 'disabled',
-			scene: 'pkg-list',
-			pkgType: 'all',
-			pkgValue: 'installed',
+			name:     $L('Installed Packages'),
+			style:    'disabled',
+			scene:    'pkg-groups',
+			pkgGroup: ['types'],
+			pkgList:  'installed',
+			pkgType:  '',
+			pkgFeed:  'all',
+			pkgCat:   'all',
 			pkgCount: 0
 		});
 		
 		this.mainModel.items.push(
 		{
-			name: $L('List of Everything'),
-			style: 'disabled',
-			scene: 'pkg-list',
-			pkgType: 'all',
-			pkgValue: 'all'
+			name:     $L('List of Everything'),
+			style:    'disabled',
+			scene:    'pkg-list',
+			pkgList:  'all',
+			pkgType:  'all',
+			pkgFeed:  'all',
+			pkgCat:   'all',
 		});
 		
 		// if we have packages we need to get out list counts
 		if (packages.packages.length > 0)
 		{
 			// '-1' so we don't add a count to the everything list
-			for (var i = 0; i < (this.mainModel.items.length-1); i++)
+			//for (var i = 0; i < (this.mainModel.items.length-1); i++)
+			for (var i = 0; i < this.mainModel.items.length; i++)
 			{
 				var count = packages.getPackages(this.mainModel.items[i]).length;
 				if (count > 0) 
@@ -450,7 +466,7 @@ MainAssistant.prototype.updateList = function()
 			}
 			
 			// enable everything list
-			this.mainModel.items[(this.mainModel.items.length-1)].style = false;
+			//this.mainModel.items[(this.mainModel.items.length-1)].style = false;
 		}
 		
 		// update list widget

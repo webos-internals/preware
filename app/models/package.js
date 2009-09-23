@@ -147,6 +147,7 @@ function packageModel(info)
 	catch (e)
 	{
 		Mojo.Log.logException(e, 'packageModel#initialize');
+		alert(this.info.Package);
 	}
 }
 
