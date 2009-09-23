@@ -454,8 +454,7 @@ MainAssistant.prototype.updateList = function()
 		if (packages.packages.length > 0)
 		{
 			// '-1' so we don't add a count to the everything list
-			//for (var i = 0; i < (this.mainModel.items.length-1); i++)
-			for (var i = 0; i < this.mainModel.items.length; i++)
+			for (var i = 0; i < (this.mainModel.items.length-1); i++)
 			{
 				var count = packages.getPackages(this.mainModel.items[i]).length;
 				if (count > 0) 
@@ -466,7 +465,7 @@ MainAssistant.prototype.updateList = function()
 			}
 			
 			// enable everything list
-			//this.mainModel.items[(this.mainModel.items.length-1)].style = false;
+			this.mainModel.items[(this.mainModel.items.length-1)].style = false;
 		}
 		
 		// update list widget
