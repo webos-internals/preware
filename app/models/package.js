@@ -646,7 +646,7 @@ packageModel.prototype.onInstall = function(payload)
 	try 
 	{
 		// log payload for display
-		this.assistant.ipkgLog(payload);
+		IPKGService.logPayload(payload);
 		
 		if (!payload) 
 		{
@@ -719,7 +719,7 @@ packageModel.prototype.onUpdate = function(payload)
 	try 
 	{
 		// log payload for display
-		this.assistant.ipkgLog(payload);
+		IPKGService.logPayload(payload);
 		
 		if (!payload) 
 		{
@@ -792,7 +792,7 @@ packageModel.prototype.onRemove = function(payload)
 	try 
 	{
 		// log payload for display
-		this.assistant.ipkgLog(payload);
+		IPKGService.logPayload(payload);
 		
 		if (!payload) 
 		{

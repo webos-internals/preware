@@ -17,6 +17,9 @@ ScreenshotsAssistant.prototype.setup = function()
 				onRightFunction: this.wentRight.bind(this)
 			}
 		);
+		
+		// setup menu that is no menu
+		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
 	}
 	catch (e)
 	{

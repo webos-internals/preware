@@ -4,7 +4,7 @@
     {"source": "app\/models\/IPKGService.js"},
     {"source": "app\/models\/packages.js"},
     {"source": "app\/models\/package.js"},
-	{"source": "app\/models\/prefCookie.js"},
+    {"source": "app\/models\/prefCookie.js"},
     {"source": "app\/models\/stayAwake.js"},
     {
         "source": "app\/assistants\/main-assistant.js",
@@ -13,6 +13,14 @@
     {
         "source": "app\/assistants\/preferences-assistant.js",
         "scenes": "preferences"
+    },
+    {
+        "source": "app\/assistants\/configs-assistant.js",
+        "scenes": "configs"
+    },
+    {
+        "source": "app\/assistants\/ipkg-log-assistant.js",
+        "scenes": "ipkg-log"
     },
     {
         "source": "app\/assistants\/pkg-groups-assistant.js",

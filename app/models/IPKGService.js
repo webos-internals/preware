@@ -1,20 +1,25 @@
 IPKGService.identifier = 'palm://org.webosinternals.ipkgservice';
 
-function IPKGService() {
-
+function IPKGService()
+{
+	this.log = '';
+	this.logNum = 1;
 }
 
-IPKGService.version = function(callback) {
-	var request = new Mojo.Service.Request(IPKGService.identifier, {
+IPKGService.version = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
 		method: 'version',
 		onSuccess: callback,
 		onFailure: callback
 	});
 	return request;
 }
-
-IPKGService.list_configs = function(callback) {
-	var request = new Mojo.Service.Request(IPKGService.identifier, {
+IPKGService.list_configs = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
 		method: 'list_configs',
 		onSuccess: callback,
 		onFailure: callback
@@ -22,9 +27,10 @@ IPKGService.list_configs = function(callback) {
 	return request;
 }
 
-
-IPKGService.update = function(callback) {
-	var request = new Mojo.Service.Request(IPKGService.identifier, {
+IPKGService.update = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
 		method: 'update',
 		onSuccess: callback,
 		onFailure: callback
@@ -32,9 +38,10 @@ IPKGService.update = function(callback) {
 	return request;
 }
 
-
-IPKGService.rawlist = function(callback, feed) {
-	var request = new Mojo.Service.Request(IPKGService.identifier, {
+IPKGService.rawlist = function(callback, feed)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
 		method: 'rawlist',
 		parameters: {
 			"subscribe":true, // new in apiVersion 4
@@ -45,9 +52,10 @@ IPKGService.rawlist = function(callback, feed) {
 	});
 	return request;
 }
-
-IPKGService.rawstatus = function(callback) {
-	var request = new Mojo.Service.Request(IPKGService.identifier, {
+IPKGService.rawstatus = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
 		method: 'rawstatus',
 		onSuccess: callback,
 		onFailure: callback
@@ -55,9 +63,10 @@ IPKGService.rawstatus = function(callback) {
 	return request;
 }
 
-
-IPKGService.install = function(callback, pkg, title) {
-	var request = new Mojo.Service.Request(IPKGService.identifier, {
+IPKGService.install = function(callback, pkg, title)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
 		method: 'install',
 		parameters: {"package":pkg, "title":title, "subscribe":true},
 		onSuccess: callback,
@@ -65,9 +74,10 @@ IPKGService.install = function(callback, pkg, title) {
 	});
 	return request;
 }
-
-IPKGService.remove = function(callback, pkg, title) {
-	var request = new Mojo.Service.Request(IPKGService.identifier, {
+IPKGService.remove = function(callback, pkg, title)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
 		method: 'remove',
 		parameters: {"package":pkg, "title":title, "subscribe":true},
 		onSuccess: callback,
@@ -76,30 +86,140 @@ IPKGService.remove = function(callback, pkg, title) {
 	return request;
 }
 
-
-IPKGService.rescan = function(callback) {
-	var request = new Mojo.Service.Request(IPKGService.identifier, {
+IPKGService.rescan = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
 		method: 'rescan',
 		onSuccess: callback,
 		onFailure: callback
 	});
 	return request;
 }
-
-IPKGService.restartluna = function(callback) {
-	var request = new Mojo.Service.Request(IPKGService.identifier, {
+IPKGService.restartluna = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
 		method: 'restartluna',
 		onSuccess: callback,
 		onFailure: callback
 	});
 	return request;
 }
-
-IPKGService.restartjava = function(callback) {
-	var request = new Mojo.Service.Request(IPKGService.identifier, {
+IPKGService.restartjava = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
 		method: 'restartjava',
 		onSuccess: callback,
 		onFailure: callback
 	});
 	return request;
+}
+
+
+IPKGService.logClear = function()
+{
+	this.log = '';
+	this.logNum = 1;
+}
+IPKGService.logPayload = function(payload, stage)
+{
+	
+	alert(payload.stage + ' - ' + stage);
+	
+	if (payload.stage)
+	{
+		this.log += '<div class="container '+(this.logNum%2?'one':'two')+'">';
+		this.log += '<div class="title">' + payload.stage + '</div>';
+		var stdPlus = false;
+		if (payload.errorCode || payload.errorText)
+		{
+			stdPlus = true;
+			this.log += '<div class="stdErr">';
+			this.log += '<b>' + payload.errorCode + '</b>: '
+			this.log += payload.errorText;
+			this.log += '</div>';
+		}
+		
+		if (payload.stdOut && payload.stdOut.length > 0)
+		{
+			stdPlus = true;
+			this.log += '<div class="stdOut">';
+			for (var s = 0; s < payload.stdOut.length; s++)
+			{
+				this.log += '<div>' + payload.stdOut[s] + '</div>';
+			}
+			this.log += '</div>';
+		}
+		
+		if (payload.stdErr && payload.stdErr.length > 0)
+		{
+			stdPlus = true;
+			this.log += '<div class="stdErr">';
+			for (var s = 0; s < payload.stdErr.length; s++)
+			{
+				this.log += '<div>' + payload.stdErr[s] + '</div>';
+			}
+			this.log += '</div>';
+		}
+		
+		if (!stdPlus)
+		{
+			this.log += '<div class="msg">No Errors.</div>';
+		}
+		this.log += '</div>';
+		this.logNum++;
+	}
+	else if (stage)
+	{
+		this.log += '<div class="container '+(this.logNum%2?'one':'two')+'">';
+		this.log += '<div class="title">' + stage + '</div>';
+		var stdPlus = false;
+		if (payload.errorCode || payload.errorText)
+		{
+			stdPlus = true;
+			this.log += '<div class="stdErr">';
+			this.log += '<b>' + payload.errorCode + '</b>: '
+			this.log += payload.errorText;
+			this.log += '</div>';
+		}
+		
+		if (payload.stdOut && payload.stdOut.length > 0)
+		{
+			stdPlus = true;
+			this.log += '<div class="stdOut">';
+			for (var s = 0; s < payload.stdOut.length; s++)
+			{
+				this.log += '<div>' + payload.stdOut[s] + '</div>';
+			}
+			this.log += '</div>';
+		}
+		
+		if (payload.stdErr && payload.stdErr.length > 0)
+		{
+			stdPlus = true;
+			this.log += '<div class="stdErr">';
+			for (var s = 0; s < payload.stdErr.length; s++)
+			{
+				this.log += '<div>' + payload.stdErr[s] + '</div>';
+			}
+			this.log += '</div>';
+		}
+		
+		if (!stdPlus)
+		{
+			this.log += '<div class="msg">No Errors.</div>';
+		}
+		this.log += '</div>';
+		this.logNum++;
+	}
+	/*
+	// debug display
+	alert('--- IPKG Log ---');
+	for (p in payload)
+	{
+		alert(p + ': ' + payload[p]);
+	}
+	*/
 }

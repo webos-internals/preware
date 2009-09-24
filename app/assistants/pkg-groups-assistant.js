@@ -42,7 +42,8 @@ PkgGroupsAssistant.prototype.setup = function()
 	}
 	else if (this.listModel.items.length == 2 && this.item.pkgGroup[0] == 'categories')
 	{
-		this.listTapHandler({item: this.listModel.items[1]}, true);
+		// lets not do this for now
+		//this.listTapHandler({item: this.listModel.items[1]}, true);
 	}
 	
 	// setup list widget

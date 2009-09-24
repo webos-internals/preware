@@ -25,6 +25,9 @@ function MainAssistant()
 
 MainAssistant.prototype.setup = function()
 {
+	// clear log
+	IPKGService.logClear();
+	
 	// set theme
 	this.controller.document.body.className = prefs.get().theme;
 	
@@ -62,12 +65,16 @@ MainAssistant.prototype.setup = function()
 				command: 'do-prefs'
 			},
 			{
-				label: "Update Feeds...",
+				label: "Update Feeds",
 				command: 'do-update'
 			},
-			{
-				label: "List Configs...",
+			/*{
+				label: "List Configs",
 				command: 'do-configs'
+			},*/
+			{
+				label: "IPKG Log",
+				command: 'do-showLog'
 			}
 		]
 	}
@@ -162,54 +169,68 @@ MainAssistant.prototype.onConnection = function(response, onlyLoad)
 
 MainAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 {
-	if (!payload) 
+	try 
 	{
-		// i dont know if this will ever happen, but hey, it might
-		this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-		this.doneUpdating();
-	}
-	else if (payload.errorCode == -1)
-	{
-		if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+		// log payload for display
+		IPKGService.logPayload(payload, 'VersionCheck');
+	
+		if (!payload) 
 		{
-			this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+			// i dont know if this will ever happen, but hey, it might
+			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
+			this.doneUpdating();
+		}
+		else if (payload.errorCode == -1)
+		{
+			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+				this.doneUpdating();
+			}
+			else
+			{
+				this.alertMessage('Preware', payload.errorText);
+				this.doneUpdating();
+			}
+		}
+		else if (payload.errorCode == "ErrorGenericUnknownMethod")
+		{
+			// this is if this version is too old for the version number stuff
+			this.alertMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [1]');
 			this.doneUpdating();
 		}
 		else
 		{
-			this.alertMessage('Preware', payload.errorText);
-			this.doneUpdating();
-		}
-	}
-	else if (payload.errorCode == "ErrorGenericUnknownMethod")
-	{
-		// this is if this version is too old for the version number stuff
-		this.alertMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [1]');
-		this.doneUpdating();
-	}
-	else
-	{
-		if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) 
-		{
-			// this is if this version is too old for the version number stuff
-			this.alertMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [2]');
-			this.doneUpdating();
-		}
-		else 
-		{
-			if (hasNet && !onlyLoad) 
+			if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) 
 			{
-				// initiate update if we have a connection
-				this.controller.get('spinnerStatus').innerHTML = "Updating";
-				IPKGService.update(this.onUpdate.bindAsEventListener(this));
+				// this is if this version is too old for the version number stuff
+				this.alertMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [2]');
+				this.doneUpdating();
 			}
 			else 
 			{
-				// if not, go right to loading the pkg info
-				this.controller.get('spinnerStatus').innerHTML = "Loading";
-				IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
+				if (hasNet && !onlyLoad) 
+				{
+					// initiate update if we have a connection
+					this.controller.get('spinnerStatus').innerHTML = "Updating";
+					IPKGService.update(this.onUpdate.bindAsEventListener(this));
+				}
+				else 
+				{
+					// if not, go right to loading the pkg info
+					this.controller.get('spinnerStatus').innerHTML = "Loading";
+					IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
+				}
 			}
 		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'main#onVersionCheck');
+		this.alertMessage('onVersionCheck Error', e);
+		
+		// we're done here
+		this.doneUpdating();
 	}
 }
 
@@ -217,6 +238,9 @@ MainAssistant.prototype.onUpdate = function(payload)
 {
 	try 
 	{
+		// log payload for display
+		IPKGService.logPayload(payload, 'Update');
+		
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
@@ -265,6 +289,9 @@ MainAssistant.prototype.onFeeds = function(payload)
 {
 	try 
 	{
+		// log payload for display
+		IPKGService.logPayload(payload, 'Feeds');
+		
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
@@ -498,23 +525,25 @@ MainAssistant.prototype.alertMessage = function(title, message)
 
 MainAssistant.prototype.handleCommand = function(event)
 {
-
-	if (event.type == Mojo.Event.command) {
-
-		switch (event.command) {
-
-		case 'do-prefs':
-			this.controller.stageController.pushScene('preferences');
-			break;
-
-		case 'do-update':
-			this.updateFeeds();
-			break;
-
-		case 'do-configs':
-			IPKGService.list_configs(this.onConfigs.bindAsEventListener(this));
-			break;
-
+	if (event.type == Mojo.Event.command)
+	{
+		switch (event.command)
+		{
+			case 'do-prefs':
+				this.controller.stageController.pushScene('preferences');
+				break;
+	
+			case 'do-update':
+				this.updateFeeds();
+				break;
+	
+			case 'do-configs':
+				IPKGService.list_configs(this.onConfigs.bindAsEventListener(this));
+				break;
+				
+			case 'do-showLog':
+				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+				break;
 		}
 
 	}

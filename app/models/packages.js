@@ -65,6 +65,9 @@ packagesModel.prototype.infoResponse = function(payload, num)
 	
 	try
 	{
+		// log payload for display
+		//IPKGService.logPayload(payload);
+		
 		if (!payload || payload.errorCode == -1) 
 		{
 			// some sort of error message perhapse?

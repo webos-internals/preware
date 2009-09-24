@@ -553,45 +553,78 @@ body.palm-dark .pkg-view #scrollerContainer.palm-row.apps .fade-right
 	margin-left: 38px;
 	background: url(../images/icon_updates.png) center center no-repeat;
 }
-.palm-dialog-box.ipkglog-dialog #logScroller
+
+
+
+/*
+ * IPKGLog Scene Styles
+ */
+.ipkglog #logScroller
 {
-	position: relative;
-	height: 200px;
-	margin-top: -4px;
+	height: 100%;
+	width: 320px;
 }
-.palm-dialog-box.ipkglog-dialog #logScroller #logData
+.ipkglog #logScroller .palm-header-spacer
 {
-	padding: 4px;
+	height: 42px;
+}
+.ipkglog #logScroller #logData
+{
 	white-space: nowrap;
 	height: 100%;
 	width: 100%;
-}.palm-dialog-box.ipkglog-dialog #logScroller #logData .palm-dialog-separator
-{
-	margin-bottom: 5px;
-	margin-top: 5px;
 }
-.palm-dialog-box.ipkglog-dialog #logScroller #logData .title
+.ipkglog #logScroller #logData .noData
+{
+	text-align: center;
+	margin-top: 100px;
+	font-style: italic;
+}
+.ipkglog #logScroller #logData .container
+{
+	padding: 8px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	width: 100%;
+}
+.ipkglog #logScroller #logData .container.two
+{
+	background: #dbdbdb;
+}
+body.palm-dark .ipkglog #logScroller #logData .container.two
+{
+	background: #474e54;
+}
+.ipkglog #logScroller #logData .title
 {
 	text-transform: capitalize;
-	font-size: 22px;
-	margin-bottom: 5px;
+	font-weight: bold;
+	font-size: 20px;
 }
-.palm-dialog-box.ipkglog-dialog #logScroller #logData .msg
+.ipkglog #logScroller #logData .msg
 {
 	padding-left: 10px;
-	margin-bottom: 5px;
+	font-size: 18px;
 }
-.palm-dialog-box.ipkglog-dialog #logScroller #logData .stdOut div
+.ipkglog #logScroller #logData .stdOut div
 {
 	padding-left: 10px;
-	margin-bottom: 5px;
+	font-size: 18px;
 	color: #060;
 }
-.palm-dialog-box.ipkglog-dialog #logScroller #logData .stdErr div
+body.palm-dark .ipkglog #logScroller #logData .stdOut div
+{
+	color: #afa;
+}
+.ipkglog #logScroller #logData .stdErr div
 {
 	padding-left: 10px;
-	margin-bottom: 5px;
+	font-size: 18px;
 	color: #600;
+}
+body.palm-dark .ipkglog #logScroller #logData .stdErr div
+{
+	color: #faa;
 }
 
 

@@ -14,13 +14,13 @@ function PkgViewAssistant(item, listAssistant)
 		label: $L('Menu'), 
 		items: []
 	};
-	
-	// this is for storing the log
-	this.ipkglog = '';
 }
 
 PkgViewAssistant.prototype.setup = function()
 {
+	// clear log so it only shows stuff from this scene
+	IPKGService.logClear();
+	
 	// build command menu
 	this.updateCommandMenu(true);
 	
@@ -53,7 +53,7 @@ PkgViewAssistant.prototype.setup = function()
 	{
 		visible: true,
 		items: [{
-			label: "IPKG Log...",
+			label: "IPKG Log",
 			command: 'do-showLog'
 		}]
 	}
@@ -265,11 +265,7 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			
 			// display ipkg log
 			case 'do-showLog':
-				this.controller.showDialog(
-				{
-					template: 'pkg-view/ipkgLogDialog',
-					assistant: new IPKGLogDialogAssistant(this)
-				});
+				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
 				break;
 				
 			// launch
@@ -341,58 +337,6 @@ PkgViewAssistant.prototype.endAction = function()
 	// and to show this menu again
 	this.updateCommandMenu();
 }
-PkgViewAssistant.prototype.ipkgLog = function(payload)
-{
-	if (payload.stage)
-	{
-		if (this.ipkglog != '') this.ipkglog += '<div class="palm-dialog-separator"></div>';
-		this.ipkglog += '<div class="title">' + payload.stage + '</div>';
-		var stdPlus = false;
-		if (payload.errorCode || payload.errorText)
-		{
-			stdPlus = true;
-			this.ipkglog += '<div class="stdErr">';
-			this.ipkglog += '<b>' + payload.errorCode + '</b>: '
-			this.ipkglog += payload.errorText;
-			this.ipkglog += '</div>';
-		}
-		
-		if (payload.stdOut && payload.stdOut.length > 0)
-		{
-			stdPlus = true;
-			this.ipkglog += '<div class="stdOut">';
-			for (var s = 0; s < payload.stdOut.length; s++)
-			{
-				this.ipkglog += '<div>' + payload.stdOut[s] + '</div>';
-			}
-			this.ipkglog += '</div>';
-		}
-		
-		if (payload.stdErr && payload.stdErr.length > 0)
-		{
-			stdPlus = true;
-			this.ipkglog += '<div class="stdErr">';
-			for (var s = 0; s < payload.stdErr.length; s++)
-			{
-				this.ipkglog += '<div>' + payload.stdErr[s] + '</div>';
-			}
-			this.ipkglog += '</div>';
-		}
-		
-		if (!stdPlus)
-		{
-			this.ipkglog += '<div class="msg">No Output.</div>';
-		}
-	}
-	/*
-	// debug display
-	alert('--- IPKG Log ---');
-	for (p in payload)
-	{
-		alert(p + ': ' + payload[p]);
-	}
-	*/
-}
 PkgViewAssistant.prototype.simpleMessage = function(message)
 {
 	this.controller.showAlertDialog(
@@ -444,55 +388,6 @@ PkgViewAssistant.prototype.cleanup = function(event)
 	{
 		// looping apps destroying listeners
 	}
-}
-
-
-
-// IPKG Log Dialog Assistant
-function IPKGLogDialogAssistant(sceneAssistant)
-{
-	// we'll need this later
-	this.sceneAssistant = sceneAssistant;
-}
-IPKGLogDialogAssistant.prototype.setup = function(widget)
-{
-	this.widget = widget;
-	
-	// load log
-	this.sceneAssistant.controller.get('logData').innerHTML = (this.sceneAssistant.ipkglog != '' ? this.sceneAssistant.ipkglog : 'No Log');
-	
-	// start scroller widget
-	this.sceneAssistant.controller.setupWidget
-	(
-		'logScroller',
-		{ },
-		{ mode: 'dominant' }
-	);
-	
-	// setup close button
-	this.sceneAssistant.controller.setupWidget
-	(
-		'closeButton',
-		this.attributes = {},
-		this.model =
-		{
-			buttonLabel: "Ok",
-			buttonClass: "palm-button",
-			disabled: false
-		}
-	);
-	
-	// start listening to close button
-	Mojo.Event.listen(this.sceneAssistant.controller.get('closeButton'), Mojo.Event.tap, this.close.bindAsEventListener(this));
-	
-}
-IPKGLogDialogAssistant.prototype.close = function(event)
-{
-	// stop listening to close button
-	Mojo.Event.stopListening(this.sceneAssistant.controller.get('closeButton'), Mojo.Event.tap, this.close.bindAsEventListener(this));
-	
-	// hide the widget
-	this.widget.mojo.close();
 }
 
 
