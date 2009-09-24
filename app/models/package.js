@@ -45,6 +45,7 @@ function packageModel(info)
 		this.category =	   this.info.Section;
 		this.version =	   this.info.Version;
 		this.maintainer =  this.info.Maintainer;
+		this.maintUrl =    false;
 		this.title =	   this.info.Description;
 		this.size =		   this.info.Size;
 		this.hasUpdate =   false;
@@ -74,6 +75,28 @@ function packageModel(info)
 			//this.versionInstalled = this.version;
 		}
 		this.versionInstalled = false;
+		
+		if (this.maintainer)
+		{
+			var r = new RegExp("^([^<]*)<([^>]*)>?"); // this one is win
+			var match = this.maintainer.match(r);
+			if (match)
+			{
+				//for(var m = 0; m < match.length; m++) alert(m + ' [' + match[m] + ']');
+				this.maintainer = trim(match[1]);
+				this.maintUrl = match[2];
+				// check if its an email
+				if (this.maintUrl.include('@'))
+				{
+					this.maintUrl = 'mailto:' + this.maintUrl;
+				}
+				// remove stupid default palm address for palm-package'd apps
+				if (this.maintUrl == 'mailto:palm@palm.com')
+				{
+					this.maintUrl = false;
+				}
+			}
+		}
 		
 		if (this.info.Depends)
 		{
@@ -235,7 +258,8 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 	{
 		if (this.type == 'Unknown' || this.type == 'Application') this.type = pkg.type;
 		if (this.category == 'Unsorted') this.category =		pkg.category;
-		if (!this.maintainer)			 this.maintainer =		pkg.Maintainer;
+		if (!this.maintainer)			 this.maintainer =		pkg.maintainer;
+		if (!this.maintUrl)				 this.maintUrl =		pkg.maintUrl;
 		if (!this.title)				 this.title =			pkg.title;
 		if (!this.size)					 this.size =			pkg.size;
 		if (!this.icon)					 this.icon =			pkg.icon;
@@ -363,12 +387,12 @@ packageModel.prototype.getForList = function(item)
 		if (item) 
 		{
 			if (this.isInstalled && !this.hasUpdate &&
-				item.pkgValue != 'updates' &&
-				item.pkgValue != 'installed')
+				item.pkgList != 'updates' &&
+				item.pkgList != 'installed')
 			{
 				listObj.rowClass += ' installed';
 			}
-			if (this.hasUpdate && item.pkgValue != 'updates')
+			if (this.hasUpdate && item.pkgList != 'updates')
 			{
 				listObj.rowClass += ' update';
 			}

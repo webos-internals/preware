@@ -154,7 +154,14 @@ PkgViewAssistant.prototype.setupData = function()
 		{
 			data += Mojo.View.render({object: {title: 'Homepage', data: '<a href="' + this.item.homepage + '">' + getDomain(this.item.homepage) + '</a>'}, template: dataTemplate});
 		}
-		data += Mojo.View.render({object: {title: 'Maintainer', data: this.item.maintainer}, template: dataTemplate});
+		if (!this.item.maintUrl)
+		{
+			data += Mojo.View.render({object: {title: 'Maintainer', data: this.item.maintainer}, template: dataTemplate});
+		}
+		else
+		{
+			data += Mojo.View.render({object: {title: 'Maintainer', data: '<a href="' + this.item.maintUrl + '">' + this.item.maintainer + '</a>'}, template: dataTemplate});
+		}
 		data += Mojo.View.render({object: {title: 'Version', data: this.item.version}, template: dataTemplate});
 		if (this.item.date)
 		{
