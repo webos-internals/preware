@@ -651,16 +651,19 @@ packageModel.prototype.onInstall = function(payload)
 		if (!payload) 
 		{
 			var msg = 'Error Installing [1]';
+			var msgError = true;
 		}
 		else 
 		{
 			if (!payload.returnValue)
 			{
 				var msg = 'Error Installing [3]';
+				var msgError = true;
 			}
 			if (payload.stage == "failed")
 			{
 				var msg = 'Error Installing [4]';
+				var msgError = true;
 			}
 			else if (payload.stage == "completed")
 			{
@@ -671,7 +674,7 @@ packageModel.prototype.onInstall = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' Install Completed';
+				var msg = this.type + ' installed';
 				
 				// do finishing stuff
 				if (this.hasFlags('install')) 
@@ -700,12 +703,24 @@ packageModel.prototype.onInstall = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' Install Probably Not Completed';
+				var msg = this.type + ' probably installed';
+				var msgError = true;
 			}
 			else return;
 		}
 		
-		this.assistant.simpleMessage(msg);
+		if (msgError)
+		{
+			this.assistant.actionMessage(
+				msg,
+				[{label:$L('Ok'), value:'ok'}, {label:$L('View Log'), value:'view-log'}],
+				this.errorLogFunction.bindAsEventListener(this)
+			);
+		}
+		else
+		{
+			this.assistant.simpleMessage(msg);
+		}
 		
 		this.assistant.endAction();
 	}
@@ -724,16 +739,19 @@ packageModel.prototype.onUpdate = function(payload)
 		if (!payload) 
 		{
 			var msg = 'Service Error Updating [1]';
+			var msgError = true;
 		}
 		else
 		{
 			if (!payload.returnValue)
 			{
 				var msg = 'Error Updating [3]';
+				var msgError = true;
 			}
 			if (payload.stage == "failed")
 			{
 				var msg = 'Error Updating [4]';
+				var msgError = true;
 			}
 			else if (payload.stage == "completed")
 			{
@@ -744,7 +762,7 @@ packageModel.prototype.onUpdate = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' Update Completed';
+				var msg = this.type + ' updated';
 				
 				// do finishing stuff
 				if (this.hasFlags('update')) 
@@ -773,12 +791,24 @@ packageModel.prototype.onUpdate = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' Update Probably Not Completed';
+				var msg = this.type + ' probably updated';
+				var msgError = true;
 			}
 			else return;
 		}
 		
-		this.assistant.simpleMessage(msg);
+		if (msgError)
+		{
+			this.assistant.actionMessage(
+				msg,
+				[{label:$L('Ok'), value:'ok'}, {label:$L('View Log'), value:'view-log'}],
+				this.errorLogFunction.bindAsEventListener(this)
+			);
+		}
+		else
+		{
+			this.assistant.simpleMessage(msg);
+		}
 		
 		this.assistant.endAction();
 	}
@@ -797,16 +827,19 @@ packageModel.prototype.onRemove = function(payload)
 		if (!payload) 
 		{
 			var msg = 'Service Error Removing [1]';
+			var msgError = true;
 		}
 		else
 		{
 			if (!payload.returnValue)
 			{
 				var msg = 'Error Removing [3]';
+				var msgError = true;
 			}
 			if (payload.stage == "failed")
 			{
 				var msg = 'Error Removing [4]';
+				var msgError = true;
 			}
 			else if (payload.stage == "completed")
 			{
@@ -818,7 +851,7 @@ packageModel.prototype.onRemove = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' Removal Completed';
+				var msg = this.type + ' removed';
 				
 				// do finishing stuff
 				if (this.hasFlags('remove')) 
@@ -848,12 +881,24 @@ packageModel.prototype.onRemove = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' Removal Probably Not Completed';
+				var msg = this.type + ' removal probably failed';
+				var msgError = true;
 			}
 			else return;
 		}
 		
-		this.assistant.simpleMessage(msg);
+		if (msgError)
+		{
+			this.assistant.actionMessage(
+				msg,
+				[{label:$L('Ok'), value:'ok'}, {label:$L('View Log'), value:'view-log'}],
+				this.errorLogFunction.bindAsEventListener(this)
+			);
+		}
+		else
+		{
+			this.assistant.simpleMessage(msg);
+		}
 		
 		this.assistant.endAction();
 	}
@@ -863,6 +908,14 @@ packageModel.prototype.onRemove = function(payload)
 	}
 }
 
+packageModel.prototype.errorLogFunction = function(value)
+{
+	if (value == 'view-log')
+	{
+		this.assistant.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+	}
+	return;
+}
 packageModel.prototype.actionFunction = function(value, type)
 {
 	if (value == 'ok') 
@@ -870,7 +923,7 @@ packageModel.prototype.actionFunction = function(value, type)
 		this.runFlags(type);
 		this.assistant.endAction();
 	}
-	return true;
+	return;
 }
 packageModel.prototype.actionMessage = function(type)
 {

@@ -125,9 +125,6 @@ IPKGService.logClear = function()
 }
 IPKGService.logPayload = function(payload, stage)
 {
-	
-	alert(payload.stage + ' - ' + stage);
-	
 	if (payload.stage)
 	{
 		this.log += '<div class="container '+(this.logNum%2?'one':'two')+'">';
