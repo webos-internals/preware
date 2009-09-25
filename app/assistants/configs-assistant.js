@@ -8,6 +8,9 @@ ConfigsAssistant.prototype.setup = function()
 	// init feed loading
 	IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 	
+	// setup toggle handler
+	this.toggleChangeHandler = this.toggleChanged.bindAsEventListener(this);
+	
 	// setup menu that is no menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
 }
@@ -47,27 +50,38 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 			{
 				for (var p in payload.configs[x]) 
 				{
-					//alert(p + ': ' + payload.configs[x][p]);
-					
+					var feedObj = 
+					{
+						name: p.replace(/.conf/, ''),
+						urls: []
+					};
+										
 					var tmpSplit1 = payload.configs[x][p].split('<br>');
 					for (var c = 0; c < tmpSplit1.length; c++)
 					{
 						if (tmpSplit1[c]) 
 						{
 							var tmpSplit2 = tmpSplit1[c].split(' ');
-							if (tmpSplit2[1]) 
-							{
-								this.feeds.push(tmpSplit2[1]);
-								
-								//alert(x + '-' + p + ': ' + tmpSplit2[1]);
-							}
+							feedObj.urls.push(tmpSplit2[2]);
 						}
 					}
+					
+					this.feeds.push(feedObj);
 				}
 			}
 			
-			// sort them (mostly so precentral is in the middle so it doesnt seem like it hangs at the end.)
-			this.feeds.sort();
+			// sort them
+			this.feeds.sort(function(a, b)
+			{
+				if (a.name && b.name)
+				{
+					return ((a.name < b.name) ? -1 : ((a.name > b.name) ? 1 : 0));
+				}
+				else
+				{
+					return -1;
+				}
+			});
 			
 			this.doneLoading();
 		}
@@ -83,55 +97,63 @@ ConfigsAssistant.prototype.doneLoading = function()
 {
 	try 
 	{
-		alert(this.feeds.length);
-	
 		if (this.feeds.length > 0) 
 		{
-			
-			this.listModel = { items: [] };
+			this.controller.get('confList').innerHTML = '';
+			var rowTemplate = 'configs/rowTemplate';	
+			var html = ''
 			
 			for (var f = 0; f < this.feeds.length; f++) 
 			{
-				alert(f + ': ' + this.feeds[f]);
 				
-				this.listModel.items.push(
+				var fancyName = this.feeds[f].name.substr(0, 1).toUpperCase() + this.feeds[f].name.substr(1);
+				var urls = '';
+				for (var u = 0; u < this.feeds[f].urls.length; u++)
 				{
-					name: this.feeds[f],
-					url: this.feeds[f]
-				});
-			}
-			
-			this.controller.setupWidget
-			(
-				'theList', 
-				{
-					itemTemplate: "configs/rowTemplate",
-					swipeToDelete: false,
-					reorderable: false
-				},
-				this.listModel
-			);
-			//this.controller.listen(this.controller.get('theList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
-			
-			for (var f = 0; f < this.feeds.length; f++) 
-			{
-				/*
-				this.controller.setupWidget
+					//if (urls != '') urls += '<br />';
+					urls += '<div class="truncating-text">' + this.feeds[f].urls[u].replace(/http:\/\//, '').replace(/www./, '') + '</div>';
+				}
+				
+				html += Mojo.View.render
 				(
-					'listInstalled',
 					{
-			  			trueLabel:  'Yes',
-			 			falseLabel: 'No',
-			  			fieldName:  'listInstalled'
-					},
-					{
-						value : this.prefs.listInstalled,
-			 			disabled: false
+						object: 
+						{
+							rowStyle: ((f+1)==this.feeds.length?'last':''),
+							toggleName: this.feeds[f].name,
+							fancyName: fancyName,
+							url: urls
+						},
+						template: rowTemplate
 					}
 				);
-				*/
-				//this.controller.listen('listInstalled', Mojo.Event.propertyChange, this.toggleChangeHandler);
 			}
+			
+			this.controller.get('confList').innerHTML = html;
+			
+			for (var f = 0; f < this.feeds.length; f++) 
+			{
+				
+				this.controller.setupWidget
+				(
+					this.feeds[f].name + '_toggle',
+					{
+			  			trueLabel:  'On',
+			 			falseLabel: 'Off'
+					},
+					{
+						value: true,
+			 			disabled: true
+					}
+				);
+				this.controller.listen(this.feeds[f].name + '_toggle', Mojo.Event.propertyChange, this.toggleChangeHandler);
+				this.controller.get(this.feeds[f].name + '_toggle').className = 'disabled';
+				
+			}
+			
+			// make it load all our widgets
+			this.controller.instantiateChildWidgets(this.controller.get('confList'));
+			
 		}
 	}
 	catch (e)
@@ -139,6 +161,11 @@ ConfigsAssistant.prototype.doneLoading = function()
 		Mojo.Log.logException(e, 'configs#doneLoading');
 		this.alertMessage('doneLoading Error', e);
 	}
+}
+
+ConfigsAssistant.prototype.toggleChanged = function(event)
+{
+	alert(event.target.id + ' - ' + event.value);
 }
 
 ConfigsAssistant.prototype.alertMessage = function(title, message)

@@ -176,6 +176,30 @@ body.palm-dark .main .progress .progress-bar
 }
 
 
+
+/*
+ * Config/Feed Scene Styles
+ */
+.configs #confList .toggle-text
+{
+	float: right;
+}
+.configs #confList .title.sub
+{
+	color: #999;
+	padding-top: 0px;
+	padding-left: 16px;
+	padding-right: 10px;
+	margin-top: -5px;
+	font-size: 14px;
+}
+.configs #confList .disabled
+{
+	opacity: 0.35;
+}
+
+
+
 /*
  * Package Category List Styles
  */

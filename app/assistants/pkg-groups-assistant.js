@@ -169,7 +169,6 @@ PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		// we want to sort this so the order isn't changed when the grouping is
 		sortItem.items.sort(function(a, b)
 		{
-			// this needs to be lowercase for sorting.
 			if (a.command && b.command)
 			{
 				return ((a.command < b.command) ? -1 : ((a.command > b.command) ? 1 : 0));
