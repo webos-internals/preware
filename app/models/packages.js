@@ -8,6 +8,63 @@ function packagesModel()
 	// we'll need these for the subscription based rawlist
 	this.subscription = false;
 	this.rawData = '';
+	
+	/* *** Type Conditions ***
+	 * launch			// can be launched by luna
+	 * update			// can be updated (installed over the top of the old version)
+	 * showScreenshots	// may have screenshots that should be displayed
+	 * showDependendent	// may have dependent packages that should be displayed
+	 */
+	this.can =
+	{
+		// major types
+		Application:
+		{
+			launch: true,
+			update: true,
+			showScreenshots: true,
+			showDependendent: true
+		},
+		Service:
+		{
+			update: true,
+			showDependendent: true
+		},
+		Plugin:
+		{
+			update: true,
+			showDependendent: true
+		},
+		Patch:
+		{
+			showDependendent: true
+		},
+		Theme:
+		{
+			showScreenshots: true
+		},
+		
+		// secondary types
+		Feed:
+		{
+			update: true,
+		},
+		Optware:
+		{
+			update: true,
+			showDependendent: true
+		},
+		'Linux Application':
+		{
+			update: true,
+			showDependendent: true
+		},
+		'System Utilities':
+		{
+			update: true,
+			showDependendent: true
+		},
+	}
 }
 
 packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
