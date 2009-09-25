@@ -411,77 +411,17 @@ body.palm-dark .pkg-view #spinner #spinnerStatus
 {
 	background: url(../images/palm-default/screenshotFade.png) repeat-x;
 }
-.pkg-view #scrollerContainer.palm-row.screenshots .fade-left
-{
-	position: fixed;
-	margin-top: -10px;
-	left: 0px;
-	z-index: 10000;
-	height: 140px;
-	width: 10px;
-	background: url(../images/palm-default/screenshotFade-left.png) top center no-repeat;
-	-webkit-palm-mouse-target: ignore;
-}
-.pkg-view #scrollerContainer.palm-row.screenshots .fade-right
-{
-	position: fixed;
-	margin-top: -10px;
-	right: 0px;
-	z-index: 10000;
-	height: 140px;
-	width: 10px;
-	background: url(../images/palm-default/screenshotFade-right.png) top center no-repeat;
-	-webkit-palm-mouse-target: ignore;
-}
 .pkg-view #scrollerContainer.palm-row.apps
 {
 	background: url(../images/palm-default/appFade.png) repeat-x;
-}
-.pkg-view #scrollerContainer.palm-row.apps .fade-left
-{
-	position: fixed;
-	margin-top: -10px;
-	left: 0px;
-	z-index: 10000;
-	height: 74px;
-	width: 10px;
-	background: url(../images/palm-default/appFade-left.png) top center no-repeat;
-	-webkit-palm-mouse-target: ignore;
-}
-.pkg-view #scrollerContainer.palm-row.apps .fade-right
-{
-	position: fixed;
-	margin-top: -10px;
-	right: 0px;
-	z-index: 10000;
-	height: 74px;
-	width: 10px;
-	background: url(../images/palm-default/appFade-right.png) top center no-repeat;
-	-webkit-palm-mouse-target: ignore;
 }
 body.palm-dark .pkg-view #scrollerContainer.palm-row.screenshots
 {
 	background: url(../images/palm-dark/screenshotFade.png) repeat-x;
 }
-body.palm-dark .pkg-view #scrollerContainer.palm-row.screenshots .fade-left
-{
-	background: url(../images/palm-dark/screenshotFade-left.png) top center no-repeat;
-}
-body.palm-dark .pkg-view #scrollerContainer.palm-row.screenshots .fade-right
-{
-	background: url(../images/palm-dark/screenshotFade-right.png) top center no-repeat;
-}
 body.palm-dark .pkg-view #scrollerContainer.palm-row.apps
 {
 	background: url(../images/palm-dark/appFade.png) repeat-x;
-}
-body.palm-dark .pkg-view #scrollerContainer.palm-row.apps .fade-left
-{
-	background: url(../images/palm-dark/appFade-left.png) top center no-repeat;
-}
-body.palm-dark .pkg-view #scrollerContainer.palm-row.apps .fade-right
-{
-	background: url(../images/palm-dark/appFade-right.png) top center no-repeat;
 }
 .pkg-view #scrollerContainer.palm-row.screenshots #viewScroller
 {
