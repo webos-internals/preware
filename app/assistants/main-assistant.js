@@ -61,17 +61,17 @@ MainAssistant.prototype.setup = function()
 		items:
 		[
 			{
+				label: "Update Feeds",
+				command: 'do-update'
+			},
+			{
 				label: "Preferences",
 				command: 'do-prefs'
 			},
 			{
-				label: "Update Feeds",
-				command: 'do-update'
-			},
-			/*{
-				label: "List Configs",
+				label: "Feeds",
 				command: 'do-configs'
-			},*/
+			},
 			{
 				label: "IPKG Log",
 				command: 'do-showLog'
@@ -429,11 +429,12 @@ MainAssistant.prototype.updateList = function()
 			{
 				name:     $L('Available Patches'),
 				style:    'disabled',
-				scene:    'pkg-list',
+				scene:    'pkg-groups',
+				pkgGroup: ['categories'],
 				pkgList:  'all',
 				pkgType:  'Patch',
 				pkgFeed:  'all',
-				pkgCat:   'all',
+				pkgCat:   '',
 				pkgCount: 0
 			});
 		}
@@ -533,12 +534,12 @@ MainAssistant.prototype.handleCommand = function(event)
 				this.controller.stageController.pushScene('preferences');
 				break;
 	
-			case 'do-update':
-				this.updateFeeds();
+			case 'do-configs':
+				this.controller.stageController.pushScene('configs');
 				break;
 	
-			case 'do-configs':
-				IPKGService.list_configs(this.onConfigs.bindAsEventListener(this));
+			case 'do-update':
+				this.updateFeeds();
 				break;
 				
 			case 'do-showLog':
@@ -548,19 +549,6 @@ MainAssistant.prototype.handleCommand = function(event)
 
 	}
 
-}
-
-MainAssistant.prototype.onConfigs = function(payload)
-{
-	var msg = "";
-	for (var x = 0; x < payload.configs.length; x++)
-	{
-		for (p in payload.configs[x]) 
-		{
-			msg += '<b>' + p + '</b>:<br />' + payload.configs[x][p];
-		}
-	}
-	this.alertMessage('IPKG Configs', '<div style="font-size: 12px;">' + msg + '</div>');
 }
 
 MainAssistant.prototype.deactivate = function(event) {}
