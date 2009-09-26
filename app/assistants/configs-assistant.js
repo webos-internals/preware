@@ -8,8 +8,77 @@ ConfigsAssistant.prototype.setup = function()
 	// init feed loading
 	IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 	
-	// setup toggle handler
-	this.toggleChangeHandler = this.toggleChanged.bindAsEventListener(this);
+	
+	
+	this.controller.setupWidget
+	(
+		'newName',
+		{
+			multiline: false,
+			enterSubmits: false,
+		},
+		{
+			value: '',
+			disabled: true // comment this for go time
+		}
+	);
+	this.controller.setupWidget
+	(
+		'newUrl',
+		{
+			multiline: false,
+			enterSubmits: false,
+		},
+		{
+			value: 'http://',
+			disabled: true // comment this for go time
+		}
+	);
+	this.controller.setupWidget
+	(
+		'newCompressed',
+		{
+  			trueLabel:  'Yes',
+ 			falseLabel: 'No',
+  			fieldName:  'newCompressed'
+		},
+		{
+			value: true,
+			//disabled: true // comment this for go time
+		}
+	);
+	this.controller.setupWidget
+	(
+		'newButton',
+		this.attributes = 
+		{
+			type: Mojo.Widget.activityButton
+		},
+		this.model =
+		{
+			buttonLabel: 'Add Feed',
+			buttonClass: 'palm-button',
+			disabled: true // comment this for go time
+		}
+	);
+	//this.controller.listen('allowServiceUpdates', Mojo.Event.propertyChange, this.toggleChangeHandler);
+	//this.controller.listen('newButton', Mojo.Event.tap, this.transferBestsButton.bindAsEventListener(this));
+	
+	
+	// setup list widget
+	this.confModel = { items: [] };
+	this.controller.setupWidget
+	(
+		'confList',
+		{
+			itemTemplate: "configs/rowTemplate",
+			//swipeToDelete: true, 
+			reorderable: false
+		},
+		this.confModel
+	);
+	this.controller.listen('confList', Mojo.Event.propertyChanged, this.confToggled.bindAsEventListener(this));
+	this.controller.listen('confList', Mojo.Event.listDelete, this.confDeleted.bindAsEventListener(this));
 	
 	// setup menu that is no menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
@@ -99,9 +168,7 @@ ConfigsAssistant.prototype.doneLoading = function()
 	{
 		if (this.feeds.length > 0) 
 		{
-			this.controller.get('confList').innerHTML = '';
-			var rowTemplate = 'configs/rowTemplate';	
-			var html = ''
+			this.confModel.items = [];
 			
 			for (var f = 0; f < this.feeds.length; f++) 
 			{
@@ -110,50 +177,24 @@ ConfigsAssistant.prototype.doneLoading = function()
 				var urls = '';
 				for (var u = 0; u < this.feeds[f].urls.length; u++)
 				{
-					//if (urls != '') urls += '<br />';
 					urls += '<div class="truncating-text">' + this.feeds[f].urls[u].replace(/http:\/\//, '').replace(/www./, '') + '</div>';
 				}
 				
-				html += Mojo.View.render
-				(
-					{
-						object: 
-						{
-							rowStyle: ((f+1)==this.feeds.length?'last':''),
-							toggleName: this.feeds[f].name,
-							fancyName: fancyName,
-							url: urls
-						},
-						template: rowTemplate
-					}
-				);
+				
+				this.confModel.items.push(
+				{
+					toggleName: this.feeds[f].name,
+					fancyName: fancyName,
+					url: urls,
+					
+					// these are for the child toggle widget
+					value: !false, // value is actually "disabled" from feeds, so "not disabled" is on and vice versa
+					disabled: true // comment this for go time
+				});
 			}
 			
-			this.controller.get('confList').innerHTML = html;
-			
-			for (var f = 0; f < this.feeds.length; f++) 
-			{
-				
-				this.controller.setupWidget
-				(
-					this.feeds[f].name + '_toggle',
-					{
-			  			trueLabel:  'On',
-			 			falseLabel: 'Off'
-					},
-					{
-						value: true,
-			 			disabled: true
-					}
-				);
-				this.controller.listen(this.feeds[f].name + '_toggle', Mojo.Event.propertyChange, this.toggleChangeHandler);
-				this.controller.get(this.feeds[f].name + '_toggle').className = 'disabled';
-				
-			}
-			
-			// make it load all our widgets
-			this.controller.instantiateChildWidgets(this.controller.get('confList'));
-			
+			this.controller.get('confList').mojo.noticeUpdatedItems(0, this.confModel.items);
+		 	this.controller.get('confList').mojo.setLength(this.confModel.items.length);
 		}
 	}
 	catch (e)
@@ -163,9 +204,18 @@ ConfigsAssistant.prototype.doneLoading = function()
 	}
 }
 
-ConfigsAssistant.prototype.toggleChanged = function(event)
+ConfigsAssistant.prototype.confToggled = function(event)
 {
-	alert(event.target.id + ' - ' + event.value);
+	// make sure this is a toggle button
+	if (event.property == 'value' && event.target.id.include('_toggle')) 
+	{
+		alert(event.target.id.replace(/_toggle/, '') + ' isDisabled: ' + !event.value);
+	}
+}
+
+ConfigsAssistant.prototype.confDeleted = function(event)
+{
+	alert ('Delete: ' + event.item.toggleName);
 }
 
 ConfigsAssistant.prototype.alertMessage = function(title, message)
@@ -182,3 +232,4 @@ ConfigsAssistant.prototype.alertMessage = function(title, message)
 ConfigsAssistant.prototype.activate = function(event) {}
 ConfigsAssistant.prototype.deactivate = function(event) {}
 ConfigsAssistant.prototype.cleanup = function(event) {}
+

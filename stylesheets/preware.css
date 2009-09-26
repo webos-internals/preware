@@ -193,7 +193,9 @@ body.palm-dark .main .progress .progress-bar
 	margin-top: -5px;
 	font-size: 14px;
 }
-.configs #confList .disabled
+.configs #confList .disabled,
+.configs #confList .disabled *,
+.configs .palm-group.disabled
 {
 	opacity: 0.35;
 }

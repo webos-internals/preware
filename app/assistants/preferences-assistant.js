@@ -178,9 +178,19 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('secretPreferences').style.display = 'none';
 		
 		
-		
-		// setup menu that is no menu
-		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
+		// setup menu
+		var menuModel =
+		{
+			visible: true,
+			items:
+			[
+				{
+					label: "Feeds",
+					command: 'do-configs'
+				}
+			]
+		}
+		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
 		
 	}
 	catch (e)
@@ -206,6 +216,21 @@ PreferencesAssistant.prototype.toggleChanged = function(event)
 {
 	this.prefs[event.target.id] = event.value;
 	this.cookie.put(this.prefs);
+}
+
+PreferencesAssistant.prototype.handleCommand = function(event)
+{
+	if (event.type == Mojo.Event.command)
+	{
+		switch (event.command)
+		{
+			case 'do-configs':
+				this.controller.stageController.pushScene('configs');
+				break;
+		}
+
+	}
+
 }
 
 PreferencesAssistant.prototype.keyPress = function(event)

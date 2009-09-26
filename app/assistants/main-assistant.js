@@ -61,16 +61,12 @@ MainAssistant.prototype.setup = function()
 		items:
 		[
 			{
-				label: "Update Feeds",
-				command: 'do-update'
-			},
-			{
 				label: "Preferences",
 				command: 'do-prefs'
 			},
 			{
-				label: "Feeds",
-				command: 'do-configs'
+				label: "Update Feeds",
+				command: 'do-update'
 			},
 			{
 				label: "IPKG Log",
@@ -532,10 +528,6 @@ MainAssistant.prototype.handleCommand = function(event)
 		{
 			case 'do-prefs':
 				this.controller.stageController.pushScene('preferences');
-				break;
-	
-			case 'do-configs':
-				this.controller.stageController.pushScene('configs');
 				break;
 	
 			case 'do-update':
