@@ -209,12 +209,11 @@ packageModel.prototype.infoUpdate = function(newPackage)
 			return false;
 		}
 		
-		
 		if (!newPackage.isInstalled && this.isInstalled && !newer)
 		{
 			//alert('Replace Type: 3');
 			this.isInstalled = true;
-			this.hasUpdate = false;
+			//this.hasUpdate = false; // this fixes the not update thing?
 			this.versionInstalled = newPackage.version;
 			this.infoLoadMissing(newPackage);
 			return false;
@@ -224,7 +223,7 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		{
 			//alert('Replace Type: 4');
 			newPackage.isInstalled = true;
-			newPackage.hasUpdate = false;
+			//newPackage.hasUpdate = false; // this fixes the not update thing?
 			newPackage.versionInstalled = this.version;
 			newPackage.infoLoadMissing(this);
 			return newPackage;
@@ -267,6 +266,7 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 		if (!this.homepage)				 this.homepage =		pkg.homepage;
 		if (!this.description)			 this.description =		pkg.description;
 		if (!this.isInstalled)			 this.isInstalled =		pkg.isInstalled;
+		if (!this.hasUpdate)			 this.hasUpdate =		pkg.hasUpdate;
 		if (!this.dateInstalled)		 this.dateInstalled =	pkg.dateInstalled;
 		if (!this.sizeInstalled)		 this.sizeInstalled =	pkg.sizeInstalled;
 		
