@@ -33,7 +33,8 @@ prefCookie.prototype.get = function(reload)
 				autoInstallUpdates: false,
 				
 				// Hidden Advanced Group
-				allowServiceUpdates: false
+				//allowServiceUpdates: false
+				allowFlagSkip: false
 			};
 			
 			var cookieData = this.cookie.get();

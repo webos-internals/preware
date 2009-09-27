@@ -160,19 +160,19 @@ PreferencesAssistant.prototype.setup = function()
 		
 		this.controller.setupWidget
 		(
-			'allowServiceUpdates',
+			'allowFlagSkip',
 			{
 	  			trueLabel:  'Yes',
 	 			falseLabel: 'No',
-	  			fieldName:  'allowServiceUpdates'
+	  			fieldName:  'allowFlagSkip'
 			},
 			{
-				value : this.prefs.allowServiceUpdates,
+				value : this.prefs.allowFlagSkip,
 	 			disabled: false
 			}
 		);
 		
-		this.controller.listen('allowServiceUpdates', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		this.controller.listen('allowFlagSkip', Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		// hide secret group
 		this.controller.get('secretPreferences').style.display = 'none';
@@ -246,9 +246,8 @@ PreferencesAssistant.prototype.keyPress = function(event)
 	{
 		if (this.secretString === this.secretAnswer)
 		{
-			// dont show the secret settings because they're no longer needed
-			//this.controller.get('secretPreferences').style.display = '';
-			//this.controller.getSceneScroller().mojo.revealElement(this.controller.get('secretPreferences'));
+			this.controller.get('secretPreferences').style.display = '';
+			this.controller.getSceneScroller().mojo.revealElement(this.controller.get('secretPreferences'));
 			this.secretString = '';
 		}
 	}

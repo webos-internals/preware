@@ -681,7 +681,7 @@ packageModel.prototype.onInstall = function(payload)
 				{
 					this.assistant.actionMessage(
 						msg + ':<br /><br />' + this.actionMessage('install'),
-						[{label:$L('Ok'), value:'ok'}],
+						(!prefs.get().allowFlagSkip?[{label:$L('Ok'), value:'ok'}]:[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}]),
 						this.actionFunction.bindAsEventListener(this, 'install')
 					);
 					return;
@@ -713,7 +713,7 @@ packageModel.prototype.onInstall = function(payload)
 		{
 			this.assistant.actionMessage(
 				msg,
-				[{label:$L('Ok'), value:'ok'}, {label:$L('View Log'), value:'view-log'}],
+				[{label:$L('Ok'), value:'ok'}, {label:$L('IPKG Log'), value:'view-log'}],
 				this.errorLogFunction.bindAsEventListener(this)
 			);
 		}
@@ -769,7 +769,7 @@ packageModel.prototype.onUpdate = function(payload)
 				{
 					this.assistant.actionMessage(
 						msg + ':<br /><br />' + this.actionMessage('update'),
-						[{label:$L('Ok'), value:'ok'}],
+						(!prefs.get().allowFlagSkip?[{label:$L('Ok'), value:'ok'}]:[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}]),
 						this.actionFunction.bindAsEventListener(this, 'update')
 					);
 					return;
@@ -801,7 +801,7 @@ packageModel.prototype.onUpdate = function(payload)
 		{
 			this.assistant.actionMessage(
 				msg,
-				[{label:$L('Ok'), value:'ok'}, {label:$L('View Log'), value:'view-log'}],
+				[{label:$L('Ok'), value:'ok'}, {label:$L('IPKG Log'), value:'view-log'}],
 				this.errorLogFunction.bindAsEventListener(this)
 			);
 		}
@@ -858,7 +858,7 @@ packageModel.prototype.onRemove = function(payload)
 				{
 					this.assistant.actionMessage(
 						msg + ':<br /><br />' + this.actionMessage('remove'),
-						[{label:$L('Ok'), value:'ok'}],
+						(!prefs.get().allowFlagSkip?[{label:$L('Ok'), value:'ok'}]:[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}]),
 						this.actionFunction.bindAsEventListener(this, 'remove')
 					);
 					return;
@@ -874,8 +874,8 @@ packageModel.prototype.onRemove = function(payload)
 			else if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
 				// update info
-				this.hasUpdate = false;
-				this.isInstalled = false;
+				//this.hasUpdate = false;
+				//this.isInstalled = false;
 				
 				// cancel the subscription
 				this.subscription.cancel();
@@ -891,7 +891,7 @@ packageModel.prototype.onRemove = function(payload)
 		{
 			this.assistant.actionMessage(
 				msg,
-				[{label:$L('Ok'), value:'ok'}, {label:$L('View Log'), value:'view-log'}],
+				[{label:$L('Ok'), value:'ok'}, {label:$L('IPKG Log'), value:'view-log'}],
 				this.errorLogFunction.bindAsEventListener(this)
 			);
 		}
@@ -921,8 +921,8 @@ packageModel.prototype.actionFunction = function(value, type)
 	if (value == 'ok') 
 	{
 		this.runFlags(type);
-		this.assistant.endAction();
 	}
+	this.assistant.endAction();
 	return;
 }
 packageModel.prototype.actionMessage = function(type)
