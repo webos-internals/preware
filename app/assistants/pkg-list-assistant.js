@@ -44,17 +44,14 @@ function PkgListAssistant(item, searchText, currentSort)
 		{
 			this.currentSort = 'date';
 		}
-		else // listSort is empty or 'default 
+		else // listSort is empty or 'default'
 		{
-			if (this.item.list == 'categories' ||
-				this.item.pkgValue == 'installed') 
+			if (this.item.pkgList == 'installed') 
 			{
 				this.currentSort = 'alpha';
 			}
-			else if (this.item.pkgValue == 'updates' ||
-					this.item.pkgType == 'all' ||
-					this.item.list == 'feeds' ||
-					this.item.list == 'types') 
+			else if (this.item.pkgCat == 'all' ||
+					 (this.item.pkgFeed != 'all' && this.item.pkgFeed != ''))
 			{
 				this.currentSort = 'date';
 			}
