@@ -268,8 +268,12 @@ body.palm-dark .pkg-list #searchText
 	height:35px;
 	line-height: 33px;
 	border-width: 0px 22px 0px 16px;
-	-webkit-border-image:url(../images/header-selector.png) 0 22 0 16 stretch stretch;
+	-webkit-border-image:url(../images/palm-default/header-selector.png) 0 22 0 16 stretch stretch;
 	-webkit-box-sizing: border-box;
+}
+body.palm-dark .pkg-list .group-source 
+{
+	-webkit-border-image:url(../images/palm-dark/header-selector.png) 0 22 0 16 stretch stretch;
 }
 .pkg-list .group-selector 
 {
@@ -278,7 +282,7 @@ body.palm-dark .pkg-list #searchText
 	background: transparent;
 	display:inline-block;
 	min-width: 12px;
-	max-width: 85px;
+	max-width: 80px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;

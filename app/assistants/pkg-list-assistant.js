@@ -70,12 +70,15 @@ PkgListAssistant.prototype.setup = function()
 	this.controller.get('listTitle').innerHTML = this.item.name;
 	
 	// change scene if this is a single group
-	if (this.item.pkgValue == 'group')
+	if (this.item.pkgGroup)
 	{
 		// update submenu styles
 		this.controller.get('pkgListHeader').className = 'palm-header left';
 		this.controller.get('groupSource').style.display = 'inline';
-		this.controller.get('groupTitle').innerHTML = this.item.pkgGroup;
+		
+		if (this.item.pkgGroup[0]		== 'types')			this.controller.get('groupTitle').innerHTML = this.item.pkgType;
+		else if (this.item.pkgGroup[0]	== 'feeds')			this.controller.get('groupTitle').innerHTML = this.item.pkgFeed;
+		else if (this.item.pkgGroup[0]	== 'categories')	this.controller.get('groupTitle').innerHTML = this.item.pkgCat;
 		
 		// listen for tap to open menu
 		Mojo.Event.listen(this.controller.get('groupSource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
@@ -238,12 +241,12 @@ PkgListAssistant.prototype.getDivider = function(item)
 		{
 			// a number of different date breakdowns
 			var now = Math.round(new Date().getTime()/1000.0);
-			if      (now - item.date <= 86400)	  return 'Today';
-			else if (now - item.date <= 172800)  return 'Yesterday';
-			else if (now - item.date <= 604800)  return 'This Week';
-			else if (now - item.date <= 1209600) return 'Last Week';
-			else if (now - item.date <= 2629744) return 'This Month';
-			else if (now - item.date <= 5259488) return 'Last Month';
+			if      (now - item.date <= 86400)		return 'Today';
+			else if (now - item.date <= 172800)		return 'Yesterday';
+			else if (now - item.date <= 604800)		return 'This Week';
+			else if (now - item.date <= 1209600)	return 'Last Week';
+			else if (now - item.date <= 2629744)	return 'This Month';
+			else if (now - item.date <= 5259488)	return 'Last Month';
 			else return 'Older'; // for things 2 months or older
 		}
 		else
@@ -396,33 +399,36 @@ PkgListAssistant.prototype.listTapHandler = function(event)
 PkgListAssistant.prototype.menuTapHandler = function(event)
 {
 	// build group list model
-	var groupMenu =  packages.getGroups(this.item);
+	var groupMenu = packages.getGroups(this.item);
 	
-	alert(this.item.pkgGroup);
+	var selectedCmd = false;
+	if (this.item.pkgGroup[0]		== 'types')			selectedCmd = this.item.pkgType;
+	else if (this.item.pkgGroup[0]	== 'feeds')			selectedCmd = this.item.pkgFeed;
+	else if (this.item.pkgGroup[0]	== 'categories')	selectedCmd = this.item.pkgCat;
 	
 	// open category selector
 	this.controller.popupSubmenu(
 	{
 		onChoose: function(value)
 		{
-			if (value === null || value == "" || value == undefined ||
-				(this.item.pkgValue == 'group' && this.item.pkgGroup == value)) 
-			{
-				return;
-			}
-			else
-			{
-				this.item.pkgGroup = value;
-				if (this.item.pkgValue == 'group')
-				{
-					this.controller.stageController.swapScene('pkg-list', this.item);
-				}
-				return;
-			}
+			if (value === null || value == "" || value == undefined) return;
+			if (this.item.pkgGroup[0]		== 'types' &&
+				this.item.pkgType			== value) return;
+			else if (this.item.pkgGroup[0]	== 'feeds' &&
+					 this.item.pkgFeed		== value) return;
+			else if (this.item.pkgGroup[0]	== 'categories' &&
+					 this.item.pkgCat		== value) return;
+			
+			if (this.item.pkgGroup[0]		== 'types')			this.item.pkgType	= value;
+			else if (this.item.pkgGroup[0]	== 'feeds')			this.item.pkgFeed	= value;
+			else if (this.item.pkgGroup[0]	== 'categories')	this.item.pkgCat	= value;
+			
+			this.controller.stageController.swapScene('pkg-list', this.item);
+			return;
 			
 		},
 		popupClass: 'group-popup',
-		toggleCmd: this.item.pkgGroup,
+		toggleCmd: selectedCmd,
 		placeNear: event.target,
 		items: groupMenu
 	});
