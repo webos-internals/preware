@@ -232,8 +232,12 @@ body.palm-dark .main .progress .progress-bar
 	padding-top: 2px;
 	padding-left: 1px;
 	border-width: 10px 25px 10px 25px;
-	-webkit-border-image: url(../images/search-box.png) 10 25 10 25 stretch stretch;
+	-webkit-border-image: url(../images/palm-default/search-box.png) 10 25 10 25 stretch stretch;
 	-webkit-box-sizing: border-box;
+}
+body.palm-dark .pkg-list #searchText
+{
+	-webkit-border-image: url(../images/palm-dark/search-box.png) 10 25 10 25 stretch stretch;
 }
 .pkg-list #searchText input
 {
