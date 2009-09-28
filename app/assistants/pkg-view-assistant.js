@@ -14,6 +14,9 @@ function PkgViewAssistant(item, listAssistant)
 		label: $L('Menu'), 
 		items: []
 	};
+	
+	// load stayawake class
+	this.stayAwake = new stayAwake();
 }
 
 PkgViewAssistant.prototype.setup = function()
@@ -300,6 +303,9 @@ PkgViewAssistant.prototype.handleCommand = function(event)
  */
 PkgViewAssistant.prototype.startAction = function()
 {
+	// this is the start of the stayawake class to keep it awake till we're done with it
+	this.stayAwake.start();
+	
 	// start action is to hide this menu
 	this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 	
@@ -319,6 +325,9 @@ PkgViewAssistant.prototype.displayAction = function(msg)
 }
 PkgViewAssistant.prototype.endAction = function()
 {
+	// we're done loading so let the phone sleep if it needs to
+	this.stayAwake.end();
+	
 	// end action action is to stop the spinner
 	this.spinnerModel.spinning = false;
 	this.controller.modelChanged(this.spinnerModel);
