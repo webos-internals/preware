@@ -37,6 +37,7 @@ function packagesModel()
 		},
 		Patch:
 		{
+			showScreenshots: true,
 			showDependendent: true
 		},
 		Theme:
