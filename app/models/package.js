@@ -50,6 +50,7 @@ function packageModel(info)
 		this.size =		   this.info.Size;
 		this.hasUpdate =   false;
 		this.icon =		   false;
+		this.iconImg =     {object: false, loaded: false, target: false};
 		this.date =		   false;
 		this.feeds =	   ['Unknown'];
 		this.feedString =  'Unknown';
@@ -350,6 +351,44 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 	}
 }
 
+packageModel.prototype.iconFill = function(target)
+{
+	if (this.icon) 
+	{
+		if (this.iconImg.loaded) 
+		{
+			target.style.backgroundImage = 'url(' + this.icon + ')';
+		}
+		else 
+		{
+			this.iconImg.target = target;
+			this.iconInit();
+		}
+	}
+}
+packageModel.prototype.iconInit = function()
+{
+	if (this.icon) 
+	{
+		doc = Mojo.Controller.appController.getStageController(mainStageName).document;
+		// think that above line was too roundabout? well it works, so whatever... (btw: mainStageName is setup in the app-assistant)
+		this.iconImg.object = doc.createElement('img');
+		this.iconImg.object.onload = this.iconOnLoad.bind(this);
+		this.iconImg.object.src = this.icon;
+	}
+	
+}
+packageModel.prototype.iconOnLoad = function()
+{
+	this.iconImg.object.onload = undefined; // remove the listener
+	this.iconImg.loaded = true;
+	if (this.iconImg.target)
+	{
+		this.iconImg.target.style.backgroundImage = 'url(' + this.icon + ')';
+		this.iconImg.target = false;
+	}
+}
+
 // checks if this package is in the feed
 packageModel.prototype.inFeed = function(feed)
 {
@@ -378,11 +417,13 @@ packageModel.prototype.getForList = function(item)
 		
 		listObj.rowClass = '';
 		
+		/*
 		if (this.icon)
 		{
 			listObj.rowClass += ' img';
 			listObj.icon = '<img src="' + this.icon + '" />';
 		}
+		*/
 		
 		if (item) 
 		{

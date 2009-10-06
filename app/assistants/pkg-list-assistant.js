@@ -210,7 +210,8 @@ PkgListAssistant.prototype.setupList = function()
 	{
 		itemTemplate: "pkg-list/rowTemplate",
 		swipeToDelete: false,
-		reorderable: false
+		reorderable: false,
+		onItemRendered: this.itemRendered.bind(this)
 	};
 	
 	// setp dividers templates
@@ -231,6 +232,10 @@ PkgListAssistant.prototype.setupList = function()
 	
 	// setup list widget
 	this.controller.setupWidget('pkgList', this.listAttributes, this.listModel);
+}
+PkgListAssistant.prototype.itemRendered = function(listWidget, itemModel, itemNode)
+{
+	packages.packages[itemModel.pkgNum].iconFill(this.controller.get('icon-' + itemModel.pkgNum));
 }
 PkgListAssistant.prototype.getDivider = function(item)
 {

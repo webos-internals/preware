@@ -1,9 +1,11 @@
 function AppAssistant() {}
 
+var mainStageName = 'preware-main';
+var dashStageName = 'preware-dash';
+
 AppAssistant.prototype.handleLaunch = function() {
 
-	var stageName = 'catalog';
-	var mainStageController = this.controller.getStageController(stageName);
+	var mainStageController = this.controller.getStageController(mainStageName);
 	
 	try
 	{
@@ -21,7 +23,7 @@ AppAssistant.prototype.handleLaunch = function() {
 			};
 			
 			// launch the stage
-			this.controller.createStageWithCallback({name: stageName, lightweight: true}, f);
+			this.controller.createStageWithCallback({name: mainStageName, lightweight: true}, f);
 		}
 	}
 	catch (e)

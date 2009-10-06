@@ -299,17 +299,9 @@ body.palm-dark .pkg-list .group-source
 	width: 48px;
 	height: 48px;
 	background: url(../images/noIcon.png) center center no-repeat;
+	-webkit-background-size: 48px 48px;
 	top: 3px;
 	left: 4px;
-}
-.pkg-list .palm-row-wrapper.img .icon
-{
-	background: none;
-}
-.pkg-list .palm-row-wrapper.img .icon img
-{
-	width: 48px;
-	height: 48px;
 }
 .pkg-list .palm-row-wrapper.installed .icon .sub
 {
