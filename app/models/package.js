@@ -92,7 +92,8 @@ function packageModel(info)
 					this.maintUrl = 'mailto:' + this.maintUrl;
 				}
 				// remove stupid default palm address for palm-package'd apps
-				if (this.maintUrl == 'mailto:palm@palm.com')
+				if (this.maintUrl == 'mailto:palm@palm.com' ||		// v1.1 style
+					this.maintUrl == 'mailto:nobody@example.com')	// v1.2 style
 				{
 					this.maintUrl = false;
 				}
