@@ -256,11 +256,11 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 {
 	try
 	{
+		if (!this.title || this.title == 'This is a webOS application.') this.title = pkg.title;
 		if (this.type == 'Unknown' || this.type == 'Application') this.type = pkg.type;
 		if (this.category == 'Unsorted') this.category =		pkg.category;
 		if (!this.maintainer)			 this.maintainer =		pkg.maintainer;
 		if (!this.maintUrl)				 this.maintUrl =		pkg.maintUrl;
-		if (!this.title)				 this.title =			pkg.title;
 		if (!this.size)					 this.size =			pkg.size;
 		if (!this.icon)					 this.icon =			pkg.icon;
 		if (!this.date)					 this.date =			pkg.date;
