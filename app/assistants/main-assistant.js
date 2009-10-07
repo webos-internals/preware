@@ -321,9 +321,10 @@ MainAssistant.prototype.onFeeds = function(payload)
 			// load feeds
 			for (var x = 0; x < payload.configs.length; x++)
 			{
-				for (var p in payload.configs[x]) 
-				{
-					var tmpSplit1 = payload.configs[x][p].split('<br>');
+				//for (var p in payload.configs[x]) 
+				//{
+					//var tmpSplit1 = payload.configs[x][p].split('<br>');
+					var tmpSplit1 = payload.configs[x].contents.split('<br>');
 					for (var c = 0; c < tmpSplit1.length; c++)
 					{
 						if (tmpSplit1[c]) 
@@ -336,7 +337,7 @@ MainAssistant.prototype.onFeeds = function(payload)
 							}
 						}
 					}
-				}
+				//}
 			}
 			
 			// sort them (mostly so precentral is in the middle so it doesnt seem like it hangs at the end.)

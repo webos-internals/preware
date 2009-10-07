@@ -9,7 +9,6 @@ ConfigsAssistant.prototype.setup = function()
 	IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 	
 	
-	
 	this.controller.setupWidget
 	(
 		'newName',
@@ -72,7 +71,7 @@ ConfigsAssistant.prototype.setup = function()
 		'confList',
 		{
 			itemTemplate: "configs/rowTemplate",
-			//swipeToDelete: true, 
+			swipeToDelete: true, // uncomment this for go time
 			reorderable: false
 		},
 		this.confModel
@@ -117,15 +116,18 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 			// load feeds
 			for (var x = 0; x < payload.configs.length; x++)
 			{
-				for (var p in payload.configs[x]) 
-				{
+				//for (var p in payload.configs[x]) 
+				//{
 					var feedObj = 
 					{
-						name: p.replace(/.conf/, ''),
-						urls: []
+						//name: p.replace(/.conf/, ''),
+						name: payload.configs[x].config.replace(/.conf/, ''),
+						urls: [],
+						enabled: payload.configs[x].enabled
 					};
-										
-					var tmpSplit1 = payload.configs[x][p].split('<br>');
+					
+					//var tmpSplit1 = payload.configs[x][p].split('<br>');
+					var tmpSplit1 = payload.configs[x].contents.split('<br>');
 					for (var c = 0; c < tmpSplit1.length; c++)
 					{
 						if (tmpSplit1[c]) 
@@ -136,7 +138,7 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 					}
 					
 					this.feeds.push(feedObj);
-				}
+				//}
 			}
 			
 			// sort them
@@ -188,8 +190,8 @@ ConfigsAssistant.prototype.doneLoading = function()
 					url: urls,
 					
 					// these are for the child toggle widget
-					value: !false, // value is actually "disabled" from feeds, so "not disabled" is on and vice versa
-					disabled: true // comment this for go time
+					//disabled: true, // comment this for go time
+					value: this.feeds[f].enabled
 				});
 			}
 			
@@ -209,7 +211,7 @@ ConfigsAssistant.prototype.confToggled = function(event)
 	// make sure this is a toggle button
 	if (event.property == 'value' && event.target.id.include('_toggle')) 
 	{
-		alert(event.target.id.replace(/_toggle/, '') + ' isDisabled: ' + !event.value);
+		alert(event.target.id.replace(/_toggle/, '') + ' - ' + event.value);
 	}
 }
 
