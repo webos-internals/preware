@@ -139,6 +139,9 @@ PkgListAssistant.prototype.setup = function()
 	
 	// setup menu that is no menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
+	
+	// set this scene's default transition
+	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 }
 
 PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
@@ -184,7 +187,8 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				if (this.currentSort !== event.command) 
 				{
 					this.currentSort = event.command;
-					this.controller.stageController.swapScene('pkg-list', this.item, this.searchText, this.currentSort);
+					//this.controller.stageController.swapScene('pkg-list', this.item, this.searchText, this.currentSort);
+					this.controller.stageController.swapScene({name: 'pkg-list', transition: Mojo.Transition.crossFade}, this.item, this.searchText, this.currentSort);
 				}
 				break;
 				
@@ -295,11 +299,20 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 		{
 			aTime = 0;
 			bTime = 0;
+			toReturn = 0;
 			
 			if (a.date) aTime = a.date;
 			if (b.date) bTime = b.date;
+			toReturn = bTime - aTime;
 			
-			return bTime - aTime;
+			if (toReturn == 0)
+			{	// if date is the same, sort by title so things aren't jumbled
+				aTitle = a.title.toLowerCase();
+				bTitle = b.title.toLowerCase();
+				toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+			}
+			
+			return toReturn
 		});
 	}
 	
@@ -428,7 +441,8 @@ PkgListAssistant.prototype.menuTapHandler = function(event)
 			else if (this.item.pkgGroup[0]	== 'feeds')			this.item.pkgFeed	= value;
 			else if (this.item.pkgGroup[0]	== 'categories')	this.item.pkgCat	= value;
 			
-			this.controller.stageController.swapScene('pkg-list', this.item);
+			//this.controller.stageController.swapScene('pkg-list', this.item);
+			this.controller.stageController.swapScene({name: 'pkg-list', transition: Mojo.Transition.crossFade}, this.item);
 			return;
 			
 		},

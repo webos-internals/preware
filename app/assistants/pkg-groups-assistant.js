@@ -58,6 +58,9 @@ PkgGroupsAssistant.prototype.setup = function()
 	
 	// setup menu that is no menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
+	
+	// set this scene's default transition
+	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 }
 
 PkgGroupsAssistant.prototype.listTapHandler = function(event, swap)
@@ -90,7 +93,8 @@ PkgGroupsAssistant.prototype.listTapHandler = function(event, swap)
 	{
 		if (swap) 
 		{
-			this.controller.stageController.swapScene('pkg-list', newItem);
+			//this.controller.stageController.swapScene('pkg-list', newItem);
+			this.controller.stageController.swapScene({name: 'pkg-list', transition: Mojo.Transition.crossFade}, newItem);
 		}
 		else 
 		{
@@ -137,7 +141,8 @@ PkgGroupsAssistant.prototype.listTapHandler = function(event, swap)
 		
 		if (swap) 
 		{
-			this.controller.stageController.swapScene('pkg-groups', newItem);
+			//this.controller.stageController.swapScene('pkg-groups', newItem);
+			this.controller.stageController.swapScene({name: 'pkg-groups', transition: Mojo.Transition.crossFade}, newItem);
 		}
 		else 
 		{
@@ -233,7 +238,8 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 						}
 					}
 					this.item.pkgGroup = newPkgGroup;
-					this.controller.stageController.swapScene('pkg-groups', this.item);
+					//this.controller.stageController.swapScene('pkg-groups', this.item);
+					this.controller.stageController.swapScene({name: 'pkg-groups', transition: Mojo.Transition.crossFade}, this.item);
 				}
 				break;
 				
