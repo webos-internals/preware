@@ -21,12 +21,36 @@ function UpdateAssistant(scene, var1, var2, var3)
 	
 	// required ipkgservice
 	this.ipkgServiceVersion = 4;
+	
+	// setup menu
+	this.menuModel =
+	{
+		visible: true,
+		items:
+		[
+			{
+				label: "Preferences",
+				command: 'do-prefs'
+			},
+			{
+				label: "Update Feeds",
+				command: 'do-update'
+			},
+			{
+				label: "Help",
+				command: 'do-help'
+			}
+		]
+	}
 }
 
 UpdateAssistant.prototype.setup = function()
 {
-	// setup menu that is no menu
-	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
+	// set theme because this is the first scene pushed
+	this.controller.document.body.className = prefs.get().theme;
+	
+	// setup menu
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
 	// clear log
 	IPKGService.logClear();
@@ -76,6 +100,13 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 {
 	// the onlyLoad specifies if we should go straight to loading or not
 	// even if there is an internet connection
+	
+	// clear some packages stuff (incase an update is already in progress)
+	packages.feeds = [];
+	if (packages.subscription)
+	{
+		packages.subscription.cancel();
+	}
 	
 	// start and show the spinner
 	this.spinnerModel.spinning = true;
@@ -317,6 +348,31 @@ UpdateAssistant.prototype.doneUpdating = function()
 	
 	// swap to the scene passed when we were initialized:
 	this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
+}
+
+UpdateAssistant.prototype.handleCommand = function(event)
+{
+	if (event.type == Mojo.Event.command)
+	{
+		switch (event.command)
+		{
+			case 'do-prefs':
+				this.controller.stageController.pushScene('preferences');
+				break;
+			
+			case 'do-update':
+				this.updateFeeds();
+				break;
+			
+			case 'do-showLog':
+				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+				break;
+			
+			case 'do-help':
+				this.controller.stageController.pushScene('help');
+				break;
+		}
+	}
 }
 
 UpdateAssistant.prototype.alertMessage = function(title, message)

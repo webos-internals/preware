@@ -8,13 +8,10 @@ function MainAssistant()
 		'The Universal Application Installer',
 		'Accessing All Open Standard Feeds',
 		'The Advanced Homebrew Installer' // double billing
-	];
-}
-
-MainAssistant.prototype.setup = function()
-{
+	]
+	
 	// setup menu
-	var menuModel =
+	this.menuModel =
 	{
 		visible: true,
 		items:
@@ -33,14 +30,17 @@ MainAssistant.prototype.setup = function()
 			}
 		]
 	}
-	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
-	
-	// set theme
-	this.controller.document.body.className = prefs.get().theme;
+}
+
+MainAssistant.prototype.setup = function()
+{
 	
 	// set version string random subtitle
 	this.controller.get('version').innerHTML = "v" + Mojo.Controller.appInfo.version;
 	this.controller.get('subTitle').innerHTML = this.randomSub[Math.floor(Math.random() * this.randomSub.length)];
+	
+	// setup menu
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
 	// setup list widget
 	this.mainModel = { items: [] };
@@ -207,11 +207,11 @@ MainAssistant.prototype.handleCommand = function(event)
 				break;
 	
 			case 'do-update':
-				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade});
+				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'main');
 				break;
 				
 			case 'do-showLog':
-				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true}, 'main');
+				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
 				break;
 				
 			case 'do-help':

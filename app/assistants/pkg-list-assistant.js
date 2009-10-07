@@ -57,11 +57,28 @@ function PkgListAssistant(item, searchText, currentSort)
 			}
 			else this.currentSort = 'alpha';
 		}
-		
 	}
 	
-	// the pkg view will update this if the pkg is changed so the list knows when to update on activation
-	this.reloadList = false;
+	// setup menu
+	this.menuModel =
+	{
+		visible: true,
+		items:
+		[
+			{
+				label: "Preferences",
+				command: 'do-prefs'
+			},
+			{
+				label: "Update Feeds",
+				command: 'do-update'
+			},
+			{
+				label: "Help",
+				command: 'do-help'
+			}
+		]
+	}
 }
 
 PkgListAssistant.prototype.setup = function()
@@ -84,8 +101,8 @@ PkgListAssistant.prototype.setup = function()
 		Mojo.Event.listen(this.controller.get('groupSource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
 	}
 	
-	// update listModel
-	this.updateList(true);
+	// setup menu
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
 	// setup list widget
 	this.setupList();
@@ -137,11 +154,13 @@ PkgListAssistant.prototype.setup = function()
 		//this.controller.get('searchText').mojo.setValue(this.searchText);
 	}
 	
-	// setup menu that is no menu
-	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
-	
 	// set this scene's default transition
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
+}
+
+PkgListAssistant.prototype.aboutToActivate = function(event)
+{
+	this.updateList();
 }
 
 PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
@@ -199,6 +218,22 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				    message: 'This Does Nothing Yet!',
 				    choices:[{label:$L('Ok'), value:""}]
 			    });
+				break;
+				
+			case 'do-prefs':
+				this.controller.stageController.pushScene('preferences');
+				break;
+	
+			case 'do-update':
+				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'pkg-list', this.item, this.searchText, this.currentSort);
+				break;
+				
+			case 'do-showLog':
+				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+				break;
+				
+			case 'do-help':
+				this.controller.stageController.pushScene('help');
 				break;
 				
 			default:
@@ -397,10 +432,10 @@ PkgListAssistant.prototype.filter = function(skipUpdate)
 		// reload list
 		this.controller.get('pkgList').mojo.noticeUpdatedItems(0, this.listModel.items);
 	 	this.controller.get('pkgList').mojo.setLength(this.listModel.items.length);
-		if (!this.reloadList) 
+		/*if (!this.reloadList) 
 		{
 			this.controller.get('pkgList').mojo.revealItem(0, true);
-		}
+		}*/
 		
 		// stop spinner
 		this.spinnerModel.spinning = false;
@@ -453,21 +488,6 @@ PkgListAssistant.prototype.menuTapHandler = function(event)
 	});
 }
 
-PkgListAssistant.prototype.setReload = function()
-{
-	this.reloadList = true;
-}
-
-PkgListAssistant.prototype.activate = function(event)
-{
-	if (this.reloadList) 
-	{
-		this.updateList();
-		this.updateCommandMenu();
-		this.reloadList = false;
-	}
-}
-PkgListAssistant.prototype.deactivate = function(event) {}
 PkgListAssistant.prototype.cleanup = function(event)
 {
 	// clean up our listeners

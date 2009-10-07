@@ -23,7 +23,28 @@ function PkgGroupsAssistant(item)
 	{
 		label: $L('Menu'), 
 		items: []
-	};
+	}
+	
+	// setup menu
+	this.menuModel =
+	{
+		visible: true,
+		items:
+		[
+			{
+				label: "Preferences",
+				command: 'do-prefs'
+			},
+			{
+				label: "Update Feeds",
+				command: 'do-update'
+			},
+			{
+				label: "Help",
+				command: 'do-help'
+			}
+		]
+	}
 }
 
 PkgGroupsAssistant.prototype.setup = function()
@@ -31,20 +52,8 @@ PkgGroupsAssistant.prototype.setup = function()
 	// setup list title
 	this.controller.get('groupTitle').innerHTML = this.item.name;
 	
-	// build list model
-	this.buildList();
-	
-	// pop the scene if its 
-	if ((this.listModel.items.length < 1 ||
-		(this.listModel.items.length < 2 && this.item.pkgGroup[0] == 'categories')))
-	{
-		this.controller.stageController.popScene();
-	}
-	else if (this.listModel.items.length == 2 && this.item.pkgGroup[0] == 'categories')
-	{
-		// lets not do this for now
-		//this.listTapHandler({item: this.listModel.items[1]}, true);
-	}
+	// setup menu
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
 	// setup list widget
 	this.controller.setupWidget('groupList', { itemTemplate: "pkg-groups/rowTemplate", swipeToDelete: false, reorderable: false }, this.listModel);
@@ -56,11 +65,41 @@ PkgGroupsAssistant.prototype.setup = function()
 	// setup sort command menu widget
 	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
 	
-	// setup menu that is no menu
-	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
-	
 	// set this scene's default transition
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
+}
+
+PkgGroupsAssistant.prototype.aboutToActivate = function(event)
+{
+	
+	this.updateCommandMenu();
+	this.buildList();
+	
+	/*
+	// pop the scene if its 
+	if ((this.listModel.items.length < 1 ||
+		(this.listModel.items.length < 2 && this.item.pkgGroup[0] == 'categories')))
+	{
+		this.controller.stageController.popScene();
+	}
+	else if (this.listModel.items.length == 2 && this.item.pkgGroup[0] == 'categories')
+	{
+		// lets not do this for now
+		//this.listTapHandler({item: this.listModel.items[1]}, true);
+	}
+	*/
+}
+
+PkgGroupsAssistant.prototype.buildList = function(skipUpdate)
+{
+	this.listModel.items = [];
+	this.listModel.items = packages.getGroups(this.item);
+	
+	if (!skipUpdate) 
+	{
+		this.controller.get('groupList').mojo.noticeUpdatedItems(0, this.listModel.items);
+		this.controller.get('groupList').mojo.setLength(this.listModel.items.length);
+	}
 }
 
 PkgGroupsAssistant.prototype.listTapHandler = function(event, swap)
@@ -207,13 +246,6 @@ PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	}
 }
 
-PkgGroupsAssistant.prototype.buildList = function()
-{
-	this.listModel.items = [];
-	
-	this.listModel.items = packages.getGroups(this.item);
-}
-
 // handle sort toggle commands
 PkgGroupsAssistant.prototype.handleCommand = function(event)
 {
@@ -242,16 +274,24 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 					this.controller.stageController.swapScene({name: 'pkg-groups', transition: Mojo.Transition.crossFade}, this.item);
 				}
 				break;
+			
+			case 'do-prefs':
+				this.controller.stageController.pushScene('preferences');
+				break;
+	
+			case 'do-update':
+				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'pkg-groups', this.item);
+				break;
+				
+			case 'do-help':
+				this.controller.stageController.pushScene('help');
+				break;
 				
 			default:
 				break;
 		}
 	}
 };
-
-PkgGroupsAssistant.prototype.activate = function(event) {}
-
-PkgGroupsAssistant.prototype.deactivate = function(event) {}
 
 PkgGroupsAssistant.prototype.cleanup = function(event)
 {

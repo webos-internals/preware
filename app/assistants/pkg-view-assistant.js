@@ -15,6 +15,23 @@ function PkgViewAssistant(item, listAssistant)
 		items: []
 	};
 	
+	// setup menu
+	this.menuModel =
+	{
+		visible: true,
+		items:
+		[
+			{
+				label: "IPKG Log",
+				command: 'do-showLog'
+			},
+			{
+				label: "Help",
+				command: 'do-help'
+			}
+		]
+	}
+	
 	// load stayawake class
 	this.stayAwake = new stayAwake();
 }
@@ -24,10 +41,11 @@ PkgViewAssistant.prototype.setup = function()
 	// clear log so it only shows stuff from this scene
 	IPKGService.logClear();
 	
-	// build command menu
-	this.updateCommandMenu(true);
+	// setup menu
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
-	// setup command menu widget
+	// build command menu widget
+	this.updateCommandMenu(true);
 	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
 	
 	// setup PkgViewAssistant title and icon
@@ -50,19 +68,6 @@ PkgViewAssistant.prototype.setup = function()
 		{},
 		{mode: 'horizontal-snap'}
 	);
-	
-	// setup menu model
-	var menuModel =
-	{
-		visible: true,
-		items: [{
-			label: "IPKG Log",
-			command: 'do-showLog'
-		}]
-	}
-	
-	// setup widget
-	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
 	
 	// lastly... build screens data
 	this.setupImages();
@@ -263,30 +268,32 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 	{
 		switch (event.command)
 		{
-			
-			// display ipkg log
-			case 'do-showLog':
-				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
-				break;
-				
 			// launch
 			case 'do-launch':
 				this.item.launch();
 				break;
-				
+			
 			// install
 			case 'do-install':
 				this.item.doInstall(this);
 				break;
-				
+			
 			// update
 			case 'do-update':
 				this.item.doUpdate(this);
 				break;
-				
+			
 			// remove
 			case 'do-remove':
 				this.item.doRemove(this);
+				break;
+			
+			case 'do-showLog':
+				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+				break;
+				
+			case 'do-help':
+				this.controller.stageController.pushScene('help');
 				break;
 				
 			default:
@@ -337,9 +344,6 @@ PkgViewAssistant.prototype.endAction = function()
 	
 	// show the data
 	this.controller.get('viewDataContainer').style.display = 'inline';
-	
-	// go ahead and tell the list it needs to update 
-	this.listAssistant.setReload();
 	
 	// and to show this menu again
 	this.updateCommandMenu();

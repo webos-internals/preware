@@ -7,12 +7,32 @@ function PreferencesAssistant()
 	// for secret group
 	this.secretString = '';
 	this.secretAnswer = 'iknowwhatimdoing';
+	
+	// setup menu
+	this.menuModel =
+	{
+		visible: true,
+		items:
+		[
+			{
+				label: "Feeds",
+				command: 'do-configs'
+			},
+			{
+				label: "Help",
+				command: 'do-help'
+			}
+		]
+	}
 }
 
 PreferencesAssistant.prototype.setup = function()
 {
 	try
 	{
+		// setup menu
+		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
+		
 		// setup handlers for preferences
 		this.toggleChangeHandler = this.toggleChanged.bindAsEventListener(this)
 		this.listChangedHandler  = this.listChanged.bindAsEventListener(this)
@@ -177,21 +197,6 @@ PreferencesAssistant.prototype.setup = function()
 		// hide secret group
 		this.controller.get('secretPreferences').style.display = 'none';
 		
-		
-		// setup menu
-		var menuModel =
-		{
-			visible: true,
-			items:
-			[
-				{
-					label: "Feeds",
-					command: 'do-configs'
-				}
-			]
-		}
-		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
-		
 	}
 	catch (e)
 	{
@@ -226,6 +231,10 @@ PreferencesAssistant.prototype.handleCommand = function(event)
 		{
 			case 'do-configs':
 				this.controller.stageController.pushScene('configs');
+				break;
+				
+			case 'do-help':
+				this.controller.stageController.pushScene('help');
 				break;
 		}
 
