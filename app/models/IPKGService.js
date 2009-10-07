@@ -16,11 +16,26 @@ IPKGService.version = function(callback)
 	});
 	return request;
 }
+
 IPKGService.list_configs = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
-		method: 'list_configs',
+		method: 'getConfigs',
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
+IPKGService.setConfigState = function(callback, config, enabled)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'setConfigState',
+		parameters: {
+			"config":config,
+			"enabled":enabled
+		},
 		onSuccess: callback,
 		onFailure: callback
 	});
@@ -42,7 +57,7 @@ IPKGService.rawlist = function(callback, feed)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
-		method: 'rawlist',
+		method: 'getListFile',
 		parameters: {
 			"subscribe":true, // new in apiVersion 4
 			"feed":feed
@@ -56,7 +71,7 @@ IPKGService.rawstatus = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
-		method: 'rawstatus',
+		method: 'getStatusFile',
 		onSuccess: callback,
 		onFailure: callback
 	});
@@ -100,7 +115,7 @@ IPKGService.restartluna = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
-		method: 'restartluna',
+		method: 'restartLuna',
 		onSuccess: callback,
 		onFailure: callback
 	});
@@ -110,7 +125,7 @@ IPKGService.restartjava = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
-		method: 'restartjava',
+		method: 'restartJava',
 		onSuccess: callback,
 		onFailure: callback
 	});

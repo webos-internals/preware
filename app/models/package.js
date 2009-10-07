@@ -692,19 +692,19 @@ packageModel.prototype.onInstall = function(payload)
 		
 		if (!payload) 
 		{
-			var msg = 'Error Installing [1]';
+			var msg = 'Error Installing: Communication Error';
 			var msgError = true;
 		}
 		else 
 		{
 			if (!payload.returnValue)
 			{
-				var msg = 'Error Installing [3]';
+				var msg = 'Error Installing: No Further Information';
 				var msgError = true;
 			}
 			if (payload.stage == "failed")
 			{
-				var msg = 'Error Installing [4]';
+				var msg = 'Error Installing: See IPKG Log';
 				var msgError = true;
 			}
 			else if (payload.stage == "completed")
@@ -780,19 +780,19 @@ packageModel.prototype.onUpdate = function(payload)
 		
 		if (!payload) 
 		{
-			var msg = 'Service Error Updating [1]';
+			var msg = 'Error Updating: Communication Error';
 			var msgError = true;
 		}
 		else
 		{
 			if (!payload.returnValue)
 			{
-				var msg = 'Error Updating [3]';
+				var msg = 'Error Updating: No Further Information';
 				var msgError = true;
 			}
 			if (payload.stage == "failed")
 			{
-				var msg = 'Error Updating [4]';
+				var msg = 'Error Updating: See IPKG Log';
 				var msgError = true;
 			}
 			else if (payload.stage == "completed")
@@ -868,19 +868,19 @@ packageModel.prototype.onRemove = function(payload)
 		
 		if (!payload) 
 		{
-			var msg = 'Service Error Removing [1]';
+			var msg = 'Error Removing: Communication Error';
 			var msgError = true;
 		}
 		else
 		{
 			if (!payload.returnValue)
 			{
-				var msg = 'Error Removing [3]';
+				var msg = 'Error Removing: No Further Information';
 				var msgError = true;
 			}
 			if (payload.stage == "failed")
 			{
-				var msg = 'Error Removing [4]';
+				var msg = 'Error Removing: See IPKG Log';
 				var msgError = true;
 			}
 			else if (payload.stage == "completed")

@@ -71,7 +71,7 @@ ConfigsAssistant.prototype.setup = function()
 		'confList',
 		{
 			itemTemplate: "configs/rowTemplate",
-			swipeToDelete: true, // uncomment this for go time
+			//swipeToDelete: true, // uncomment this for go time
 			reorderable: false
 		},
 		this.confModel
@@ -116,29 +116,26 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 			// load feeds
 			for (var x = 0; x < payload.configs.length; x++)
 			{
-				//for (var p in payload.configs[x]) 
-				//{
-					var feedObj = 
+				var feedObj = 
+				{
+					config: payload.configs[x].config,
+					name: payload.configs[x].config.replace(/.conf/, ''),
+					urls: [],
+					enabled: payload.configs[x].enabled
+				};
+				
+				//var tmpSplit1 = payload.configs[x][p].split('<br>');
+				var tmpSplit1 = payload.configs[x].contents.split('<br>');
+				for (var c = 0; c < tmpSplit1.length; c++)
+				{
+					if (tmpSplit1[c]) 
 					{
-						//name: p.replace(/.conf/, ''),
-						name: payload.configs[x].config.replace(/.conf/, ''),
-						urls: [],
-						enabled: payload.configs[x].enabled
-					};
-					
-					//var tmpSplit1 = payload.configs[x][p].split('<br>');
-					var tmpSplit1 = payload.configs[x].contents.split('<br>');
-					for (var c = 0; c < tmpSplit1.length; c++)
-					{
-						if (tmpSplit1[c]) 
-						{
-							var tmpSplit2 = tmpSplit1[c].split(' ');
-							feedObj.urls.push(tmpSplit2[2]);
-						}
+						var tmpSplit2 = tmpSplit1[c].split(' ');
+						feedObj.urls.push(tmpSplit2[2]);
 					}
-					
-					this.feeds.push(feedObj);
-				//}
+				}
+				
+				this.feeds.push(feedObj);
 			}
 			
 			// sort them
@@ -185,7 +182,7 @@ ConfigsAssistant.prototype.doneLoading = function()
 				
 				this.confModel.items.push(
 				{
-					toggleName: this.feeds[f].name,
+					toggleName: f,
 					fancyName: fancyName,
 					url: urls,
 					
@@ -211,8 +208,14 @@ ConfigsAssistant.prototype.confToggled = function(event)
 	// make sure this is a toggle button
 	if (event.property == 'value' && event.target.id.include('_toggle')) 
 	{
-		alert(event.target.id.replace(/_toggle/, '') + ' - ' + event.value);
+		//alert(event.target.id.replace(/_toggle/, '') + ' - ' + event.value);
+		IPKGService.setConfigState(this.test.bindAsEventListener(this), this.feeds[event.target.id.replace(/_toggle/, '')].config, event.value)
 	}
+}
+
+ConfigsAssistant.prototype.test = function(payload)
+{
+	//for (var p in payload) alert(p + ': ' + payload[p]);
 }
 
 ConfigsAssistant.prototype.confDeleted = function(event)
