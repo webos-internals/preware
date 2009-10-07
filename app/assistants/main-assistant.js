@@ -1,9 +1,3 @@
-// global items object
-var packages = new packagesModel();
-
-// holds the preferences cookie
-var prefs = new prefCookie();
-
 function MainAssistant()
 {
 	// subtitle random list
@@ -15,46 +9,11 @@ function MainAssistant()
 		'Accessing All Open Standard Feeds',
 		'The Advanced Homebrew Installer' // double billing
 	];
-	
-	// load stayawake class
-	this.stayAwake = new stayAwake();
-	
-	// required ipkgservice
-	this.ipkgServiceVersion = 4;
 }
 
 MainAssistant.prototype.setup = function()
 {
-	// clear log
-	IPKGService.logClear();
-	
-	// set theme
-	this.controller.document.body.className = prefs.get().theme;
-	
-	// set random subtitle
-	this.controller.get('subTitle').innerHTML = this.randomSub[Math.floor(Math.random() * this.randomSub.length)];
-	
-	// set version string
-	this.controller.get('version').innerHTML = "v" + Mojo.Controller.appInfo.version;
-	
-	// spinner model
-	this.spinnerModel = {spinning: true};
-	
-	// setup spinner widget
-	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
-	
-	// hide progress bar
-	this.controller.get('progress').style.display = 'none';
-	this.controller.get('progress-bar').style.width = '0%';
-	
-	// setup list model
-	this.mainModel = { items: [] };
-	
-	// setup list widget
-	this.controller.setupWidget('mainList', { itemTemplate: "main/rowTemplate", swipeToDelete: false, reorderable: false }, this.mainModel);
-	Mojo.Event.listen(this.controller.get('mainList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
-
-	// setup menu model
+	// setup menu
 	var menuModel =
 	{
 		visible: true,
@@ -68,77 +27,31 @@ MainAssistant.prototype.setup = function()
 				label: "Update Feeds",
 				command: 'do-update'
 			},
-			/*{
-				label: "IPKG Log",
-				command: 'do-showLog'
-			},*/
 			{
 				label: "Help",
 				command: 'do-help'
 			}
 		]
 	}
-	
-	// setup widget
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, menuModel);
 	
-	// call for feed update depending on update interval
-	if (prefs.get().updateInterval == 'launch')
-	{
-		// we should update then load
-		this.updateFeeds();
-	}
-	else if (prefs.get().updateInterval == 'manual')
-	{
-		// straight to loading
-		this.updateFeeds(true);
-	}
-	else if (prefs.get().updateInterval == 'daily')
-	{
-		var now = Math.round(new Date().getTime()/1000.0);
-		// if more then a day has passed since last update, update
-		if (now - prefs.get().lastUpdate > 86400)
-		{
-			// we should update then load
-			this.updateFeeds();
-		}
-		else
-		{
-			// straight to loading
-			this.updateFeeds(true);
-		}
-	}
-	else
-	{
-		// this really shouldn't happen, but if it does, lets update
-		this.updateFeeds();
-	}
+	// set theme
+	this.controller.document.body.className = prefs.get().theme;
+	
+	// set version string random subtitle
+	this.controller.get('version').innerHTML = "v" + Mojo.Controller.appInfo.version;
+	this.controller.get('subTitle').innerHTML = this.randomSub[Math.floor(Math.random() * this.randomSub.length)];
+	
+	// setup list widget
+	this.mainModel = { items: [] };
+	this.controller.setupWidget('mainList', { itemTemplate: "main/rowTemplate", swipeToDelete: false, reorderable: false }, this.mainModel);
+	Mojo.Event.listen(this.controller.get('mainList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+
 }
 
-MainAssistant.prototype.updateFeeds = function(onlyLoad)
+MainAssistant.prototype.activate = function(event)
 {
-	// the onlyLoad specifies if we should go straight to loading or not
-	// even if there is an internet connection
-	
-	// start and show the spinner
-	this.spinnerModel.spinning = true;
-	this.controller.modelChanged(this.spinnerModel);
-	
-	// hide the list while we update ipkg
-	this.controller.get('mainList').style.display = "none";
-	
-	// this is the start of the stayawake class to keep it awake till we're done with it
-	this.stayAwake.start();
-	
-	// start with checking the internet connection
-	this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
-	this.controller.get('progress').style.display = 'none';
-	this.controller.get('progress-bar').style.width = '0%';
-	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
-	    method: 'getstatus',
-	    onSuccess: this.onConnection.bindAsEventListener(this, onlyLoad),
-	    onFailure: this.onConnection.bindAsEventListener(this, onlyLoad)
-	});
+	this.updateList();
 }
 
 MainAssistant.prototype.listTapHandler = function(event)
@@ -152,230 +65,6 @@ MainAssistant.prototype.listTapHandler = function(event)
 		// push the scene
 		this.controller.stageController.pushScene(event.item.scene, event.item);
 	}
-}
-
-MainAssistant.prototype.onConnection = function(response, onlyLoad)
-{
-	var hasNet = false;
-	if (response && response.returnValue === true && response.isInternetConnectionAvailable === true)
-	{
-		var hasNet = true;
-	}
-	
-	// run version check
-	this.controller.get('spinnerStatus').innerHTML = "Checking Version";
-	IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
-}
-
-MainAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
-{
-	try 
-	{
-		// log payload for display
-		IPKGService.logPayload(payload, 'VersionCheck');
-	
-		if (!payload) 
-		{
-			// i dont know if this will ever happen, but hey, it might
-			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-			this.doneUpdating();
-		}
-		else if (payload.errorCode == -1)
-		{
-			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
-			{
-				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
-				this.doneUpdating();
-			}
-			else
-			{
-				this.alertMessage('Preware', payload.errorText);
-				this.doneUpdating();
-			}
-		}
-		else if (payload.errorCode == "ErrorGenericUnknownMethod")
-		{
-			// this is if this version is too old for the version number stuff
-			this.alertMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [1]');
-			this.doneUpdating();
-		}
-		else
-		{
-			if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) 
-			{
-				// this is if this version is too old for the version number stuff
-				this.alertMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [2]');
-				this.doneUpdating();
-			}
-			else 
-			{
-				if (hasNet && !onlyLoad) 
-				{
-					// initiate update if we have a connection
-					this.controller.get('spinnerStatus').innerHTML = "Updating";
-					IPKGService.update(this.onUpdate.bindAsEventListener(this));
-				}
-				else 
-				{
-					// if not, go right to loading the pkg info
-					this.controller.get('spinnerStatus').innerHTML = "Loading";
-					IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
-				}
-			}
-		}
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'main#onVersionCheck');
-		this.alertMessage('onVersionCheck Error', e);
-		
-		// we're done here
-		this.doneUpdating();
-	}
-}
-
-MainAssistant.prototype.onUpdate = function(payload)
-{
-	try 
-	{
-		// log payload for display
-		IPKGService.logPayload(payload, 'Update');
-		
-		if (!payload) 
-		{
-			// i dont know if this will ever happen, but hey, it might
-			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-			this.doneUpdating();
-		}
-		else if (payload.errorCode == -1)
-		{
-			// we probably dont need to check this stuff here,
-			// it would have already been checked and errored out of this process
-			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
-			{
-				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
-				this.doneUpdating();
-			}
-			else
-			{
-				this.alertMessage('Preware', payload.errorText);
-				this.doneUpdating();
-			}
-		}
-		else if (payload.returnVal != undefined) 
-		{
-			// its returned, but we don't really care if anything was actually updated
-			//console.log(payload.returnVal);
-			
-			// well updating looks to have finished, lets log the date:
-			prefs.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
-			
-			// lets call the function to update the global list of pkgs
-			this.controller.get('spinnerStatus').innerHTML = "Loading";
-			IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
-		}
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'main#onUpdate');
-		this.alertMessage('onUpdate Error', e);
-		
-		// we're done here
-		this.doneUpdating();
-	}
-}
-
-MainAssistant.prototype.onFeeds = function(payload)
-{
-	try 
-	{
-		// log payload for display
-		IPKGService.logPayload(payload, 'Feeds');
-		
-		if (!payload) 
-		{
-			// i dont know if this will ever happen, but hey, it might
-			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-			this.doneUpdating();
-		}
-		else if (payload.errorCode == -1) 
-		{
-			// we probably dont need to check this stuff here,
-			// it would have already been checked and errored out of this process
-			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
-			{
-				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
-				this.doneUpdating();
-			}
-			else
-			{
-				this.alertMessage('Preware', payload.errorText);
-				this.doneUpdating();
-			}
-		}
-		else 
-		{
-			// clear feeds array
-			var feeds = [];
-			
-			// load feeds
-			for (var x = 0; x < payload.configs.length; x++)
-			{
-				if (payload.configs[x].enabled) 
-				{
-					var tmpSplit1 = payload.configs[x].contents.split('<br>');
-					for (var c = 0; c < tmpSplit1.length; c++) 
-					{
-						if (tmpSplit1[c]) 
-						{
-							var tmpSplit2 = tmpSplit1[c].split(' ');
-							if (tmpSplit2[1]) 
-							{
-								feeds.push(tmpSplit2[1]);
-								//alert(x + '-' + p + ': ' + tmpSplit2[1]);
-							}
-						}
-					}
-				}
-			}
-			
-			// sort them (mostly so precentral is in the middle so it doesnt seem like it hangs at the end.)
-			feeds.sort();
-			
-			// send payload to items object
-			packages.loadFeeds(feeds, this);
-		}
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'main#onFeeds');
-		this.alertMessage('onFeeds Error', e);
-		
-		// we're done here
-		this.doneUpdating();
-	}
-}
-
-// stops the spinner and displays the list
-MainAssistant.prototype.doneUpdating = function()
-{
-	// stop and hide the spinner
-	this.spinnerModel.spinning = false;
-	this.controller.modelChanged(this.spinnerModel);
-	
-	// update the list
-	this.updateList();
-	
-	// show the list
-	this.controller.get('mainList').style.display = 'inline';
-	
-	this.controller.get('progress').style.display = 'none';
-	this.controller.get('progress-bar').style.width = '0%';
-	
-	// we're done loading so let the phone sleep if it needs to
-	this.stayAwake.end();
-	
-	//alert(packages.packages.length);
 }
 
 // this is called to update the list (namely the counts and styles)
@@ -507,23 +196,6 @@ MainAssistant.prototype.updateList = function()
 	}
 }
 
-MainAssistant.prototype.activate = function(event)
-{
-	// something may have been updated/installed/removed so lets update the list
-	this.updateList();
-}
-
-MainAssistant.prototype.alertMessage = function(title, message)
-{
-	this.controller.showAlertDialog({
-	    onChoose: function(value) {},
-		allowHTMLMessage: true,
-	    title: title,
-	    message: message,
-	    choices:[{label:$L('Ok'), value:""}]
-    });
-}
-
 MainAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
@@ -535,26 +207,19 @@ MainAssistant.prototype.handleCommand = function(event)
 				break;
 	
 			case 'do-update':
-				this.updateFeeds();
+				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade});
 				break;
 				
 			case 'do-showLog':
-				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true}, 'main');
 				break;
 				
 			case 'do-help':
 				this.controller.stageController.pushScene('help');
 				break;
 		}
-
 	}
-
 }
 
 MainAssistant.prototype.deactivate = function(event) {}
-
-MainAssistant.prototype.cleanup = function(event)
-{
-	// should maybe stop the power timer?
-	this.stayAwake.end();
-}
+MainAssistant.prototype.cleanup = function(event) {}

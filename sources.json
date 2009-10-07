@@ -41,5 +41,9 @@
     {
         "scenes": "help",
         "source": "app/assistants/help-assistant.js"
+    },
+    {
+        "scenes": "update",
+        "source": "app/assistants/update-assistant.js"
     }
 ]

@@ -57,15 +57,15 @@ body.palm-dark .palm-row-wrapper .pkgCount .count
 
 
 /*
- * Main Scene Styles
+ * Update Scene Styles
  */
-.main #spinner
+.update #spinner
 {
-	margin-top: 72px;
+	margin-top: 116px;
 	margin-left: auto;
 	margin-right: auto;
 }
-.main #spinner #spinnerStatus
+.update #spinner #spinnerStatus
 {
 	text-align: center;
 	padding-top: 122px;
@@ -74,11 +74,11 @@ body.palm-dark .palm-row-wrapper .pkgCount .count
 	color: #666;
 	font-size: 16px;
 }
-body.palm-dark .main #spinner #spinnerStatus
+body.palm-dark .update #spinner #spinnerStatus
 {
 	color: #999;
 }
-.main .progress
+.update .progress
 {
 	margin-top: 42px;
 	height: 15px;
@@ -87,21 +87,26 @@ body.palm-dark .main #spinner #spinnerStatus
 	margin-right: auto;
 	background: url(../images/palm-default/progress-back.png) center center no-repeat;
 }
-.main .progress .progress-bar
+.update .progress .progress-bar
 {
 	height: 15px;
 	width: 50%;
 	margin-left: 0px;
 	background: url(../images/palm-default/progress-front.png) top left no-repeat;
 }
-body.palm-dark .main .progress
+body.palm-dark .update .progress
 {
 	background: url(../images/palm-dark/progress-back.png) center center no-repeat;
 }
-body.palm-dark .main .progress .progress-bar
+body.palm-dark .update .progress .progress-bar
 {
 	background: url(../images/palm-dark/progress-front.png) top left no-repeat;
 }
+
+
+/*
+ * Main Scene Styles
+ */
 .main .palm-page-header-wrapper .icon
 {
 	width: 76px;
