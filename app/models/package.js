@@ -77,29 +77,7 @@ function packageModel(info)
 		}
 		this.versionInstalled = false;
 		
-		if (this.maintainer)
-		{
-			var r = new RegExp("^([^<]*)<([^>]*)>?"); // this one is win
-			var match = this.maintainer.match(r);
-			if (match)
-			{
-				//for(var m = 0; m < match.length; m++) alert(m + ' [' + match[m] + ']');
-				this.maintainer = trim(match[1]);
-				this.maintUrl = match[2];
-				// check if its an email
-				if (this.maintUrl.include('@'))
-				{
-					this.maintUrl = 'mailto:' + this.maintUrl;
-				}
-				// remove stupid default palm address for palm-package'd apps
-				if (this.maintUrl == 'mailto:palm@palm.com' ||		// v1.1 style
-					this.maintUrl == 'mailto:nobody@example.com')	// v1.2 style
-				{
-					this.maintUrl = false;
-				}
-			}
-		}
-		
+		// parse package dependencies
 		if (this.info.Depends)
 		{
 			//alert(this.info.Depends);
@@ -156,6 +134,33 @@ function packageModel(info)
 				if (this.sourceJson.PostRemoveFlags.include('RestartJava')) this.flags.remove.RestartJava = true;
 			}
 			
+		}
+		
+		// parse maintainer
+		if (this.maintainer)
+		{
+			var r = new RegExp("^([^<]*)<([^>]*)>?"); // this one is win
+			var match = this.maintainer.match(r);
+			if (match)
+			{
+				//for(var m = 0; m < match.length; m++) alert(m + ' [' + match[m] + ']');
+				this.maintainer = trim(match[1]);
+				this.maintUrl = match[2];
+				// check if its an email
+				if (this.maintUrl.include('@'))
+				{
+					// remove stupid default palm address for palm-package'd apps
+					if (this.maintUrl == 'mailto:palm@palm.com' || // v1.1 style
+						this.maintUrl == 'mailto:nobody@example.com') // v1.2 style
+					{
+						this.maintUrl = false;
+					}
+					else
+					{
+						this.maintUrl = 'mailto:' + this.maintUrl + '?subject=' + this.title;
+					}
+				}
+			}
 		}
 		
 		// check up on what we've loaded to make sure it makes sense
