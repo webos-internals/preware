@@ -71,6 +71,10 @@ MainAssistant.prototype.setup = function()
 			{
 				label: "IPKG Log",
 				command: 'do-showLog'
+			},
+			{
+				label: "Help",
+				command: 'do-help'
 			}
 		]
 	}
@@ -536,6 +540,10 @@ MainAssistant.prototype.handleCommand = function(event)
 				
 			case 'do-showLog':
 				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+				break;
+				
+			case 'do-help':
+				this.controller.stageController.pushScene('help');
 				break;
 		}
 

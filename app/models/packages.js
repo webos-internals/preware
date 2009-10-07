@@ -10,10 +10,11 @@ function packagesModel()
 	this.rawData = '';
 	
 	/* *** Type Conditions ***
-	 * launch			// can be launched by luna
-	 * update			// can be updated (installed over the top of the old version)
-	 * showScreenshots	// may have screenshots that should be displayed
-	 * showDependendent	// may have dependent packages that should be displayed
+	 * launch			// can be launched by luna, makes the button appear in the view scene
+	 * update			// can be updated (installed over the top of the old version) this also makes the button appear in the view scene
+	 * updateAsReplace	// is updated by removing then reinstalling
+	 * showScreenshots	// may have screenshots that should be displayed, for view scene
+	 * showDependendent	// may have dependent packages that should be displayed, for view scene
 	 */
 	this.can =
 	{
@@ -37,11 +38,15 @@ function packagesModel()
 		},
 		Patch:
 		{
+			update: true,
+			updateAsReplace: true,
 			showScreenshots: true,
 			showDependendent: true
 		},
 		Theme:
 		{
+			update: true,
+			updateAsReplace: true,
 			showScreenshots: true
 		},
 		
