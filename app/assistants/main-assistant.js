@@ -44,6 +44,11 @@ MainAssistant.prototype.setup = function()
 	
 	// setup list widget
 	this.mainModel = { items: [] };
+	
+	// update list
+	this.updateList(true);
+	
+	// setup widget
 	this.controller.setupWidget('mainList', { itemTemplate: "main/rowTemplate", swipeToDelete: false, reorderable: false }, this.mainModel);
 	Mojo.Event.listen(this.controller.get('mainList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
 
@@ -51,7 +56,11 @@ MainAssistant.prototype.setup = function()
 
 MainAssistant.prototype.activate = function(event)
 {
-	this.updateList();
+	if (this.firstActivate)
+	{
+		this.updateList();
+	}
+	this.firstActivate = true;
 }
 
 MainAssistant.prototype.listTapHandler = function(event)
@@ -68,7 +77,7 @@ MainAssistant.prototype.listTapHandler = function(event)
 }
 
 // this is called to update the list (namely the counts and styles)
-MainAssistant.prototype.updateList = function()
+MainAssistant.prototype.updateList = function(skipUpdate)
 {
 	try 
 	{
@@ -185,9 +194,13 @@ MainAssistant.prototype.updateList = function()
 			this.mainModel.items[(this.mainModel.items.length-1)].style = false;
 		}
 		
-		// update list widget
-		this.controller.get('mainList').mojo.noticeUpdatedItems(0, this.mainModel.items);
-	 	this.controller.get('mainList').mojo.setLength(this.mainModel.items.length);
+		if (!skipUpdate) 
+		{
+			// update list widget
+			this.controller.get('mainList').mojo.noticeUpdatedItems(0, this.mainModel.items);
+			this.controller.get('mainList').mojo.setLength(this.mainModel.items.length);
+		}
+		
 	}
 	catch (e)
 	{

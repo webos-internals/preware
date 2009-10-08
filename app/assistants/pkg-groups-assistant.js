@@ -55,6 +55,9 @@ PkgGroupsAssistant.prototype.setup = function()
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
+	// build list
+	this.buildList(true);
+	
 	// setup list widget
 	this.controller.setupWidget('groupList', { itemTemplate: "pkg-groups/rowTemplate", swipeToDelete: false, reorderable: false }, this.listModel);
 	Mojo.Event.listen(this.controller.get('groupList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
@@ -69,11 +72,15 @@ PkgGroupsAssistant.prototype.setup = function()
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 }
 
-PkgGroupsAssistant.prototype.aboutToActivate = function(event)
+PkgGroupsAssistant.prototype.activate = function(event)
 {
 	
-	this.updateCommandMenu();
-	this.buildList();
+	if (this.firstActivate)
+	{
+		this.updateCommandMenu();
+		this.buildList();
+	}
+	this.firstActivate = true;
 	
 	/*
 	// pop the scene if its 

@@ -105,6 +105,9 @@ PkgListAssistant.prototype.setup = function()
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
+	// update list
+	this.updateList(true);
+	
 	// setup list widget
 	this.setupList();
 	
@@ -159,9 +162,13 @@ PkgListAssistant.prototype.setup = function()
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 }
 
-PkgListAssistant.prototype.aboutToActivate = function(event)
+PkgListAssistant.prototype.activate = function(event)
 {
-	this.updateList();
+	if (this.firstActivate)
+	{
+		this.updateList();
+	}
+	this.firstActivate = true;
 }
 
 PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
