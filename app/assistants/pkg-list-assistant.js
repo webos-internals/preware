@@ -233,7 +233,7 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				break;
 	
 			case 'do-update':
-				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'pkg-list', this.item, this.searchText, this.currentSort);
+				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'pkg-list', true, this.item, this.searchText, this.currentSort);
 				break;
 				
 			case 'do-showLog':

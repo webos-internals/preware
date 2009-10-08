@@ -77,7 +77,6 @@ PkgGroupsAssistant.prototype.activate = function(event)
 	
 	if (this.firstActivate)
 	{
-		this.updateCommandMenu();
 		this.buildList();
 	}
 	this.firstActivate = true;
@@ -287,7 +286,7 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 				break;
 	
 			case 'do-update':
-				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'pkg-groups', this.item);
+				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'pkg-groups', true, this.item);
 				break;
 				
 			case 'do-help':

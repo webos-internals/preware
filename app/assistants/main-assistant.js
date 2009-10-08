@@ -220,7 +220,7 @@ MainAssistant.prototype.handleCommand = function(event)
 				break;
 	
 			case 'do-update':
-				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'main');
+				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'main', true);
 				break;
 				
 			case 'do-showLog':

@@ -19,7 +19,7 @@ AppAssistant.prototype.handleLaunch = function() {
 		{
 			var f = function(stageController)
 			{
-				stageController.pushScene("update", "main");
+				stageController.pushScene("update", "main", false);
 			};
 			
 			// launch the stage

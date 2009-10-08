@@ -7,11 +7,12 @@ var packages = new packagesModel();
 // holds the preferences cookie
 var prefs = new prefCookie();
 
-function UpdateAssistant(scene, var1, var2, var3)
+function UpdateAssistant(scene, force, var1, var2, var3)
 {
 	// load variables we will use when we're done updating
 	this.swapScene = scene;
 	if (!this.swapScene) this.swapScene = 'main';
+	this.force = force;
 	this.swapVar1 = var1;
 	this.swapVar2 = var2;
 	this.swapVar3 = var3;
@@ -64,7 +65,11 @@ UpdateAssistant.prototype.setup = function()
 	this.controller.get('progress-bar').style.width = '0%';
 	
 	// call for feed update depending on update interval
-	if (prefs.get().updateInterval == 'launch')
+	if (this.force)
+	{
+		this.updateFeeds();
+	}
+	else if (prefs.get().updateInterval == 'launch')
 	{
 		// we should update then load
 		this.updateFeeds();
