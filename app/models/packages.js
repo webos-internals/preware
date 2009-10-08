@@ -38,15 +38,15 @@ function packagesModel()
 		},
 		Patch:
 		{
-			update: true,
-			updateAsReplace: true,
+			//update: true,
+			//updateAsReplace: true,
 			showScreenshots: true,
 			showDependendent: true
 		},
 		Theme:
 		{
-			update: true,
-			updateAsReplace: true,
+			//update: true,
+			//updateAsReplace: true,
 			showScreenshots: true
 		},
 		
