@@ -27,6 +27,7 @@ function PkgListAssistant(item, searchText, currentSort)
 	
 	// holds the search 
 	this.searchTimer = false;
+	this.searching = false;
 	this.searchText = (searchText ? searchText : '');
 	
 	// store what our current sort direction is
@@ -395,6 +396,9 @@ PkgListAssistant.prototype.filterDelayHandler = function(event)
 		this.spinnerModel.spinning = true;
 		this.controller.modelChanged(this.spinnerModel);
 		
+		// set so the list update will reaveal top
+		this.searching = true;
+		
 		// start delay timer to one second
 		this.searchTimer = setTimeout(this.searchFunction, 1000);
 	}
@@ -432,10 +436,11 @@ PkgListAssistant.prototype.filter = function(skipUpdate)
 		// reload list
 		this.controller.get('pkgList').mojo.noticeUpdatedItems(0, this.listModel.items);
 	 	this.controller.get('pkgList').mojo.setLength(this.listModel.items.length);
-		/*if (!this.reloadList) 
+		if (this.searching) 
 		{
 			this.controller.get('pkgList').mojo.revealItem(0, true);
-		}*/
+			this.searching = false;
+		}
 		
 		// stop spinner
 		this.spinnerModel.spinning = false;
