@@ -674,6 +674,7 @@ packageModel.prototype.doInstall = function(assistant, multi, noDeps)
 		// check dependencies
 		if (!noDeps) 
 		{
+			/* // uncomment this to test dependencies and do multi-install
 			this.assistant.displayAction('Checking Dependencies');
 			var deps = this.getDependencies(true); // true to get "just needed" packages
 			if (deps.length > 0) 
@@ -681,6 +682,7 @@ packageModel.prototype.doInstall = function(assistant, multi, noDeps)
 				packages.checkMultiInstall(this, deps, assistant);
 				return;
 			}
+			*/
 		}
 		
 		// start action
