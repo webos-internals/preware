@@ -7,12 +7,20 @@
     {"source": "app/models/prefCookie.js"},
     {"source": "app/models/stayAwake.js"},
     {
+        "scenes": "update",
+        "source": "app/assistants/update-assistant.js"
+    },
+    {
         "scenes": "main",
         "source": "app/assistants/main-assistant.js"
     },
     {
         "scenes": "preferences",
         "source": "app/assistants/preferences-assistant.js"
+    },
+    {
+        "scenes": "help",
+        "source": "app/assistants/help-assistant.js"
     },
     {
         "scenes": "configs",
@@ -35,15 +43,11 @@
         "source": "app/assistants/pkg-view-assistant.js"
     },
     {
+        "scenes": "pkg-connected",
+        "source": "app/assistants/pkg-connected-assistant.js"
+    },
+    {
         "scenes": "screenshots",
         "source": "app/assistants/screenshots-assistant.js"
-    },
-    {
-        "scenes": "help",
-        "source": "app/assistants/help-assistant.js"
-    },
-    {
-        "scenes": "update",
-        "source": "app/assistants/update-assistant.js"
     }
 ]

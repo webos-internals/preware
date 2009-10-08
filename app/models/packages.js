@@ -1,5 +1,13 @@
 function packagesModel()
 {
+	// for storing assistants when we get one for certain functions
+	this.updateAssistant = false;
+	this.assistant = false;
+	// for storing action information when we're in a multi-action
+	this.multiPkg = false;
+	this.multiDeps = false;
+	
+	// for storing all the package information
 	this.packages = [];
 	this.categories = [];
 	this.feeds = [];
@@ -73,7 +81,7 @@ function packagesModel()
 	}
 }
 
-packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
+packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 {
 	try 
 	{
@@ -82,12 +90,12 @@ packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
 		
 		// get our current data
 		this.feeds = feeds;
-		this.mainAssistant = mainAssistant;
+		this.updateAssistant = updateAssistant;
 		
 		if (this.feeds.length > 0)
 		{
-			this.mainAssistant.controller.get('spinnerStatus').innerHTML = "Loading";
-			this.mainAssistant.controller.get('progress').style.display = "";
+			this.updateAssistant.controller.get('spinnerStatus').innerHTML = "Loading";
+			this.updateAssistant.controller.get('progress').style.display = "";
 			
 			this.infoStatusRequest();
 		}
@@ -100,8 +108,8 @@ packagesModel.prototype.loadFeeds = function(feeds, mainAssistant)
 packagesModel.prototype.infoStatusRequest = function()
 {
 	// update display
-	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>Status';
-	this.mainAssistant.controller.get('progress-bar').style.width = Math.round((1/(this.feeds.length+1)) * 100) + '%';
+	this.updateAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>Status';
+	this.updateAssistant.controller.get('progress-bar').style.width = Math.round((1/(this.feeds.length+1)) * 100) + '%';
 	
 	// request the rawdata
 	IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, -1));
@@ -115,8 +123,8 @@ packagesModel.prototype.infoListRequest = function(num)
 	}
 	
 	// update display
-	this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1);
-	this.mainAssistant.controller.get('progress-bar').style.width = Math.round(((num+2)/(this.feeds.length+1)) * 100) + '%';
+	this.updateAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1);
+	this.updateAssistant.controller.get('progress-bar').style.width = Math.round(((num+2)/(this.feeds.length+1)) * 100) + '%';
 	this.feedNum++;
 	
 	// subscribe to new feed
@@ -199,8 +207,8 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		else 
 		{
 			// we're done
-			this.mainAssistant.controller.get('spinnerStatus').innerHTML = 'Complete';
-			this.mainAssistant.controller.get('progress-bar').style.width = '100%';
+			this.updateAssistant.controller.get('spinnerStatus').innerHTML = 'Complete';
+			this.updateAssistant.controller.get('progress-bar').style.width = '100%';
 			this.doneLoading();
 		}
 	}
@@ -423,7 +431,7 @@ packagesModel.prototype.doneLoading = function()
 	}
 	
 	// tell the main scene we're done updating
-	this.mainAssistant.doneUpdating();
+	this.updateAssistant.doneUpdating();
 }
 
 packagesModel.prototype.versionNewer = function(one, two)
@@ -715,4 +723,187 @@ packagesModel.prototype.getPackages = function(item)
 	}
 	
 	return returnArray;
+}
+
+
+/* ------- below are for multiple package actions -------- */
+
+packagesModel.prototype.checkMultiInstall = function(pkg, deps, assistant)
+{
+	try 
+	{
+		// save assistant
+		this.assistant = assistant;
+		
+		this.multiPkg = pkg;
+		this.multiDeps = deps;
+		
+		// see what they want to do:
+		this.assistant.actionMessage(
+			'This package depends on <b>' + this.multiDeps.length + '</b> other package' + (this.multiDeps.length>1?'s':'') + ' to be installed.',
+			[
+				{label:$L('Install ' + (this.multiDeps.length>1?'Them':'It')), value:'ok'},
+				{label:$L('View ' + (this.multiDeps.length>1?'Them':'It')), value:'view'},
+				{label:$L('Nevermind'), value:'cancel'}
+			],
+			this.testMultiInstall.bindAsEventListener(this)
+		);
+		
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packagesModel#checkMultiInstall');
+	}
+}
+packagesModel.prototype.testMultiInstall = function(value)
+{
+	
+	switch(value)
+	{
+		case 'ok':
+			this.assistant.displayAction('Installing');
+			this.assistant.startAction();
+			this.doMultiInstall(0);
+			break;
+			
+		case 'view':
+			this.assistant.controller.stageController.pushScene('pkg-connected', this.multiPkg, this.multiDeps);
+			this.multiPkg = false;
+			this.multiDeps = false;
+			break;
+	}
+	
+	return;
+}
+packagesModel.prototype.doMultiInstall = function(number)
+{
+	//try 
+	//{
+		// call install for dependencies
+		if (number < this.multiDeps.length) 
+		{
+			this.packages[this.multiDeps[number]].doInstall(this.assistant, number, true);
+		}
+		// call install for package
+		else if (number == this.multiDeps.length) 
+		{
+			this.multiPkg.doInstall(this.assistant, number, true);
+		}
+		// end actions!
+		else
+		{
+			var flags = this.getMultiFlags();
+			if (flags.RestartLuna || flags.RestartJava) 
+			{
+				this.assistant.actionMessage(
+					'Packages installed:<br /><br />' + this.multiActionMessage(flags),
+					(!prefs.get().allowFlagSkip?[{label:$L('Ok'), value:'ok'}]:[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}]),
+					this.multiActionFunction.bindAsEventListener(this, flags)
+				);
+				return;
+			}
+			else
+			{
+				// we run this anyways to get the rescan
+				this.multiRunFlags(flags);
+			}
+			this.assistant.simpleMessage('Packages installed');
+			this.assistant.endAction();
+			this.multiPkg = false;
+			this.multiDeps = false;
+		}
+	//}
+	//catch (e) 
+	//{
+	//	Mojo.Log.logException(e, 'packagesModel#doMultiInstall');
+	//}
+}
+
+packagesModel.prototype.getMultiFlags = function()
+{
+	try 
+	{
+		var mFlags = {RestartLuna:false, RestartJava:false};
+		
+		// check base package first
+		if (this.multiPkg.flags.install.RestartLuna) mFlags.RestartLuna = true;
+		if (this.multiPkg.flags.install.RestartJava) mFlags.RestartJava = true;
+		
+		// check all deps
+		for (var d = 0; d < this.multiDeps.length; d++)
+		{
+			if (this.packages[this.multiDeps[d]].flags.install.RestartLuna) mFlags.RestartLuna = true;
+			if (this.packages[this.multiDeps[d]].flags.install.RestartJava) mFlags.RestartJava = true;
+		}
+		
+		// return them
+		return mFlags;
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packagesModel#getMultiFlags');
+	}
+		
+}
+packagesModel.prototype.multiActionFunction = function(value, flags)
+{
+	try 
+	{
+		if (value == 'ok') 
+		{
+			this.multiRunFlags(flags);
+		}
+		this.assistant.endAction();
+		this.multiPkg = false;
+		this.multiDeps = false;
+		return;
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packagesModel#multiActionFunction');
+	}
+}
+packagesModel.prototype.multiActionMessage = function(flags)
+{
+	try 
+	{
+		var msg = '';
+		if (flags.RestartJava) 
+		{
+			msg = '<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />';
+		}
+		if (flags.RestartLuna) 
+		{
+			msg = '<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />';
+		}
+		if (flags.RestartLuna && flags.RestartJava) 
+		{
+			msg = '<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the packages you just installed.</i><br />';
+		}
+		return msg;
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packagesModel#multiActionMessage');
+	}
+}
+packagesModel.prototype.multiRunFlags = function(flags)
+{
+	try 
+	{
+		if (flags.RestartJava && !flags.RestartLuna) 
+		{
+			IPKGService.restartjava(function(){});
+		}
+		if (flags.RestartLuna && !flags.RestartJava) 
+		{
+			IPKGService.restartluna(function(){});
+		}
+		// this is always ran...
+		IPKGService.rescan(function(){});
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packagesModel#multiRunFlags');
+	}
 }

@@ -464,7 +464,6 @@ packageModel.prototype.getForList = function(item)
 	return listObj;
 }
 
-// this function will return a list of packages this package depends on (in the form of a list of indexes from the packages list)
 packageModel.prototype.getDependencies = function(justNeeded)
 {
 	var returnArray = [];
@@ -542,12 +541,48 @@ packageModel.prototype.getDependencies = function(justNeeded)
 	
 	return returnArray;
 }
-
-// same as above, but recursive, and untested,
-// as to my knowledge no packages in preware are dependent on a package that is dependent on another package yet
-// should be tested thoroughly when that is the case
 packageModel.prototype.getDependenciesRecursive = function(justNeeded)
 {
+	// setup our return array
+	var deps = [];
+	
+	// get all recursive dependencies
+	var rawDeps = this.getDependenciesRecursiveFunction(justNeeded, 0);
+	
+	if (rawDeps.length > 0) 
+	{
+		// sort them by depth
+		rawDeps.sort(function(a, b)
+		{
+			return b.d - a.d;
+		});
+		
+		// remove dups while adding to the final list
+		for (var n = 0; n < rawDeps.length; n++)
+		{
+			var pushIt = true;
+			if (deps.length > 0)
+			{
+				for (var r = 0; r < deps.length; r++)
+				{
+					if (rawDeps[n].id == deps[r])
+					{
+						pushIt = false;
+					}
+				}
+			}
+			if (pushIt) 
+			{
+				deps.push(rawDeps[n].id);
+			}
+		}
+	}
+	
+	return deps;
+}
+packageModel.prototype.getDependenciesRecursiveFunction = function(justNeeded, depth)
+{
+	if (!depth && depth != 0) depth = 0;
 	var returnArray = [];
 	
 	var depTest = this.getDependencies(justNeeded);
@@ -555,14 +590,14 @@ packageModel.prototype.getDependenciesRecursive = function(justNeeded)
 	{
 		for (var p = 0; p < depTest.length; p++)
 		{
-			returnArray.push(depTest[p]);
+			returnArray.push({d:depth, id:depTest[p]});
 			
-			var recTest = packages.packages[depTest[p]].getDependenciesRecursive(justNeeded);
+			var recTest = packages.packages[depTest[p]].getDependenciesRecursiveFunction(justNeeded, depth+1);
 			if (recTest.length > 0)
 			{
 				for (var r = 0; r < recTest.length; r++) 
 				{
-					returnArray.push(recTest[r]);
+					returnArray.push({d:recTest[r].d, id:recTest[r].id});
 				}
 			}
 		}
@@ -571,7 +606,6 @@ packageModel.prototype.getDependenciesRecursive = function(justNeeded)
 	return returnArray;
 }
 
-// this function will return a list of packages dependent on the current package (in the form of a list of indexes from the packages list)
 packageModel.prototype.getDependent = function()
 {
 	var returnArray = [];
@@ -613,7 +647,7 @@ packageModel.prototype.getDependent = function()
 }
 
 
-/* --------------- */
+/* ------- below are for package actions -------- */
 
 packageModel.prototype.launch = function()
 {
@@ -630,19 +664,42 @@ packageModel.prototype.launch = function()
 	}
 }
 
-packageModel.prototype.doInstall = function(assistant)
+packageModel.prototype.doInstall = function(assistant, multi, noDeps)
 {
 	try 
 	{
 		// save assistant
 		this.assistant = assistant;
 		
-		// start action
-		this.assistant.displayAction('Installing');
-		this.assistant.startAction();
+		// check dependencies
+		if (!noDeps) 
+		{
+			this.assistant.displayAction('Checking Dependencies');
+			var deps = this.getDependencies(true); // true to get "just needed" packages
+			if (deps.length > 0) 
+			{
+				packages.checkMultiInstall(this, deps, assistant);
+				return;
+			}
+		}
 		
-		// call install service
-		this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.pkg, this.title);
+		// start action
+		if (multi != undefined)
+		{
+			this.assistant.displayAction('Installing<br />' + this.title);
+			
+			// call install service
+			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this, multi), this.pkg, this.title);
+		}
+		else
+		{
+			this.assistant.displayAction('Installing');
+			
+			this.assistant.startAction();
+		
+			// call install service
+			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.pkg, this.title);
+		}
 	}
 	catch (e) 
 	{
@@ -688,7 +745,7 @@ packageModel.prototype.doRemove = function(assistant)
 	}
 }
 
-packageModel.prototype.onInstall = function(payload)
+packageModel.prototype.onInstall = function(payload, multi)
 {
 	try 
 	{
@@ -724,20 +781,29 @@ packageModel.prototype.onInstall = function(payload)
 				var msg = this.type + ' installed';
 				
 				// do finishing stuff
-				if (this.hasFlags('install')) 
+				if (multi != undefined) 
 				{
-					this.assistant.actionMessage(
-						msg + ':<br /><br />' + this.actionMessage('install'),
-						(!prefs.get().allowFlagSkip?[{label:$L('Ok'), value:'ok'}]:[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}]),
-						this.actionFunction.bindAsEventListener(this, 'install')
-					);
+					packages.doMultiInstall(multi+1);
 					return;
 				}
 				else
 				{
-					// we run this anyways to get the rescan
-					this.runFlags('install');
+					if (this.hasFlags('install')) 
+					{
+						this.assistant.actionMessage(
+							msg + ':<br /><br />' + this.actionMessage('install'),
+							(!prefs.get().allowFlagSkip?[{label:$L('Ok'), value:'ok'}]:[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}]),
+							this.actionFunction.bindAsEventListener(this, 'install')
+						);
+						return;
+					}
+					else
+					{
+						// we run this anyways to get the rescan
+						this.runFlags('install');
+					}
 				}
+				
 			}
 			// we keep this around for services without flags that have a javarestart in their scripts
 			// of course, it might get here on accident, but thats a risk we'll have to take for now [2]
@@ -752,6 +818,12 @@ packageModel.prototype.onInstall = function(payload)
 				// message
 				var msg = this.type + ' probably installed';
 				var msgError = true;
+				
+				if (multi != undefined) 
+				{
+					packages.doMultiInstall(multi + 1);
+					return;
+				}
 			}
 			else return;
 		}
@@ -770,6 +842,7 @@ packageModel.prototype.onInstall = function(payload)
 		}
 		
 		this.assistant.endAction();
+		
 	}
 	catch (e) 
 	{
