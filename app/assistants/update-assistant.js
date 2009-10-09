@@ -366,6 +366,10 @@ UpdateAssistant.prototype.doneUpdating = function()
 	{
 		this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
 	}
+	else
+	{	// if we're not the active scene, let them know via banner:
+		Mojo.Controller.getAppController().showBanner({messageText:'Done Updating Feeds', icon:'miniicon.png'}, {source:'updateNotification'});
+	}
 }
 
 UpdateAssistant.prototype.handleCommand = function(event)
