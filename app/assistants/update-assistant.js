@@ -61,7 +61,7 @@ UpdateAssistant.prototype.setup = function()
 	// monitor scene visibility
 	this.controller.listen(this.controller.stageController.document, Mojo.Event.stageActivate,   this.visibleWindow.bindAsEventListener(this));
 	this.controller.listen(this.controller.stageController.document, Mojo.Event.stageDeactivate, this.invisibleWindow.bindAsEventListener(this));
-	this.visible = true;
+	this.isVisible = true;
 	
 	// clear log
 	IPKGService.logClear();

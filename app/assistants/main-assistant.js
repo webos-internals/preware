@@ -3,11 +3,12 @@ function MainAssistant()
 	// subtitle random list
 	this.randomSub = 
 	[
-		'The Open Standard Installer',
-		'The Advanced Homebrew Installer',
-		'The Universal Application Installer',
-		'Accessing All Open Standard Feeds',
-		'The Advanced Homebrew Installer' // double billing
+		{weight: 30, text: 'The Advanced Homebrew Installer'},
+		{weight: 20, text: 'Applications, Themes and Patches'},
+		{weight: 15, text: 'The Open Standard Installer'},
+		{weight: 15, text: 'The Universal Application Installer'},
+		{weight: 15, text: 'Accessing All Open Standard Feeds'},
+		{weight:  2, text: 'Now With More Cowbell'}
 	]
 	
 	// setup menu
@@ -37,7 +38,7 @@ MainAssistant.prototype.setup = function()
 	
 	// set version string random subtitle
 	this.controller.get('version').innerHTML = "v" + Mojo.Controller.appInfo.version;
-	this.controller.get('subTitle').innerHTML = this.randomSub[Math.floor(Math.random() * this.randomSub.length)];
+	this.controller.get('subTitle').innerHTML = this.getRandomSubTitle();
 	
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
@@ -207,6 +208,36 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 		Mojo.Log.logException(e, 'main#updateList');
 		this.alertMessage('updateList Error', e);
 	}
+}
+
+MainAssistant.prototype.getRandomSubTitle = function()
+{
+	// loop to get total weight value
+	var weight = 0;
+	for (var r = 0; r < this.randomSub.length; r++)
+	{
+		weight += this.randomSub[r].weight;
+	}
+	
+	// random weighted value
+	var rand = Math.floor(Math.random() * weight);
+	//alert('rand: ' + rand + ' of ' + weight);
+	
+	// loop through to find the random title
+	for (var r = 0; r < this.randomSub.length; r++)
+	{
+		if (rand <= this.randomSub[r].weight)
+		{
+			return this.randomSub[r].text;
+		}
+		else
+		{
+			rand -= this.randomSub[r].weight;
+		}
+	}
+	
+	// if no random title was found (for whatever reason, wtf?) return first and best subtitle
+	return this.randomSub[0].text;
 }
 
 MainAssistant.prototype.handleCommand = function(event)
