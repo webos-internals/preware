@@ -491,6 +491,7 @@ packageModel.prototype.getDependencies = function(justNeeded)
 						{
 							if (packages.packages[p].isInstalled)
 							{
+								/* // not checking version stuff, and eval probably isn't really the best way to do it
 								// if it doesn't have dependent version information, being installed is all we need
 								if (this.depends[d].match && this.depends[d].version) 
 								{
@@ -525,8 +526,9 @@ packageModel.prototype.getDependencies = function(justNeeded)
 										}
 									}
 								}
+								*/
 							}
-							// if its not installed then we'll assume we need it nomatter what
+							// if its not installed then we'll assume we need
 							else
 							{
 								returnArray.push(p);
@@ -606,7 +608,7 @@ packageModel.prototype.getDependenciesRecursiveFunction = function(justNeeded, d
 	return returnArray;
 }
 
-packageModel.prototype.getDependent = function()
+packageModel.prototype.getDependent = function(justInstalled)
 {
 	var returnArray = [];
 	
@@ -623,7 +625,18 @@ packageModel.prototype.getDependent = function()
 					if (packages.packages[p].depends[d].pkg == this.pkg)
 					{
 						//alert(packages.packages[p].title);
-						returnArray.push(p);
+						
+						if (!justInstalled) 
+						{
+							returnArray.push(p);
+						}
+						else 
+						{
+							if (packages.packages[p].isInstalled) 
+							{
+								returnArray.push(p);
+							}
+						}
 					}
 				}
 			}
@@ -664,17 +677,16 @@ packageModel.prototype.launch = function()
 	}
 }
 
-packageModel.prototype.doInstall = function(assistant, multi, noDeps)
+packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 {
 	try 
 	{
 		// save assistant
 		this.assistant = assistant;
 		
-		// check dependencies
-		if (!noDeps) 
+		// check dependencies and do multi-install
+		if (!skipDeps) 
 		{
-			/* // uncomment this to test dependencies and do multi-install
 			this.assistant.displayAction('Checking Dependencies');
 			var deps = this.getDependencies(true); // true to get "just needed" packages
 			if (deps.length > 0) 
@@ -682,7 +694,6 @@ packageModel.prototype.doInstall = function(assistant, multi, noDeps)
 				packages.checkMultiInstall(this, deps, assistant);
 				return;
 			}
-			*/
 		}
 		
 		// start action
@@ -727,12 +738,24 @@ packageModel.prototype.doUpdate = function(assistant)
 		Mojo.Log.logException(e, 'packageModel#doUpdate');
 	}
 }
-packageModel.prototype.doRemove = function(assistant)
+packageModel.prototype.doRemove = function(assistant, skipDeps)
 {
 	try 
 	{
 		// save assistant
 		this.assistant = assistant;
+		
+		// check dependencies and do multi-install
+		if (!skipDeps)
+		{
+			this.assistant.displayAction('Checking Dependencies');
+			var deps = this.getDependent(true); // true to get "just installed" packages
+			if (deps.length > 0) 
+			{
+				packages.checkMultiRemove(this, deps, assistant);
+				return;
+			}
+		}
 		
 		// start action
 		this.assistant.displayAction('Removing');

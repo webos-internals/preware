@@ -755,9 +755,40 @@ packagesModel.prototype.checkMultiInstall = function(pkg, deps, assistant)
 		Mojo.Log.logException(e, 'packagesModel#checkMultiInstall');
 	}
 }
+packagesModel.prototype.checkMultiRemove = function(pkg, deps, assistant)
+{
+	try 
+	{
+		// save assistant
+		this.assistant = assistant;
+		
+		this.multiPkg = pkg;
+		this.multiDeps = deps;
+		
+		// see what they want to do:
+		this.assistant.actionMessage(
+			'This package has <b>' + this.multiDeps.length + '</b> other installed package' + (this.multiDeps.length>1?'s':'') +
+			' that depend' + (this.multiDeps.length>1?'':'s') + ' on it. <br\><br\>Removing this package may cause ' + (this.multiDeps.length>1?'them':'it') +
+			' to no longer function.',
+			[
+				// uncomment to allow removing of itself
+				//{label:$L('Remove Anyways'), value:'ok'},
+				{label:$L('View ' + (this.multiDeps.length>1?'Them':'It')), value:'view'},
+				//{label:$L('Nevermind'), value:'cancel'}
+				{label:$L('Ok'), value:'cancel'}
+			],
+			this.testMultiRemove.bindAsEventListener(this)
+		);
+		
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packagesModel#checkMultiRemove');
+	}
+}
+
 packagesModel.prototype.testMultiInstall = function(value)
 {
-	
 	switch(value)
 	{
 		case 'ok':
@@ -772,13 +803,31 @@ packagesModel.prototype.testMultiInstall = function(value)
 			this.multiDeps = false;
 			break;
 	}
-	
 	return;
 }
+packagesModel.prototype.testMultiRemove = function(value)
+{
+	switch(value)
+	{
+		case 'ok':
+			this.multiPkg.doRemove(this.assistant, true);
+			this.multiPkg = false;
+			this.multiDeps = false;
+			break;
+			
+		case 'view':
+			this.assistant.controller.stageController.pushScene('pkg-connected', this.multiPkg, this.multiDeps);
+			this.multiPkg = false;
+			this.multiDeps = false;
+			break;
+	}
+	return;
+}
+
 packagesModel.prototype.doMultiInstall = function(number)
 {
-	//try 
-	//{
+	try 
+	{
 		// call install for dependencies
 		if (number < this.multiDeps.length) 
 		{
@@ -812,11 +861,11 @@ packagesModel.prototype.doMultiInstall = function(number)
 			this.multiPkg = false;
 			this.multiDeps = false;
 		}
-	//}
-	//catch (e) 
-	//{
-	//	Mojo.Log.logException(e, 'packagesModel#doMultiInstall');
-	//}
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packagesModel#doMultiInstall');
+	}
 }
 
 packagesModel.prototype.getMultiFlags = function()
