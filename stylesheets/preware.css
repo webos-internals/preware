@@ -180,6 +180,39 @@ body.palm-dark .update .progress .progress-bar
 	opacity: 0.35;
 }
 
+.prefs .headerButton,
+.configs .headerButton
+{
+	-webkit-border-image: url(../images/palm-default/selector-header-selected.png);
+	-webkit-border-image: url(../images/palm-default/selector-header.png) 0 16 0 16 stretch stretch;
+	-webkit-box-sizing: border-box;
+	border-width: 0px 16px 0px 16px;
+	margin: 9px 9px 0px 0px;
+	text-transform: uppercase;
+	display: inline-block;
+	font-size: 14px;
+	height: 35px;
+	line-height: 35px;
+	float: right;
+	color: #555;
+}
+body.palm-dark .prefs .headerButton,
+body.palm-dark .configs .headerButton
+{
+	-webkit-border-image: url(../images/palm-dark/selector-header-selected.png);
+	-webkit-border-image: url(../images/palm-dark/selector-header.png) 0 16 0 16 stretch stretch;
+	color: #c0c0c0;
+}
+.prefs .headerButton.selected ,
+.configs .headerButton.selected {
+	-webkit-border-image: url(../images/palm-default/selector-header-selected.png) 0 16 0 16 stretch stretch;
+	color: #c0c0c0;
+}
+body.palm-dark .prefs .headerButton.selected,
+body.palm-dark .configs .headerButton.selected
+{
+	-webkit-border-image: url(../images/palm-dark/selector-header-selected.png) 0 16 0 16 stretch stretch;
+}
 
 
 /*

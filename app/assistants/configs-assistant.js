@@ -1,13 +1,34 @@
 function ConfigsAssistant()
 {
 	this.feeds = [];
+	
+	// setup menu
+	this.menuModel =
+	{
+		visible: true,
+		items:
+		[
+			{
+				label: "Help",
+				command: 'do-help'
+			}
+		]
+	}
 }
 
 ConfigsAssistant.prototype.setup = function()
 {
+	// setup menu
+	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
+	
+	// set this scene's default transition
+	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
+	
 	// init feed loading
 	IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 	
+	// setup header button
+	this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
 	
 	this.controller.setupWidget
 	(
@@ -79,8 +100,6 @@ ConfigsAssistant.prototype.setup = function()
 	this.controller.listen('confList', Mojo.Event.propertyChanged, this.confToggled.bindAsEventListener(this));
 	this.controller.listen('confList', Mojo.Event.listDelete, this.confDeleted.bindAsEventListener(this));
 	
-	// setup menu that is no menu
-	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
 }
 
 ConfigsAssistant.prototype.onFeeds = function(payload)
@@ -223,6 +242,11 @@ ConfigsAssistant.prototype.confDeleted = function(event)
 	alert ('Delete: ' + event.item.toggleName);
 }
 
+ConfigsAssistant.prototype.headerButton = function(event)
+{
+	this.controller.stageController.swapScene({name: 'preferences', transition: Mojo.Transition.crossFade});
+}
+
 ConfigsAssistant.prototype.alertMessage = function(title, message)
 {
 	this.controller.showAlertDialog({
@@ -232,6 +256,19 @@ ConfigsAssistant.prototype.alertMessage = function(title, message)
 	    message: message,
 	    choices:[{label:$L('Ok'), value:""}]
     });
+}
+
+ConfigsAssistant.prototype.handleCommand = function(event)
+{
+	if (event.type == Mojo.Event.command)
+	{
+		switch (event.command)
+		{
+			case 'do-help':
+				this.controller.stageController.pushScene('help');
+				break;
+		}
+	}
 }
 
 ConfigsAssistant.prototype.activate = function(event) {}

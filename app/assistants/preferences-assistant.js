@@ -15,10 +15,6 @@ function PreferencesAssistant()
 		items:
 		[
 			{
-				label: "Feeds",
-				command: 'do-configs'
-			},
-			{
 				label: "Help",
 				command: 'do-help'
 			}
@@ -33,10 +29,15 @@ PreferencesAssistant.prototype.setup = function()
 		// setup menu
 		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 		
+		// set this scene's default transition
+		this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
+		
 		// setup handlers for preferences
 		this.toggleChangeHandler = this.toggleChanged.bindAsEventListener(this)
 		this.listChangedHandler  = this.listChanged.bindAsEventListener(this)
 		
+		// setup header button
+		this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
 		
 		// Global Group
 		this.controller.setupWidget
@@ -223,23 +224,22 @@ PreferencesAssistant.prototype.toggleChanged = function(event)
 	this.cookie.put(this.prefs);
 }
 
+PreferencesAssistant.prototype.headerButton = function(event)
+{
+	this.controller.stageController.swapScene({name: 'configs', transition: Mojo.Transition.crossFade});
+}
+
 PreferencesAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
 	{
 		switch (event.command)
 		{
-			case 'do-configs':
-				this.controller.stageController.pushScene('configs');
-				break;
-				
 			case 'do-help':
 				this.controller.stageController.pushScene('help');
 				break;
 		}
-
 	}
-
 }
 
 PreferencesAssistant.prototype.keyPress = function(event)
