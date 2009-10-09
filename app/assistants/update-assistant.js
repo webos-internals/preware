@@ -19,7 +19,8 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 	
 	// for storing the scene state and loading info
 	this.isLoading = true;
-	this.isActive = true;
+	this.isActive  = true;
+	this.isVisible = false;
 	
 	// load stayawake class
 	this.stayAwake = new stayAwake();
@@ -56,6 +57,11 @@ UpdateAssistant.prototype.setup = function()
 	
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
+	
+	// monitor scene visibility
+	this.controller.listen(this.controller.stageController.document, Mojo.Event.stageActivate,   this.visibleWindow.bindAsEventListener(this));
+	this.controller.listen(this.controller.stageController.document, Mojo.Event.stageDeactivate, this.invisibleWindow.bindAsEventListener(this));
+	this.visible = true;
 	
 	// clear log
 	IPKGService.logClear();
@@ -366,9 +372,10 @@ UpdateAssistant.prototype.doneUpdating = function()
 	{
 		this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
 	}
-	else
+	
+	if (!this.isActive || !this.isVisible)
 	{	// if we're not the active scene, let them know via banner:
-		Mojo.Controller.getAppController().showBanner({messageText:'Done Updating Feeds', icon:'miniicon.png'}, {source:'updateNotification'});
+		Mojo.Controller.getAppController().showBanner({messageText:'Preware: Done Updating Feeds', icon:'miniicon.png'}, {source:'updateNotification'});
 	}
 }
 
@@ -435,24 +442,45 @@ UpdateAssistant.prototype.errorMessageFunction = function(value)
 	this.doneUpdating();
 	return;
 }
+
+UpdateAssistant.prototype.visibleWindow = function(event)
+{
+	//alert('visible');
+	
+	if (!this.isVisible)
+	{
+		this.isVisible = true;
+	}
+}
+UpdateAssistant.prototype.invisibleWindow = function(event)
+{
+	//alert('invisible');
+	
+	this.isVisible = false;
+}
 UpdateAssistant.prototype.activate = function(event)
 {
+	//alert('activate');
+	
 	// if we're done loading, but the scene was just activated, swap the scene 
 	if (!this.isLoading) 
 	{
 		this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
 	}
-	
-	// store active
 	this.isActive = true;
 }
 UpdateAssistant.prototype.deactivate = function(event)
 {
-	// store that its not active
+	//alert('deactivate');
+	
 	this.isActive = false;
 }
 UpdateAssistant.prototype.cleanup = function(event)
 {
 	// should maybe stop the power timer?
 	this.stayAwake.end();
+	
+	// stop monitoring scene visibility
+	this.controller.stopListening(this.controller.stageController.document, Mojo.Event.stageActivate,   this.visibleWindow.bindAsEventListener(this));
+	this.controller.stopListening(this.controller.stageController.document, Mojo.Event.stageDeactivate, this.invisibleWindow.bindAsEventListener(this));
 }
