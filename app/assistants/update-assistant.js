@@ -17,6 +17,10 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 	this.swapVar2 = var2;
 	this.swapVar3 = var3;
 	
+	// for storing the scene state and loading info
+	this.isLoading = true;
+	this.isActive = true;
+	
 	// load stayawake class
 	this.stayAwake = new stayAwake();
 	
@@ -61,8 +65,10 @@ UpdateAssistant.prototype.setup = function()
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
 	
 	// hide progress bar
-	this.controller.get('progress').style.display = 'none';
-	this.controller.get('progress-bar').style.width = '0%';
+	this.hideProgress();
+	
+	// stores if its still loading
+	this.isLoading = true;
 	
 	// call for feed update depending on update interval
 	if (this.force)
@@ -121,16 +127,14 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	this.stayAwake.start();
 	
 	// start with checking the internet connection
-	this.controller.get('spinnerStatus').innerHTML = "Checking Connection";
-	this.controller.get('progress').style.display = 'none';
-	this.controller.get('progress-bar').style.width = '0%';
+	this.displayAction('Checking Connection');
+	this.hideProgress();
 	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
 	    method: 'getstatus',
 	    onSuccess: this.onConnection.bindAsEventListener(this, onlyLoad),
 	    onFailure: this.onConnection.bindAsEventListener(this, onlyLoad)
 	});
 }
-
 UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 {
 	var hasNet = false;
@@ -140,10 +144,9 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	}
 	
 	// run version check
-	this.controller.get('spinnerStatus').innerHTML = "Checking Version";
+	this.displayAction('Checking Version');
 	IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
 }
-
 UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 {
 	try 
@@ -154,48 +157,48 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
-			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-			this.doneUpdating();
+			this.errorMessage('Preware', 'Update Error. The service probably isn\'t running.');
+			return;
 		}
 		else if (payload.errorCode == -1)
 		{
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
-				this.doneUpdating();
+				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+				return;
 			}
 			else
 			{
-				this.alertMessage('Preware', payload.errorText);
-				this.doneUpdating();
+				this.errorMessage('Preware', payload.errorText);
+				return;
 			}
 		}
 		else if (payload.errorCode == "ErrorGenericUnknownMethod")
 		{
 			// this is if this version is too old for the version number stuff
-			this.alertMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [1]');
-			this.doneUpdating();
+			this.errorMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [1]');
+			return;
 		}
 		else
 		{
 			if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) 
 			{
 				// this is if this version is too old for the version number stuff
-				this.alertMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [2]');
-				this.doneUpdating();
+				this.errorMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [2]');
+				return;
 			}
 			else 
 			{
 				if (hasNet && !onlyLoad) 
 				{
 					// initiate update if we have a connection
-					this.controller.get('spinnerStatus').innerHTML = "Updating";
+					this.displayAction('Updating');
 					IPKGService.update(this.onUpdate.bindAsEventListener(this));
 				}
 				else 
 				{
 					// if not, go right to loading the pkg info
-					this.controller.get('spinnerStatus').innerHTML = "Loading";
+					this.displayAction('Loading');
 					IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 				}
 			}
@@ -204,13 +207,9 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 	catch (e)
 	{
 		Mojo.Log.logException(e, 'main#onVersionCheck');
-		this.alertMessage('onVersionCheck Error', e);
-		
-		// we're done here
-		this.doneUpdating();
+		this.errorMessage('onVersionCheck Error', e);
 	}
 }
-
 UpdateAssistant.prototype.onUpdate = function(payload)
 {
 	try 
@@ -221,8 +220,8 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
-			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-			this.doneUpdating();
+			this.errorMessage('Preware', 'Update Error. The service probably isn\'t running.');
+			return;
 		}
 		else if (payload.errorCode == -1)
 		{
@@ -230,13 +229,13 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
-				this.doneUpdating();
+				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+				return;
 			}
 			else
 			{
-				this.alertMessage('Preware', payload.errorText);
-				this.doneUpdating();
+				this.errorMessage('Preware', payload.errorText);
+				return;
 			}
 		}
 		else if (payload.returnVal != undefined) 
@@ -248,20 +247,16 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			prefs.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
 			
 			// lets call the function to update the global list of pkgs
-			this.controller.get('spinnerStatus').innerHTML = "Loading";
+			this.displayAction('Loading');
 			IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 		}
 	}
 	catch (e)
 	{
 		Mojo.Log.logException(e, 'main#onUpdate');
-		this.alertMessage('onUpdate Error', e);
-		
-		// we're done here
-		this.doneUpdating();
+		this.errorMessage('onUpdate Error', e);
 	}
 }
-
 UpdateAssistant.prototype.onFeeds = function(payload)
 {
 	try 
@@ -272,8 +267,8 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
-			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-			this.doneUpdating();
+			this.errorMessage('Preware', 'Update Error. The service probably isn\'t running.');
+			return;
 		}
 		else if (payload.errorCode == -1) 
 		{
@@ -281,13 +276,13 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
-				this.doneUpdating();
+				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+				return;
 			}
 			else
 			{
-				this.alertMessage('Preware', payload.errorText);
-				this.doneUpdating();
+				this.errorMessage('Preware', payload.errorText);
+				return;
 			}
 		}
 		else 
@@ -326,25 +321,40 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 	catch (e)
 	{
 		Mojo.Log.logException(e, 'main#onFeeds');
-		this.alertMessage('onFeeds Error', e);
-		
-		// we're done here
-		this.doneUpdating();
+		this.errorMessage('onFeeds Error', e);
 	}
 }
 
-// this is called when done, will push the 
+UpdateAssistant.prototype.displayAction = function(msg)
+{
+	this.controller.get('spinnerStatus').innerHTML = msg;
+}
+UpdateAssistant.prototype.showProgress = function()
+{
+	this.controller.get('progress-bar').style.width = '0%';
+	this.controller.get('progress').style.display = "";
+}
+UpdateAssistant.prototype.hideProgress = function()
+{
+	this.controller.get('progress-bar').style.width = '0%';
+	this.controller.get('progress').style.display = "none";
+}
+UpdateAssistant.prototype.setProgress = function(percent)
+{
+	this.controller.get('progress-bar').style.width = percent + '%';
+}
 UpdateAssistant.prototype.doneUpdating = function()
 {
 	// stop and hide the spinner
 	//this.spinnerModel.spinning = false;
 	//this.controller.modelChanged(this.spinnerModel);
 	
-	this.controller.get('spinnerStatus').innerHTML = "Done!";
+	// so if we're inactive we know to push a scene when we return
+	this.isLoading = false;
 	
-	// hide progress bar
-	this.controller.get('progress').style.display = 'none';
-	this.controller.get('progress-bar').style.width = '0%';
+	// show that we're done (while the pushed scene is going)
+	this.displayAction('Done!');
+	this.hideProgress();
 	
 	// we're done loading so let the phone sleep if it needs to
 	this.stayAwake.end();
@@ -352,7 +362,10 @@ UpdateAssistant.prototype.doneUpdating = function()
 	//alert(packages.packages.length);
 	
 	// swap to the scene passed when we were initialized:
-	this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
+	if (this.isActive) 
+	{
+		this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
+	}
 }
 
 UpdateAssistant.prototype.handleCommand = function(event)
@@ -379,20 +392,61 @@ UpdateAssistant.prototype.handleCommand = function(event)
 		}
 	}
 }
-
-UpdateAssistant.prototype.alertMessage = function(title, message)
+UpdateAssistant.prototype.errorMessage = function(title, message)
 {
-	this.controller.showAlertDialog({
+	this.displayAction('ERROR!');
+	this.hideProgress();
+	
+	this.controller.showAlertDialog(
+	{
+		allowHTMLMessage:	true,
+		preventCancel:		true,
+	    title:				title,
+	    message:			message,
+	    choices:			[{label:$L('Ok'), value:'ok'}],
+	    onChoose:			this.errorMessageFunction.bindAsEventListener(this)
+    });
+	
+	/*
+	this.controller.showAlertDialog(
+	{
 	    onChoose: function(value) {},
 		allowHTMLMessage: true,
 	    title: title,
 	    message: message,
 	    choices:[{label:$L('Ok'), value:""}]
     });
+    */
 }
-
-UpdateAssistant.prototype.activate = function(event) {}
-UpdateAssistant.prototype.deactivate = function(event) {}
+UpdateAssistant.prototype.errorMessageFunction = function(value)
+{
+	/*
+	switch(value)
+	{
+		case 'ok':
+			this.doneUpdating();
+			break;
+	}
+	*/
+	this.doneUpdating();
+	return;
+}
+UpdateAssistant.prototype.activate = function(event)
+{
+	// if we're done loading, but the scene was just activated, swap the scene 
+	if (!this.isLoading) 
+	{
+		this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
+	}
+	
+	// store active
+	this.isActive = true;
+}
+UpdateAssistant.prototype.deactivate = function(event)
+{
+	// store that its not active
+	this.isActive = false;
+}
 UpdateAssistant.prototype.cleanup = function(event)
 {
 	// should maybe stop the power timer?

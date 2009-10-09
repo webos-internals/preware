@@ -94,8 +94,8 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 		
 		if (this.feeds.length > 0)
 		{
-			this.updateAssistant.controller.get('spinnerStatus').innerHTML = "Loading";
-			this.updateAssistant.controller.get('progress').style.display = "";
+			this.updateAssistant.displayAction('Loading');
+			this.updateAssistant.showProgress();
 			
 			this.infoStatusRequest();
 		}
@@ -108,8 +108,8 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 packagesModel.prototype.infoStatusRequest = function()
 {
 	// update display
-	this.updateAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>Status';
-	this.updateAssistant.controller.get('progress-bar').style.width = Math.round((1/(this.feeds.length+1)) * 100) + '%';
+	this.updateAssistant.displayAction('Loading<br>Status');
+	this.updateAssistant.setProgress(Math.round((1/(this.feeds.length+1)) * 100));
 	
 	// request the rawdata
 	IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, -1));
@@ -123,8 +123,8 @@ packagesModel.prototype.infoListRequest = function(num)
 	}
 	
 	// update display
-	this.updateAssistant.controller.get('spinnerStatus').innerHTML = 'Loading<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1);
-	this.updateAssistant.controller.get('progress-bar').style.width = Math.round(((num+2)/(this.feeds.length+1)) * 100) + '%';
+	this.updateAssistant.displayAction('Loading<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1));
+	this.updateAssistant.setProgress(Math.round(((num+2)/(this.feeds.length+1)) * 100));
 	this.feedNum++;
 	
 	// subscribe to new feed
@@ -207,8 +207,8 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		else 
 		{
 			// we're done
-			this.updateAssistant.controller.get('spinnerStatus').innerHTML = 'Complete';
-			this.updateAssistant.controller.get('progress-bar').style.width = '100%';
+			this.updateAssistant.displayAction('Complete');
+			this.updateAssistant.setProgress(100);
 			this.doneLoading();
 		}
 	}
