@@ -129,13 +129,13 @@ PkgViewAssistant.prototype.setupImages = function()
 				Mojo.Event.listen(this.controller.get('app_' + this.dependents[d]), Mojo.Event.tap, this.appTap);
 				packages.packages[this.dependents[d]].iconFill(this.controller.get('app_' + this.dependents[d]));
 			}
-		}
+		}lol
 		else
 		{
 			this.controller.get('scrollerContainer').style.display = 'none';
 		}
 	}
-	catch (e) 
+	catch (e)
 	{
 		Mojo.Log.logException(e, 'pkg-view#setupImages');
 	}

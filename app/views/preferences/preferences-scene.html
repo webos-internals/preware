@@ -47,11 +47,43 @@
 		<div class="palm-group-title">Main Scene</div>
 		<div class="palm-list">
 			
-			<div class="palm-row single">
+			<div class="palm-row single" id="showAllTypesContainer">
 				<div class="palm-row-wrapper">
 					<div class="label left">Show All Package Types</div>
 					<div id="showAllTypes" x-mojo-element="ToggleButton"></div>
 				</div>
+			</div>
+			
+			<div id="notAllTypes">
+				
+				<div class="palm-row">
+					<div class="palm-row-wrapper">
+						<div class="label left">Show Applications</div>
+						<div id="showTypeApplication" x-mojo-element="ToggleButton"></div>
+					</div>
+				</div>
+				
+				<div class="palm-row">
+					<div class="palm-row-wrapper">
+						<div class="label left">Show Themes</div>
+						<div id="showTypeTheme" x-mojo-element="ToggleButton"></div>
+					</div>
+				</div>
+				
+				<div class="palm-row">
+					<div class="palm-row-wrapper">
+						<div class="label left">Show Patches</div>
+						<div id="showTypePatch" x-mojo-element="ToggleButton"></div>
+					</div>
+				</div>
+				
+				<div class="palm-row last">
+					<div class="palm-row-wrapper">
+						<div class="label left">Show Other Types</div>
+						<div id="showTypeOther" x-mojo-element="ToggleButton"></div>
+					</div>
+				</div>
+				
 			</div>
 			
 		</div>

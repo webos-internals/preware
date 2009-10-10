@@ -36,6 +36,9 @@ PreferencesAssistant.prototype.setup = function()
 		this.toggleChangeHandler = this.toggleChanged.bindAsEventListener(this)
 		this.listChangedHandler  = this.listChanged.bindAsEventListener(this)
 		
+		// toggle panes:
+		this.toggleShowAllChanged();
+		
 		// setup header button
 		this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
 		
@@ -98,8 +101,64 @@ PreferencesAssistant.prototype.setup = function()
 	 			disabled: false
 			}
 		);
+		this.controller.setupWidget
+		(
+			'showTypeApplication',
+			{
+	  			trueLabel:  'Yes',
+	 			falseLabel: 'No',
+	  			fieldName:  'showTypeApplication'
+			},
+			{
+				value : this.prefs.showTypeApplication,
+	 			disabled: false
+			}
+		);
+		this.controller.setupWidget
+		(
+			'showTypeTheme',
+			{
+	  			trueLabel:  'Yes',
+	 			falseLabel: 'No',
+	  			fieldName:  'showTypeTheme'
+			},
+			{
+				value : this.prefs.showTypeTheme,
+	 			disabled: false
+			}
+		);
+		this.controller.setupWidget
+		(
+			'showTypePatch',
+			{
+	  			trueLabel:  'Yes',
+	 			falseLabel: 'No',
+	  			fieldName:  'showTypePatch'
+			},
+			{
+				value : this.prefs.showTypePatch,
+	 			disabled: false
+			}
+		);
+		this.controller.setupWidget
+		(
+			'showTypeOther',
+			{
+	  			trueLabel:  'Yes',
+	 			falseLabel: 'No',
+	  			fieldName:  'showTypeOther'
+			},
+			{
+				value : this.prefs.showTypeOther,
+	 			disabled: false
+			}
+		);
 		
-		this.controller.listen('showAllTypes', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		this.controller.listen('showAllTypes',        Mojo.Event.propertyChange, this.toggleShowAllChanged.bindAsEventListener(this));
+		this.controller.listen('showTypeApplication', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		this.controller.listen('showTypeTheme',       Mojo.Event.propertyChange, this.toggleChangeHandler);
+		this.controller.listen('showTypePatch',       Mojo.Event.propertyChange, this.toggleChangeHandler);
+		this.controller.listen('showTypeOther',       Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		
 		
@@ -133,7 +192,7 @@ PreferencesAssistant.prototype.setup = function()
 			}
 		);
 		
-		this.controller.listen('listSort', Mojo.Event.propertyChange, this.listChangedHandler);
+		this.controller.listen('listSort',      Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('listInstalled', Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		
@@ -222,6 +281,24 @@ PreferencesAssistant.prototype.toggleChanged = function(event)
 {
 	this.prefs[event.target.id] = event.value;
 	this.cookie.put(this.prefs);
+}
+
+PreferencesAssistant.prototype.toggleShowAllChanged = function(event)
+{
+	if (event) 
+	{
+		this.toggleChanged(event);
+	}
+	if (this.prefs['showAllTypes'])
+	{
+		this.controller.get('showAllTypesContainer').className = 'palm-row single';
+		this.controller.get('notAllTypes').style.display = 'none';
+	}
+	else
+	{
+		this.controller.get('showAllTypesContainer').className = 'palm-row first';
+		this.controller.get('notAllTypes').style.display = '';
+	}
 }
 
 PreferencesAssistant.prototype.headerButton = function(event)

@@ -100,43 +100,66 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 		
 		if (!prefs.get().showAllTypes) 
 		{
-			this.mainModel.items.push(
-			{
-				name:     $L('Available Applications'),
-				style:    'disabled',
-				scene:    'pkg-groups',
-				pkgGroup: ['categories','feeds'],
-				pkgList:  'all',
-				pkgType:  'Application',
-				pkgFeed:  '',
-				pkgCat:   '',
-				pkgCount: 0
-			});
 			
-			this.mainModel.items.push(
+			if (prefs.get().showTypeApplication) 
 			{
-				name:     $L('Available Themes'),
-				style:    'disabled',
-				scene:    'pkg-list',
-				pkgList:  'all',
-				pkgType:  'Theme',
-				pkgFeed:  'all',
-				pkgCat:   'all',
-				pkgCount: 0
-			});
-			
-			this.mainModel.items.push(
+				this.mainModel.items.push(
+				{
+					name:     $L('Available Applications'),
+					style:    'disabled',
+					scene:    'pkg-groups',
+					pkgGroup: ['categories','feeds'],
+					pkgList:  'all',
+					pkgType:  'Application',
+					pkgFeed:  '',
+					pkgCat:   '',
+					pkgCount: 0
+				});
+			}
+			if (prefs.get().showTypeTheme) 
 			{
-				name:     $L('Available Patches'),
-				style:    'disabled',
-				scene:    'pkg-groups',
-				pkgGroup: ['categories'],
-				pkgList:  'all',
-				pkgType:  'Patch',
-				pkgFeed:  'all',
-				pkgCat:   '',
-				pkgCount: 0
-			});
+				this.mainModel.items.push(
+				{
+					name:     $L('Available Themes'),
+					style:    'disabled',
+					scene:    'pkg-list',
+					pkgList:  'all',
+					pkgType:  'Theme',
+					pkgFeed:  'all',
+					pkgCat:   'all',
+					pkgCount: 0
+				});
+			}
+			if (prefs.get().showTypePatch) 
+			{
+				this.mainModel.items.push(
+				{
+					name:     $L('Available Patches'),
+					style:    'disabled',
+					scene:    'pkg-groups',
+					pkgGroup: ['categories'],
+					pkgList:  'all',
+					pkgType:  'Patch',
+					pkgFeed:  'all',
+					pkgCat:   '',
+					pkgCount: 0
+				});
+			}
+			if (prefs.get().showTypeOther) 
+			{
+				this.mainModel.items.push(
+				{
+					name: $L('Other Available Packages'),
+					style: 'disabled',
+					scene: 'pkg-groups',
+					pkgGroup: ['types', 'feeds'],
+					pkgList: 'other',
+					pkgType: '',
+					pkgFeed: '',
+					pkgCat: '',
+					pkgCount: 0
+				});
+			}
 		}
 		else
 		{

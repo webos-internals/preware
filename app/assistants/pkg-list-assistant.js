@@ -181,10 +181,9 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	this.cmdMenuModel.items.push({});
 	
 	// if updates, lets push the update all button
-	if (this.item.pkgValue == 'updates' && this.listModel.items.length > 1) 
+	if (this.item.pkgList == 'updates' && this.listModel.items.length > 1) 
 	{
-		// we don't want this to show yet, since it doesn't work
-		//this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
+		this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
 	}
 	
 	// push the sort selector

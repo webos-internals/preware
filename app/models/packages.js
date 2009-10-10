@@ -5,7 +5,7 @@ function packagesModel()
 	this.assistant = false;
 	// for storing action information when we're in a multi-action
 	this.multiPkg = false;
-	this.multiDeps = false;
+	this.multiPkgs = false;
 	
 	// for storing all the package information
 	this.packages = [];
@@ -677,27 +677,15 @@ packagesModel.prototype.getPackages = function(item)
 					}
 				}
 			}
+			else if (item.pkgList == 'other' && // other is for main scene where its not already there
+					this.packages[p].type != 'Application' && this.packages[p].type != 'Theme' &&
+					this.packages[p].type != 'Patch') pushIt = true;
 			else if (item.pkgList == 'updates' && this.packages[p].hasUpdate) pushIt = true;
 			else if (item.pkgList == 'installed' && this.packages[p].isInstalled) pushIt = true;
 			
 			
 			// check type and dont push if not right
-			//if (item.pkgType != 'all' && item.pkgType != '' && item.pkgType != this.packages[p].type) pushIt = false;
-			if (item.pkgType != 'all' && item.pkgType != '' && item.pkgType != this.packages[p].type) 
-			{
-				// for now, we want to show all types in the application lists if they aren't splitting them up in the main list
-				// once we handle dependencies we can delete this code
-				if (!prefs.get().showAllTypes &&
-					item.pkgType == "Application" &&
-					this.packages[p].type != 'Patch' &&
-					this.packages[p].type != 'Theme') 
-				{
-				}
-				else
-				{
-					pushIt = false;
-				}
-			}
+			if (item.pkgType != 'all' && item.pkgType != '' && item.pkgType != this.packages[p].type) pushIt = false;
 			
 			// check feed and dont push if not right
 			if (item.pkgFeed != 'all' && item.pkgFeed != '' && !this.packages[p].inFeed(item.pkgFeed)) pushIt = false;
@@ -728,7 +716,26 @@ packagesModel.prototype.getPackages = function(item)
 
 /* ------- below are for multiple package actions -------- */
 
-packagesModel.prototype.checkMultiInstall = function(pkg, deps, assistant)
+packagesModel.prototype.startMultiInstall = function(pkgs, assistant)
+{
+	try 
+	{
+		this.assistant = assistant;
+		
+		this.multiPkgs = pkgs;
+		
+		this.assistant.displayAction('Installing');
+		this.assistant.startAction();
+		this.doMultiInstall(0);
+		
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packagesModel#startMultiInstall');
+	}
+}
+
+packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 {
 	try 
 	{
@@ -736,14 +743,14 @@ packagesModel.prototype.checkMultiInstall = function(pkg, deps, assistant)
 		this.assistant = assistant;
 		
 		this.multiPkg = pkg;
-		this.multiDeps = deps;
+		this.multiPkgs = pkgs;
 		
 		// see what they want to do:
 		this.assistant.actionMessage(
-			'This package depends on <b>' + this.multiDeps.length + '</b> other package' + (this.multiDeps.length>1?'s':'') + ' to be installed.',
+			'This package depends on <b>' + this.multiPkgs.length + '</b> other package' + (this.multiPkgs.length>1?'s':'') + ' to be installed.',
 			[
-				{label:$L('Install ' + (this.multiDeps.length>1?'Them':'It')), value:'ok'},
-				{label:$L('View ' + (this.multiDeps.length>1?'Them':'It')), value:'view'},
+				{label:$L('Install ' + (this.multiPkgs.length>1?'Them':'It')), value:'ok'},
+				{label:$L('View ' + (this.multiPkgs.length>1?'Them':'It')), value:'view'},
 				{label:$L('Nevermind'), value:'cancel'}
 			],
 			this.testMultiInstall.bindAsEventListener(this)
@@ -755,7 +762,7 @@ packagesModel.prototype.checkMultiInstall = function(pkg, deps, assistant)
 		Mojo.Log.logException(e, 'packagesModel#checkMultiInstall');
 	}
 }
-packagesModel.prototype.checkMultiRemove = function(pkg, deps, assistant)
+packagesModel.prototype.checkMultiRemove = function(pkg, pkgs, assistant)
 {
 	try 
 	{
@@ -763,17 +770,17 @@ packagesModel.prototype.checkMultiRemove = function(pkg, deps, assistant)
 		this.assistant = assistant;
 		
 		this.multiPkg = pkg;
-		this.multiDeps = deps;
+		this.multiPkgs = pkgs;
 		
 		// see what they want to do:
 		this.assistant.actionMessage(
-			'This package has <b>' + this.multiDeps.length + '</b> other installed package' + (this.multiDeps.length>1?'s':'') +
-			' that depend' + (this.multiDeps.length>1?'':'s') + ' on it. <br\><br\>Removing this package may cause ' + (this.multiDeps.length>1?'them':'it') +
+			'This package has <b>' + this.multiPkgs.length + '</b> other installed package' + (this.multiPkgs.length>1?'s':'') +
+			' that depend' + (this.multiPkgs.length>1?'':'s') + ' on it. <br\><br\>Removing this package may cause ' + (this.multiPkgs.length>1?'them':'it') +
 			' to no longer function.',
 			[
 				// uncomment to allow removing of itself
 				//{label:$L('Remove Anyways'), value:'ok'},
-				{label:$L('View ' + (this.multiDeps.length>1?'Them':'It')), value:'view'},
+				{label:$L('View ' + (this.multiPkgs.length>1?'Them':'It')), value:'view'},
 				//{label:$L('Nevermind'), value:'cancel'}
 				{label:$L('Ok'), value:'cancel'}
 			],
@@ -798,9 +805,9 @@ packagesModel.prototype.testMultiInstall = function(value)
 			break;
 			
 		case 'view':
-			this.assistant.controller.stageController.pushScene('pkg-connected', this.multiPkg, this.multiDeps);
+			this.assistant.controller.stageController.pushScene('pkg-connected', this.multiPkg, this.multiPkgs);
 			this.multiPkg = false;
-			this.multiDeps = false;
+			this.multiPkgs = false;
 			break;
 	}
 	return;
@@ -812,13 +819,13 @@ packagesModel.prototype.testMultiRemove = function(value)
 		case 'ok':
 			this.multiPkg.doRemove(this.assistant, true);
 			this.multiPkg = false;
-			this.multiDeps = false;
+			this.multiPkgs = false;
 			break;
 			
 		case 'view':
-			this.assistant.controller.stageController.pushScene('pkg-connected', this.multiPkg, this.multiDeps);
+			this.assistant.controller.stageController.pushScene('pkg-connected', this.multiPkg, this.multiPkgs);
 			this.multiPkg = false;
-			this.multiDeps = false;
+			this.multiPkgs = false;
 			break;
 	}
 	return;
@@ -829,12 +836,12 @@ packagesModel.prototype.doMultiInstall = function(number)
 	try 
 	{
 		// call install for dependencies
-		if (number < this.multiDeps.length) 
+		if (number < this.multiPkgs.length) 
 		{
-			this.packages[this.multiDeps[number]].doInstall(this.assistant, number, true);
+			this.packages[this.multiPkgs[number]].doInstall(this.assistant, number, true);
 		}
 		// call install for package
-		else if (number == this.multiDeps.length) 
+		else if (number == this.multiPkgs.length && this.multiPkg) 
 		{
 			this.multiPkg.doInstall(this.assistant, number, true);
 		}
@@ -859,7 +866,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 			this.assistant.simpleMessage('Packages installed');
 			this.assistant.endAction();
 			this.multiPkg = false;
-			this.multiDeps = false;
+			this.multiPkgs = false;
 		}
 	}
 	catch (e) 
@@ -874,15 +881,18 @@ packagesModel.prototype.getMultiFlags = function()
 	{
 		var mFlags = {RestartLuna:false, RestartJava:false};
 		
-		// check base package first
-		if (this.multiPkg.flags.install.RestartLuna) mFlags.RestartLuna = true;
-		if (this.multiPkg.flags.install.RestartJava) mFlags.RestartJava = true;
+		// check base package first if there is one
+		if (this.multiPkg) 
+		{
+			if (this.multiPkg.flags.install.RestartLuna) mFlags.RestartLuna = true;
+			if (this.multiPkg.flags.install.RestartJava) mFlags.RestartJava = true;
+		}
 		
 		// check all deps
-		for (var d = 0; d < this.multiDeps.length; d++)
+		for (var d = 0; d < this.multiPkgs.length; d++)
 		{
-			if (this.packages[this.multiDeps[d]].flags.install.RestartLuna) mFlags.RestartLuna = true;
-			if (this.packages[this.multiDeps[d]].flags.install.RestartJava) mFlags.RestartJava = true;
+			if (this.packages[this.multiPkgs[d]].flags.install.RestartLuna) mFlags.RestartLuna = true;
+			if (this.packages[this.multiPkgs[d]].flags.install.RestartJava) mFlags.RestartJava = true;
 		}
 		
 		// return them
@@ -904,7 +914,7 @@ packagesModel.prototype.multiActionFunction = function(value, flags)
 		}
 		this.assistant.endAction();
 		this.multiPkg = false;
-		this.multiDeps = false;
+		this.multiPkgs = false;
 		return;
 	}
 	catch (e) 
@@ -927,7 +937,7 @@ packagesModel.prototype.multiActionMessage = function(flags)
 		}
 		if (flags.RestartLuna && flags.RestartJava) 
 		{
-			msg = '<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the packages you just installed.</i><br />';
+			msg = '<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the packages that were just installed.</i><br />';
 		}
 		return msg;
 	}
@@ -938,7 +948,7 @@ packagesModel.prototype.multiActionMessage = function(flags)
 }
 packagesModel.prototype.multiRunFlags = function(flags)
 {
-	try 
+	try
 	{
 		if (flags.RestartJava && !flags.RestartLuna) 
 		{

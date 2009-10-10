@@ -23,6 +23,10 @@ prefCookie.prototype.get = function(reload)
 				
 				// Main Scene Group
 				showAllTypes: false,
+				showTypeApplication: true,
+				showTypeTheme: true,
+				showTypePatch: true,
+				showTypeOther: false,
 				
 				// List Scene Group
 				listSort: 'default',
