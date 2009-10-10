@@ -81,7 +81,13 @@ PkgGroupsAssistant.prototype.activate = function(event)
 	}
 	this.firstActivate = true;
 	
-	/*
+}
+
+PkgGroupsAssistant.prototype.buildList = function(skipUpdate)
+{
+	this.listModel.items = [];
+	this.listModel.items = packages.getGroups(this.item);
+	
 	// pop the scene if its 
 	if ((this.listModel.items.length < 1 ||
 		(this.listModel.items.length < 2 && this.item.pkgGroup[0] == 'categories')))
@@ -90,16 +96,8 @@ PkgGroupsAssistant.prototype.activate = function(event)
 	}
 	else if (this.listModel.items.length == 2 && this.item.pkgGroup[0] == 'categories')
 	{
-		// lets not do this for now
-		//this.listTapHandler({item: this.listModel.items[1]}, true);
+		this.listTapHandler({item: this.listModel.items[1]}, true);
 	}
-	*/
-}
-
-PkgGroupsAssistant.prototype.buildList = function(skipUpdate)
-{
-	this.listModel.items = [];
-	this.listModel.items = packages.getGroups(this.item);
 	
 	if (!skipUpdate) 
 	{
