@@ -297,13 +297,13 @@ body.palm-dark .pkg-list #searchText
 .pkg-list .group-source 
 {
 	display: none;
-	position:relative;
-	float:right;
+	position: relative;
+	float: right;
 	margin: 8px -16px 0px 0px;
 	font-size: 14px;
 	text-transform: uppercase;
 	font-weight: bold;
-	height:35px;
+	height: 35px;
 	line-height: 33px;
 	border-width: 0px 22px 0px 16px;
 	-webkit-border-image:url(../images/palm-default/header-selector.png) 0 22 0 16 stretch stretch;
@@ -315,10 +315,10 @@ body.palm-dark .pkg-list .group-source
 }
 .pkg-list .group-selector 
 {
-	margin-left:-5px;
+	margin-left: -5px;
 	padding-right: 2px;
 	background: transparent;
-	display:inline-block;
+	display: inline-block;
 	min-width: 12px;
 	max-width: 80px;
 	text-overflow: ellipsis;

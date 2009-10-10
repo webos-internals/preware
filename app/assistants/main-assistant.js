@@ -149,7 +149,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 			{
 				this.mainModel.items.push(
 				{
-					name: $L('Other Available Packages'),
+					name: $L('Available Other'),
 					style: 'disabled',
 					scene: 'pkg-groups',
 					pkgGroup: ['types', 'feeds'],
