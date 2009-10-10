@@ -88,7 +88,7 @@ PkgGroupsAssistant.prototype.buildList = function(skipUpdate)
 	this.listModel.items = [];
 	this.listModel.items = packages.getGroups(this.item);
 	
-	// pop the scene if its 
+	// pop the scene if its empty
 	if ((this.listModel.items.length < 1 ||
 		(this.listModel.items.length < 2 && this.item.pkgGroup[0] == 'categories')))
 	{

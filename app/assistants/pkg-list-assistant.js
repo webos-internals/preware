@@ -18,6 +18,9 @@ function PkgListAssistant(item, searchText, currentSort)
 	// holds the model that has been filtered for use by the list
 	this.listModel = {items:[]};
 	
+	// holds group menu dropdown info
+	this.groupMenu = false;
+	
 	// setup command menu
 	this.cmdMenuModel =
 	{
@@ -90,16 +93,24 @@ PkgListAssistant.prototype.setup = function()
 	// change scene if this is a single group
 	if (this.item.pkgGroup)
 	{
-		// update submenu styles
-		this.controller.get('pkgListHeader').className = 'palm-header left';
-		this.controller.get('groupSource').style.display = 'inline';
+		this.groupMenu = packages.getGroups(this.item);
 		
-		if (this.item.pkgGroup[0]		== 'types')			this.controller.get('groupTitle').innerHTML = this.item.pkgType;
-		else if (this.item.pkgGroup[0]	== 'feeds')			this.controller.get('groupTitle').innerHTML = this.item.pkgFeed;
-		else if (this.item.pkgGroup[0]	== 'categories')	this.controller.get('groupTitle').innerHTML = this.item.pkgCat;
-		
-		// listen for tap to open menu
-		Mojo.Event.listen(this.controller.get('groupSource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
+		// if the list is more then one (or two in caegories case) don't display it
+		if ((this.groupMenu.length == 1 ||
+			(this.groupMenu.length == 2 && this.item.pkgGroup[0] == 'categories'))) {}
+		else
+		{
+			// update submenu styles
+			this.controller.get('pkgListHeader').className = 'palm-header left';
+			this.controller.get('groupSource').style.display = 'inline';
+			
+			if (this.item.pkgGroup[0]		== 'types')			this.controller.get('groupTitle').innerHTML = this.item.pkgType;
+			else if (this.item.pkgGroup[0]	== 'feeds')			this.controller.get('groupTitle').innerHTML = this.item.pkgFeed;
+			else if (this.item.pkgGroup[0]	== 'categories')	this.controller.get('groupTitle').innerHTML = this.item.pkgCat;
+			
+			// listen for tap to open menu
+			Mojo.Event.listen(this.controller.get('groupSource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
+		}
 	}
 	
 	// setup menu
@@ -462,9 +473,6 @@ PkgListAssistant.prototype.listTapHandler = function(event)
 }
 PkgListAssistant.prototype.menuTapHandler = function(event)
 {
-	// build group list model
-	var groupMenu = packages.getGroups(this.item);
-	
 	var selectedCmd = false;
 	if (this.item.pkgGroup[0]		== 'types')			selectedCmd = this.item.pkgType;
 	else if (this.item.pkgGroup[0]	== 'feeds')			selectedCmd = this.item.pkgFeed;
@@ -495,7 +503,7 @@ PkgListAssistant.prototype.menuTapHandler = function(event)
 		popupClass: 'group-popup',
 		toggleCmd: selectedCmd,
 		placeNear: event.target,
-		items: groupMenu
+		items: this.groupMenu
 	});
 }
 
