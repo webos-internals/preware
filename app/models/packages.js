@@ -24,7 +24,7 @@ function packagesModel()
 	 * showScreenshots	// may have screenshots that should be displayed, for view scene
 	 * showDependendent	// may have dependent packages that should be displayed, for view scene
 	 */
-	this.can =
+	this.typeConditions =
 	{
 		// major types
 		Application:
@@ -78,6 +78,9 @@ function packagesModel()
 			update: true,
 			showDependendent: true
 		},
+		
+		// unknown (used by actual unknown type, and any other type without values)
+		'Unknown': {}
 	}
 }
 
@@ -484,6 +487,20 @@ packagesModel.prototype.versionNewer = function(one, two)
 			}
 		}
 	return false;
+}
+
+packagesModel.prototype.can = function(type, condition)
+{
+	if (this.typeConditions[type])
+	{
+		if (this.typeConditions[type][condition]) return true;
+		else return false;
+	}
+	else
+	{
+		if (this.typeConditions['Unknown'][condition]) return true;
+		else return false;
+	}
 }
 
 packagesModel.prototype.packageInList = function(pkg)

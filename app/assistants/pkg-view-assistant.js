@@ -88,7 +88,7 @@ PkgViewAssistant.prototype.setupImages = function()
 		// app icons for plugins and services
 		var scrollItems = '';
 		this.dependents = this.item.getDependent(false, true);
-		if (packages.can[this.item.type].showScreenshots && this.item.screenshots.length > 0) 
+		if (packages.can(this.item.type, 'showScreenshots') && this.item.screenshots.length > 0) 
 		{
 			this.controller.get('scrollerContainer').className = 'palm-row screenshots';
 			for (s = 0; s < this.item.screenshots.length; s++) 
@@ -108,7 +108,7 @@ PkgViewAssistant.prototype.setupImages = function()
 				Mojo.Event.listen(this.controller.get('ss_' + s), Mojo.Event.tap, this.screenshotTap);
 			}
 		}
-		else if (packages.can[this.item.type].showDependendent && this.dependents.length > 0) 
+		else if (packages.can(this.item.type, 'showDependendent') && this.dependents.length > 0) 
 		{
 			this.controller.get('scrollerContainer').className = 'palm-row apps';
 			scrollItems += '<div class="appReset"></div>';
@@ -225,12 +225,12 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	this.cmdMenuModel.items.push({});
 	
 	// if installed push the launch button first if its an application
-	if (this.item.isInstalled && packages.can[this.item.type].launch)
+	if (this.item.isInstalled && packages.can(this.item.type, 'launch'))
 	{
 		this.cmdMenuModel.items.push({label: $L('Launch'), command: 'do-launch'});
 	}
 	// if update, push button, but only if this isn't a patch
-	if (this.item.hasUpdate && packages.can[this.item.type].update)
+	if (this.item.hasUpdate && packages.can(this.item.type, 'update'))
 	{
 		this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-update'});
 	}
@@ -387,7 +387,7 @@ PkgViewAssistant.prototype.cleanup = function(event)
 			this.item.subscription.cancel();
 		}
 		
-		if (packages.can[this.item.type].showScreenshots && this.item.screenshots.length > 0) 
+		if (packages.can(this.item.type, 'showScreenshots') && this.item.screenshots.length > 0) 
 		{
 			// looping screenshots destroying listeners
 			for (s = 0; s < this.item.screenshots.length; s++) 
@@ -395,7 +395,7 @@ PkgViewAssistant.prototype.cleanup = function(event)
 				Mojo.Event.stopListening(this.controller.get('ss_' + s), Mojo.Event.tap, this.screenshotTap);
 			}
 		}
-		else if (packages.can[this.item.type].showDependendent && this.dependents.length > 0) 
+		else if (packages.can(this.item.type, 'showDependendent') && this.dependents.length > 0) 
 		{
 			// looping apps destroying listeners
 		}

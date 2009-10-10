@@ -150,8 +150,8 @@ function packageModel(info)
 				if (this.maintUrl.include('@'))
 				{
 					// remove stupid default palm address for palm-package'd apps
-					if (this.maintUrl == 'mailto:palm@palm.com' || // v1.1 style
-						this.maintUrl == 'mailto:nobody@example.com') // v1.2 style
+					if (this.maintUrl == 'palm@palm.com' ||		// v1.1 style
+						this.maintUrl == 'nobody@example.com')	// v1.2 style
 					{
 						this.maintUrl = false;
 					}
