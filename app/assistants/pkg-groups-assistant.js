@@ -94,9 +94,13 @@ PkgGroupsAssistant.prototype.buildList = function(skipUpdate)
 	{
 		this.controller.stageController.popScene();
 	}
+	else if (this.listModel.items.length == 1)
+	{
+		// this.listTapHandler({item: this.listModel.items[0]}, true);
+	}
 	else if (this.listModel.items.length == 2 && this.item.pkgGroup[0] == 'categories')
 	{
-		this.listTapHandler({item: this.listModel.items[1]}, true);
+		// this.listTapHandler({item: this.listModel.items[1]}, true);
 	}
 	
 	if (!skipUpdate) 
