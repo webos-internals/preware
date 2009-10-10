@@ -187,8 +187,10 @@ PreferencesAssistant.prototype.setup = function()
 				[
 					{label:'Package ID',		value:'id'},
 					{label:'Version & Maint.',	value:'v&m'},
+					{label:'Version & ID',		value:'v&i'},
 					{label:'Version',			value:'version'},
-					{label:'Maintainer',		value:'maint'}
+					{label:'Maintainer',		value:'maint'},
+					{label:'License',			value:'license'}
 				],
 				modelProperty: 'secondRow'
 			},

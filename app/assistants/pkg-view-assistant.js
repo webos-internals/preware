@@ -190,6 +190,10 @@ PkgViewAssistant.prototype.setupData = function()
 			}
 		}
 		data += Mojo.View.render({object: {title: 'Id', data: this.item.pkg}, template: dataTemplate});
+		if (this.item.license) 
+		{
+			data += Mojo.View.render({object: {title: 'License', data: this.item.license}, template: dataTemplate});
+		}
 		data += Mojo.View.render({object: {title: 'Type', data: this.item.type}, template: dataTemplate});
 		data += Mojo.View.render({object: {title: 'Category', data: this.item.category}, template: dataTemplate});
 		data += Mojo.View.render({object: {title: 'Feed' + (this.item.feeds.length>1?'s':''), data: this.item.feedString, rowStyle: 'last'}, template: dataTemplate});

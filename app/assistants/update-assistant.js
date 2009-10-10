@@ -26,7 +26,7 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 	this.stayAwake = new stayAwake();
 	
 	// required ipkgservice
-	this.ipkgServiceVersion = 4;
+	this.ipkgServiceVersion = 6;
 	
 	// setup menu
 	this.menuModel =

@@ -1,28 +1,6 @@
 /* *** Info ***
- * Size:			  package size in kb
- * Status:      	  installed/not-installed, and other stuff we don't use
- * Architecture:	  
- * Section:			  the category when there is no source data
- * Package:			  package name in reverse-dns style
- * Filename:		  of the ipk file
- * Depends:			  package name of packages required for this (comma-space seperated ignore anything inside () at the end)
- * Maintainer:		 
- * Version:			  x.y.z or w.x.y.z
- * Description:		  title of the package
- * MD5Sum:			  md5sub of package to verify downloaded file
- * Installed-Time:	  timestamp of installation
- * Installed-Size:	  size of installed package
- * Source:
- *   Title:			  actual title of the package
- *   Source:		  where to get the source code
- *   LastUpdated:	  timestamp
- *   Feed:			  that this package comes from
- *   Type:			  Application, Service, Plugin, Patch, Theme
- *   Category:		 
- *   Homepage:		  url 
- *   Icon:			  url to image (assumed to be 64x64)
- *   FullDescription: actual description of package (includes html?)
- *   Screenshots:	  array of urls
+ * information on package standard is:
+ * http://www.webos-internals.org/wiki/Packaging_Standards
  */
 
 // initialize function which loads all the data from the info object
@@ -55,7 +33,9 @@ function packageModel(info)
 		this.feeds =	   ['Unknown'];
 		this.feedString =  'Unknown';
 		this.homepage =	   false;
+		this.license =	   false;
 		this.description = false;
+		this.changeLog =   false;
 		this.screenshots = [];
 		this.depends =	   [];
 		this.flags =	   {install: {RestartLuna:false, RestartJava:false},
@@ -112,7 +92,9 @@ function packageModel(info)
 			if (this.sourceJson.Icon)			 this.icon =		 this.sourceJson.Icon;
 			if (this.sourceJson.LastUpdated)	 this.date =		 this.sourceJson.LastUpdated;
 			if (this.sourceJson.Homepage)		 this.homepage =	 this.sourceJson.Homepage;
+			if (this.sourceJson.License)		 this.license = 	 this.sourceJson.License;
 			if (this.sourceJson.FullDescription) this.description =	 this.sourceJson.FullDescription;
+			if (this.sourceJson.Changelog)		 this.changeLog =	 this.sourceJson.Changelog;
 			if (this.sourceJson.Screenshots)	 this.screenshots =	 this.sourceJson.Screenshots;
 			
 			if (this.sourceJson.Feed) 
@@ -163,7 +145,7 @@ function packageModel(info)
 			}
 		}
 		
-		// check up on what we've loaded to make sure it makes sense
+		// check up on what we've loaded to make sure stuff thats needed isn't blank
 		if (!this.category || this.category == 'misc')
 		{
 			this.category = 'Unsorted';
@@ -271,7 +253,9 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 		if (!this.icon)					 this.icon =			pkg.icon;
 		if (!this.date)					 this.date =			pkg.date;
 		if (!this.homepage)				 this.homepage =		pkg.homepage;
+		if (!this.license)				 this.license =			pkg.license;
 		if (!this.description)			 this.description =		pkg.description;
+		if (!this.changeLog)			 this.changeLog =		pkg.changeLog;
 		if (!this.isInstalled)			 this.isInstalled =		pkg.isInstalled;
 		if (!this.hasUpdate)			 this.hasUpdate =		pkg.hasUpdate;
 		if (!this.dateInstalled)		 this.dateInstalled =	pkg.dateInstalled;
@@ -344,7 +328,7 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 			}
 		}
 		
-		// get flags
+		// join flags
 		if (!this.flags.install.RestartLuna && pkg.flags.install.RestartLuna) this.flags.install.RestartLuna = true;
 		if (!this.flags.install.RestartJava && pkg.flags.install.RestartJava) this.flags.install.RestartJava = true;
 		if (!this.flags.remove.RestartLuna  && pkg.flags.remove.RestartLuna)  this.flags.remove.RestartLuna  = true;
@@ -436,7 +420,7 @@ packageModel.prototype.getForList = function(item)
 		}
 		else if (prefs.get().secondRow == 'version') 
 		{
-			if (item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
+			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
 			{
 				listObj.sub = 'v' + this.versionInstalled;
 			}
@@ -451,13 +435,35 @@ packageModel.prototype.getForList = function(item)
 		}
 		else if (prefs.get().secondRow == 'v&m') 
 		{
-			if (item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
+			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
 			{
 				listObj.sub = 'v' + this.versionInstalled + ' - ' + this.maintainer;
 			}
 			else
 			{
 				listObj.sub = 'v' + this.version + ' - ' + this.maintainer;
+			}
+		}
+		else if (prefs.get().secondRow == 'v&i') 
+		{
+			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
+			{
+				listObj.sub = 'v' + this.versionInstalled + ' - ' + this.pkg;
+			}
+			else
+			{
+				listObj.sub = 'v' + this.version + ' - ' + this.pkg;
+			}
+		}
+		else if (prefs.get().secondRow == 'license') 
+		{
+			if (this.license)
+			{
+				listObj.sub = this.license;
+			}
+			else
+			{
+				listObj.sub = "<i>Unknown</i>";
 			}
 		}
 		
