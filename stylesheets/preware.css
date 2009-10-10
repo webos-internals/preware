@@ -431,12 +431,11 @@ body.palm-dark .pkg-view #spinner #spinnerStatus
 {
 	float: left;
 	width: 48px;
+	height: 48px;
 	margin-top: 2px;
 	margin-left: -10px;
-}
-.pkg-view .palm-header #icon img
-{
-	width: 48px;
+	background: url(../images/noIcon.png) center center no-repeat;
+	-webkit-background-size: 48px 48px;
 }
 .pkg-view .palm-header #title
 {
@@ -525,15 +524,13 @@ body.palm-dark .pkg-view #scrollerContainer.palm-row.apps
 .pkg-view #viewScroller #scrollItems div.app
 {
 	position: relative;
-	display: inline;
+	display: inline-block;
 	margin-left: 13px;
 	margin-right: 13px;
 	height: 54px;
 	width: 54px;
-}
-.pkg-view #viewScroller #scrollItems div.app img
-{
-	width: 54px;
+	background: url(../images/noIcon.png) center center no-repeat;
+	-webkit-background-size: 54px 54px;
 }
 .pkg-view #viewScroller #scrollItems div.app .sub
 {

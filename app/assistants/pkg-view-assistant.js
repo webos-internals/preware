@@ -50,10 +50,12 @@ PkgViewAssistant.prototype.setup = function()
 	
 	// setup PkgViewAssistant title and icon
 	this.controller.get('title').innerHTML = this.item.title;
-	if (this.item.icon)
+	this.item.iconFill(this.controller.get('icon'));
+	
+	/*if (this.item.icon)
 	{
 		this.controller.get('icon').innerHTML = '<img src="' + this.item.icon + '" />';
-	}
+	}*/
 	
 	// spinner model
 	this.spinnerModel = {spinning: false};
@@ -85,7 +87,7 @@ PkgViewAssistant.prototype.setupImages = function()
 		// screenshots for applications and patches
 		// app icons for plugins and services
 		var scrollItems = '';
-		this.dependents = this.item.getDependent();
+		this.dependents = this.item.getDependent(false, true);
 		if (packages.can[this.item.type].showScreenshots && this.item.screenshots.length > 0) 
 		{
 			this.controller.get('scrollerContainer').className = 'palm-row screenshots';
@@ -112,10 +114,7 @@ PkgViewAssistant.prototype.setupImages = function()
 			scrollItems += '<div class="appReset"></div>';
 			for (d = 0; d < this.dependents.length; d++) 
 			{
-				scrollItems += '<div class="app' + (packages.packages[this.dependents[d]].isInstalled?(packages.packages[this.dependents[d]].hasUpdate?' update':' installed'):'') + '">';
-				scrollItems += '<div class="sub"></div>';
-				scrollItems += '<img id="app_' + this.dependents[d] + '" src="' + (packages.packages[this.dependents[d]].icon?packages.packages[this.dependents[d]].icon:'images/noIcon.png') + '" />';
-				scrollItems += '</div>';
+				scrollItems += '<div id="app_' + this.dependents[d] + '" class="app' + (packages.packages[this.dependents[d]].isInstalled?(packages.packages[this.dependents[d]].hasUpdate?' update':' installed'):'') + '"><div class="sub"></div></div>';
 			}
 			
 			// fill the screenshot div with data
@@ -124,10 +123,11 @@ PkgViewAssistant.prototype.setupImages = function()
 			// initialize listener
 			this.appTap = this.appTapHandler.bindAsEventListener(this)
 			
-			// looping apps adding listeners
+			// looping apps adding listeners and icon lazy-loader
 			for (d = 0; d < this.dependents.length; d++) 
 			{
 				Mojo.Event.listen(this.controller.get('app_' + this.dependents[d]), Mojo.Event.tap, this.appTap);
+				packages.packages[this.dependents[d]].iconFill(this.controller.get('app_' + this.dependents[d]));
 			}
 		}
 		else

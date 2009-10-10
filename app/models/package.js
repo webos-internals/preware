@@ -50,7 +50,7 @@ function packageModel(info)
 		this.size =		   this.info.Size;
 		this.hasUpdate =   false;
 		this.icon =		   false;
-		this.iconImg =     {object: false, loaded: false, target: false};
+		this.iconImg =     {object: false, loading: false, loaded: false, target: false};
 		this.date =		   false;
 		this.feeds =	   ['Unknown'];
 		this.feedString =  'Unknown';
@@ -365,7 +365,11 @@ packageModel.prototype.iconFill = function(target)
 		{
 			target.style.backgroundImage = 'url(' + this.icon + ')';
 		}
-		else 
+		else if (this.iconImg.loading) 
+		{
+			this.iconImg.target = target;
+		}
+		else
 		{
 			this.iconImg.target = target;
 			this.iconInit();
@@ -380,6 +384,7 @@ packageModel.prototype.iconInit = function()
 		// think that above line was too roundabout? well it works, so whatever... (btw: mainStageName is setup in the app-assistant)
 		this.iconImg.object = doc.createElement('img');
 		this.iconImg.object.onload = this.iconOnLoad.bind(this);
+		this.iconImg.loading = true;
 		this.iconImg.object.src = this.icon;
 	}
 	
@@ -388,11 +393,12 @@ packageModel.prototype.iconOnLoad = function()
 {
 	this.iconImg.object.onload = undefined; // remove the listener
 	this.iconImg.loaded = true;
+	this.iconImg.loading = false;
 	if (this.iconImg.target)
 	{
 		this.iconImg.target.style.backgroundImage = 'url(' + this.icon + ')';
-		this.iconImg.target = false;
 	}
+	this.iconImg.target = false;
 }
 
 // checks if this package is in the feed
@@ -608,8 +614,9 @@ packageModel.prototype.getDependenciesRecursiveFunction = function(justNeeded, d
 	return returnArray;
 }
 
-packageModel.prototype.getDependent = function(justInstalled)
+packageModel.prototype.getDependent = function(justInstalled, installedFirst)
 {
+	var packageArray = [];
 	var returnArray = [];
 	
 	if (packages.packages.length > 0)
@@ -628,13 +635,13 @@ packageModel.prototype.getDependent = function(justInstalled)
 						
 						if (!justInstalled) 
 						{
-							returnArray.push(p);
+							packageArray.push(p);
 						}
 						else 
 						{
 							if (packages.packages[p].isInstalled) 
 							{
-								returnArray.push(p);
+								packageArray.push(p);
 							}
 						}
 					}
@@ -645,15 +652,37 @@ packageModel.prototype.getDependent = function(justInstalled)
 			/*
 			if (packages.packages[p].pkg == 'ws.junk.blocked')
 			{
-				returnArray.push(p);
+				packageArray.push(p);
 			}
 			if (p > 150 && p <= 155)
 			{
-				returnArray.push(p);
+				packageArray.push(p);
 			}
 			*/
 			
 		}
+	}
+	
+	if (packageArray.length > 0 && installedFirst)
+	{
+		for (var p = 0; p < packageArray.length; p++)
+		{
+			if (packages.packages[packageArray[p]].isInstalled)
+			{
+				returnArray.push(packageArray[p]);
+			}
+		}
+		for (var p = 0; p < packageArray.length; p++)
+		{
+			if (!packages.packages[packageArray[p]].isInstalled)
+			{
+				returnArray.push(packageArray[p]);
+			}
+		}
+	}
+	else
+	{
+		returnArray = packageArray;
 	}
 	
 	return returnArray;
