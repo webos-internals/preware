@@ -30,6 +30,7 @@ prefCookie.prototype.get = function(reload)
 				
 				// List Scene Group
 				listSort: 'default',
+				secondRow: 'id',
 				listInstalled: false,
 				
 				// Background Group

@@ -168,9 +168,9 @@ function packageModel(info)
 		{
 			this.category = 'Unsorted';
 		}
-		if (!this.type || this.type == 'Unknown')
+		if (!this.type)
 		{
-			this.type = 'Application';
+			this.type = 'Unknown';
 		}
 		
 	}
@@ -263,7 +263,7 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 	try
 	{
 		if (!this.title || this.title == 'This is a webOS application.') this.title = pkg.title;
-		if (this.type == 'Unknown' || this.type == 'Application') this.type = pkg.type;
+		if (this.type == 'Unknown')		 this.type = pkg.type;
 		if (this.category == 'Unsorted') this.category =		pkg.category;
 		if (!this.maintainer)			 this.maintainer =		pkg.maintainer;
 		if (!this.maintUrl)				 this.maintUrl =		pkg.maintUrl;
@@ -429,13 +429,37 @@ packageModel.prototype.getForList = function(item)
 		
 		listObj.rowClass = '';
 		
-		/*
-		if (this.icon)
+		
+		if (prefs.get().secondRow == 'id') 
 		{
-			listObj.rowClass += ' img';
-			listObj.icon = '<img src="' + this.icon + '" />';
+			listObj.sub = this.pkg;
 		}
-		*/
+		else if (prefs.get().secondRow == 'version') 
+		{
+			if (item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
+			{
+				listObj.sub = 'v' + this.versionInstalled;
+			}
+			else
+			{
+				listObj.sub = 'v' + this.version;
+			}
+		}
+		else if (prefs.get().secondRow == 'maint') 
+		{
+			listObj.sub = this.maintainer;
+		}
+		else if (prefs.get().secondRow == 'v&m') 
+		{
+			if (item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
+			{
+				listObj.sub = 'v' + this.versionInstalled + ' - ' + this.maintainer;
+			}
+			else
+			{
+				listObj.sub = 'v' + this.version + ' - ' + this.maintainer;
+			}
+		}
 		
 		if (item) 
 		{

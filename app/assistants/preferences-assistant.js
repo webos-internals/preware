@@ -180,6 +180,22 @@ PreferencesAssistant.prototype.setup = function()
 		);
 		this.controller.setupWidget
 		(
+			'secondRow',
+			{
+				label: 'Second Line',
+				choices:
+				[
+					{label:'Package ID',		value:'id'},
+					{label:'Version & Maint.',	value:'v&m'},
+					{label:'Version',			value:'version'},
+					{label:'Maintainer',		value:'maint'}
+				],
+				modelProperty: 'secondRow'
+			},
+			this.prefs
+		);
+		this.controller.setupWidget
+		(
 			'listInstalled',
 			{
 	  			trueLabel:  'Yes',
@@ -193,6 +209,7 @@ PreferencesAssistant.prototype.setup = function()
 		);
 		
 		this.controller.listen('listSort',      Mojo.Event.propertyChange, this.listChangedHandler);
+		this.controller.listen('secondRow',     Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('listInstalled', Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		
