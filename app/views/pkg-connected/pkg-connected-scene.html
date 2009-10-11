@@ -2,7 +2,7 @@
 	
 	<div class="scene-fade-top" id="topFade" x-mojo-scroll-fade="top"></div>
 	
-	<div class="palm-header">
+	<div class="palm-header" id="pkgConnectedHeader">
 		<span id="listTitle">Connected Packages</span>
 	</div>
 	
@@ -10,7 +10,11 @@
 	
 	<div class="palm-header-spacer" id="pkgSpacer"></div>
 	
-	<div class="palm-list">
+	<div x-mojo-element="Spinner" id="spinner">
+		<div id="spinnerStatus">...</div>
+	</div>
+	
+	<div class="palm-list" id="pkgListContainer">
 		<div id="pkgList" x-mojo-element="List"></div>
 	</div>
 	

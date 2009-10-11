@@ -404,6 +404,25 @@ body.palm-dark .pkg-list .group-source
 /*
  * Package Connected Scene Styles
  */
+.pkg-connected #spinner
+{
+	margin-top: 135px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.pkg-connected #spinner #spinnerStatus
+{
+	text-align: center;
+	padding-top: 122px;
+	width: 200px;
+	margin-left: -35px;
+	color: #666;
+	font-size: 16px;
+}
+body.palm-connected .pkg-view #spinner #spinnerStatus
+{
+	color: #999;
+}
 .pkg-connected #pkgSingle,
 .pkg-connected #pkgSingle *
 {
@@ -436,6 +455,26 @@ body.palm-dark .pkg-list .group-source
 	-webkit-background-size: 48px 48px;
 	top: 3px;
 	left: 4px;
+}
+.pkg-connected .palm-page-header-wrapper.installed .icon .sub,
+.pkg-connected .palm-row-wrapper.installed .icon .sub
+{
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	top: 0px;
+	left: 32px;
+	background: url(../images/icon_installed.png) center center no-repeat;
+}
+.pkg-connected .palm-page-header-wrapper.update .icon .sub,
+.pkg-connected .palm-row-wrapper.update .icon .sub
+{
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	top: 0px;
+	left: 32px;
+	background: url(../images/icon_updates.png) center center no-repeat;
 }
 .pkg-connected .palm-page-header-wrapper .title,
 .pkg-connected .palm-row-wrapper .title

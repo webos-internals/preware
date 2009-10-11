@@ -52,15 +52,8 @@ PkgViewAssistant.prototype.setup = function()
 	this.controller.get('title').innerHTML = this.item.title;
 	this.item.iconFill(this.controller.get('icon'));
 	
-	/*if (this.item.icon)
-	{
-		this.controller.get('icon').innerHTML = '<img src="' + this.item.icon + '" />';
-	}*/
-	
-	// spinner model
-	this.spinnerModel = {spinning: false};
-	
 	// setup spinner widget
+	this.spinnerModel = {spinning: false};
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
 	
 	// setup screenshot sideways scroller

@@ -63,8 +63,12 @@ PkgConnectedAssistant.prototype.setup = function()
 		onItemRendered: this.itemRendered.bind(this)
 	};
 	
+	// setup spinner widget
+	this.spinnerModel = {spinning: false};
+	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
+	
 	// load packages
-	this.loadList();
+	this.loadList(true);
 	
 	// setup list widget
 	this.controller.setupWidget('pkgList', this.listAttributes, this.listModel);
@@ -81,16 +85,40 @@ PkgConnectedAssistant.prototype.activate = function(event)
 {
 	if (this.firstActivate)
 	{
-		this.updateList();
+		this.updateScene();
 	}
 	this.firstActivate = true;
+}
+
+PkgConnectedAssistant.prototype.updateScene = function()
+{
+	try
+	{
+		if (this.pkg)
+		{
+			if (this.type == 'install')
+			{
+				this.pkgs = this.pkg.getDependenciesRecursive(true);
+			}
+			else if (this.type == 'remove')
+			{
+				this.pkgs = this.pkg.getDependent(true);
+			}
+		}
+		
+		this.loadList();
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'pkg-connected#updateScene');
+	}
 }
 
 PkgConnectedAssistant.prototype.loadSingle = function()
 {
 	if (this.pkg) 
 	{
-		var pkgForList = this.pkg.getForList();
+		var pkgForList = this.pkg.getForList(false);
 		var html = Mojo.View.render({object: pkgForList, template: 'pkg-connected/pkgTemplate'});
 		this.controller.get('pkgSingle').innerHTML = html;
 		this.pkg.iconFill(this.controller.get('icon-' + pkgForList.pkgNum));
@@ -100,8 +128,7 @@ PkgConnectedAssistant.prototype.loadSingle = function()
 		this.controller.get('topFade').style.top = '110px';
 	}
 }
-
-PkgConnectedAssistant.prototype.loadList = function()
+PkgConnectedAssistant.prototype.loadList = function(skipUpdate)
 {
 	this.listModel.items = [];
 	
@@ -109,8 +136,22 @@ PkgConnectedAssistant.prototype.loadList = function()
 	{
 		for (var p = 0; p < this.pkgs.length; p++)
 		{
-			this.listModel.items.push(packages.packages[this.pkgs[p]].getForList());
+			this.listModel.items.push(packages.packages[this.pkgs[p]].getForList(false));
 		}
+	}
+	
+	// if the list is empty, pop to previous scene
+	if (this.listModel.items.length < 1)
+	{
+		this.controller.stageController.popScene();
+	}
+	
+	// update list widget if skipUpdate isn't set to true
+	if (!skipUpdate)
+	{
+		// reload list
+		this.controller.get('pkgList').mojo.noticeUpdatedItems(0, this.listModel.items);
+	 	this.controller.get('pkgList').mojo.setLength(this.listModel.items.length);
 	}
 }
 
@@ -118,6 +159,10 @@ PkgConnectedAssistant.prototype.listTapHandler = function(event)
 {
 	// push pkg view scene with this items info
 	this.controller.stageController.pushScene('pkg-view', event.item, this);
+}
+PkgConnectedAssistant.prototype.itemRendered = function(listWidget, itemModel, itemNode)
+{
+	packages.packages[itemModel.pkgNum].iconFill(this.controller.get('icon-' + itemModel.pkgNum));
 }
 
 PkgConnectedAssistant.prototype.updateCommandMenu = function(skipUpdate)
@@ -147,7 +192,6 @@ PkgConnectedAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 	}
 }
-
 PkgConnectedAssistant.prototype.handleCommand = function(event)
 {
 	if(event.type == Mojo.Event.command)
@@ -155,7 +199,7 @@ PkgConnectedAssistant.prototype.handleCommand = function(event)
 		switch (event.command)
 		{
 			case 'do-install':
-				//packages.startMultiInstall(this.pkg, this.pkgs, this);
+				packages.startMultiInstall(this.pkg, this.pkgs, this);
 				break;
 			
 			case 'do-showLog':
@@ -173,11 +217,90 @@ PkgConnectedAssistant.prototype.handleCommand = function(event)
 	}
 }
 
-PkgConnectedAssistant.prototype.itemRendered = function(listWidget, itemModel, itemNode)
+/* 
+ * this functions are called by the package model when doing stuff
+ * anywhere the package model will be installing stuff these functions are needed
+ */
+PkgConnectedAssistant.prototype.startAction = function()
 {
-	packages.packages[itemModel.pkgNum].iconFill(this.controller.get('icon-' + itemModel.pkgNum));
+	// this is the start of the stayawake class to keep it awake till we're done with it
+	this.stayAwake.start();
+	
+	// start action is to hide this menu
+	this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
+	
+	// to update the spinner
+	this.spinnerModel.spinning = true;
+	this.controller.modelChanged(this.spinnerModel);
+	
+	// and to hide the data while we do the action
+	this.controller.get('pkgConnectedHeader').style.display = "none";
+	this.controller.get('pkgSingle').style.display = "none";
+	this.controller.get('pkgSpacer').style.display = "none";
+	this.controller.get('pkgListContainer').style.display = "none";
+	
+	// and make sure the scene scroller is at the top
+	this.controller.sceneScroller.mojo.scrollTo(0, 0);
 }
+PkgConnectedAssistant.prototype.displayAction = function(msg)
+{
+	this.controller.get('spinnerStatus').innerHTML = msg;
+}
+PkgConnectedAssistant.prototype.endAction = function()
+{
+	// we're done loading so let the phone sleep if it needs to
+	this.stayAwake.end();
+	
+	// end action action is to stop the spinner
+	this.spinnerModel.spinning = false;
+	this.controller.modelChanged(this.spinnerModel);
+	
+	// update the screens data
+	if (!this.simpleMessageUp) this.updateScene();
+	
+	// show the data
+	this.controller.get('pkgConnectedHeader').style.display = "inline";
+	this.controller.get('pkgSingle').style.display = "inline";
+	this.controller.get('pkgSpacer').style.display = "inline";
+	this.controller.get('pkgListContainer').style.display = "inline";
+	
+	// and to show this menu again
+	this.updateCommandMenu();
+}
+PkgConnectedAssistant.prototype.simpleMessage = function(message)
+{
+	this.simpleMessageUp = true;
+	this.controller.showAlertDialog(
+	{
+	    title:				'Connected Packages',
+		allowHTMLMessage:	true,
+		preventCancel:		true,
+	    message:			message,
+	    choices:			[{label:$L('Ok'), value:'ok'}],
+		onChoose:			this.simpleMessageOK.bindAsEventListener(this)
+    });
+}
+PkgConnectedAssistant.prototype.simpleMessageOK = function(value)
+{
+	if (value == 'ok')
+	{
+		this.updateScene();
+	}
+	this.simpleMessageUp = false;
+}
+PkgConnectedAssistant.prototype.actionMessage = function(message, choices, actions)
+{
+	this.controller.showAlertDialog(
+	{
+	    title:				'Connected Packages',
+		allowHTMLMessage:	true,
+		preventCancel:		true,
+	    message:			message,
+	    choices:			choices,
+	    onChoose:			actions
+    });
+}
+/* end functions called by the package model */
 
-PkgConnectedAssistant.prototype.activate = function(event) {}
 PkgConnectedAssistant.prototype.deactivate = function(event) {}
 PkgConnectedAssistant.prototype.cleanup = function(event) {}
