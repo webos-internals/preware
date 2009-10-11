@@ -433,6 +433,17 @@ packageModel.prototype.getForList = function(item)
 		{
 			listObj.sub = this.maintainer;
 		}
+		else if (prefs.get().secondRow == 'date') 
+		{
+			if (this.date) 
+			{
+				listObj.sub = formatDate(this.date);
+			}
+			else
+			{
+				listObj.sub = "<i>Unknown</i>";
+			}
+		}
 		else if (prefs.get().secondRow == 'v&m') 
 		{
 			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
@@ -453,6 +464,31 @@ packageModel.prototype.getForList = function(item)
 			else
 			{
 				listObj.sub = 'v' + this.version + ' - ' + this.pkg;
+			}
+		}
+		else if (prefs.get().secondRow == 'v&d') 
+		{
+			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
+			{
+				if (this.date) 
+				{
+					listObj.sub = 'v' + this.versionInstalled + ' - ' + formatDate(this.date);
+				}
+				else
+				{
+					listObj.sub = 'v' + this.versionInstalled
+				}
+			}
+			else
+			{
+				if (this.date) 
+				{
+					listObj.sub = 'v' + this.version + ' - ' + formatDate(this.date);
+				}
+				else
+				{
+					listObj.sub = 'v' + this.version
+				}
 			}
 		}
 		else if (prefs.get().secondRow == 'license') 

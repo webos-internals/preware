@@ -769,7 +769,7 @@ packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 			[
 				{label:$L('Install ' + (this.multiPkgs.length>1?'Them':'It')), value:'ok'},
 				{label:$L('View ' + (this.multiPkgs.length>1?'Them':'It')), value:'view'},
-				{label:$L('Nevermind'), value:'cancel'}
+				{label:$L('Cancel'), value:'cancel'}
 			],
 			this.testMultiInstall.bindAsEventListener(this)
 		);
@@ -799,8 +799,7 @@ packagesModel.prototype.checkMultiRemove = function(pkg, pkgs, assistant)
 				// uncomment to allow removing of itself
 				//{label:$L('Remove Anyways'), value:'ok'},
 				{label:$L('View ' + (this.multiPkgs.length>1?'Them':'It')), value:'view'},
-				//{label:$L('Nevermind'), value:'cancel'}
-				{label:$L('Ok'), value:'cancel'}
+				{label:$L('Cancel'), value:'cancel'}
 			],
 			this.testMultiRemove.bindAsEventListener(this)
 		);
