@@ -287,7 +287,7 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 				
 			// fake update
 			case 'do-fake-update':
-				this.simpleMessage('To update this package:<br><ol><li>Remove</li><li>Re-Install</li></ol>');
+				this.simpleMessage('To update this package:<br><ol><li>Remove current version</li><li>Install new version</li></ol>');
 				break;
 			
 			// remove
