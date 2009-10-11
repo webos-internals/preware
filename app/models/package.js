@@ -747,7 +747,7 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 		if (!skipDeps) 
 		{
 			this.assistant.displayAction('Checking Dependencies');
-			var deps = this.getDependencies(true); // true to get "just needed" packages
+			var deps = this.getDependenciesRecursive(true); // true to get "just needed" packages
 			if (deps.length > 0) 
 			{
 				packages.checkMultiInstall(this, deps, assistant);

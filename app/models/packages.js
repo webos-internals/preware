@@ -733,12 +733,13 @@ packagesModel.prototype.getPackages = function(item)
 
 /* ------- below are for multiple package actions -------- */
 
-packagesModel.prototype.startMultiInstall = function(pkgs, assistant)
+packagesModel.prototype.startMultiInstall = function(pkg, pkgs, assistant)
 {
 	try 
 	{
 		this.assistant = assistant;
 		
+		this.multiPkg = pkg;
 		this.multiPkgs = pkgs;
 		
 		this.assistant.displayAction('Installing');

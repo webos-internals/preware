@@ -404,11 +404,16 @@ body.palm-dark .pkg-list .group-source
 /*
  * Package Connected Scene Styles
  */
+.pkg-connected #pkgSingle,
+.pkg-connected #pkgSingle *
+{
+	text-transform: none;
+}
 .pkg-connected #pkgSingle
 {
 	position: fixed;
 	padding-top: 50px;
-	height: 115px;
+	height: 110px;
 	z-index: 999;
 	width: 320px;
 }
@@ -416,6 +421,10 @@ body.palm-dark .pkg-list .group-source
 {
 	position: relative;
 	height: 56px;
+}
+.pkg-connected .palm-page-header-wrapper .icon
+{
+	margin-top: -4px;
 }
 .pkg-connected .palm-page-header-wrapper .icon,
 .pkg-connected .palm-row-wrapper .icon
@@ -439,6 +448,14 @@ body.palm-dark .pkg-list .group-source
 	padding-left: 0px;
 	left: 60px;
 	right: 5px;
+}
+.pkg-connected .palm-page-header-wrapper .title.description
+{
+	color: #000;
+}
+body.palm-dark .pkg-connected .palm-page-header-wrapper .title.description
+{
+	color: #fff;
 }
 .pkg-connected .palm-page-header-wrapper .title.description,
 .pkg-connected .palm-row-wrapper .title.description
