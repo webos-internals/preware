@@ -822,7 +822,7 @@ packagesModel.prototype.testMultiInstall = function(value)
 			break;
 			
 		case 'view':
-			this.assistant.controller.stageController.pushScene('pkg-connected', this.multiPkg, this.multiPkgs);
+			this.assistant.controller.stageController.pushScene('pkg-connected', 'install', this.multiPkg, this.multiPkgs);
 			this.multiPkg = false;
 			this.multiPkgs = false;
 			break;
@@ -840,7 +840,7 @@ packagesModel.prototype.testMultiRemove = function(value)
 			break;
 			
 		case 'view':
-			this.assistant.controller.stageController.pushScene('pkg-connected', this.multiPkg, this.multiPkgs);
+			this.assistant.controller.stageController.pushScene('pkg-connected', 'remove', this.multiPkg, this.multiPkgs);
 			this.multiPkg = false;
 			this.multiPkgs = false;
 			break;

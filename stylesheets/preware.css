@@ -402,6 +402,60 @@ body.palm-dark .pkg-list .group-source
 
 
 /*
+ * Package Connected Scene Styles
+ */
+.pkg-connected #pkgSingle
+{
+	position: fixed;
+	padding-top: 50px;
+	height: 115px;
+	z-index: 999;
+	width: 320px;
+}
+.pkg-connected .palm-row-wrapper
+{
+	position: relative;
+	height: 56px;
+}
+.pkg-connected .palm-page-header-wrapper .icon,
+.pkg-connected .palm-row-wrapper .icon
+{
+	position: absolute;
+	width: 48px;
+	height: 48px;
+	background: url(../images/noIcon.png) center center no-repeat;
+	-webkit-background-size: 48px 48px;
+	top: 3px;
+	left: 4px;
+}
+.pkg-connected .palm-page-header-wrapper .title,
+.pkg-connected .palm-row-wrapper .title
+{
+	position: absolute;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	padding-top: 0px;
+	padding-left: 0px;
+	left: 60px;
+	right: 5px;
+}
+.pkg-connected .palm-page-header-wrapper .title.description,
+.pkg-connected .palm-row-wrapper .title.description
+{
+	top: 4px;
+}
+.pkg-connected .palm-page-header-wrapper .title.sub,
+.pkg-connected .palm-row-wrapper .title.sub
+{
+	color: #999;
+	top: 30px;
+	font-size: 14px;
+}
+
+
+
+/*
  * Package View Scene Styles
  */
 .pkg-view #spinner
