@@ -226,10 +226,15 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	{
 		this.cmdMenuModel.items.push({label: $L('Launch'), command: 'do-launch'});
 	}
-	// if update, push button, but only if this isn't a patch
+	// if update, push button
 	if (this.item.hasUpdate && packages.can(this.item.type, 'update'))
 	{
 		this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-update'});
+	}
+	// if updateAsReplace, push button
+	if (this.item.hasUpdate && packages.can(this.item.type, 'updateAsReplace'))
+	{
+		this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-fake-update'});
 	}
 	// if installed, push remove button 
 	if (this.item.isInstalled)
@@ -278,6 +283,11 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			// update
 			case 'do-update':
 				this.item.doUpdate(this);
+				break;
+				
+			// fake update
+			case 'do-fake-update':
+				this.simpleMessage('To update this package:<br><ol><li>Remove</li><li>Re-Install</li></ol>');
 				break;
 			
 			// remove

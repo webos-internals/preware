@@ -47,14 +47,14 @@ function packagesModel()
 		Patch:
 		{
 			//update: true,
-			//updateAsReplace: true,
+			updateAsReplace: true,
 			showScreenshots: true,
 			showDependendent: true
 		},
 		Theme:
 		{
 			//update: true,
-			//updateAsReplace: true,
+			updateAsReplace: true,
 			showScreenshots: true
 		},
 		
