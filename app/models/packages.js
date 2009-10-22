@@ -97,7 +97,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 		
 		if (this.feeds.length > 0)
 		{
-			this.updateAssistant.displayAction('Loading');
+			this.updateAssistant.displayAction('Loading Package Information');
 			this.updateAssistant.showProgress();
 			
 			this.infoStatusRequest();
@@ -111,7 +111,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 packagesModel.prototype.infoStatusRequest = function()
 {
 	// update display
-	this.updateAssistant.displayAction('Loading<br>Status');
+	this.updateAssistant.displayAction('Loading Package Information<br>Status');
 	this.updateAssistant.setProgress(Math.round((1/(this.feeds.length+1)) * 100));
 	
 	// request the rawdata
@@ -126,7 +126,7 @@ packagesModel.prototype.infoListRequest = function(num)
 	}
 	
 	// update display
-	this.updateAssistant.displayAction('Loading<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1));
+	this.updateAssistant.displayAction('Loading Package Information<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1));
 	this.updateAssistant.setProgress(Math.round(((num+2)/(this.feeds.length+1)) * 100));
 	this.feedNum++;
 	

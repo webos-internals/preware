@@ -118,7 +118,7 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and waiting longer before starting Preware.');
 				this.doneLoading();
 			}
 			else

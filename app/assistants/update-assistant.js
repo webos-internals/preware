@@ -133,7 +133,7 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	this.stayAwake.start();
 	
 	// start with checking the internet connection
-	this.displayAction('Checking Connection');
+	this.displayAction('Checking Internet Connection<br><br>This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Packaage Manager Service and Preware are installed properly.');
 	this.hideProgress();
 	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
 	    method: 'getstatus',
@@ -150,7 +150,7 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	}
 	
 	// run version check
-	this.displayAction('Checking Version');
+	this.displayAction('Checking Package Manager Version<br><br>This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Package Manager Service and Preware are installed properly.');
 	IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
 }
 UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
@@ -170,7 +170,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 		{
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and waiting longer before starting Preware.');
 				return;
 			}
 			else
@@ -198,13 +198,13 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 				if (hasNet && !onlyLoad) 
 				{
 					// initiate update if we have a connection
-					this.displayAction('Updating');
+					this.displayAction('Downloading Feed Information<br><br>This should only take a couple of minutes maximum even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds until you find the one which is not responding.');
 					IPKGService.update(this.onUpdate.bindAsEventListener(this));
 				}
 				else 
 				{
 					// if not, go right to loading the pkg info
-					this.displayAction('Loading');
+					this.displayAction('Loading Package Information');
 					IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 				}
 			}
@@ -253,7 +253,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			prefs.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
 			
 			// lets call the function to update the global list of pkgs
-			this.displayAction('Loading');
+			this.displayAction('Loading Package Information');
 			IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 		}
 	}

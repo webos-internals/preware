@@ -175,7 +175,11 @@ IPKGService.logPayload = function(payload, stage)
 			this.log += '<div class="stdErr">';
 			for (var s = 0; s < payload.stdErr.length; s++)
 			{
-				this.log += '<div>' + payload.stdErr[s] + '</div>';
+				// These messages just confuse users
+				if (!payload.stdErr[s].include("(offline root mode: not running "))
+				{      
+					this.log += '<div>' + payload.stdErr[s] + '</div>';
+				}
 			}
 			this.log += '</div>';
 		}
