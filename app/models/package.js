@@ -551,8 +551,8 @@ packageModel.prototype.getDependencies = function(justNeeded)
 				{
 					if (packages.packages[p].pkg == this.depends[d].pkg) 
 					{
-						alert(packages.packages[p].title);
-						for (var t in this.depends[d]) alert(t + ': ' + this.depends[d][t]);
+						//alert(packages.packages[p].title);
+						//for (var t in this.depends[d]) alert(t + ': ' + this.depends[d][t]);
 						
 						if (!justNeeded) 
 						{

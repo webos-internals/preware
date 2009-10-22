@@ -81,7 +81,7 @@ PkgViewAssistant.prototype.setupImages = function()
 		// app icons for plugins and services
 		var scrollItems = '';
 		this.dependents = this.item.getDependent(false, true);
-		/* FIXME
+
 		if (packages.can(this.item.type, 'showScreenshots') && this.item.screenshots.length > 0) 
 		{
 			this.controller.get('scrollerContainer').className = 'palm-row screenshots';
@@ -102,7 +102,7 @@ PkgViewAssistant.prototype.setupImages = function()
 				Mojo.Event.listen(this.controller.get('ss_' + s), Mojo.Event.tap, this.screenshotTap);
 			}
 		}
-		else */ if (packages.can(this.item.type, 'showDependents') && this.dependents.length > 0) 
+		else if (packages.can(this.item.type, 'showDependents') && this.dependents.length > 0) 
 		{
 			this.controller.get('scrollerContainer').className = 'palm-row apps';
 			scrollItems += '<div class="appReset"></div>';
