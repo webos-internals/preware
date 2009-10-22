@@ -48,7 +48,7 @@ PkgConnectedAssistant.prototype.setup = function()
 	this.controller.get('pkgSingle').style.display = 'none';
 	
 	// set title
-	if (this.type == 'install')		this.controller.get('listTitle').innerHTML = 'Packages Needed To Install This';
+	if (this.type == 'install')	this.controller.get('listTitle').innerHTML = 'Packages To Be Installed/Updated';
 	else if (this.type == 'remove') this.controller.get('listTitle').innerHTML = 'Packages That Depend On This';
 	
 	// load single
@@ -176,7 +176,7 @@ PkgConnectedAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// if type is for multi-install push install button 
 	if (this.type == 'install')
 	{
-		this.cmdMenuModel.items.push({label: $L('Install All'), command: 'do-install'});
+		this.cmdMenuModel.items.push({label: $L('Install/Update All'), command: 'do-install'});
 	}
 	
 	// this is to put space around the icons

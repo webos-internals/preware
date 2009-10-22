@@ -150,7 +150,7 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	}
 	
 	// run version check
-	this.displayAction('Checking Package Manager Version<br><br>This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Package Manager Service and Preware are installed properly.');
+	this.displayAction('Checking Package Manager Version<br><br>This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and not launch Preware until you have a stable network connection available.');
 	IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
 }
 UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
@@ -170,7 +170,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 		{
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and waiting longer before starting Preware.');
+				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.');
 				return;
 			}
 			else
@@ -198,7 +198,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 				if (hasNet && !onlyLoad) 
 				{
 					// initiate update if we have a connection
-					this.displayAction('Downloading Feed Information<br><br>This should only take a couple of minutes maximum even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds until you find the one which is not responding.');
+					this.displayAction('Downloading Feed Information<br><br>This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding.');
 					IPKGService.update(this.onUpdate.bindAsEventListener(this));
 				}
 				else 
@@ -235,7 +235,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, , first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.');
 				return;
 			}
 			else
@@ -282,7 +282,7 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.');
 				return;
 			}
 			else

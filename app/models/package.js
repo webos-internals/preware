@@ -551,54 +551,23 @@ packageModel.prototype.getDependencies = function(justNeeded)
 				{
 					if (packages.packages[p].pkg == this.depends[d].pkg) 
 					{
-						//alert(packages.packages[p].title);
-						//for (var t in this.depends[d]) alert(t + ': ' + this.depends[d][t]);
+						alert(packages.packages[p].title);
+						for (var t in this.depends[d]) alert(t + ': ' + this.depends[d][t]);
 						
 						if (!justNeeded) 
 						{
 							returnArray.push(p);
 						}
-						// if we want just whats needed, check the version numbers etc
+						// if we want just whats needed, check for updates
 						else
 						{
 							if (packages.packages[p].isInstalled)
 							{
-								/* // not checking version stuff, and eval probably isn't really the best way to do it
-								// if it doesn't have dependent version information, being installed is all we need
-								if (this.depends[d].match && this.depends[d].version) 
+								// if it has an update, it's a dependency
+								if (packages.packages[p].hasUpdate)
 								{
-									// if it doesn't have an update, we'll just assume the installed version is ok because its all they're going to get
-									if (packages.packages[p].hasUpdate)
-									{
-										// there really should always be an installed version number if there is an update...
-										if (packages.packages[p].versionInstalled) 
-										{
-											// first we check against the installed version
-											// eval seems like the best way to do these tests? (in simple tests while writing this, it seemed to work)
-											eval('var versionTest = (packages.packages[p].versionInstalled ' + this.depends[d].match + ' this.depends[d].version);');
-											if (!versionTest) 
-											{
-												// if the installed version didn't pass the thest, check the update version
-												eval('var versionTest = (packages.packages[p].version ' + this.depends[d].match + ' this.depends[d].version);');
-												if (versionTest) 
-												{
-													// if the update passes the test, this package is "needed"
-													returnArray.push(p);
-												}
-											}
-										}
-										// really, this shouldn't happen... but if it does, this will test against the "version" field
-										else
-										{
-											eval('var versionTest = (packages.packages[p].version ' + this.depends[d].match + ' this.depends[d].version);');
-											if (versionTest) 
-											{
-												returnArray.push(p);
-											}
-										}
-									}
+									returnArray.push(p);
 								}
-								*/
 							}
 							// if its not installed then we'll assume we need
 							else
@@ -814,25 +783,50 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 		Mojo.Log.logException(e, 'packageModel#doInstall');
 	}
 }
-packageModel.prototype.doUpdate = function(assistant)
+
+packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 {
 	try 
 	{
 		// save assistant
 		this.assistant = assistant;
 		
-		// start action
-		this.assistant.displayAction('Downloading/Updating');
-		this.assistant.startAction();
+		// check dependencies and do multi-install
+		if (!skipDeps) 
+		{
+			this.assistant.displayAction('Checking Dependencies');
+			var deps = this.getDependenciesRecursive(true); // true to get "just needed" packages
+			if (deps.length > 0) 
+			{
+				packages.checkMultiInstall(this, deps, assistant);
+				return;
+			}
+		}
 		
-		// call install service for update, yes
-		this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.pkg, this.title);
+		// start action
+		if (multi != undefined)
+		{
+			this.assistant.displayAction('Downloading/Updating');
+
+			// call install service for update, yes
+			this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title);
+		}
+		else
+		{
+			this.assistant.displayAction('Downloading/Updating');
+
+			this.assistant.startAction();
+		
+			// call install service for update, yes
+			this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.pkg, this.title);
+		}
 	}
 	catch (e) 
 	{
 		Mojo.Log.logException(e, 'packageModel#doUpdate');
 	}
 }
+
 packageModel.prototype.doRemove = function(assistant, skipDeps)
 {
 	try 

@@ -22,7 +22,7 @@ function packagesModel()
 	 * update			// can be updated (installed over the top of the old version) this also makes the button appear in the view scene
 	 * updateAsReplace	// is updated by removing then reinstalling
 	 * showScreenshots	// may have screenshots that should be displayed, for view scene
-	 * showDependendent	// may have dependent packages that should be displayed, for view scene
+	 * showDependents	// may have dependent packages that should be displayed, for view scene
 	 */
 	this.typeConditions =
 	{
@@ -32,24 +32,24 @@ function packagesModel()
 			launch: true,
 			update: true,
 			showScreenshots: true,
-			showDependendent: true
+			showDependents: true
 		},
 		Service:
 		{
 			update: true,
-			showDependendent: true
+			showDependents: true
 		},
 		Plugin:
 		{
 			update: true,
-			showDependendent: true
+			showDependents: true
 		},
 		Patch:
 		{
 			//update: true,
 			updateAsReplace: true,
 			showScreenshots: true,
-			showDependendent: true
+			showDependents: true
 		},
 		Theme:
 		{
@@ -66,17 +66,17 @@ function packagesModel()
 		Optware:
 		{
 			update: true,
-			showDependendent: true
+			showDependents: true
 		},
 		'Linux Application':
 		{
 			update: true,
-			showDependendent: true
+			showDependents: true
 		},
 		'System Utilities':
 		{
 			update: true,
-			showDependendent: true
+			showDependents: true
 		},
 		
 		// unknown (used by actual unknown type, and any other type without values)
@@ -765,9 +765,9 @@ packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 		
 		// see what they want to do:
 		this.assistant.actionMessage(
-			'This package depends on <b>' + this.multiPkgs.length + '</b> other package' + (this.multiPkgs.length>1?'s':'') + ' to be installed.',
+			'This package depends on <b>' + this.multiPkgs.length + '</b> other package' + (this.multiPkgs.length>1?'s':'') + ' to be installed or updated.',
 			[
-				{label:$L('Install ' + (this.multiPkgs.length>1?'Them':'It')), value:'ok'},
+				{label:$L('Install/Update ' + (this.multiPkgs.length>1?'Them':'It')), value:'ok'},
 				{label:$L('View ' + (this.multiPkgs.length>1?'Them':'It')), value:'view'},
 				{label:$L('Cancel'), value:'cancel'}
 			],
@@ -780,6 +780,7 @@ packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 		Mojo.Log.logException(e, 'packagesModel#checkMultiInstall');
 	}
 }
+
 packagesModel.prototype.checkMultiRemove = function(pkg, pkgs, assistant)
 {
 	try 
@@ -816,7 +817,7 @@ packagesModel.prototype.testMultiInstall = function(value)
 	switch(value)
 	{
 		case 'ok':
-			this.assistant.displayAction('Installing');
+			this.assistant.displayAction('Installing/Updating');
 			this.assistant.startAction();
 			this.doMultiInstall(0);
 			break;
@@ -829,6 +830,7 @@ packagesModel.prototype.testMultiInstall = function(value)
 	}
 	return;
 }
+
 packagesModel.prototype.testMultiRemove = function(value)
 {
 	switch(value)
