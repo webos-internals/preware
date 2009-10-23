@@ -74,6 +74,12 @@ body.palm-dark .palm-row-wrapper .pkgCount .count
 	color: #666;
 	font-size: 16px;
 }
+.update #spinner #spinnerStatus .text
+{
+	margin-top: 10px;
+	padding: 10px;
+	text-align: left;
+}
 body.palm-dark .update #spinner #spinnerStatus
 {
 	color: #999;

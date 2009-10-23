@@ -133,7 +133,7 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	this.stayAwake.start();
 	
 	// start with checking the internet connection
-	this.displayAction('Checking Internet Connection<br><br>This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Packaage Manager Service and Preware are installed properly.');
+	this.displayAction('<strong>Checking Internet Connection</strong><div class="text">This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Packaage Manager Service and Preware are installed properly.</div>');
 	this.hideProgress();
 	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
 	    method: 'getstatus',
@@ -150,7 +150,7 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	}
 	
 	// run version check
-	this.displayAction('Checking Package Manager Version<br><br>This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and not launch Preware until you have a stable network connection available.');
+	this.displayAction('<strong>Checking Package Manager Version</strong><div class="text">This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and not launch Preware until you have a stable network connection available.</div>');
 	IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
 }
 UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
@@ -198,13 +198,13 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 				if (hasNet && !onlyLoad) 
 				{
 					// initiate update if we have a connection
-					this.displayAction('Downloading Feed Information<br><br>This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding.');
+					this.displayAction('<strong>Downloading Feed Information</strong><div class="text">This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding.</div>');
 					IPKGService.update(this.onUpdate.bindAsEventListener(this));
 				}
 				else 
 				{
 					// if not, go right to loading the pkg info
-					this.displayAction('Loading Package Information');
+					this.displayAction('<strong>Loading Package Information</strong>');
 					IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 				}
 			}
@@ -253,7 +253,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			prefs.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
 			
 			// lets call the function to update the global list of pkgs
-			this.displayAction('Loading Package Information');
+			this.displayAction('<strong>Loading Package Information</strong>');
 			IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 		}
 	}
@@ -359,7 +359,7 @@ UpdateAssistant.prototype.doneUpdating = function()
 	this.isLoading = false;
 	
 	// show that we're done (while the pushed scene is going)
-	this.displayAction('Done!');
+	this.displayAction('<strong>Done!</strong>');
 	this.hideProgress();
 	
 	// we're done loading so let the phone sleep if it needs to
@@ -405,7 +405,7 @@ UpdateAssistant.prototype.handleCommand = function(event)
 }
 UpdateAssistant.prototype.errorMessage = function(title, message)
 {
-	this.displayAction('ERROR!');
+	this.displayAction('<strong>ERROR!</strong>');
 	this.hideProgress();
 	
 	this.controller.showAlertDialog(

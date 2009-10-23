@@ -763,14 +763,14 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 		// start action
 		if (multi != undefined)
 		{
-			this.assistant.displayAction('Downloading/Installing<br />' + this.title);
+			this.assistant.displayAction('Downloading / Installing<br />' + this.title);
 			
 			// call install service
 			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this, multi), this.pkg, this.title);
 		}
 		else
 		{
-			this.assistant.displayAction('Downloading/Installing');
+			this.assistant.displayAction('Downloading / Installing');
 			
 			this.assistant.startAction();
 		
@@ -806,14 +806,14 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 		// start action
 		if (multi != undefined)
 		{
-			this.assistant.displayAction('Downloading/Updating');
+			this.assistant.displayAction('Downloading / Updating');
 
 			// call install service for update, yes
 			this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title);
 		}
 		else
 		{
-			this.assistant.displayAction('Downloading/Updating');
+			this.assistant.displayAction('Downloading / Updating');
 
 			this.assistant.startAction();
 		

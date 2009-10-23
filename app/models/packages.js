@@ -97,7 +97,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 		
 		if (this.feeds.length > 0)
 		{
-			this.updateAssistant.displayAction('Loading Package Information');
+			this.updateAssistant.displayAction('<strong>Loading Package Information</strong>');
 			this.updateAssistant.showProgress();
 			
 			this.infoStatusRequest();
@@ -111,7 +111,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 packagesModel.prototype.infoStatusRequest = function()
 {
 	// update display
-	this.updateAssistant.displayAction('Loading Package Information<br>Status');
+	this.updateAssistant.displayAction('<strong>Loading Package Information</strong><br>Status');
 	this.updateAssistant.setProgress(Math.round((1/(this.feeds.length+1)) * 100));
 	
 	// request the rawdata
@@ -126,7 +126,7 @@ packagesModel.prototype.infoListRequest = function(num)
 	}
 	
 	// update display
-	this.updateAssistant.displayAction('Loading Package Information<br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1));
+	this.updateAssistant.displayAction('<strong>Loading Package Information</strong><br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1));
 	this.updateAssistant.setProgress(Math.round(((num+2)/(this.feeds.length+1)) * 100));
 	this.feedNum++;
 	
@@ -210,7 +210,7 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		else 
 		{
 			// we're done
-			this.updateAssistant.displayAction('Complete');
+			this.updateAssistant.displayAction('<strong>Complete</strong>');
 			this.updateAssistant.setProgress(100);
 			this.doneLoading();
 		}
@@ -767,7 +767,7 @@ packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 		this.assistant.actionMessage(
 			'This package depends on <b>' + this.multiPkgs.length + '</b> other package' + (this.multiPkgs.length>1?'s':'') + ' to be installed or updated.',
 			[
-				{label:$L('Install/Update ' + (this.multiPkgs.length>1?'Them':'It')), value:'ok'},
+				{label:$L('Install / Update ' + (this.multiPkgs.length>1?'Them':'It')), value:'ok'},
 				{label:$L('View ' + (this.multiPkgs.length>1?'Them':'It')), value:'view'},
 				{label:$L('Cancel'), value:'cancel'}
 			],
@@ -817,7 +817,7 @@ packagesModel.prototype.testMultiInstall = function(value)
 	switch(value)
 	{
 		case 'ok':
-			this.assistant.displayAction('Installing/Updating');
+			this.assistant.displayAction('Installing / Updating');
 			this.assistant.startAction();
 			this.doMultiInstall(0);
 			break;

@@ -8,8 +8,9 @@ function MainAssistant()
 		{weight: 15, text: 'The Open Standard Installer'},
 		{weight: 15, text: 'The Universal Application Installer'},
 		{weight: 15, text: 'Accessing All Open Standard Feeds'},
-		{weight:  1, text: 'Now With More Cowbell'},
-		{weight:  1, text: 'Random Taglines Are Awesome'}
+		{weight:  2, text: 'Now With More Cowbell'},
+		{weight:  2, text: 'Random Taglines Are Awesome'},
+		{weight:  2, text: 'We Did It First.'}
 	]
 	
 	// setup menu
