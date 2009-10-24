@@ -21,6 +21,7 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 	this.isLoading = true;
 	this.isActive  = true;
 	this.isVisible = false;
+	this.onlyLoad  = false;
 	
 	// load stayawake class
 	this.stayAwake = new stayAwake();
@@ -90,6 +91,7 @@ UpdateAssistant.prototype.setup = function()
 	{
 		// straight to loading
 		this.updateFeeds(true);
+		this.onlyLoad = true;
 	}
 	else if (prefs.get().updateInterval == 'daily')
 	{
@@ -104,6 +106,7 @@ UpdateAssistant.prototype.setup = function()
 		{
 			// straight to loading
 			this.updateFeeds(true);
+			this.onlyLoad = true;
 		}
 	}
 	else
@@ -133,7 +136,8 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	this.stayAwake.start();
 	
 	// start with checking the internet connection
-	this.displayAction('<strong>Checking Internet Connection</strong><div class="text">This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Packaage Manager Service and Preware are installed properly.</div>');
+	this.displayAction('<strong>Checking Internet Connection</strong>', 'This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Packaage Manager Service and Preware are installed properly.');
+	this.showActionHelpTimer(2);
 	this.hideProgress();
 	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
 	    method: 'getstatus',
@@ -150,7 +154,8 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	}
 	
 	// run version check
-	this.displayAction('<strong>Checking Package Manager Version</strong><div class="text">This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and not launch Preware until you have a stable network connection available.</div>');
+	this.displayAction('<strong>Checking Package Manager Version</strong>', 'This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and not launch Preware until you have a stable network connection available.');
+	this.showActionHelpTimer(2);
 	IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
 }
 UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
@@ -198,7 +203,8 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 				if (hasNet && !onlyLoad) 
 				{
 					// initiate update if we have a connection
-					this.displayAction('<strong>Downloading Feed Information</strong><div class="text">This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding.</div>');
+					this.displayAction('<strong>Downloading Feed Information</strong>', 'This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding.');
+					this.showActionHelpTimer(120); // 2 minutes
 					IPKGService.update(this.onUpdate.bindAsEventListener(this));
 				}
 				else 
@@ -235,7 +241,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, , first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.');
+				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.');
 				return;
 			}
 			else
@@ -331,9 +337,38 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 	}
 }
 
-UpdateAssistant.prototype.displayAction = function(msg)
+UpdateAssistant.prototype.displayAction = function(msg, msgHelp)
 {
-	this.controller.get('spinnerStatus').innerHTML = msg;
+	this.showActionHelpTimerClear();
+	var statusText = msg;
+	if (msgHelp)
+	{
+		statusText += '<div class="text" id="spinnerStatusHelp" style="display:none;">' + msgHelp + '</div>';
+	}
+	this.controller.get('spinnerStatus').innerHTML = statusText;
+}
+UpdateAssistant.prototype.showActionHelpTimer = function(time)
+{
+	this.showActionHelpTimerClear();
+	this.currentHelpTimer = this.controller.window.setTimeout(this.showActionHelp.bind(this), time * 1000);
+}
+UpdateAssistant.prototype.showActionHelpTimerClear = function()
+{
+	if (this.currentHelpTimer)
+	{
+		this.controller.window.clearTimeout(this.currentHelpTimer);
+	}
+}
+UpdateAssistant.prototype.showActionHelp = function()
+{
+	if (this.currentHelpTimer) 
+	{
+		this.showActionHelpTimerClear();
+		if (this.controller.get('spinnerStatusHelp')) 
+		{
+			this.controller.get('spinnerStatusHelp').style.display = '';
+		}
+	}
 }
 UpdateAssistant.prototype.showProgress = function()
 {
@@ -375,7 +410,15 @@ UpdateAssistant.prototype.doneUpdating = function()
 	
 	if (!this.isActive || !this.isVisible)
 	{	// if we're not the active scene, let them know via banner:
-		Mojo.Controller.getAppController().showBanner({messageText:'Preware: Done Updating Feeds', icon:'miniicon.png'}, {source:'updateNotification'});
+		if (this.onlyLoad) 
+		{
+			Mojo.Controller.getAppController().showBanner({messageText:'Preware: Done Loading Feeds', icon:'miniicon.png'}, {source:'updateNotification'});
+		}
+		else
+		{
+			Mojo.Controller.getAppController().showBanner({messageText:'Preware: Done Updating Feeds', icon:'miniicon.png'}, {source:'updateNotification'});
+		}
+		
 	}
 }
 
