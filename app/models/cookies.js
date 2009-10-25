@@ -99,7 +99,52 @@ preferenceCookie.prototype.load = function()
 function versionCookie()
 {
 	this.cookie = false;
+	this.isFirst = false;
+	this.isNew = false;
+	this.oldVersion = false;
+	this.init();
 }
-
-
-
+versionCookie.prototype.init = function()
+{
+	try
+	{
+		this.cookie = new Mojo.Model.Cookie('version');
+		var data = this.cookie.get();
+		if (data)
+		{
+			if (data.version == Mojo.appInfo.version)
+			{
+				//alert('Same Version');
+			}
+			else
+			{
+				//alert('New Version');
+				this.isNew = true;
+				this.oldVersion = data.version;
+				this.put();
+			}
+		}
+		else
+		{
+			//alert('First Launch');
+			this.isFirst = true;
+			this.put();
+		}
+		// uncomment to delete cookie
+		this.cookie.remove();
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'versionCookie#init');
+	}
+}
+versionCookie.prototype.put = function()
+{
+	//this.cookie.put({version: '0.0.1'});
+	this.cookie.put({version: Mojo.appInfo.version});
+}
+versionCookie.prototype.showStartupScene = function()
+{
+	if (this.isNew || this.isFirst) return true;
+	else return false;
+}
