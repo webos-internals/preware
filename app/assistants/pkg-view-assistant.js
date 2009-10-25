@@ -9,11 +9,7 @@ function PkgViewAssistant(item, listAssistant)
 	this.listAssistant = listAssistant;
 	
 	// setup command menu
-	this.cmdMenuModel =
-	{
-		label: $L('Menu'), 
-		items: []
-	};
+	this.cmdMenuModel = {items:[]};
 	
 	// setup menu
 	this.menuModel =

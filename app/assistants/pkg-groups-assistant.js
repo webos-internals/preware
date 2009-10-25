@@ -19,11 +19,7 @@ function PkgGroupsAssistant(item)
 	this.listModel = {items:[]};
 	
 	// setup command menu
-	this.cmdMenuModel =
-	{
-		label: $L('Menu'), 
-		items: []
-	}
+	this.cmdMenuModel = {items:[]};
 	
 	// setup menu
 	this.menuModel =

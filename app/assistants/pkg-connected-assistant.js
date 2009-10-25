@@ -11,7 +11,6 @@ function PkgConnectedAssistant(type, pkg, pkgs)
 	// setup command menu
 	this.cmdMenuModel =
 	{
-		label: $L('Menu'), 
 		items: []
 	};
 	

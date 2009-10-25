@@ -130,8 +130,8 @@ versionCookie.prototype.init = function()
 			this.isFirst = true;
 			this.put();
 		}
-		// uncomment to delete cookie
-		this.cookie.remove();
+		// uncomment to delete cookie for testing
+		//this.cookie.remove();
 	}
 	catch (e) 
 	{
@@ -140,8 +140,9 @@ versionCookie.prototype.init = function()
 }
 versionCookie.prototype.put = function()
 {
-	//this.cookie.put({version: '0.0.1'});
 	this.cookie.put({version: Mojo.appInfo.version});
+	// uncomment to set lower version for testing
+	//this.cookie.put({version: '0.0.1'});
 }
 versionCookie.prototype.showStartupScene = function()
 {

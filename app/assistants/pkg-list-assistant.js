@@ -18,15 +18,11 @@ function PkgListAssistant(item, searchText, currentSort)
 	// holds the model that has been filtered for use by the list
 	this.listModel = {items:[]};
 	
+	// setup command menu
+	this.cmdMenuModel = {items:[]};
+	
 	// holds group menu dropdown info
 	this.groupMenu = false;
-	
-	// setup command menu
-	this.cmdMenuModel =
-	{
-		label: $L('Menu'), 
-		items: []
-	};
 	
 	// holds the search 
 	this.searchTimer = false;

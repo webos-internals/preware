@@ -44,7 +44,7 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 
 UpdateAssistant.prototype.setup = function()
 {
-	// set theme because this is the first scene pushed
+	// set theme because this can be the first scene pushed
 	this.controller.document.body.className = prefs.get().theme;
 	
 	// setup menu
@@ -61,6 +61,9 @@ UpdateAssistant.prototype.setup = function()
 	// setup spinner spinner model
 	this.spinnerModel = {spinning: true};
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
+	
+	// set this scene's default transition
+	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 	
 	// hide progress bar
 	this.hideProgress();

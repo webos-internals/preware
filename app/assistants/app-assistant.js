@@ -1,16 +1,15 @@
-// we load these global objects here because this scene is the first to get pushed to the stack...
-// But it probably doesn't matter...
-
-// global items object
+// global packages object
 var packages = new packagesModel();
 
-// holds the preferences cookie
+// get the cookies
 var prefs = new preferenceCookie();
+var vers =  new versionCookie();
 
-function AppAssistant() {}
-
+// stage names
 var mainStageName = 'preware-main';
 var dashStageName = 'preware-dash';
+
+function AppAssistant() {}
 
 AppAssistant.prototype.handleLaunch = function(params)
 {
@@ -22,13 +21,11 @@ AppAssistant.prototype.handleLaunch = function(params)
 		{
 	        if (mainStageController) 
 			{
-				// if it exists, just bring it to the front by focusing its window.
-				mainStageController.popScenesTo("main");
+				mainStageController.popScenesTo('main');
 				mainStageController.activate();
 			}
 			else
 			{
-				// launch the stage
 				this.controller.createStageWithCallback({name: mainStageName, lightweight: true}, this.launchFirstScene.bind(this));
 			}
 		}
@@ -41,7 +38,14 @@ AppAssistant.prototype.handleLaunch = function(params)
 
 AppAssistant.prototype.launchFirstScene = function(controller)
 {
-	controller.pushScene("update", "main", false);
+	if (vers.showStartupScene()) 
+	{
+		controller.pushScene('startup');
+	}
+	else
+	{
+		controller.pushScene('update', 'main', false);
+	}
 }
 
 AppAssistant.prototype.cleanup = function() {}
