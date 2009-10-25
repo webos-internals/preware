@@ -1,11 +1,10 @@
-function prefCookie()
+function preferenceCookie()
 {
 	this.cookie = false;
 	this.prefs = false;
 	this.load();
 }
-
-prefCookie.prototype.get = function(reload)
+preferenceCookie.prototype.get = function(reload)
 {
 	try 
 	{
@@ -20,7 +19,6 @@ prefCookie.prototype.get = function(reload)
 				// Startup Group
 				updateInterval: 'launch',
 				lastUpdate: 0, // will be updated every time update is successful
-				
 				// Main Scene Group
 				showAllTypes: false,
 				showTypeApplication: true,
@@ -60,11 +58,10 @@ prefCookie.prototype.get = function(reload)
 	} 
 	catch (e) 
 	{
-		Mojo.Log.logException(e, 'prefCookie#get');
+		Mojo.Log.logException(e, 'preferenceCookie#get');
 	}
 }
-
-prefCookie.prototype.put = function(obj, value)
+preferenceCookie.prototype.put = function(obj, value)
 {
 	try
 	{
@@ -81,11 +78,10 @@ prefCookie.prototype.put = function(obj, value)
 	} 
 	catch (e) 
 	{
-		Mojo.Log.logException(e, 'prefCookie#put');
+		Mojo.Log.logException(e, 'preferenceCookie#put');
 	}
 }
-
-prefCookie.prototype.load = function()
+preferenceCookie.prototype.load = function()
 {
 	try
 	{
@@ -96,6 +92,14 @@ prefCookie.prototype.load = function()
 	} 
 	catch (e) 
 	{
-		Mojo.Log.logException(e, 'prefCookie#load');
+		Mojo.Log.logException(e, 'preferenceCookie#load');
 	}
 }
+
+function versionCookie()
+{
+	this.cookie = false;
+}
+
+
+

@@ -1,12 +1,3 @@
-// we load these global objects here because this scene is the first to get pushed to the stack...
-// But it probably doesn't matter...
-
-// global items object
-var packages = new packagesModel();
-
-// holds the preferences cookie
-var prefs = new prefCookie();
-
 function UpdateAssistant(scene, force, var1, var2, var3)
 {
 	// load variables we will use when we're done updating
@@ -418,7 +409,6 @@ UpdateAssistant.prototype.doneUpdating = function()
 		{
 			Mojo.Controller.getAppController().showBanner({messageText:'Preware: Done Updating Feeds', icon:'miniicon.png'}, {source:'updateNotification'});
 		}
-		
 	}
 }
 

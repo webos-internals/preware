@@ -1,7 +1,7 @@
 function PreferencesAssistant()
 {
-	// setup default preferences in the prefCookie.js model
-	this.cookie = new prefCookie();
+	// setup default preferences in the preferenceCookie.js model
+	this.cookie = new preferenceCookie();
 	this.prefs = this.cookie.get();
 	
 	// for secret group

@@ -1,11 +1,15 @@
 [
-    {"source": "app/assistants/app-assistant.js"},
     {"source": "app/models/utility.js"},
     {"source": "app/models/IPKGService.js"},
     {"source": "app/models/packages.js"},
     {"source": "app/models/package.js"},
-    {"source": "app/models/prefCookie.js"},
+    {"source": "app/models/cookies.js"},
     {"source": "app/models/stayAwake.js"},
+    {"source": "app/assistants/app-assistant.js"},
+    {
+        "scenes": "startup",
+        "source": "app/assistants/startup-assistant.js"
+    },
     {
         "scenes": "update",
         "source": "app/assistants/update-assistant.js"
