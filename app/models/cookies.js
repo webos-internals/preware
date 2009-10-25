@@ -101,7 +101,6 @@ function versionCookie()
 	this.cookie = false;
 	this.isFirst = false;
 	this.isNew = false;
-	this.oldVersion = false;
 	this.init();
 }
 versionCookie.prototype.init = function()
@@ -120,7 +119,6 @@ versionCookie.prototype.init = function()
 			{
 				//alert('New Version');
 				this.isNew = true;
-				this.oldVersion = data.version;
 				this.put();
 			}
 		}
@@ -128,10 +126,11 @@ versionCookie.prototype.init = function()
 		{
 			//alert('First Launch');
 			this.isFirst = true;
+			this.isNew = true;
 			this.put();
 		}
 		// uncomment to delete cookie for testing
-		//this.cookie.remove();
+		this.cookie.remove();
 	}
 	catch (e) 
 	{

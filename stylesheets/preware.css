@@ -57,6 +57,33 @@ body.palm-dark .palm-row-wrapper .pkgCount .count
 
 
 /*
+ * Startup Scene Styles
+ */
+.startup #data .palm-divider.labeled .label
+{
+	text-transform: lowercase;
+}
+.startup #data
+{
+	font-size: 18px;
+}
+.startup #data .text
+{
+	padding-top: 4px;
+	padding-left: 17px;
+	padding-right: 15px;
+	padding-bottom: 10px;
+}
+.startup #data ul
+{
+	margin: 0px;
+	padding-left: 37px;
+	padding-right: 15px;
+	padding-bottom: 10px;
+}
+
+
+/*
  * Update Scene Styles
  */
 .update #spinner

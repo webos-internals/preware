@@ -1,19 +1,38 @@
 function StartupAssistant()
 {
 	// on first start, this message is displayed, along with the current version message from below
-	var firstMessage = ['Here is the message displayed to the user on first launch'];
+	this.firstMessage = 'Here is the message displayed to the user on first launch. Welcome to preware, etc, etc, here is some other helpful random information.' +
+						'When this is not a first launch, and a launch after an update, this message won\'t be visible, only the changelog below.';
 	
 	// on new version start
-	var newMessage =
-	{
-		'0.9.6':['Here is whats new in 0.9.6'],
-		'0.9.5':['Here is whats new in 0.9.5'],
-		'0.9.4':['Here is whats new in 0.9.4'],
-		'0.9.3':['Here is whats new in 0.9.3'],
-		'0.9.2':['Here is whats new in 0.9.2'],
-		'0.9.1':['Here is whats new in 0.9.1'],
-		'0.9.0':['Here is whats new in 0.9.0'],
-	};
+	this.newMessages =
+	[
+		{
+			version: '0.9.6',
+			log:
+			[
+				'The scene you\'re lookin at right now',
+				'Some other totally awesome stuff not listed here yet'
+			]
+		},
+		{
+			version: '0.9.5',
+			log:
+			[
+				'Added helpful text to update scene',
+				'Added dependency update support',
+				'Ignore "offline root" message beacuse it\'s not an error'
+			]
+		},
+		{
+			version: '0.9.4',
+			log:
+			[
+				'asdf',
+				'asdf'
+			]
+		}
+	];
 	
 	// setup menu
 	this.menuModel =
@@ -39,7 +58,10 @@ function StartupAssistant()
 		items:
 		[
 			{},
-			{label: "Ok, I've read this. Lets Continue", command: 'do-continue'},
+			{
+				label: "Ok, I've read this. Lets Continue",
+				command: 'do-continue'
+			},
 			{}
 		]
 	};
@@ -52,10 +74,38 @@ StartupAssistant.prototype.setup = function()
 	
 	
 	// set title
-	this.controller.get('title').innerHTML = 'Welcome To Preware';
+	if (vers.isFirst) 
+	{
+		this.controller.get('title').innerHTML = 'Welcome To Preware';
+	}
+	else if (vers.isNew) 
+	{
+		this.controller.get('title').innerHTML = 'Preware Changelog';
+	}
+	
+	
+	// build data
+	var html = '';
+	if (vers.isFirst)
+	{
+		html += '<div class="text">' + this.firstMessage + '</div>';
+	}
+	if (vers.isNew)
+	{
+		for (var m = 0; m < this.newMessages.length; m++)
+		{
+			html += Mojo.View.render({object: {title: 'v' + this.newMessages[m].version}, template: 'startup/changeLog'});
+			html += '<ul>';
+			for (var l = 0; l < this.newMessages[m].log.length; l++)
+			{
+				html += '<li>' + this.newMessages[m].log[l] + '</li>';
+			}
+			html += '</ul>';
+		}
+	}
 	
 	// set data
-	this.controller.get('data').innerHTML = 'This is a temporary message...<br><br>You will be able to continue in 5 seconds.';
+	this.controller.get('data').innerHTML = html;
 	
 	
 	// setup menu
