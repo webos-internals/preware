@@ -22,8 +22,7 @@ function packageModel(info)
 		this.type =		   'Unknown';
 		this.category =	   this.info.Section;
 		this.version =	   this.info.Version;
-		this.maintainer =  this.info.Maintainer;
-		this.maintUrl =    false;
+		this.maintainer =  false; //this.info.Maintainer;
 		this.title =	   this.info.Description;
 		this.size =		   this.info.Size;
 		this.hasUpdate =   false;
@@ -119,28 +118,35 @@ function packageModel(info)
 		}
 		
 		// parse maintainer
-		if (this.maintainer)
+		if (this.info.Maintainer)
 		{
+			this.maintainer = [];
+			var mSplit = this.info.Maintainer.split(',');
 			var r = new RegExp("^([^<]*)<([^>]*)>?"); // this one is win
-			var match = this.maintainer.match(r);
-			if (match)
+			for (var m = 0; m < mSplit.length; m++) 
 			{
-				//for(var m = 0; m < match.length; m++) alert(m + ' [' + match[m] + ']');
-				this.maintainer = trim(match[1]);
-				this.maintUrl = match[2];
-				// check if its an email
-				if (this.maintUrl.include('@'))
+				var match = trim(mSplit[m]).match(r);
+				if (match)
 				{
-					// remove stupid default palm address for palm-package'd apps
-					if (this.maintUrl == 'palm@palm.com' ||		// v1.1 style
-						this.maintUrl == 'nobody@example.com')	// v1.2 style
+					var tmpMaint = {name: trim(match[1]), url: match[2]};
+					if (tmpMaint.url.include('@'))
 					{
-						this.maintUrl = false;
+						// remove stupid default palm address for palm-package'd apps
+						if (tmpMaint.url == 'palm@palm.com' ||		// v1.1 style
+							tmpMaint.url == 'nobody@example.com')	// v1.2 style
+						{
+							tmpMaint.url = false;
+						}
+						else
+						{
+							tmpMaint.url = 'mailto:' + tmpMaint.url + '?subject=' + this.title;
+						}
 					}
-					else
-					{
-						this.maintUrl = 'mailto:' + this.maintUrl + '?subject=' + this.title;
-					}
+					this.maintainer.push(tmpMaint);
+				}
+				else
+				{
+					this.maintainer.push({name: trim(mSplit[m]), url: false});
 				}
 			}
 		}

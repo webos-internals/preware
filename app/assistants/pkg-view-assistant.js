@@ -142,54 +142,100 @@ PkgViewAssistant.prototype.setupData = function()
 		var dataTemplate = 'pkg-view/dataRow';	
 		var dataTemplate2 = 'pkg-view/dataRow2';	
 		
+		
+		// add description
 		if (this.item.description)
 		{
 			data += Mojo.View.render({object: {title: 'Description', data: this.item.description}, template: dataTemplate2});
 		}
+		
+		// add homepage
 		if (this.item.homepage)
 		{
 			data += Mojo.View.render({object: {title: 'Homepage', data: '<a href="' + this.item.homepage + '">' + getDomain(this.item.homepage) + '</a>'}, template: dataTemplate});
 		}
-		if (!this.item.maintUrl)
+		
+		// add maintainer(s)
+		if (this.item.maintainer)
 		{
-			data += Mojo.View.render({object: {title: 'Maintainer', data: this.item.maintainer}, template: dataTemplate});
+			var dataM = '';
+			for (var m = 0; m < this.item.maintainer.length; m++)
+			{
+				if (dataM != '')
+				{
+					dataM += ', ';
+				}
+				if (!this.item.maintainer[m].url)
+				{
+					dataM += this.item.maintainer[m].name.replace(' ', '&nbsp;');
+				}
+				else
+				{
+					dataM += '<a href="' + this.item.maintainer[m].url + '">' + this.item.maintainer[m].name.replace(' ', '&nbsp;') + '</a>';
+				}
+			}
+			if (dataM)
+			{
+				data += Mojo.View.render({object: {title: 'Maintainer' + (this.item.maintainer.length > 1 ? 's' : ''), data: dataM}, template: dataTemplate});
+			}
 		}
-		else
-		{
-			data += Mojo.View.render({object: {title: 'Maintainer', data: '<a href="' + this.item.maintUrl + '">' + this.item.maintainer + '</a>'}, template: dataTemplate});
-		}
+		
+		// add version
 		data += Mojo.View.render({object: {title: 'Version', data: this.item.version}, template: dataTemplate});
+		
+		// add date
 		if (this.item.date)
 		{
 			data += Mojo.View.render({object: {title: 'Last Updated', data: formatDate(this.item.date)}, template: dataTemplate});
 		}
+		
+		// add download size
 		data += Mojo.View.render({object: {title: 'Download Size', data: formatSize(this.item.size)}, template: dataTemplate});
+		
+		// add installed information
 		if (this.item.isInstalled)
 		{
+			// add installed version
 			if (this.item.versionInstalled && this.item.hasUpdate)
 			{
 				data += Mojo.View.render({object: {title: 'Installed Version', data: this.item.versionInstalled}, template: dataTemplate});
 			}
+			
+			// add installed date
 			if (this.item.dateInstalled) 
 			{
 				data += Mojo.View.render({object: {title: 'Installed', data: formatDate(this.item.dateInstalled)}, template: dataTemplate});
 			}
+			
+			// add installed size
 			if (this.item.sizeInstalled) 
 			{
 				data += Mojo.View.render({object: {title: 'Installed Size', data: formatSize(this.item.sizeInstalled)}, template: dataTemplate});
 			}
 		}
+		
+		// add package id
 		data += Mojo.View.render({object: {title: 'Id', data: this.item.pkg}, template: dataTemplate});
+		
+		// add license
 		if (this.item.license) 
 		{
 			data += Mojo.View.render({object: {title: 'License', data: this.item.license}, template: dataTemplate});
 		}
+		
+		// add package type
 		data += Mojo.View.render({object: {title: 'Type', data: this.item.type}, template: dataTemplate});
+		
+		// add package category
 		data += Mojo.View.render({object: {title: 'Category', data: this.item.category}, template: dataTemplate});
+		
+		// add package feed
 		data += Mojo.View.render({object: {title: 'Feed' + (this.item.feeds.length>1?'s':''), data: this.item.feedString, rowStyle: 'last'}, template: dataTemplate});
+		
 		
 		// fillin the div with data
 		this.controller.get('data').innerHTML = data;
+		
 	}
 	catch (e) 
 	{

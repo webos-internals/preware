@@ -11,8 +11,9 @@ function StartupAssistant()
 			version: '0.9.6',
 			log:
 			[
-				'The scene you\'re lookin at right now',
-				'Some other totally awesome stuff not listed here yet'
+				'Added this startup scene right here',
+				'Fixed packages with multiple maintainers',
+				'Other awesome stuff not yet listed here'
 			]
 		},
 		{
@@ -21,7 +22,7 @@ function StartupAssistant()
 			[
 				'Added helpful text to update scene',
 				'Added dependency update support',
-				'Ignore "offline root" message beacuse it\'s not an error'
+				'Ignore "offline root" message in IPKG Log beacuse it\'s not an error'
 			]
 		},
 		{
