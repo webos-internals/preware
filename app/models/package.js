@@ -437,7 +437,20 @@ packageModel.prototype.getForList = function(item)
 		}
 		else if (prefs.get().secondRow == 'maint') 
 		{
-			listObj.sub = this.maintainer;
+			var tempM = '';
+			for (var m = 0; m < this.maintainer.length; m++) 
+			{
+				if (tempM != '') 
+				{
+					tempM += ', ';
+				}
+				tempM += this.maintainer[m].name;
+			}
+			if (tempM == '')
+			{
+				tempM = '<i>Unknown</i>';
+			}
+			listObj.sub = tempM;
 		}
 		else if (prefs.get().secondRow == 'date') 
 		{
@@ -452,13 +465,26 @@ packageModel.prototype.getForList = function(item)
 		}
 		else if (prefs.get().secondRow == 'v&m') 
 		{
+			var tempM = '';
+			for (var m = 0; m < this.maintainer.length; m++) 
+			{
+				if (tempM != '') 
+				{
+					tempM += ', ';
+				}
+				tempM += this.maintainer[m].name;
+			}
+			if (tempM == '')
+			{
+				tempM = '<i>Unknown</i>';
+			}
 			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
 			{
-				listObj.sub = 'v' + this.versionInstalled + ' - ' + this.maintainer;
+				listObj.sub = 'v' + this.versionInstalled + ' - ' + tempM;
 			}
 			else
 			{
-				listObj.sub = 'v' + this.version + ' - ' + this.maintainer;
+				listObj.sub = 'v' + this.version + ' - ' + tempM;
 			}
 		}
 		else if (prefs.get().secondRow == 'v&i') 

@@ -28,7 +28,7 @@ preferenceCookie.prototype.get = function(reload)
 				
 				// List Scene Group
 				listSort: 'default',
-				secondRow: 'id',
+				secondRow: 'v&m',
 				listInstalled: false,
 				
 				// Background Group
