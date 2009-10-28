@@ -78,13 +78,28 @@ function PkgListAssistant(item, searchText, currentSort)
 				command: 'do-help'
 			}
 		]
-	}
+	};
 }
 
 PkgListAssistant.prototype.setup = function()
 {
+	// get elements
+	this.titleElement =			this.controller.get('listTitle');
+	this.headerElement =		this.controller.get('pkgListHeader');
+	this.listElement =			this.controller.get('pkgList');
+	this.searchElement =		this.controller.get('searchText');
+	this.groupTitleElement =	this.controller.get('groupTitle');
+	this.groupSourceElement =	this.controller.get('groupSource');
+	
+	// handlers
+	this.listTapHandler =		this.listTap.bindAsEventListener(this);
+	this.menuTapHandler =		this.menuTap.bindAsEventListener(this);
+	this.filterDelayHandler =	this.filterDelay.bindAsEventListener(this);
+	this.keyHandler =			this.keyTest.bindAsEventListener(this);
+	this.searchFunction =		this.filter.bind(this);
+	
 	// setup list title
-	this.controller.get('listTitle').innerHTML = this.item.name;
+	this.titleElement.innerHTML = this.item.name;
 	
 	// change scene if this is a single group
 	if (this.item.pkgGroup)
@@ -97,15 +112,15 @@ PkgListAssistant.prototype.setup = function()
 		else
 		{
 			// update submenu styles
-			this.controller.get('pkgListHeader').className = 'palm-header left';
-			this.controller.get('groupSource').style.display = 'inline';
+			this.headerElement.className = 'palm-header left';
+			this.groupSourceElement.style.display = 'inline';
 			
-			if (this.item.pkgGroup[0]		== 'types')			this.controller.get('groupTitle').innerHTML = this.item.pkgType;
-			else if (this.item.pkgGroup[0]	== 'feeds')			this.controller.get('groupTitle').innerHTML = this.item.pkgFeed;
-			else if (this.item.pkgGroup[0]	== 'categories')	this.controller.get('groupTitle').innerHTML = this.item.pkgCat;
+			if (this.item.pkgGroup[0]		== 'types')			this.groupTitleElement.innerHTML = this.item.pkgType;
+			else if (this.item.pkgGroup[0]	== 'feeds')			this.groupTitleElement.innerHTML = this.item.pkgFeed;
+			else if (this.item.pkgGroup[0]	== 'categories')	this.groupTitleElement.innerHTML = this.item.pkgCat;
 			
 			// listen for tap to open menu
-			Mojo.Event.listen(this.controller.get('groupSource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
+			this.controller.listen(this.groupSourceElement, Mojo.Event.tap, this.menuTapHandler);
 		}
 	}
 	
@@ -119,7 +134,7 @@ PkgListAssistant.prototype.setup = function()
 	this.setupList();
 	
 	// listen for list tap
-	Mojo.Event.listen(this.controller.get('pkgList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+	this.controller.listen(this.listElement, Mojo.Event.listTap, this.listTapHandler);
 	
 	// Set up a command menu
 	this.updateCommandMenu(true);
@@ -146,29 +161,24 @@ PkgListAssistant.prototype.setup = function()
 	this.controller.setupWidget('searchText', this.searchAttributes, this.searchModel);
 	
 	// listen for type
-	this.searchFunction = this.filter.bind(this);
-	Mojo.Event.listen(this.controller.get('searchText'), Mojo.Event.propertyChange, this.filterDelayHandler.bindAsEventListener(this));
-	
-	// key handler function
-	this.keyHandler = this.keyTest.bindAsEventListener(this);
+	this.controller.listen(this.searchElement, Mojo.Event.propertyChange, this.filterDelayHandler);
 	
 	// if there isnt already search text, start listening
 	if (this.searchText == '') 
 	{
-		Mojo.Event.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
+		this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
 	}
 	// if not, show the text box
 	else
 	{
-		this.controller.get('pkgListHeader').style.display = 'none';
-		this.controller.get('searchText').style.display = 'inline';
-		//this.controller.get('searchText').mojo.setValue(this.searchText);
+		this.headerElement.style.display = 'none';
+		this.searchElement.style.display = 'inline';
+		//this.searchElement.mojo.setValue(this.searchText);
 	}
 	
 	// set this scene's default transition
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 }
-
 PkgListAssistant.prototype.activate = function(event)
 {
 	if (this.firstActivate)
@@ -176,6 +186,255 @@ PkgListAssistant.prototype.activate = function(event)
 		this.updateList();
 	}
 	this.firstActivate = true;
+}
+
+PkgListAssistant.prototype.listTap = function(event)
+{
+	// push pkg view scene with this items info
+	this.controller.stageController.pushScene('pkg-view', event.item, this);
+}
+PkgListAssistant.prototype.setupList = function()
+{
+	// setup list attributes
+	this.listAttributes = 
+	{
+		itemTemplate: "pkg-list/rowTemplate",
+		swipeToDelete: false,
+		reorderable: false,
+		onItemRendered: this.itemRendered.bind(this)
+	};
+	
+	// setp dividers templates
+	if (this.currentSort == 'date') 
+	{
+		this.listAttributes.dividerTemplate = 'pkg-list/rowDateDivider';
+	}
+	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all' && this.item.pkgValue == 'all') 
+	{
+		this.listAttributes.dividerTemplate = 'pkg-list/rowAlphaDivider';
+	}
+	
+	// if divider template, setup the divider function
+	if (this.listAttributes.dividerTemplate)
+	{
+		this.listAttributes.dividerFunction = this.getDivider.bind(this);
+	}
+	
+	// setup list widget
+	this.controller.setupWidget('pkgList', this.listAttributes, this.listModel);
+}
+PkgListAssistant.prototype.updateList = function(skipUpdate)
+{
+	// clear the current list
+	this.packages = [];
+	
+	// load pkg list
+	this.packages = packages.getPackages(this.item);
+	
+	// if there are no pkgs to list, pop the scene (later, we may replace this with a "nothing to list" message)
+	if (this.packages.length < 1)
+	{
+		this.controller.stageController.popScene();
+	}
+	
+	// pkgs are sorted alphabetically by deafult, if the current sort is date, run the sort function.
+	if (this.currentSort == 'date') 
+	{
+		this.packages.sort(function(a, b)
+		{
+			aTime = 0;
+			bTime = 0;
+			toReturn = 0;
+			
+			if (a.date) aTime = a.date;
+			if (b.date) bTime = b.date;
+			toReturn = bTime - aTime;
+			
+			if (toReturn == 0)
+			{	// if date is the same, sort by title so things aren't jumbled
+				aTitle = a.title.toLowerCase();
+				bTitle = b.title.toLowerCase();
+				toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+			}
+			
+			return toReturn
+		});
+	}
+	
+	
+	// call filter function to update list 
+	this.filter(skipUpdate);
+}
+
+PkgListAssistant.prototype.keyTest = function(event)
+{
+	// if its a valid character
+	if (Mojo.Char.isValidWrittenChar(event.originalEvent.charCode)) 
+	{
+		// display and focus search field
+		this.controller.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
+		this.headerElement.style.display = 'none';
+		this.searchElement.style.display = 'inline';
+		this.searchElement.mojo.focus();
+	}
+}
+PkgListAssistant.prototype.filterDelay = function(event)
+{
+	// clear timer (incase one already exists)
+	clearTimeout(this.searchTimer);
+	
+	// set search text
+	this.searchText = event.value;
+	
+	// if there isn't search text
+	if (this.searchText == '') 
+	{
+		// stop spinner
+		this.spinnerModel.spinning = false;
+		this.controller.modelChanged(this.spinnerModel);
+		
+		// reidsplay the title text
+		this.searchElement.mojo.blur();
+		this.searchElement.style.display = 'none';
+		this.headerElement.style.display = 'inline';
+		this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
+		this.searchFunction();
+	}
+	else
+	{
+		// start spinner
+		this.spinnerModel.spinning = true;
+		this.controller.modelChanged(this.spinnerModel);
+		
+		// set so the list update will reaveal top
+		this.searching = true;
+		
+		// start delay timer to one second
+		this.searchTimer = setTimeout(this.searchFunction, 1000);
+	}
+}
+PkgListAssistant.prototype.filter = function(skipUpdate)
+{
+	this.listModel.items = [];
+	
+	//alert(this.searchText);
+	
+	for (var p = 0; p < this.packages.length; p++) 
+	{
+		var pushIt = false;
+		
+		if (this.searchText == '')
+		{
+			this.packages[p].displayTitle = this.packages[p].title;
+			pushIt = true;
+		}
+		else if (this.packages[p].title.toLowerCase().include(this.searchText.toLowerCase()))
+		{
+     		this.packages[p].displayTitle = this.packages[p].title.replace(new RegExp('(' + this.searchText + ')', 'gi'), '<span class="highlight">$1</span>');
+			pushIt = true;
+		}
+		
+		if (pushIt) 
+		{
+			this.listModel.items.push(this.packages[p]);
+		}
+	}
+	
+	// update list widget if skipUpdate isn't set to true (meaning, its called in the setup function and not activate)
+	if (!skipUpdate) 
+	{
+		// reload list
+		this.listElement.mojo.noticeUpdatedItems(0, this.listModel.items);
+	 	this.listElement.mojo.setLength(this.listModel.items.length);
+		if (this.searching) 
+		{
+			this.listElement.mojo.revealItem(0, true);
+			this.searching = false;
+		}
+		
+		// stop spinner
+		this.spinnerModel.spinning = false;
+		this.controller.modelChanged(this.spinnerModel);
+	}
+	
+}
+
+PkgListAssistant.prototype.getDivider = function(item)
+{
+	// how to divide when sorting by date
+	if (this.currentSort == 'date')
+	{
+		if (item.date) 
+		{
+			// a number of different date breakdowns
+			var now = Math.round(new Date().getTime()/1000.0);
+			if      (now - item.date <= 86400)		return 'Today';
+			else if (now - item.date <= 172800)		return 'Yesterday';
+			else if (now - item.date <= 604800)		return 'This Week';
+			else if (now - item.date <= 1209600)	return 'Last Week';
+			else if (now - item.date <= 2629744)	return 'This Month';
+			else if (now - item.date <= 5259488)	return 'Last Month';
+			else return 'Older'; // for things 2 months or older
+		}
+		else
+		{
+			// not all feeds will supply a last-updated value (or pkgs installed by the user not in any feeds)
+			return 'Unknown';
+		}
+	}
+	// how to divide when sorted by alpha (only used by the all list)
+	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all')
+	{
+		var firstChar = item.title.substr(0, 1);
+		if (parseInt(firstChar) == firstChar) 
+		{
+			return '#';
+		}
+		else 
+		{
+			return firstChar.toUpperCase();
+		}
+	} 
+}
+PkgListAssistant.prototype.itemRendered = function(listWidget, itemModel, itemNode)
+{
+	packages.packages[itemModel.pkgNum].iconFill(this.controller.get('icon-' + itemModel.pkgNum));
+}
+
+PkgListAssistant.prototype.menuTap = function(event)
+{
+	var selectedCmd = false;
+	if (this.item.pkgGroup[0]		== 'types')			selectedCmd = this.item.pkgType;
+	else if (this.item.pkgGroup[0]	== 'feeds')			selectedCmd = this.item.pkgFeed;
+	else if (this.item.pkgGroup[0]	== 'categories')	selectedCmd = this.item.pkgCat;
+	
+	// open category selector
+	this.controller.popupSubmenu(
+	{
+		onChoose: function(value)
+		{
+			if (value === null || value == "" || value == undefined) return;
+			if (this.item.pkgGroup[0]		== 'types' &&
+				this.item.pkgType			== value) return;
+			else if (this.item.pkgGroup[0]	== 'feeds' &&
+					 this.item.pkgFeed		== value) return;
+			else if (this.item.pkgGroup[0]	== 'categories' &&
+					 this.item.pkgCat		== value) return;
+			
+			if (this.item.pkgGroup[0]		== 'types')			this.item.pkgType	= value;
+			else if (this.item.pkgGroup[0]	== 'feeds')			this.item.pkgFeed	= value;
+			else if (this.item.pkgGroup[0]	== 'categories')	this.item.pkgCat	= value;
+			
+			//this.controller.stageController.swapScene('pkg-list', this.item);
+			this.controller.stageController.swapScene({name: 'pkg-list', transition: Mojo.Transition.crossFade}, this.item);
+			return;
+			
+		},
+		popupClass: 'group-popup',
+		toggleCmd: selectedCmd,
+		placeNear: event.target,
+		items: this.groupMenu
+	});
 }
 
 PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
@@ -256,258 +515,10 @@ PkgListAssistant.prototype.handleCommand = function(event)
 	}
 }
 
-PkgListAssistant.prototype.setupList = function()
-{
-	// setup list attributes
-	this.listAttributes = 
-	{
-		itemTemplate: "pkg-list/rowTemplate",
-		swipeToDelete: false,
-		reorderable: false,
-		onItemRendered: this.itemRendered.bind(this)
-	};
-	
-	// setp dividers templates
-	if (this.currentSort == 'date') 
-	{
-		this.listAttributes.dividerTemplate = 'pkg-list/rowDateDivider';
-	}
-	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all' && this.item.pkgValue == 'all') 
-	{
-		this.listAttributes.dividerTemplate = 'pkg-list/rowAlphaDivider';
-	}
-	
-	// if divider template, setup the divider function
-	if (this.listAttributes.dividerTemplate)
-	{
-		this.listAttributes.dividerFunction = this.getDivider.bind(this);
-	}
-	
-	// setup list widget
-	this.controller.setupWidget('pkgList', this.listAttributes, this.listModel);
-}
-PkgListAssistant.prototype.itemRendered = function(listWidget, itemModel, itemNode)
-{
-	packages.packages[itemModel.pkgNum].iconFill(this.controller.get('icon-' + itemModel.pkgNum));
-}
-PkgListAssistant.prototype.getDivider = function(item)
-{
-	// how to divide when sorting by date
-	if (this.currentSort == 'date')
-	{
-		if (item.date) 
-		{
-			// a number of different date breakdowns
-			var now = Math.round(new Date().getTime()/1000.0);
-			if      (now - item.date <= 86400)		return 'Today';
-			else if (now - item.date <= 172800)		return 'Yesterday';
-			else if (now - item.date <= 604800)		return 'This Week';
-			else if (now - item.date <= 1209600)	return 'Last Week';
-			else if (now - item.date <= 2629744)	return 'This Month';
-			else if (now - item.date <= 5259488)	return 'Last Month';
-			else return 'Older'; // for things 2 months or older
-		}
-		else
-		{
-			// not all feeds will supply a last-updated value (or pkgs installed by the user not in any feeds)
-			return 'Unknown';
-		}
-	}
-	// how to divide when sorted by alpha (only used by the all list)
-	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all')
-	{
-		var firstChar = item.title.substr(0, 1);
-		if (parseInt(firstChar) == firstChar) 
-		{
-			return '#';
-		}
-		else 
-		{
-			return firstChar.toUpperCase();
-		}
-	} 
-}
-PkgListAssistant.prototype.updateList = function(skipUpdate)
-{
-	// clear the current list
-	this.packages = [];
-	
-	// load pkg list
-	this.packages = packages.getPackages(this.item);
-	
-	// if there are no pkgs to list, pop the scene (later, we may replace this with a "nothing to list" message)
-	if (this.packages.length < 1)
-	{
-		this.controller.stageController.popScene();
-	}
-	
-	// pkgs are sorted alphabetically by deafult, if the current sort is date, run the sort function.
-	if (this.currentSort == 'date') 
-	{
-		this.packages.sort(function(a, b)
-		{
-			aTime = 0;
-			bTime = 0;
-			toReturn = 0;
-			
-			if (a.date) aTime = a.date;
-			if (b.date) bTime = b.date;
-			toReturn = bTime - aTime;
-			
-			if (toReturn == 0)
-			{	// if date is the same, sort by title so things aren't jumbled
-				aTitle = a.title.toLowerCase();
-				bTitle = b.title.toLowerCase();
-				toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
-			}
-			
-			return toReturn
-		});
-	}
-	
-	
-	// call filter function to update list 
-	this.filter(skipUpdate);
-}
-PkgListAssistant.prototype.keyTest = function(event)
-{
-	// if its a valid character
-	if (Mojo.Char.isValidWrittenChar(event.originalEvent.charCode)) 
-	{
-		// display and focus search field
-		Mojo.Event.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
-		this.controller.get('pkgListHeader').style.display = 'none';
-		this.controller.get('searchText').style.display = 'inline';
-		this.controller.get('searchText').mojo.focus();
-	}
-}
-PkgListAssistant.prototype.filterDelayHandler = function(event)
-{
-	// clear timer (incase one already exists)
-	clearTimeout(this.searchTimer);
-	
-	// set search text
-	this.searchText = event.value;
-	
-	// if there isn't search text
-	if (this.searchText == '') 
-	{
-		// stop spinner
-		this.spinnerModel.spinning = false;
-		this.controller.modelChanged(this.spinnerModel);
-		
-		// reidsplay the title text
-		this.controller.get('searchText').mojo.blur();
-		this.controller.get('searchText').style.display = 'none';
-		this.controller.get('pkgListHeader').style.display = 'inline';
-		Mojo.Event.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
-		this.searchFunction();
-	}
-	else
-	{
-		// start spinner
-		this.spinnerModel.spinning = true;
-		this.controller.modelChanged(this.spinnerModel);
-		
-		// set so the list update will reaveal top
-		this.searching = true;
-		
-		// start delay timer to one second
-		this.searchTimer = setTimeout(this.searchFunction, 1000);
-	}
-}
-PkgListAssistant.prototype.filter = function(skipUpdate)
-{
-	this.listModel.items = [];
-	
-	//alert(this.searchText);
-	
-	for (var p = 0; p < this.packages.length; p++) 
-	{
-		var pushIt = false;
-		
-		if (this.searchText == '')
-		{
-			this.packages[p].displayTitle = this.packages[p].title;
-			pushIt = true;
-		}
-		else if (this.packages[p].title.toLowerCase().include(this.searchText.toLowerCase()))
-		{
-     		this.packages[p].displayTitle = this.packages[p].title.replace(new RegExp('(' + this.searchText + ')', 'gi'), '<span class="highlight">$1</span>');
-			pushIt = true;
-		}
-		
-		if (pushIt) 
-		{
-			this.listModel.items.push(this.packages[p]);
-		}
-	}
-	
-	// update list widget if skipUpdate isn't set to true (meaning, its called in the setup function and not activate)
-	if (!skipUpdate) 
-	{
-		// reload list
-		this.controller.get('pkgList').mojo.noticeUpdatedItems(0, this.listModel.items);
-	 	this.controller.get('pkgList').mojo.setLength(this.listModel.items.length);
-		if (this.searching) 
-		{
-			this.controller.get('pkgList').mojo.revealItem(0, true);
-			this.searching = false;
-		}
-		
-		// stop spinner
-		this.spinnerModel.spinning = false;
-		this.controller.modelChanged(this.spinnerModel);
-	}
-	
-}
-
-PkgListAssistant.prototype.listTapHandler = function(event)
-{
-	// push pkg view scene with this items info
-	this.controller.stageController.pushScene('pkg-view', event.item, this);
-}
-PkgListAssistant.prototype.menuTapHandler = function(event)
-{
-	var selectedCmd = false;
-	if (this.item.pkgGroup[0]		== 'types')			selectedCmd = this.item.pkgType;
-	else if (this.item.pkgGroup[0]	== 'feeds')			selectedCmd = this.item.pkgFeed;
-	else if (this.item.pkgGroup[0]	== 'categories')	selectedCmd = this.item.pkgCat;
-	
-	// open category selector
-	this.controller.popupSubmenu(
-	{
-		onChoose: function(value)
-		{
-			if (value === null || value == "" || value == undefined) return;
-			if (this.item.pkgGroup[0]		== 'types' &&
-				this.item.pkgType			== value) return;
-			else if (this.item.pkgGroup[0]	== 'feeds' &&
-					 this.item.pkgFeed		== value) return;
-			else if (this.item.pkgGroup[0]	== 'categories' &&
-					 this.item.pkgCat		== value) return;
-			
-			if (this.item.pkgGroup[0]		== 'types')			this.item.pkgType	= value;
-			else if (this.item.pkgGroup[0]	== 'feeds')			this.item.pkgFeed	= value;
-			else if (this.item.pkgGroup[0]	== 'categories')	this.item.pkgCat	= value;
-			
-			//this.controller.stageController.swapScene('pkg-list', this.item);
-			this.controller.stageController.swapScene({name: 'pkg-list', transition: Mojo.Transition.crossFade}, this.item);
-			return;
-			
-		},
-		popupClass: 'group-popup',
-		toggleCmd: selectedCmd,
-		placeNear: event.target,
-		items: this.groupMenu
-	});
-}
-
 PkgListAssistant.prototype.cleanup = function(event)
 {
-	// clean up our listeners
-	Mojo.Event.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
-	Mojo.Event.stopListening(this.controller.get('searchText'), Mojo.Event.propertyChange, this.filterDelayHandler.bindAsEventListener(this));
-	Mojo.Event.stopListening(this.controller.get('pkgList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
-	Mojo.Event.stopListening(this.controller.get('groupSource'), Mojo.Event.tap, this.menuTapHandler.bindAsEventListener(this));
+	this.controller.stopListening(this.controller.sceneElement,	Mojo.Event.keypress,		this.keyHandler);
+	this.controller.stopListening(this.searchElement,			Mojo.Event.propertyChange,	this.filterDelayHandler);
+	this.controller.stopListening(this.listElement,				Mojo.Event.listTap,			this.listTapHandler);
+	this.controller.stopListening(this.groupSourceElement,		Mojo.Event.tap,				this.menuTapHandler);
 }

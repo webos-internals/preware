@@ -130,7 +130,7 @@ versionCookie.prototype.init = function()
 			this.put();
 		}
 		// uncomment to delete cookie for testing
-		//this.cookie.remove();
+		this.cookie.remove();
 	}
 	catch (e) 
 	{

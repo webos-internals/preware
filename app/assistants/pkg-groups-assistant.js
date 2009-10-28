@@ -40,13 +40,20 @@ function PkgGroupsAssistant(item)
 				command: 'do-help'
 			}
 		]
-	}
+	};
 }
 
 PkgGroupsAssistant.prototype.setup = function()
 {
+	// get elements
+	this.titleElement =		this.controller.get('groupTitle');
+	this.listElement =		this.controller.get('groupList');
+	
+	// handlers
+	this.listTapHandler =	this.listTap.bindAsEventListener(this);
+	
 	// setup list title
-	this.controller.get('groupTitle').innerHTML = this.item.name;
+	this.titleElement.innerHTML = this.item.name;
 	
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
@@ -56,7 +63,7 @@ PkgGroupsAssistant.prototype.setup = function()
 	
 	// setup list widget
 	this.controller.setupWidget('groupList', { itemTemplate: "pkg-groups/rowTemplate", swipeToDelete: false, reorderable: false }, this.listModel);
-	Mojo.Event.listen(this.controller.get('groupList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+	this.controller.listen(this.listElement, Mojo.Event.listTap, this.listTapHandler);
 	
 	// Set up a command menu
 	this.updateCommandMenu(true);
@@ -67,7 +74,6 @@ PkgGroupsAssistant.prototype.setup = function()
 	// set this scene's default transition
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 }
-
 PkgGroupsAssistant.prototype.activate = function(event)
 {
 	
@@ -79,34 +85,7 @@ PkgGroupsAssistant.prototype.activate = function(event)
 	
 }
 
-PkgGroupsAssistant.prototype.buildList = function(skipUpdate)
-{
-	this.listModel.items = [];
-	this.listModel.items = packages.getGroups(this.item);
-	
-	// pop the scene if its empty
-	if ((this.listModel.items.length < 1 ||
-		(this.listModel.items.length < 2 && this.item.pkgGroup[0] == 'categories')))
-	{
-		this.controller.stageController.popScene();
-	}
-	else if (this.listModel.items.length == 1)
-	{
-		// this.listTapHandler({item: this.listModel.items[0]}, true);
-	}
-	else if (this.listModel.items.length == 2 && this.item.pkgGroup[0] == 'categories')
-	{
-		// this.listTapHandler({item: this.listModel.items[1]}, true);
-	}
-	
-	if (!skipUpdate) 
-	{
-		this.controller.get('groupList').mojo.noticeUpdatedItems(0, this.listModel.items);
-		this.controller.get('groupList').mojo.setLength(this.listModel.items.length);
-	}
-}
-
-PkgGroupsAssistant.prototype.listTapHandler = function(event, swap)
+PkgGroupsAssistant.prototype.listTap = function(event, swap)
 {
 	var newItem =
 	{
@@ -193,6 +172,32 @@ PkgGroupsAssistant.prototype.listTapHandler = function(event, swap)
 		}
 	}
 }
+PkgGroupsAssistant.prototype.buildList = function(skipUpdate)
+{
+	this.listModel.items = [];
+	this.listModel.items = packages.getGroups(this.item);
+	
+	// pop the scene if its empty
+	if ((this.listModel.items.length < 1 ||
+		(this.listModel.items.length < 2 && this.item.pkgGroup[0] == 'categories')))
+	{
+		this.controller.stageController.popScene();
+	}
+	else if (this.listModel.items.length == 1)
+	{
+		// this.listTap({item: this.listModel.items[0]}, true);
+	}
+	else if (this.listModel.items.length == 2 && this.item.pkgGroup[0] == 'categories')
+	{
+		// this.listTap({item: this.listModel.items[1]}, true);
+	}
+	
+	if (!skipUpdate) 
+	{
+		this.listElement.mojo.noticeUpdatedItems(0, this.listModel.items);
+		this.listElement.mojo.setLength(this.listModel.items.length);
+	}
+}
 
 PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 {
@@ -249,8 +254,6 @@ PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 	}
 }
-
-// handle sort toggle commands
 PkgGroupsAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
@@ -282,15 +285,15 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 			case 'do-prefs':
 				this.controller.stageController.pushScene('preferences');
 				break;
-	
+			
 			case 'do-update':
 				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'pkg-groups', true, this.item);
 				break;
-				
+			
 			case 'do-help':
 				this.controller.stageController.pushScene('help');
 				break;
-				
+			
 			default:
 				break;
 		}
@@ -299,6 +302,5 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 
 PkgGroupsAssistant.prototype.cleanup = function(event)
 {
-	// clean up our listeners
-	Mojo.Event.stopListening(this.controller.get('groupList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
+	this.controller.stopListening(this.listElement, Mojo.Event.listTap, this.listTapHandler);
 }

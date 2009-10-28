@@ -73,15 +73,18 @@ StartupAssistant.prototype.setup = function()
 	// set theme because this can be the first scene pushed
 	this.controller.document.body.className = prefs.get().theme;
 	
+	// get elements
+	this.titleContainer = this.controller.get('title');
+	this.dataContainer =  this.controller.get('data');
 	
 	// set title
 	if (vers.isFirst) 
 	{
-		this.controller.get('title').innerHTML = 'Welcome To Preware';
+		this.titleContainer.innerHTML = 'Welcome To Preware';
 	}
 	else if (vers.isNew) 
 	{
-		this.controller.get('title').innerHTML = 'Preware Changelog';
+		this.titleContainer.innerHTML = 'Preware Changelog';
 	}
 	
 	
@@ -106,7 +109,7 @@ StartupAssistant.prototype.setup = function()
 	}
 	
 	// set data
-	this.controller.get('data').innerHTML = html;
+	this.dataContainer.innerHTML = html;
 	
 	
 	// setup menu
@@ -118,18 +121,17 @@ StartupAssistant.prototype.setup = function()
 	// set this scene's default transition
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 }
-
 StartupAssistant.prototype.activate = function(event)
 {
 	// start continue button timer
 	this.timer = this.controller.window.setTimeout(this.showContinue.bind(this), 5 * 1000);
 }
+
 StartupAssistant.prototype.showContinue = function()
 {
 	// show the command menu
 	this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 }
-
 StartupAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
@@ -154,6 +156,3 @@ StartupAssistant.prototype.handleCommand = function(event)
 		}
 	}
 }
-
-StartupAssistant.prototype.deactivate = function(event) {}
-StartupAssistant.prototype.cleanup = function(event) {}

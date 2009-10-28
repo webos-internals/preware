@@ -11,7 +11,10 @@ function MainAssistant()
 		{weight:  2, text: 'Now With More Cowbell'},
 		{weight:  2, text: 'Random Taglines Are Awesome'},
 		{weight:  2, text: 'We Did It First.'}
-	]
+	];
+	
+	// setup list model
+	this.mainModel = {items:[]};
 	
 	// setup menu
 	this.menuModel =
@@ -32,31 +35,33 @@ function MainAssistant()
 				command: 'do-help'
 			}
 		]
-	}
+	};
 }
 
 MainAssistant.prototype.setup = function()
 {
+	// get elements
+	this.versionElement =	this.controller.get('version');
+	this.subTitleElement =	this.controller.get('subTitle');
+	this.listElement =		this.controller.get('mainList');
+	
+	// handlers
+	this.listTapHandler =		this.listTap.bindAsEventListener(this);
 	
 	// set version string random subtitle
-	this.controller.get('version').innerHTML = "v" + Mojo.Controller.appInfo.version;
-	this.controller.get('subTitle').innerHTML = this.getRandomSubTitle();
+	this.versionElement.innerHTML = "v" + Mojo.Controller.appInfo.version;
+	this.subTitleElement.innerHTML = this.getRandomSubTitle();
 	
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
-	
-	// setup list widget
-	this.mainModel = { items: [] };
 	
 	// update list
 	this.updateList(true);
 	
 	// setup widget
 	this.controller.setupWidget('mainList', { itemTemplate: "main/rowTemplate", swipeToDelete: false, reorderable: false }, this.mainModel);
-	Mojo.Event.listen(this.controller.get('mainList'), Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
-
+	this.controller.listen(this.listElement, Mojo.Event.listTap, this.listTapHandler);
 }
-
 MainAssistant.prototype.activate = function(event)
 {
 	if (this.firstActivate)
@@ -66,7 +71,7 @@ MainAssistant.prototype.activate = function(event)
 	this.firstActivate = true;
 }
 
-MainAssistant.prototype.listTapHandler = function(event)
+MainAssistant.prototype.listTap = function(event)
 {
 	if (event.item.scene === false || event.item.style == 'disabled') 
 	{
@@ -78,8 +83,6 @@ MainAssistant.prototype.listTapHandler = function(event)
 		this.controller.stageController.pushScene(event.item.scene, event.item);
 	}
 }
-
-// this is called to update the list (namely the counts and styles)
 MainAssistant.prototype.updateList = function(skipUpdate)
 {
 	try 
@@ -223,8 +226,8 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 		if (!skipUpdate) 
 		{
 			// update list widget
-			this.controller.get('mainList').mojo.noticeUpdatedItems(0, this.mainModel.items);
-			this.controller.get('mainList').mojo.setLength(this.mainModel.items.length);
+			this.listElement.mojo.noticeUpdatedItems(0, this.mainModel.items);
+			this.listElement.mojo.setLength(this.mainModel.items.length);
 		}
 		
 	}
@@ -290,5 +293,7 @@ MainAssistant.prototype.handleCommand = function(event)
 	}
 }
 
-MainAssistant.prototype.deactivate = function(event) {}
-MainAssistant.prototype.cleanup = function(event) {}
+MainAssistant.prototype.cleanup = function(event)
+{
+	this.controller.stopListening(this.listElement, Mojo.Event.listTap, this.listTapHandler);
+}

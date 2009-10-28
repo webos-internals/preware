@@ -39,7 +39,7 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 				command: 'do-help'
 			}
 		]
-	}
+	};
 }
 
 UpdateAssistant.prototype.setup = function()
@@ -47,12 +47,22 @@ UpdateAssistant.prototype.setup = function()
 	// set theme because this can be the first scene pushed
 	this.controller.document.body.className = prefs.get().theme;
 	
+	// get elements
+	this.documentElement =			this.controller.stageController.document;
+	this.spinnerStatusElement =		this.controller.get('spinnerStatus');
+	this.progressBarElement =		this.controller.get('progress-bar');
+	this.progressElement =			this.controller.get('progress');
+	
+	// handlers
+	this.visibleWindowHandler =		this.visibleWindow.bindAsEventListener(this);
+	this.invisibleWindowHandler =	this.invisibleWindow.bindAsEventListener(this);
+	
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
 	// monitor scene visibility
-	this.controller.listen(this.controller.stageController.document, Mojo.Event.stageActivate,   this.visibleWindow.bindAsEventListener(this));
-	this.controller.listen(this.controller.stageController.document, Mojo.Event.stageDeactivate, this.invisibleWindow.bindAsEventListener(this));
+	this.controller.listen(this.documentElement, Mojo.Event.stageActivate,   this.visibleWindowHandler);
+	this.controller.listen(this.documentElement, Mojo.Event.stageDeactivate, this.invisibleWindowHandler);
 	this.isVisible = true;
 	
 	// clear log
@@ -339,7 +349,7 @@ UpdateAssistant.prototype.displayAction = function(msg, msgHelp)
 	{
 		statusText += '<div class="text" id="spinnerStatusHelp" style="display:none;">' + msgHelp + '</div>';
 	}
-	this.controller.get('spinnerStatus').innerHTML = statusText;
+	this.spinnerStatusElement.innerHTML = statusText;
 }
 UpdateAssistant.prototype.showActionHelpTimer = function(time)
 {
@@ -355,28 +365,29 @@ UpdateAssistant.prototype.showActionHelpTimerClear = function()
 }
 UpdateAssistant.prototype.showActionHelp = function()
 {
+	this.spinnerStatusHelpElement = this.controller.get('spinnerStatusHelp');
 	if (this.currentHelpTimer) 
 	{
 		this.showActionHelpTimerClear();
-		if (this.controller.get('spinnerStatusHelp')) 
+		if (this.spinnerStatusHelpElement) 
 		{
-			this.controller.get('spinnerStatusHelp').style.display = '';
+			this.spinnerStatusHelpElement.style.display = '';
 		}
 	}
 }
 UpdateAssistant.prototype.showProgress = function()
 {
-	this.controller.get('progress-bar').style.width = '0%';
-	this.controller.get('progress').style.display = "";
+	this.progressBarElement.style.width = '0%';
+	this.progressElement.style.display = "";
 }
 UpdateAssistant.prototype.hideProgress = function()
 {
-	this.controller.get('progress-bar').style.width = '0%';
-	this.controller.get('progress').style.display = "none";
+	this.progressElement.style.display = "none";
+	this.progressBarElement.style.width = '0%';
 }
 UpdateAssistant.prototype.setProgress = function(percent)
 {
-	this.controller.get('progress-bar').style.width = percent + '%';
+	this.progressBarElement.style.width = percent + '%';
 }
 UpdateAssistant.prototype.doneUpdating = function()
 {
@@ -453,36 +464,15 @@ UpdateAssistant.prototype.errorMessage = function(title, message)
 	    choices:			[{label:$L('Ok'), value:'ok'}],
 	    onChoose:			this.errorMessageFunction.bindAsEventListener(this)
     });
-	
-	/*
-	this.controller.showAlertDialog(
-	{
-	    onChoose: function(value) {},
-		allowHTMLMessage: true,
-	    title: title,
-	    message: message,
-	    choices:[{label:$L('Ok'), value:""}]
-    });
-    */
 }
 UpdateAssistant.prototype.errorMessageFunction = function(value)
 {
-	/*
-	switch(value)
-	{
-		case 'ok':
-			this.doneUpdating();
-			break;
-	}
-	*/
 	this.doneUpdating();
 	return;
 }
 
 UpdateAssistant.prototype.visibleWindow = function(event)
 {
-	//alert('visible');
-	
 	if (!this.isVisible)
 	{
 		this.isVisible = true;
@@ -490,14 +480,10 @@ UpdateAssistant.prototype.visibleWindow = function(event)
 }
 UpdateAssistant.prototype.invisibleWindow = function(event)
 {
-	//alert('invisible');
-	
 	this.isVisible = false;
 }
 UpdateAssistant.prototype.activate = function(event)
 {
-	//alert('activate');
-	
 	// if we're done loading, but the scene was just activated, swap the scene 
 	if (!this.isLoading) 
 	{
@@ -507,8 +493,6 @@ UpdateAssistant.prototype.activate = function(event)
 }
 UpdateAssistant.prototype.deactivate = function(event)
 {
-	//alert('deactivate');
-	
 	this.isActive = false;
 }
 UpdateAssistant.prototype.cleanup = function(event)
@@ -517,6 +501,6 @@ UpdateAssistant.prototype.cleanup = function(event)
 	this.stayAwake.end();
 	
 	// stop monitoring scene visibility
-	this.controller.stopListening(this.controller.stageController.document, Mojo.Event.stageActivate,   this.visibleWindow.bindAsEventListener(this));
-	this.controller.stopListening(this.controller.stageController.document, Mojo.Event.stageDeactivate, this.invisibleWindow.bindAsEventListener(this));
+	this.controller.stopListening(this.documentElement, Mojo.Event.stageActivate,   this.visibleWindowHandler);
+	this.controller.stopListening(this.documentElement, Mojo.Event.stageDeactivate, this.invisibleWindowHandler);
 }
