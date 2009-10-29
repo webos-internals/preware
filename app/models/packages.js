@@ -100,6 +100,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 			this.updateAssistant.displayAction('<strong>Loading Package Information</strong>');
 			this.updateAssistant.showProgress();
 			
+			//this.infoListRequest(0);
 			this.infoStatusRequest();
 		}
 	} 
@@ -115,6 +116,7 @@ packagesModel.prototype.infoStatusRequest = function()
 	this.updateAssistant.setProgress(Math.round((1/(this.feeds.length+1)) * 100));
 	
 	// request the rawdata
+	//IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, 'status'));
 	IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, -1));
 }
 packagesModel.prototype.infoListRequest = function(num)
@@ -200,13 +202,14 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		Mojo.Log.logException(e, 'packagesModel#infoResponse');
 	}
 	
-	if (doneLoading) 
+	if (doneLoading)
 	{
 		if (this.feeds[(num + 1)]) 
 		{
 			// start next
 			this.infoListRequest((num + 1));
 		}
+		//else if (num == 'status')
 		else 
 		{
 			// we're done
@@ -214,6 +217,10 @@ packagesModel.prototype.infoResponse = function(payload, num)
 			this.updateAssistant.setProgress(100);
 			this.doneLoading();
 		}
+		/*else
+		{
+			this.infoStatusRequest();
+		}*/
 	}
 }
 packagesModel.prototype.parsePackages = function(rawData)

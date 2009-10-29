@@ -14,54 +14,153 @@ function packageModel(info)
 		// for storing an assistant when we get one for certain functions
 		this.assistant = false;
 		
-		// save the info sent to us
-		this.info = info;
-		this.appInfo = false;
-		
 		// load up some default items incase the package has no sourceObj (like installed applications not in any feeds)
-		this.pkg =		   this.info.Package;
-		this.type =		   'Unknown';
-		this.category =	   this.info.Section;
-		this.version =	   this.info.Version;
-		this.maintainer =  false; //this.info.Maintainer;
-		this.title =	   this.info.Description;
-		this.size =		   this.info.Size;
-		this.hasUpdate =   false;
-		this.icon =		   false;
-		this.iconImg =     {object: false, loading: false, loaded: false, target: false};
-		this.date =		   false;
-		this.feeds =	   ['Unknown'];
-		this.feedString =  'Unknown';
-		this.homepage =	   false;
-		this.license =	   false;
-		this.description = false;
-		this.changeLog =   false;
-		this.screenshots = [];
-		this.depends =	   [];
-		this.flags =	   {install: {RestartLuna:false, RestartJava:false},
-							remove: {RestartLuna:false, RestartJava:false}};
+		this.pkg =				false;
+		this.type =				'Unknown';
+		this.category =			false;
+		this.version =			false;
+		this.maintainer =		false;
+		this.title =			false;
+		this.size =				false;
+		this.hasUpdate =		false;
+		this.icon =				false;
+		this.iconImg =			{object: false, loading: false, loaded: false, target: false};
+		this.date =				false;
+		this.feeds =			['Unknown'];
+		this.feedString =		'Unknown';
+		this.homepage =			false;
+		this.license =			false;
+		this.description =		false;
+		this.changeLog =		false;
+		this.screenshots =		[];
+		this.depends =			[];
+		this.flags =			{install: {RestartLuna:false, RestartJava:false}, remove: {RestartLuna:false, RestartJava:false}};
+		this.isInstalled =		false;
+		this.dateInstalled =	false;
+		this.sizeInstalled =	false;
 		
-		if ((this.info.Status.include('not-installed') && this.info.Status != '') || this.info.Status == '')
+		// load the info
+		this.infoLoad(info);
+		
+		// check up on what we've loaded to make sure stuff thats needed isn't blank
+		if (!this.category || this.category == 'misc')
 		{
-			this.isInstalled =   false;
-			this.dateInstalled = false;
-			this.sizeInstalled = false;
-			//this.versionInstalled = false;
+			this.category = 'Unsorted';
 		}
-		else
+		if (!this.type)
 		{
-			this.isInstalled =   true;
-			this.dateInstalled = this.info['Installed-Time'];
-			this.sizeInstalled = this.info['Installed-Size'];
-			//this.versionInstalled = this.version;
+			this.type = 'Unknown';
 		}
-		this.versionInstalled = false;
+		
+		// load appinfo if the data seems broken
+		if (this.title == 'This is a webOS application.' || this.type == 'Unknown')
+		{
+			this.loadAppinfoFile();
+		}
+		
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packageModel#initialize');
+	}
+}
+
+packageModel.prototype.infoUpdate = function(newPackage)
+{
+	try
+	{
+		// check if its newer
+		var newer = packages.versionNewer(this.version, newPackage.version);
+		
+		//alert('--- --- ---');
+		//alert('Old: ' + this.pkg + ' v' + this.version);
+		//alert('     = isInstalled: ' + this.isInstalled);
+		//alert('     = hasUpdate: ' + this.hasUpdate);
+		//alert('New: ' + newPackage.pkg + ' v' + newPackage.version);
+		//alert('     = isInstalled: ' + newPackage.isInstalled);
+		//alert('     = hasUpdate: ' + newPackage.hasUpdate);
+		//alert('Newer: ' + newer);
+		
+		if (!newPackage.isInstalled && !this.isInstalled && newer)
+		{
+			//alert('Replace Type: 1');
+			newPackage.infoLoadFromPkg(this);
+			return newPackage;
+		}
+		
+		if (newPackage.isInstalled && !this.isInstalled && !newer)
+		{
+			//alert('Replace Type: 2');
+			this.isInstalled = true;
+			this.hasUpdate = true; // comment when status is last?
+			this.versionInstalled = newPackage.version;
+			this.infoLoadFromPkg(newPackage);
+			return false;
+		}
+		
+		if (!newPackage.isInstalled && this.isInstalled && !newer)
+		{
+			//alert('Replace Type: 3');
+			this.isInstalled = true;
+			//this.hasUpdate = false; // this fixes the not update thing?
+			this.versionInstalled = newPackage.version;
+			this.infoLoadFromPkg(newPackage);
+			return false;
+		}
+		
+		if (newPackage.isInstalled && !this.isInstalled && newer)
+		{
+			//alert('Replace Type: 4');
+			newPackage.isInstalled = true;
+			//newPackage.hasUpdate = false; // this fixes the not update thing?
+			newPackage.versionInstalled = this.version;
+			newPackage.infoLoadFromPkg(this);
+			return newPackage;
+		}
+		
+		if (!newPackage.isInstalled && this.isInstalled && newer)
+		{
+			//alert('Replace Type: 5');
+			newPackage.isInstalled = true;
+			newPackage.hasUpdate = true;
+			newPackage.versionInstalled = this.version;
+			newPackage.infoLoadFromPkg(this);
+			return newPackage;
+		}
+		
+		alert('Replace Type: 6');
+		this.infoLoadFromPkg(newPackage);
+		return false;
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packageModel#infoUpdate');
+		return false;
+	}
+}
+
+packageModel.prototype.infoLoad = function(info)
+{
+	try
+	{
+		// load data
+		if (!this.pkg &&		info.Package)		this.pkg =		info.Package;
+		if (!this.version &&	info.Version)		this.version =	info.Version;
+		if (!this.size &&		info.Size)			this.size =		info.Size;
+		
+		// check if is installed
+		if (info.Status && !info.Status.include('not-installed'))
+		{
+			this.isInstalled =		true;
+			this.dateInstalled =	info['Installed-Time'];
+			this.sizeInstalled =	info['Installed-Size'];
+		}
 		
 		// parse package dependencies
-		if (this.info.Depends)
+		if ((!this.depends || this.depends.length == 0) && info.Depends)
 		{
-			//alert(this.info.Depends);
-			var dSplit = this.info.Depends.split(',');
+			//alert(info.Depends);
+			var dSplit = info.Depends.split(',');
 			for (var d = 0; d < dSplit.length; d++)
 			{
 				//var r = new RegExp(/(.*)\((.*)\)/); // this regex sucks
@@ -80,49 +179,53 @@ function packageModel(info)
 		
 		// check if Source is json object
 		// basically, if it has a { in it, we'll assume its json data
-		if (this.info.Source && this.info.Source.include('{')) 
+		if (info.Source && info.Source.include('{')) 
 		{
 			// parse json to object
-			this.sourceJson = JSON.parse(this.info.Source);
+			var sourceJson = JSON.parse(info.Source);
 
 			// check if the object has data we can load or overwrite the defaults with
-			if (this.sourceJson.Type)			 this.type =		 this.sourceJson.Type;
-			if (this.sourceJson.Category)		 this.category =	 this.sourceJson.Category;
-			if (this.sourceJson.Title)			 this.title =		 this.sourceJson.Title;
-			if (this.sourceJson.Icon)			 this.icon =		 this.sourceJson.Icon;
-			if (this.sourceJson.LastUpdated)	 this.date =		 this.sourceJson.LastUpdated;
-			if (this.sourceJson.Homepage)		 this.homepage =	 this.sourceJson.Homepage;
-			if (this.sourceJson.License)		 this.license = 	 this.sourceJson.License;
-			if (this.sourceJson.FullDescription) this.description =	 this.sourceJson.FullDescription;
-			if (this.sourceJson.Changelog)		 this.changeLog =	 this.sourceJson.Changelog;
-			if (this.sourceJson.Screenshots)	 this.screenshots =	 this.sourceJson.Screenshots;
+			if ((!this.type || this.type == 'Unknown') && sourceJson.Type) this.type =	sourceJson.Type;
+			if (!this.category &&		sourceJson.Category)		this.category =		sourceJson.Category;
+			if (!this.title &&			sourceJson.Title)			this.title =		sourceJson.Title;
+			if (!this.icon &&			sourceJson.Icon)			this.icon =			sourceJson.Icon;
+			if (!this.date &&			sourceJson.LastUpdated)		this.date =			sourceJson.LastUpdated;
+			if (!this.homepage &&		sourceJson.Homepage)		this.homepage =		sourceJson.Homepage;
+			if (!this.license &&		sourceJson.License)			this.license =		sourceJson.License;
+			if (!this.description &&	sourceJson.FullDescription)	this.description =	sourceJson.FullDescription;
+			if (!this.changeLog &&		sourceJson.Changelog)		this.changeLog =	sourceJson.Changelog;
+			if (!this.screenshots &&	sourceJson.Screenshots)		this.screenshots =	sourceJson.Screenshots;
 			
-			if (this.sourceJson.Feed) 
+			if (sourceJson.Feed) 
 			{
-				this.feeds = [this.sourceJson.Feed];
-				this.feedString = this.sourceJson.Feed;
+				this.feeds = [sourceJson.Feed];
+				this.feedString = sourceJson.Feed;
 			}
 			
-			if (this.sourceJson.PostInstallFlags) 
+			if (sourceJson.PostInstallFlags) 
 			{
-				//alert('PostInstallFlags: ' + this.sourceJson.PostInstallFlags);
-				if (this.sourceJson.PostInstallFlags.include('RestartLuna')) this.flags.install.RestartLuna = true;
-				if (this.sourceJson.PostInstallFlags.include('RestartJava')) this.flags.install.RestartJava = true;
+				//alert('PostInstallFlags: ' + sourceJson.PostInstallFlags);
+				if (sourceJson.PostInstallFlags.include('RestartLuna')) this.flags.install.RestartLuna = true;
+				if (sourceJson.PostInstallFlags.include('RestartJava')) this.flags.install.RestartJava = true;
 			}
-			if (this.sourceJson.PostRemoveFlags) 
+			if (sourceJson.PostRemoveFlags) 
 			{
-				//alert('PostRemoveFlags: ' + this.sourceJson.PostRemoveFlags);
-				if (this.sourceJson.PostRemoveFlags.include('RestartLuna')) this.flags.remove.RestartLuna = true;
-				if (this.sourceJson.PostRemoveFlags.include('RestartJava')) this.flags.remove.RestartJava = true;
+				//alert('PostRemoveFlags: ' + sourceJson.PostRemoveFlags);
+				if (sourceJson.PostRemoveFlags.include('RestartLuna')) this.flags.remove.RestartLuna = true;
+				if (sourceJson.PostRemoveFlags.include('RestartJava')) this.flags.remove.RestartJava = true;
 			}
 			
 		}
 		
+		// load info that may not be in source object
+		if (!this.category &&	info.Section)		this.category =	info.Section;
+		if (!this.title &&		info.Description)	this.title =	info.Description;
+		
 		// parse maintainer
-		if (this.info.Maintainer)
+		if ((!this.maintainer || this.maintainer.length == 0) && info.Maintainer)
 		{
 			this.maintainer = [];
-			var mSplit = this.info.Maintainer.split(',');
+			var mSplit = info.Maintainer.split(',');
 			var r = new RegExp("^([^<]*)<([^>]*)>?"); // this one is win
 			for (var m = 0; m < mSplit.length; m++) 
 			{
@@ -152,127 +255,32 @@ function packageModel(info)
 			}
 		}
 		
-		// check up on what we've loaded to make sure stuff thats needed isn't blank
-		if (!this.category || this.category == 'misc')
-		{
-			this.category = 'Unsorted';
-		}
-		if (!this.type)
-		{
-			this.type = 'Unknown';
-		}
-		
-		// load appinfo if the data seems broken
-		if (this.title == 'This is a webOS application.' || this.type == 'Unknown')
-		{
-			this.loadAppinfoFile();
-		}
-		
 	}
 	catch (e)
 	{
-		Mojo.Log.logException(e, 'packageModel#initialize');
-		alert(this.info.Package);
+		Mojo.Log.logException(e, 'packageModel#infoLoad');
 	}
 }
-
-// this function is called when loading info and it finds another package
-// its for updating the current package with new info if we should
-packageModel.prototype.infoUpdate = function(newPackage)
+packageModel.prototype.infoLoadFromPkg = function(pkg)
 {
 	try
 	{
-		// check if its newer
-		var newer = packages.versionNewer(this.version, newPackage.version);
-		
-		//alert('--- --- ---');
-		//alert('Old: ' + this.pkg + ' v' + this.version);
-		//alert('     = isInstalled: ' + this.isInstalled);
-		//alert('     = hasUpdate: ' + this.hasUpdate);
-		//alert('New: ' + newPackage.pkg + ' v' + newPackage.version);
-		//alert('     = isInstalled: ' + newPackage.isInstalled);
-		//alert('     = hasUpdate: ' + newPackage.hasUpdate);
-		//alert('Newer: ' + newer);
-		
-		if (!newPackage.isInstalled && !this.isInstalled && newer)
-		{
-			//alert('Replace Type: 1');
-			newPackage.infoLoadMissing(this);
-			return newPackage;
-		}
-		
-		if (newPackage.isInstalled && !this.isInstalled && !newer)
-		{
-			//alert('Replace Type: 2');
-			this.isInstalled = true;
-			this.hasUpdate = true;
-			this.versionInstalled = newPackage.version;
-			this.infoLoadMissing(newPackage);
-			return false;
-		}
-		
-		if (!newPackage.isInstalled && this.isInstalled && !newer)
-		{
-			//alert('Replace Type: 3');
-			this.isInstalled = true;
-			//this.hasUpdate = false; // this fixes the not update thing?
-			this.versionInstalled = newPackage.version;
-			this.infoLoadMissing(newPackage);
-			return false;
-		}
-		
-		if (newPackage.isInstalled && !this.isInstalled && newer)
-		{
-			//alert('Replace Type: 4');
-			newPackage.isInstalled = true;
-			//newPackage.hasUpdate = false; // this fixes the not update thing?
-			newPackage.versionInstalled = this.version;
-			newPackage.infoLoadMissing(this);
-			return newPackage;
-		}
-		
-		if (!newPackage.isInstalled && this.isInstalled && newer)
-		{
-			//alert('Replace Type: 5');
-			newPackage.isInstalled = true;
-			newPackage.hasUpdate = true;
-			newPackage.versionInstalled = this.version;
-			newPackage.infoLoadMissing(this);
-			return newPackage;
-		}
-		
-		//alert('Replace Type: 6');
-		this.infoLoadMissing(newPackage);
-		return false;
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'packageModel#infoUpdate');
-		return false;
-	}
-}
-
-// this function tries to load missing info in this package from the new one
-packageModel.prototype.infoLoadMissing = function(pkg)
-{
-	try
-	{
-		if (!this.title || this.title == 'This is a webOS application.') this.title = pkg.title;
-		if (this.type == 'Unknown')		 this.type = pkg.type;
-		if (this.category == 'Unsorted') this.category =		pkg.category;
-		if (!this.maintainer)			 this.maintainer =		pkg.maintainer;
-		if (!this.maintUrl)				 this.maintUrl =		pkg.maintUrl;
-		if (!this.size)					 this.size =			pkg.size;
-		if (!this.icon)					 this.icon =			pkg.icon;
-		if (!this.date)					 this.date =			pkg.date;
-		if (!this.homepage)				 this.homepage =		pkg.homepage;
-		if (!this.license)				 this.license =			pkg.license;
-		if (!this.description)			 this.description =		pkg.description;
-		if (!this.changeLog)			 this.changeLog =		pkg.changeLog;
-		if (!this.isInstalled)			 this.isInstalled =		pkg.isInstalled;
-		if (!this.hasUpdate)			 this.hasUpdate =		pkg.hasUpdate;
-		if (!this.dateInstalled)		 this.dateInstalled =	pkg.dateInstalled;
-		if (!this.sizeInstalled)		 this.sizeInstalled =	pkg.sizeInstalled;
+		if (!this.title || this.title == 'This is a webOS application.')	this.title = pkg.title;
+		if (this.type == 'Unknown')			this.type =				pkg.type;
+		if (this.category == 'Unsorted')	this.category =			pkg.category;
+		if (!this.maintainer)				this.maintainer =		pkg.maintainer;
+		if (!this.maintUrl)					this.maintUrl =			pkg.maintUrl;
+		if (!this.size)						this.size =				pkg.size;
+		if (!this.icon)						this.icon =				pkg.icon;
+		if (!this.date)						this.date =				pkg.date;
+		if (!this.homepage)					this.homepage =			pkg.homepage;
+		if (!this.license)					this.license =			pkg.license;
+		if (!this.description)				this.description =		pkg.description;
+		if (!this.changeLog)				this.changeLog =		pkg.changeLog;
+		if (!this.isInstalled)				this.isInstalled =		pkg.isInstalled;
+		if (!this.hasUpdate)				this.hasUpdate =		pkg.hasUpdate;
+		if (!this.dateInstalled)			this.dateInstalled =	pkg.dateInstalled;
+		if (!this.sizeInstalled)			this.sizeInstalled =	pkg.sizeInstalled;
 		
 		// join feeds
 		if (this.feeds[0] == 'Unknown') 
@@ -350,7 +358,7 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 	}
 	catch (e)
 	{
-		Mojo.Log.logException(e, 'packageModel#infoLoadMissing');
+		Mojo.Log.logException(e, 'packageModel#infoLoadFromPkg');
 	}
 }
 
@@ -366,23 +374,23 @@ packageModel.prototype.loadAppinfoFileResponse = function(payload)
 {
 	if (payload.contents) 
 	{
-		this.appInfo = JSON.parse(payload.contents);
+		var appInfo = JSON.parse(payload.contents);
 		
-		if (!this.type || this.type == '' || this.type == 'Unknown') 
+		if ((!this.type || this.type == '' || this.type == 'Unknown') && this.title == 'This is a webOS application.') 
 		{
 			// assume application if its unknown and has an appinfo
 			this.type = 'Application';
 		}
 		if ((!this.title || this.title == '' || this.title == 'This is a webOS application.')
-		&& this.appInfo.title)
+		&& appInfo.title)
 		{
-			this.title = this.appInfo.title;
+			this.title = appInfo.title;
 		}
 		if (!this.icon || this.icon == '')
 		{
-			if (this.appInfo.icon) 
+			if (appInfo.icon) 
 			{
-				this.icon = '../' + this.pkg + '/' + this.appInfo.icon;
+				this.icon = '../' + this.pkg + '/' + appInfo.icon;
 			}
 			else
 			{
@@ -391,23 +399,53 @@ packageModel.prototype.loadAppinfoFileResponse = function(payload)
 		}
 		if ((!this.maintainer || this.maintainer.length == 0
 		|| (this.maintainer.length == 1 && this.maintainer[0].name == 'N/A'))
-		&& this.appInfo.vendor) 
+		&& appInfo.vendor) 
 		{
-			this.maintainer = [{name: this.appInfo.vendor, url: false}];
+			this.maintainer = [{name: appInfo.vendor, url: false}];
 		}
 	}
 	else
 	{
+		// if there is no appinfo, try the control file
 		//this.loadControlFile();
 	}
 }
 packageModel.prototype.loadControlFileResponse = function(payload)
 {
-	alert('-----');
-	alert(payload);
-	for (var p in payload)
+	if (payload.contents) 
 	{
-		alert(p + ': ' + payload[p]);
+		var data = payload.contents.split(/\n/);
+		var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
+		var info = 
+		{	// blank information
+			Architecture: '',
+			Section: '',
+			Package: '',
+			Depends: '',
+			Maintainer: '',
+			Version: '',
+			Description: '',
+			Source: ''
+		};
+		
+		for (var x = 0; x < data.length; x++) 
+		{
+			var match = lineRegExp.exec(data[x]);
+			if (match) 
+			{
+				if (match[1] && match[2]) 
+				{
+					info[match[1]] = match[2];
+				}
+			}
+		}
+		
+		//alert('== = ==');
+		//for (var d in data) alert(d + ': ' + data[d]);
+		//alert('-- - --');
+		//for (var i in info) alert(i + ': ' + info[i]);
+		
+		this.infoLoad(info);
 	}
 }
 
