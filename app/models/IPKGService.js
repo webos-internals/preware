@@ -132,6 +132,29 @@ IPKGService.restartjava = function(callback)
 	return request;
 }
 
+IPKGService.getAppinfoFile = function(callback, pkg)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'getAppinfoFile',
+		parameters: {"package":pkg},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
+IPKGService.getControlFile = function(callback, pkg)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'getControlFile',
+		parameters: {"package":pkg},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
+
 
 IPKGService.logClear = function()
 {

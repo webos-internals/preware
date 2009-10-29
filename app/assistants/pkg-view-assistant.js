@@ -423,10 +423,6 @@ PkgViewAssistant.prototype.actionMessage = function(message, choices, actions)
 }
 /* end functions called by the package model */
 
-
-PkgViewAssistant.prototype.activate = function(event) {}
-PkgViewAssistant.prototype.deactivate = function(event) {}
-
 PkgViewAssistant.prototype.cleanup = function(event)
 {
 	try

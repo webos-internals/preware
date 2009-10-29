@@ -780,7 +780,6 @@ packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 		Mojo.Log.logException(e, 'packagesModel#checkMultiInstall');
 	}
 }
-
 packagesModel.prototype.checkMultiRemove = function(pkg, pkgs, assistant)
 {
 	try 
@@ -830,7 +829,6 @@ packagesModel.prototype.testMultiInstall = function(value)
 	}
 	return;
 }
-
 packagesModel.prototype.testMultiRemove = function(value)
 {
 	switch(value)

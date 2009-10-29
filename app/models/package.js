@@ -16,6 +16,7 @@ function packageModel(info)
 		
 		// save the info sent to us
 		this.info = info;
+		this.appInfo = false;
 		
 		// load up some default items incase the package has no sourceObj (like installed applications not in any feeds)
 		this.pkg =		   this.info.Package;
@@ -159,6 +160,12 @@ function packageModel(info)
 		if (!this.type)
 		{
 			this.type = 'Unknown';
+		}
+		
+		// load appinfo if the data seems broken
+		if (this.title == 'This is a webOS application.' || this.type == 'Unknown')
+		{
+			this.loadAppinfoFile();
 		}
 		
 	}
@@ -344,6 +351,63 @@ packageModel.prototype.infoLoadMissing = function(pkg)
 	catch (e)
 	{
 		Mojo.Log.logException(e, 'packageModel#infoLoadMissing');
+	}
+}
+
+packageModel.prototype.loadAppinfoFile = function()
+{
+	IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bindAsEventListener(this), this.pkg);
+}
+packageModel.prototype.loadControlFile = function()
+{
+	IPKGService.getControlFile(this.loadControlFileResponse.bindAsEventListener(this), this.pkg);
+}
+packageModel.prototype.loadAppinfoFileResponse = function(payload)
+{
+	if (payload.contents) 
+	{
+		this.appInfo = JSON.parse(payload.contents);
+		
+		if (!this.type || this.type == '' || this.type == 'Unknown') 
+		{
+			// assume application if its unknown and has an appinfo
+			this.type = 'Application';
+		}
+		if ((!this.title || this.title == '' || this.title == 'This is a webOS application.')
+		&& this.appInfo.title)
+		{
+			this.title = this.appInfo.title;
+		}
+		if (!this.icon || this.icon == '')
+		{
+			if (this.appInfo.icon) 
+			{
+				this.icon = '../' + this.pkg + '/' + this.appInfo.icon;
+			}
+			else
+			{
+				this.icon = '../' + this.pkg + '/icon.png';
+			}
+		}
+		if ((!this.maintainer || this.maintainer.length == 0
+		|| (this.maintainer.length == 1 && this.maintainer[0].name == 'N/A'))
+		&& this.appInfo.vendor) 
+		{
+			this.maintainer = [{name: this.appInfo.vendor, url: false}];
+		}
+	}
+	else
+	{
+		//this.loadControlFile();
+	}
+}
+packageModel.prototype.loadControlFileResponse = function(payload)
+{
+	alert('-----');
+	alert(payload);
+	for (var p in payload)
+	{
+		alert(p + ': ' + payload[p]);
 	}
 }
 

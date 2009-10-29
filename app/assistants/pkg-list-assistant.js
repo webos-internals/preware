@@ -386,11 +386,11 @@ PkgListAssistant.prototype.getDivider = function(item)
 	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all')
 	{
 		var firstChar = item.title.substr(0, 1);
-		if (parseInt(firstChar) == firstChar) 
+		if (parseInt(firstChar) == firstChar)
 		{
 			return '#';
 		}
-		else 
+		else
 		{
 			return firstChar.toUpperCase();
 		}
