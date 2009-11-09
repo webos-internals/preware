@@ -8,6 +8,9 @@ function PkgViewAssistant(item, listAssistant)
 	// save this for later
 	this.listAssistant = listAssistant;
 	
+	// this is true when a package action is in progress
+	this.active = false;
+	
 	// setup command menu
 	this.cmdMenuModel = {items:[]};
 	
@@ -309,7 +312,15 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 }
 PkgViewAssistant.prototype.handleCommand = function(event)
 {
-	if(event.type == Mojo.Event.command)
+	if(event.type == Mojo.Event.back)
+	{
+		if (this.active) 
+		{
+			event.preventDefault();
+			event.stopPropagation();
+		}      
+	}
+	else if(event.type == Mojo.Event.command)
 	{
 		switch (event.command)
 		{
@@ -363,6 +374,9 @@ PkgViewAssistant.prototype.startAction = function()
 	// this is the start of the stayawake class to keep it awake till we're done with it
 	this.stayAwake.start();
 	
+	// set this to stop back gesture
+	this.active = true;
+	
 	// start action is to hide this menu
 	this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 	
@@ -384,6 +398,9 @@ PkgViewAssistant.prototype.endAction = function()
 {
 	// we're done loading so let the phone sleep if it needs to
 	this.stayAwake.end();
+	
+	// allow back gesture again
+	this.active = false;
 	
 	// end action action is to stop the spinner
 	this.spinnerModel.spinning = false;

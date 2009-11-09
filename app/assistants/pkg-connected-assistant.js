@@ -5,6 +5,9 @@ function PkgConnectedAssistant(type, pkg, pkgs)
 	this.pkg =  pkg;
 	this.pkgs = pkgs;
 	
+	// this is true when a package action is in progress
+	this.active = false;
+	
 	// list model
 	this.listModel = {items:[]};
 	
@@ -193,7 +196,15 @@ PkgConnectedAssistant.prototype.updateCommandMenu = function(skipUpdate)
 }
 PkgConnectedAssistant.prototype.handleCommand = function(event)
 {
-	if(event.type == Mojo.Event.command)
+	if(event.type == Mojo.Event.back)
+	{
+		if (this.active) 
+		{
+			event.preventDefault();
+			event.stopPropagation();
+		}      
+	}
+	else if(event.type == Mojo.Event.command)
 	{
 		switch (event.command)
 		{
@@ -225,6 +236,9 @@ PkgConnectedAssistant.prototype.startAction = function()
 	// this is the start of the stayawake class to keep it awake till we're done with it
 	this.stayAwake.start();
 	
+	// set this to stop back gesture
+	this.active = true;
+	
 	// start action is to hide this menu
 	this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
 	
@@ -249,6 +263,9 @@ PkgConnectedAssistant.prototype.endAction = function()
 {
 	// we're done loading so let the phone sleep if it needs to
 	this.stayAwake.end();
+	
+	// allow back gesture again
+	this.active = false;
 	
 	// end action action is to stop the spinner
 	this.spinnerModel.spinning = false;
