@@ -362,7 +362,7 @@ body.palm-dark .pkg-list .group-source
 .pkg-list .palm-row-wrapper
 {
 	position: relative;
-	height: 56px;
+	min-height: 56px;
 }
 .pkg-list .palm-row-wrapper .icon
 {
@@ -394,6 +394,34 @@ body.palm-dark .pkg-list .group-source
 }
 .pkg-list .palm-row-wrapper .title
 {
+	padding-top: 0px;
+	padding-left: 60px;
+}
+.pkg-list .palm-row-wrapper .title .highlight
+{
+	font-weight: bold;
+	text-decoration: underline;
+}
+.pkg-list .palm-row-wrapper .title.description
+{
+	line-height: 22px;
+	padding-top: 5px;
+	padding-right: 2px;
+	padding-bottom: 1px;
+}
+.pkg-list .palm-row-wrapper .title.sub
+{
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	padding-right: 5px;
+	padding-bottom: 6px;
+	color: #999;
+	font-size: 14px;
+}
+/* for non-wrapping rows
+.pkg-list .palm-row-wrapper .title
+{
 	position: absolute;
 	overflow: hidden;
 	white-space: nowrap;
@@ -402,11 +430,6 @@ body.palm-dark .pkg-list .group-source
 	padding-left: 0px;
 	left: 60px;
 	right: 5px;
-}
-.pkg-list .palm-row-wrapper .title .highlight
-{
-	font-weight: bold;
-	text-decoration: underline;
 }
 .pkg-list .palm-row-wrapper .title.description
 {
@@ -418,6 +441,7 @@ body.palm-dark .pkg-list .group-source
 	top: 30px;
 	font-size: 14px;
 }
+*/
 .group-popup.palm-popup-container
 {
 	text-transform: capitalize;
