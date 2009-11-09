@@ -1,31 +1,30 @@
 function StartupAssistant()
 {
 	// on first start, this message is displayed, along with the current version message from below
-	this.firstMessage = 'Here is the message displayed to the user on first launch. Welcome to preware, etc, etc, here is some other helpful random information.' +
-						'When this is not a first launch, and a launch after an update, this message won\'t be visible, only the changelog below.';
+	this.firstMessage = 'Here are some tips for first-timers:<ul><li>Preware will take some time to download the data for all your enabled package feeds</li><li>Select the "Preferences" menu item to change how often the feeds are updated</li><li>Customize the main screen using the "Show Available Types" preference options</li><li>Select the "Manage Feeds" menu item to enable just your desired package feeds</li><li>To search, just start typing in the "List of Everything"</li></ul>We hope you enjoy all of the many Applications, Themes and Patches that Preware makes available.<br>Please consider making a <a href=http://www.webos-internals.org/wiki/WebOS_Internals:Site_support>donation</a> if you wish to show your appreciation.';
 	
 	// on new version start
 	this.newMessages =
 	[
+//		{
+//			version: '0.9.7',
+//			log:
+//			[
+//				'Blah blah blah",
+//				'Blah blah blah"
+//			]
+//		},
 		{
 			version: '0.9.6',
 			log:
 			[
-				'Added this startup scene right here',
-				'Fixed packages with multiple maintainers',
-				'Loads extended appinfo and control file information for "unknown" packages',
+				'Fixed the display of packages with multiple maintainers',
+				'Now loads extended appinfo and control file information for "unknown" packages',
 				'Changed default list second-line to version + maintainer',
-				'No back-gestures during package actions',
-				'Multiline package titles so dbsooner will stop asking about it'
-			]
-		},
-		{
-			version: '0.9.5',
-			log:
-			[
-				'Added helpful text to update scene',
-				'Added initial dependency update support',
-				'Ignore "offline root" message in IPKG Log beacuse it\'s not an error'
+				'No longer allows back-gestures during package operations',
+				'Multi-line package titles are now supported',
+				'"Show All Packages" changed to "Show Available Types" and now defaults to "No" for new users',
+				'Added this startup scene'
 			]
 		}
 	];
@@ -55,7 +54,7 @@ function StartupAssistant()
 		[
 			{},
 			{
-				label: "Ok, I've read this. Lets Continue",
+				label: "Ok, I've read this. Let's continue ...",
 				command: 'do-continue'
 			},
 			{}
