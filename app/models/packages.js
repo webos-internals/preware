@@ -215,12 +215,9 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		else 
 		{
 			// we're done
-			//this.updateAssistant.displayAction('<strong>Complete!</strong>');
-			//this.updateAssistant.setProgress(100);
-			//this.doneLoading();
-			this.updateAssistant.displayAction('<strong>Fixing Unknown Packages</strong>');
+			this.updateAssistant.displayAction('<strong>Complete!</strong>');
 			this.updateAssistant.setProgress(0);
-			//this.updateAssistant.hideProgress();
+			this.updateAssistant.hideProgress();
 			this.fixUnknown();
 		}
 		/*else
@@ -341,21 +338,31 @@ packagesModel.prototype.fixUnknown = function()
 			}
 		}
 		
-		alert('UNKNOWN: ' + this.unknownCount);
-		
-		for (var p = 0; p < this.packages.length; p++)
+		if (this.unknownCount > 0) 
 		{
-			if (this.packages[p].title == 'This is a webOS application.' || this.packages[p].type == 'Unknown') 
+			this.updateAssistant.showProgress();
+		
+			for (var p = 0; p < this.packages.length; p++) 
 			{
-				this.packages[p].loadAppinfoFile(this.fixUnknownDone.bind(this));
+				if (this.packages[p].title == 'This is a webOS application.' || this.packages[p].type == 'Unknown') 
+				{
+					this.packages[p].loadAppinfoFile(this.fixUnknownDone.bind(this));
+				}
 			}
 		}
+		else
+		{
+			this.doneLoading();
+		}
+	}
+	else
+	{
+		this.doneLoading();
 	}
 }
 packagesModel.prototype.fixUnknownDone = function()
 {
 	this.unknownFixed++;
-	alert(this.unknownFixed);
 	this.updateAssistant.displayAction('<strong>Fixing Unknown Packages</strong><br />' + this.unknownFixed + ' of ' + this.unknownCount);
 	this.updateAssistant.setProgress(Math.round((this.unknownFixed/this.unknownCount) * 100));
 	
