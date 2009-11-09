@@ -97,14 +97,12 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 		this.feeds = feeds;
 		this.updateAssistant = updateAssistant;
 		
-		if (this.feeds.length > 0)
-		{
-			this.updateAssistant.displayAction('<strong>Loading Package Information</strong>');
-			this.updateAssistant.showProgress();
-			
-			//this.infoListRequest(0);
-			this.infoStatusRequest();
-		}
+		// set title and show progress
+		this.updateAssistant.displayAction('<strong>Loading Package Information</strong>');
+		this.updateAssistant.showProgress();
+		
+		// initiate status request
+		this.infoStatusRequest();
 	} 
 	catch (e) 
 	{
@@ -211,7 +209,6 @@ packagesModel.prototype.infoResponse = function(payload, num)
 			// start next
 			this.infoListRequest((num + 1));
 		}
-		//else if (num == 'status')
 		else 
 		{
 			// we're done
@@ -220,10 +217,6 @@ packagesModel.prototype.infoResponse = function(payload, num)
 			this.updateAssistant.hideProgress();
 			this.fixUnknown();
 		}
-		/*else
-		{
-			this.infoStatusRequest();
-		}*/
 	}
 }
 packagesModel.prototype.parsePackages = function(rawData)
@@ -376,10 +369,10 @@ packagesModel.prototype.fixUnknownDone = function()
 packagesModel.prototype.doneLoading = function()
 {
 	// cancel the last subscription, this may not be needed
-	//if (this.subscription)
-	//{
-	//	this.subscription.cancel();
-	//}
+	if (this.subscription)
+	{
+		this.subscription.cancel();
+	}
 	
 	// clear out our current data (incase this is a re-update)
 	this.categories = [];
