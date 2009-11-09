@@ -13,7 +13,9 @@ function StartupAssistant()
 			[
 				'Added this startup scene right here',
 				'Fixed packages with multiple maintainers',
-				'Other awesome stuff not yet listed here'
+				'Loads extended appinfo and control file information for "unknown" packages',
+				'Changed default list second-line to version + maintainer',
+				'No back-gestures during package actions'
 			]
 		},
 		{
@@ -21,16 +23,8 @@ function StartupAssistant()
 			log:
 			[
 				'Added helpful text to update scene',
-				'Added dependency update support',
+				'Added initial dependency update support',
 				'Ignore "offline root" message in IPKG Log beacuse it\'s not an error'
-			]
-		},
-		{
-			version: '0.9.4',
-			log:
-			[
-				'asdf',
-				'asdf'
 			]
 		}
 	];
