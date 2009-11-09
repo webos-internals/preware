@@ -16,6 +16,8 @@ function packagesModel()
 	// we'll need these for the subscription based rawlist
 	this.subscription = false;
 	this.rawData = '';
+	this.unknownCount = 0;
+	this.unknownFixed = 0;
 	
 	/* *** Type Conditions ***
 	 * launch			// can be launched by luna, makes the button appear in the view scene
@@ -213,9 +215,13 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		else 
 		{
 			// we're done
-			this.updateAssistant.displayAction('<strong>Complete</strong>');
-			this.updateAssistant.setProgress(100);
-			this.doneLoading();
+			//this.updateAssistant.displayAction('<strong>Complete!</strong>');
+			//this.updateAssistant.setProgress(100);
+			//this.doneLoading();
+			this.updateAssistant.displayAction('<strong>Fixing Unknown Packages</strong>');
+			this.updateAssistant.setProgress(0);
+			//this.updateAssistant.hideProgress();
+			this.fixUnknown();
 		}
 		/*else
 		{
@@ -314,13 +320,59 @@ packagesModel.prototype.loadPackage = function(packageObj)
 		}
 	}
 }
-packagesModel.prototype.doneLoading = function()
+packagesModel.prototype.fixUnknown = function()
 {
 	// cancel the last subscription, this may not be needed
-	if (this.subscription)
+	if (this.subscription) 
 	{
 		this.subscription.cancel();
 	}
+	
+	this.unknownCount = 0;
+	this.unknownFixed = 0;
+	
+	if (this.packages.length > 0) 
+	{
+		for (var p = 0; p < this.packages.length; p++)
+		{
+			if (this.packages[p].title == 'This is a webOS application.' || this.packages[p].type == 'Unknown') 
+			{
+				this.unknownCount++;
+			}
+		}
+		
+		alert('UNKNOWN: ' + this.unknownCount);
+		
+		for (var p = 0; p < this.packages.length; p++)
+		{
+			if (this.packages[p].title == 'This is a webOS application.' || this.packages[p].type == 'Unknown') 
+			{
+				this.packages[p].loadAppinfoFile(this.fixUnknownDone.bind(this));
+			}
+		}
+	}
+}
+packagesModel.prototype.fixUnknownDone = function()
+{
+	this.unknownFixed++;
+	alert(this.unknownFixed);
+	this.updateAssistant.displayAction('<strong>Fixing Unknown Packages</strong><br />' + this.unknownFixed + ' of ' + this.unknownCount);
+	this.updateAssistant.setProgress(Math.round((this.unknownFixed/this.unknownCount) * 100));
+	
+	if (this.unknownFixed == this.unknownCount)
+	{
+		this.updateAssistant.displayAction('<strong>Complete!</strong>');
+		this.updateAssistant.hideProgress();
+		this.doneLoading();
+	}
+}
+packagesModel.prototype.doneLoading = function()
+{
+	// cancel the last subscription, this may not be needed
+	//if (this.subscription)
+	//{
+	//	this.subscription.cancel();
+	//}
 	
 	// clear out our current data (incase this is a re-update)
 	this.categories = [];
@@ -348,7 +400,7 @@ packagesModel.prototype.doneLoading = function()
 	try
 	{
 		// add package categorys to global category list
-		for (var p = 0; p < this.packages.length; p++) 
+		for (var p = 0; p < this.packages.length; p++)
 		{
 			// build categories list
 			var catNum = this.categoryInList(this.packages[p].category);

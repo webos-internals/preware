@@ -53,10 +53,10 @@ function packageModel(info)
 		}
 		
 		// load appinfo if the data seems broken
-		if (this.title == 'This is a webOS application.' || this.type == 'Unknown')
-		{
-			this.loadAppinfoFile();
-		}
+		//if (this.title == 'This is a webOS application.' || this.type == 'Unknown')
+		//{
+		//	this.loadAppinfoFile();
+		//}
 		
 	}
 	catch (e)
@@ -128,7 +128,7 @@ packageModel.prototype.infoUpdate = function(newPackage)
 			return newPackage;
 		}
 		
-		alert('Replace Type: 6');
+		//alert('Replace Type: 6');
 		this.infoLoadFromPkg(newPackage);
 		return false;
 	}
@@ -194,7 +194,7 @@ packageModel.prototype.infoLoad = function(info)
 			if (!this.license &&		sourceJson.License)			this.license =		sourceJson.License;
 			if (!this.description &&	sourceJson.FullDescription)	this.description =	sourceJson.FullDescription;
 			if (!this.changeLog &&		sourceJson.Changelog)		this.changeLog =	sourceJson.Changelog;
-			if (!this.screenshots &&	sourceJson.Screenshots)		this.screenshots =	sourceJson.Screenshots;
+			if (!this.screenshots || this.screenshots.length == 0 && sourceJson.Screenshots) this.screenshots =	sourceJson.Screenshots;
 			
 			if (sourceJson.Feed) 
 			{
@@ -362,15 +362,15 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 	}
 }
 
-packageModel.prototype.loadAppinfoFile = function()
+packageModel.prototype.loadAppinfoFile = function(callback)
 {
-	IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bindAsEventListener(this), this.pkg);
+	IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bindAsEventListener(this, callback), this.pkg);
 }
-packageModel.prototype.loadControlFile = function()
+packageModel.prototype.loadControlFile = function(callback)
 {
-	IPKGService.getControlFile(this.loadControlFileResponse.bindAsEventListener(this), this.pkg);
+	IPKGService.getControlFile(this.loadControlFileResponse.bindAsEventListener(this, callback), this.pkg);
 }
-packageModel.prototype.loadAppinfoFileResponse = function(payload)
+packageModel.prototype.loadAppinfoFileResponse = function(payload, callback)
 {
 	if (payload.contents) 
 	{
@@ -382,7 +382,7 @@ packageModel.prototype.loadAppinfoFileResponse = function(payload)
 			this.type = 'Application';
 		}
 		if ((!this.title || this.title == '' || this.title == 'This is a webOS application.')
-		&& appInfo.title)
+			&& appInfo.title)
 		{
 			this.title = appInfo.title;
 		}
@@ -398,19 +398,24 @@ packageModel.prototype.loadAppinfoFileResponse = function(payload)
 			}
 		}
 		if ((!this.maintainer || this.maintainer.length == 0
-		|| (this.maintainer.length == 1 && this.maintainer[0].name == 'N/A'))
-		&& appInfo.vendor) 
+			|| (this.maintainer.length == 1 && this.maintainer[0].name == 'N/A'))
+			&& appInfo.vendor) 
 		{
 			this.maintainer = [{name: appInfo.vendor, url: false}];
+		}
+		
+		if (callback) 
+		{
+			callback();
 		}
 	}
 	else
 	{
 		// if there is no appinfo, try the control file
-		//this.loadControlFile();
+		this.loadControlFile(callback);
 	}
 }
-packageModel.prototype.loadControlFileResponse = function(payload)
+packageModel.prototype.loadControlFileResponse = function(payload, callback)
 {
 	if (payload.contents) 
 	{
@@ -446,6 +451,11 @@ packageModel.prototype.loadControlFileResponse = function(payload)
 		//for (var i in info) alert(i + ': ' + info[i]);
 		
 		this.infoLoad(info);
+	}
+	
+	if (callback) 
+	{
+		callback();
 	}
 }
 
