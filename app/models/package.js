@@ -403,17 +403,10 @@ packageModel.prototype.loadAppinfoFileResponse = function(payload, callback)
 		{
 			this.maintainer = [{name: appInfo.vendor, url: false}];
 		}
-		
-		if (callback) 
-		{
-			callback();
-		}
 	}
-	else
-	{
-		// if there is no appinfo, try the control file
-		this.loadControlFile(callback);
-	}
+	
+	// hit control file
+	this.loadControlFile(callback);
 }
 packageModel.prototype.loadControlFileResponse = function(payload, callback)
 {
