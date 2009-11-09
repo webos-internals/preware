@@ -15,7 +15,8 @@ function StartupAssistant()
 				'Fixed packages with multiple maintainers',
 				'Loads extended appinfo and control file information for "unknown" packages',
 				'Changed default list second-line to version + maintainer',
-				'No back-gestures during package actions'
+				'No back-gestures during package actions',
+				'Multiline package titles so dbsooner will stop asking about it'
 			]
 		},
 		{
