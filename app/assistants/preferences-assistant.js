@@ -37,7 +37,7 @@ PreferencesAssistant.prototype.setup = function()
 		this.listChangedHandler  = this.listChanged.bindAsEventListener(this)
 		
 		// toggle panes:
-		this.toggleShowAllChanged();
+		this.toggleShowTypesChanged();
 		
 		// setup header button
 		this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
@@ -90,14 +90,14 @@ PreferencesAssistant.prototype.setup = function()
 		// Main Scene Group
 		this.controller.setupWidget
 		(
-			'showAllTypes',
+			'showAvailableTypes',
 			{
 	  			trueLabel:  'Yes',
 	 			falseLabel: 'No',
-	  			fieldName:  'showAllTypes'
+	  			fieldName:  'showAvailableTypes'
 			},
 			{
-				value : this.prefs.showAllTypes,
+				value : this.prefs.showAvailableTypes,
 	 			disabled: false
 			}
 		);
@@ -154,7 +154,7 @@ PreferencesAssistant.prototype.setup = function()
 			}
 		);
 		
-		this.controller.listen('showAllTypes',        Mojo.Event.propertyChange, this.toggleShowAllChanged.bindAsEventListener(this));
+		this.controller.listen('showAvailableTypes',  Mojo.Event.propertyChange, this.toggleShowTypesChanged.bindAsEventListener(this));
 		this.controller.listen('showTypeApplication', Mojo.Event.propertyChange, this.toggleChangeHandler);
 		this.controller.listen('showTypeTheme',       Mojo.Event.propertyChange, this.toggleChangeHandler);
 		this.controller.listen('showTypePatch',       Mojo.Event.propertyChange, this.toggleChangeHandler);
@@ -186,13 +186,13 @@ PreferencesAssistant.prototype.setup = function()
 				choices:
 				[
 					{label:'Package ID',		value:'id'},
-					{label:'Version',			value:'version'},
+					{label:'Version',		value:'version'},
 					{label:'Maintainer',		value:'maint'},
 					{label:'Modified Date',		value:'date'},
 					{label:'Version & ID',		value:'v&i'},
 					{label:'Version & Maint.',	value:'v&m'},
 					{label:'Version & Date',	value:'v&d'},
-					{label:'License',			value:'license'}
+					{label:'License',		value:'license'}
 				],
 				modelProperty: 'secondRow'
 			},
@@ -304,21 +304,21 @@ PreferencesAssistant.prototype.toggleChanged = function(event)
 	this.cookie.put(this.prefs);
 }
 
-PreferencesAssistant.prototype.toggleShowAllChanged = function(event)
+PreferencesAssistant.prototype.toggleShowTypesChanged = function(event)
 {
 	if (event) 
 	{
 		this.toggleChanged(event);
 	}
-	if (this.prefs['showAllTypes'])
+	if (this.prefs['showAvailableTypes'])
 	{
-		this.controller.get('showAllTypesContainer').className = 'palm-row single';
-		this.controller.get('notAllTypes').style.display = 'none';
+		this.controller.get('showAvailableTypesContainer').className = 'palm-row first';
+		this.controller.get('availableTypes').style.display = '';
 	}
 	else
 	{
-		this.controller.get('showAllTypesContainer').className = 'palm-row first';
-		this.controller.get('notAllTypes').style.display = '';
+		this.controller.get('showAvailableTypesContainer').className = 'palm-row single';
+		this.controller.get('availableTypes').style.display = 'none';
 	}
 }
 

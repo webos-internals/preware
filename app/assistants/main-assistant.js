@@ -8,9 +8,10 @@ function MainAssistant()
 		{weight: 15, text: 'The Open Standard Installer'},
 		{weight: 15, text: 'The Universal Application Installer'},
 		{weight: 15, text: 'Accessing All Open Standard Feeds'},
-		{weight:  2, text: 'Now With More Cowbell'},
 		{weight:  2, text: 'Random Taglines Are Awesome'},
-		{weight:  2, text: 'We Did It First.'}
+		{weight:  2, text: 'We Know Palm Loves Preware'},
+		{weight:  2, text: 'Now With More Cowbell'},
+		{weight:  2, text: 'We Did It First'}
 	];
 	
 	// setup list model
@@ -29,6 +30,10 @@ function MainAssistant()
 			{
 				label: "Update Feeds",
 				command: 'do-update'
+			},
+			{
+				label: "Manage Feeds",
+				command: 'do-feeds'
 			},
 			{
 				label: "Help",
@@ -102,7 +107,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 			pkgCount: 0							// count of pkgs for display in list, will only display if style is set to 'showCount'
 		});
 		
-		if (!prefs.get().showAllTypes) 
+		if (prefs.get().showAvailableTypes) 
 		{
 			
 			if (prefs.get().showTypeApplication) 
@@ -282,6 +287,10 @@ MainAssistant.prototype.handleCommand = function(event)
 				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'main', true);
 				break;
 				
+			case 'do-feeds':
+				this.controller.stageController.pushScene('configs');
+				break;
+	
 			case 'do-showLog':
 				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
 				break;

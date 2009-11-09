@@ -20,11 +20,11 @@ preferenceCookie.prototype.get = function(reload)
 				updateInterval: 'launch',
 				lastUpdate: 0, // will be updated every time update is successful
 				// Main Scene Group
-				showAllTypes: false,
+				showAvailableTypes: false,
 				showTypeApplication: true,
 				showTypeTheme: true,
 				showTypePatch: true,
-				showTypeOther: false,
+				showTypeOther: true,
 				
 				// List Scene Group
 				listSort: 'default',
@@ -40,6 +40,8 @@ preferenceCookie.prototype.get = function(reload)
 				allowFlagSkip: false
 			};
 			
+			// uncomment to delete cookie for testing
+			//this.cookie.remove();
 			var cookieData = this.cookie.get();
 			if (cookieData) 
 			{
@@ -108,6 +110,8 @@ versionCookie.prototype.init = function()
 	try
 	{
 		this.cookie = new Mojo.Model.Cookie('version');
+		// uncomment to delete cookie for testing
+		//this.cookie.remove();
 		var data = this.cookie.get();
 		if (data)
 		{
