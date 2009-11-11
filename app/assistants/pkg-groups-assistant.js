@@ -36,6 +36,10 @@ function PkgGroupsAssistant(item)
 				command: 'do-update'
 			},
 			{
+				label: "Manage Feeds",
+				command: 'do-feeds'
+			},
+			{
 				label: "Help",
 				command: 'do-help'
 			}
@@ -290,6 +294,10 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'pkg-groups', true, this.item);
 				break;
 			
+			case 'do-feeds':
+				this.controller.stageController.pushScene('configs');
+				break;
+	
 			case 'do-help':
 				this.controller.stageController.pushScene('help');
 				break;

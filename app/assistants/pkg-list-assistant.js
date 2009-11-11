@@ -74,6 +74,10 @@ function PkgListAssistant(item, searchText, currentSort)
 				command: 'do-update'
 			},
 			{
+				label: "Manage Feeds",
+				command: 'do-feeds'
+			},
+			{
 				label: "Help",
 				command: 'do-help'
 			}
@@ -501,6 +505,10 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'pkg-list', true, this.item, this.searchText, this.currentSort);
 				break;
 				
+			case 'do-feeds':
+				this.controller.stageController.pushScene('configs');
+				break;
+	
 			case 'do-showLog':
 				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
 				break;
