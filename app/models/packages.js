@@ -215,7 +215,14 @@ packagesModel.prototype.infoResponse = function(payload, num)
 			this.updateAssistant.displayAction('<strong>Complete!</strong>');
 			this.updateAssistant.setProgress(0);
 			this.updateAssistant.hideProgress();
-			this.fixUnknown();
+			if (prefs.get().fixUnknown) 
+			{
+				this.fixUnknown();
+			}
+			else
+			{
+				this.doneLoading();
+			}
 		}
 	}
 }

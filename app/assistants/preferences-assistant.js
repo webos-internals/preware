@@ -82,8 +82,22 @@ PreferencesAssistant.prototype.setup = function()
 		{
 			this.controller.get('lastUpdate').innerHTML = formatDate(this.prefs.lastUpdate);
 		}
+		this.controller.setupWidget
+		(
+			'fixUnknown',
+			{
+	  			trueLabel:  'Yes',
+	 			falseLabel: 'No',
+	  			fieldName:  'fixUnknown'
+			},
+			{
+				value : this.prefs.fixUnknown,
+	 			disabled: false
+			}
+		);
 		
 		this.controller.listen('updateInterval', Mojo.Event.propertyChange, this.listChangedHandler);
+		this.controller.listen('fixUnknown',     Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		
 		
