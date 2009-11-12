@@ -12,6 +12,7 @@ function packagesModel()
 	this.categories = [];
 	this.feeds = [];
 	this.types = [];
+	this.unknown = [];
 	
 	// we'll need these for the subscription based rawlist
 	this.subscription = false;
@@ -327,6 +328,7 @@ packagesModel.prototype.fixUnknown = function()
 	
 	this.unknownCount = 0;
 	this.unknownFixed = 0;
+	this.unknown = [];
 	
 	if (this.packages.length > 0) 
 	{
@@ -334,6 +336,7 @@ packagesModel.prototype.fixUnknown = function()
 		{
 			if (this.packages[p].title == 'This is a webOS application.' || this.packages[p].type == 'Unknown') 
 			{
+				this.unknown[this.unknownCount] = p;
 				this.unknownCount++;
 			}
 		}
@@ -341,14 +344,7 @@ packagesModel.prototype.fixUnknown = function()
 		if (this.unknownCount > 0) 
 		{
 			this.updateAssistant.showProgress();
-		
-			for (var p = 0; p < this.packages.length; p++) 
-			{
-				if (this.packages[p].title == 'This is a webOS application.' || this.packages[p].type == 'Unknown') 
-				{
-					this.packages[p].loadAppinfoFile(this.fixUnknownDone.bind(this));
-				}
-			}
+			this.packages[0].loadAppinfoFile(this.fixUnknownDone.bind(this));
 		}
 		else
 		{
@@ -371,6 +367,10 @@ packagesModel.prototype.fixUnknownDone = function()
 		this.updateAssistant.displayAction('<strong>Complete!</strong>');
 		this.updateAssistant.hideProgress();
 		this.doneLoading();
+	}
+	else
+	{
+		this.packages[this.unknownFixed].loadAppinfoFile(this.fixUnknownDone.bind(this));
 	}
 }
 packagesModel.prototype.doneLoading = function()
