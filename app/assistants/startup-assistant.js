@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.8',
+			log:
+			[
+				'Serialised the gathering of data for Type:Unknown packages to fix the hangs'
+			]
+		},
+		{
 			version: '0.9.7',
 			log:
 			[
