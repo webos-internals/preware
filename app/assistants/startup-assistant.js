@@ -6,14 +6,13 @@ function StartupAssistant()
 	// on new version start
 	this.newMessages =
 	[
-//		{
-//			version: '0.9.7',
-//			log:
-//			[
-//				'Blah blah blah",
-//				'Blah blah blah"
-//			]
-//		},
+		{
+			version: '0.9.7',
+			log:
+			[
+				'Added the preference to enable or disable fixing Type:Unknown packages'
+			]
+		},
 		{
 			version: '0.9.6',
 			log:
