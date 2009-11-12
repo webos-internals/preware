@@ -182,7 +182,16 @@ packageModel.prototype.infoLoad = function(info)
 		if (info.Source && info.Source.include('{')) 
 		{
 			// parse json to object
-			var sourceJson = JSON.parse(info.Source);
+
+			try
+			{
+				var sourceJson = JSON.parse(info.Source);
+			}
+			catch (e) 
+			{
+				Mojo.Log.logException(e, 'infoLoad#parse');
+				var sourceJson = {};
+			}
 
 			// check if the object has data we can load or overwrite the defaults with
 			if ((!this.type || this.type == 'Unknown') && sourceJson.Type) this.type =	sourceJson.Type;
@@ -374,7 +383,15 @@ packageModel.prototype.loadAppinfoFileResponse = function(payload, callback)
 {
 	if (payload.contents) 
 	{
-		var appInfo = JSON.parse(payload.contents);
+		try
+		{
+			var appInfo = JSON.parse(payload.contents);
+		}
+		catch (e) 
+		{
+			Mojo.Log.logException(e, 'loadAppinfoFileResponse#parse');
+			var appInfo = {};
+		}
 		
 		if ((!this.type || this.type == '' || this.type == 'Unknown') && this.title == 'This is a webOS application.') 
 		{
