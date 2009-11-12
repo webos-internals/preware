@@ -344,7 +344,7 @@ packagesModel.prototype.fixUnknown = function()
 		if (this.unknownCount > 0) 
 		{
 			this.updateAssistant.showProgress();
-			this.packages[0].loadAppinfoFile(this.fixUnknownDone.bind(this));
+			this.packages[this.unknown[0]].loadAppinfoFile(this.fixUnknownDone.bind(this));
 		}
 		else
 		{
@@ -370,7 +370,7 @@ packagesModel.prototype.fixUnknownDone = function()
 	}
 	else
 	{
-		this.packages[this.unknownFixed].loadAppinfoFile(this.fixUnknownDone.bind(this));
+		this.packages[this.unknown[this.unknownFixed]].loadAppinfoFile(this.fixUnknownDone.bind(this));
 	}
 }
 packagesModel.prototype.doneLoading = function()
