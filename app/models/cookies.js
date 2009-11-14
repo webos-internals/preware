@@ -19,7 +19,7 @@ preferenceCookie.prototype.get = function(reload)
 				// Startup Group
 				updateInterval: 'launch',
 				lastUpdate: 0, // will be updated every time update is successful
-				fixUnknown: false,
+				fixUnknown: true,
 				
 				// Main Scene Group
 				showAvailableTypes: false,
