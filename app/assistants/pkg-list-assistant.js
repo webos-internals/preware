@@ -87,101 +87,108 @@ function PkgListAssistant(item, searchText, currentSort)
 
 PkgListAssistant.prototype.setup = function()
 {
-	// get elements
-	this.titleElement =			this.controller.get('listTitle');
-	this.headerElement =		this.controller.get('pkgListHeader');
-	this.listElement =			this.controller.get('pkgList');
-	this.searchElement =		this.controller.get('searchText');
-	this.groupTitleElement =	this.controller.get('groupTitle');
-	this.groupSourceElement =	this.controller.get('groupSource');
-	
-	// handlers
-	this.listTapHandler =		this.listTap.bindAsEventListener(this);
-	this.menuTapHandler =		this.menuTap.bindAsEventListener(this);
-	this.filterDelayHandler =	this.filterDelay.bindAsEventListener(this);
-	this.keyHandler =			this.keyTest.bindAsEventListener(this);
-	this.searchFunction =		this.filter.bind(this);
-	
-	// setup list title
-	this.titleElement.innerHTML = this.item.name;
-	
-	// change scene if this is a single group
-	if (this.item.pkgGroup)
+	try 
 	{
-		this.groupMenu = packages.getGroups(this.item);
+		// get elements
+		this.titleElement =			this.controller.get('listTitle');
+		this.headerElement =		this.controller.get('pkgListHeader');
+		this.listElement =			this.controller.get('pkgList');
+		this.searchElement =		this.controller.get('searchText');
+		this.groupTitleElement =	this.controller.get('groupTitle');
+		this.groupSourceElement =	this.controller.get('groupSource');
 		
-		// if the list is more then one (or two in caegories case) don't display it
-		if ((this.groupMenu.length == 1 ||
-			(this.groupMenu.length == 2 && this.item.pkgGroup[0] == 'categories'))) {}
+		// handlers
+		this.listTapHandler =		this.listTap.bindAsEventListener(this);
+		this.menuTapHandler =		this.menuTap.bindAsEventListener(this);
+		this.filterDelayHandler =	this.filterDelay.bindAsEventListener(this);
+		this.keyHandler =			this.keyTest.bindAsEventListener(this);
+		this.searchFunction =		this.filter.bind(this);
+		
+		// setup list title
+		this.titleElement.innerHTML = this.item.name;
+		
+		// change scene if this is a single group
+		if (this.item.pkgGroup)
+		{
+			this.groupMenu = packages.getGroups(this.item);
+			
+			// if the list is more then one (or two in caegories case) don't display it
+			if ((this.groupMenu.length == 1 ||
+				(this.groupMenu.length == 2 && this.item.pkgGroup[0] == 'categories'))) {}
+			else
+			{
+				// update submenu styles
+				this.headerElement.className = 'palm-header left';
+				this.groupSourceElement.style.display = 'inline';
+				
+				if (this.item.pkgGroup[0]		== 'types')			this.groupTitleElement.innerHTML = this.item.pkgType;
+				else if (this.item.pkgGroup[0]	== 'feeds')			this.groupTitleElement.innerHTML = this.item.pkgFeed;
+				else if (this.item.pkgGroup[0]	== 'categories')	this.groupTitleElement.innerHTML = this.item.pkgCat;
+				
+				// listen for tap to open menu
+				this.controller.listen(this.groupSourceElement, Mojo.Event.tap, this.menuTapHandler);
+			}
+		}
+		
+		// setup menu
+		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
+		
+		// update list
+		this.updateList(true);
+		
+		// setup list widget
+		this.setupList();
+		
+		// listen for list tap
+		this.controller.listen(this.listElement, Mojo.Event.listTap, this.listTapHandler);
+		
+		// Set up a command menu
+		this.updateCommandMenu(true);
+		
+		// setup sort command menu widget
+		this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
+		
+		// search spinner model
+		this.spinnerModel = {spinning: false};
+		
+		// setup spinner widget
+		this.controller.setupWidget('spinner', {spinnerSize: 'small'}, this.spinnerModel);
+		
+		// search model & attributes
+		this.searchAttributes =
+		{
+			focus: false,
+			autoFocus: false,
+			changeOnKeyPress: true
+		};
+		this.searchModel = { value: this.searchText };
+		
+		// setup search widget
+		this.controller.setupWidget('searchText', this.searchAttributes, this.searchModel);
+		
+		// listen for type
+		this.controller.listen(this.searchElement, Mojo.Event.propertyChange, this.filterDelayHandler);
+		
+		// if there isnt already search text, start listening
+		if (this.searchText == '') 
+		{
+			this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
+		}
+		// if not, show the text box
 		else
 		{
-			// update submenu styles
-			this.headerElement.className = 'palm-header left';
-			this.groupSourceElement.style.display = 'inline';
-			
-			if (this.item.pkgGroup[0]		== 'types')			this.groupTitleElement.innerHTML = this.item.pkgType;
-			else if (this.item.pkgGroup[0]	== 'feeds')			this.groupTitleElement.innerHTML = this.item.pkgFeed;
-			else if (this.item.pkgGroup[0]	== 'categories')	this.groupTitleElement.innerHTML = this.item.pkgCat;
-			
-			// listen for tap to open menu
-			this.controller.listen(this.groupSourceElement, Mojo.Event.tap, this.menuTapHandler);
+			this.headerElement.style.display = 'none';
+			this.searchElement.style.display = 'inline';
+			//this.searchElement.mojo.setValue(this.searchText);
 		}
+		
+		// set this scene's default transition
+		this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 	}
-	
-	// setup menu
-	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
-	
-	// update list
-	this.updateList(true);
-	
-	// setup list widget
-	this.setupList();
-	
-	// listen for list tap
-	this.controller.listen(this.listElement, Mojo.Event.listTap, this.listTapHandler);
-	
-	// Set up a command menu
-	this.updateCommandMenu(true);
-	
-	// setup sort command menu widget
-	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
-	
-	// search spinner model
-	this.spinnerModel = {spinning: false};
-	
-	// setup spinner widget
-	this.controller.setupWidget('spinner', {spinnerSize: 'small'}, this.spinnerModel);
-	
-	// search model & attributes
-	this.searchAttributes =
+	catch (e)
 	{
-		focus: false,
-		autoFocus: false,
-		changeOnKeyPress: true
-	};
-	this.searchModel = { value: this.searchText };
-	
-	// setup search widget
-	this.controller.setupWidget('searchText', this.searchAttributes, this.searchModel);
-	
-	// listen for type
-	this.controller.listen(this.searchElement, Mojo.Event.propertyChange, this.filterDelayHandler);
-	
-	// if there isnt already search text, start listening
-	if (this.searchText == '') 
-	{
-		this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
+		Mojo.Log.logException(e, 'pkg-list#setup');
 	}
-	// if not, show the text box
-	else
-	{
-		this.headerElement.style.display = 'none';
-		this.searchElement.style.display = 'inline';
-		//this.searchElement.mojo.setValue(this.searchText);
-	}
-	
-	// set this scene's default transition
-	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 }
 PkgListAssistant.prototype.activate = function(event)
 {
