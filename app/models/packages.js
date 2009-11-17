@@ -309,7 +309,7 @@ packagesModel.prototype.loadPackage = function(packageObj)
 		// add this package to global app list
 		this.packages.push(newPkg);
 		
-		// save to reverse lookup list
+		// save to temp reverse lookup list
 		this.packagesReversed.set(newPkg.pkg, this.packages.length);
 	}
 	else 
@@ -387,6 +387,7 @@ packagesModel.prototype.doneLoading = function()
 	}
 	
 	// clear out our current data (incase this is a re-update)
+	this.packagesReversed = $H(); // reset this again so we can rebuild it in alphabetical order
 	this.categories = [];
 	this.feeds = [];
 	this.rawData = ''; // and clear this so its not sitting around full of data
@@ -407,6 +408,12 @@ packagesModel.prototype.doneLoading = function()
 				return -1;
 			}
 		});
+		
+		// build reverse-lookup list
+		for (var p = 0; p < this.packages.length; p++) 
+		{
+			this.packagesReversed.set(this.packages[p].pkg, p);
+		}
 	}
 	
 	try
