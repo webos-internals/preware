@@ -878,7 +878,6 @@ packageModel.prototype.getDependent = function(justInstalled, installedFirst)
 	return returnArray;
 }
 
-
 packageModel.prototype.matchItem = function(item)
 {
 	var matchIt = false;

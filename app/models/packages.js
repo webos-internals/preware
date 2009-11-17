@@ -380,44 +380,44 @@ packagesModel.prototype.fixUnknownDone = function()
 }
 packagesModel.prototype.doneLoading = function()
 {
-	// cancel the last subscription, this may not be needed
-	if (this.subscription)
-	{
-		this.subscription.cancel();
-	}
-	
-	// clear out our current data (incase this is a re-update)
-	this.packagesReversed = $H(); // reset this again so we can rebuild it in alphabetical order
-	this.categories = [];
-	this.feeds = [];
-	this.rawData = ''; // and clear this so its not sitting around full of data
-	
-	// sort the packages
-	if (this.packages.length > 0) 
-	{
-		this.packages.sort(function(a, b)
-		{
-			if (a.title && b.title)
-			{
-				strA = a.title.toLowerCase();
-				strB = b.title.toLowerCase();
-				return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
-			}
-			else
-			{
-				return -1;
-			}
-		});
-		
-		// build reverse-lookup list
-		for (var p = 0; p < this.packages.length; p++) 
-		{
-			this.packagesReversed.set(this.packages[p].pkg, p);
-		}
-	}
-	
 	try
 	{
+		// cancel the last subscription, this may not be needed
+		if (this.subscription)
+		{
+			this.subscription.cancel();
+		}
+		
+		// clear out our current data (incase this is a re-update)
+		this.packagesReversed = $H(); // reset this again so we can rebuild it in alphabetical order
+		this.categories = [];
+		this.feeds = [];
+		this.rawData = ''; // and clear this so its not sitting around full of data
+		
+		// sort the packages
+		if (this.packages.length > 0) 
+		{
+			this.packages.sort(function(a, b)
+			{
+				if (a.title && b.title)
+				{
+					strA = a.title.toLowerCase();
+					strB = b.title.toLowerCase();
+					return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
+				}
+				else
+				{
+					return -1;
+				}
+			});
+			
+			// build reverse-lookup list
+			for (var p = 0; p < this.packages.length; p++) 
+			{
+				this.packagesReversed.set(this.packages[p].pkg, p+1);
+			}
+		}
+		
 		// add package categorys to global category list
 		for (var p = 0; p < this.packages.length; p++)
 		{
@@ -448,7 +448,7 @@ packagesModel.prototype.doneLoading = function()
 	}
 	catch (e)
 	{
-		Mojo.Log.logException(e, 'packagesModel#doneLoading:categoryfeedList');
+		Mojo.Log.logException(e, 'packagesModel#doneLoading');
 	}
 	
 	// sort categories
@@ -581,9 +581,9 @@ packagesModel.prototype.can = function(type, condition)
 packagesModel.prototype.packageInList = function(pkg)
 {
 	var pkgNum = this.packagesReversed.get(pkg);
-	if (pkgNum)
+	if (pkgNum != undefined)
 	{
-		return pkgNum;
+		return pkgNum-1;
 	}
 	else
 	{
