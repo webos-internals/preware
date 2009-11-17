@@ -91,89 +91,97 @@ PkgGroupsAssistant.prototype.activate = function(event)
 
 PkgGroupsAssistant.prototype.listTap = function(event, swap)
 {
-	var newItem =
+	try 
 	{
-		name:     this.item.name,
-		pkgGroup: this.item.pkgGroup,
-		pkgList:  this.item.pkgList,
-		pkgType:  this.item.pkgType,
-		pkgFeed:  this.item.pkgFeed,
-		pkgCat:   this.item.pkgCat
-	};
-	
-	switch (this.item.pkgGroup[0])
-	{
-		case 'types':
-			newItem.pkgType = event.item.name;
-			break;
-		case 'feeds':
-			newItem.pkgFeed = event.item.name;
-			break;
-		case 'categories':
-			newItem.pkgCat  = event.item.name;
-			break;
-		default: break; // this really, really shouldn't ever happen
-	}
-	
-	if (newItem.pkgType && newItem.pkgCat || newItem.pkgType && newItem.pkgFeed && newItem.pkgCat)
-	{
-		if (swap) 
+		var newItem =
 		{
-			//this.controller.stageController.swapScene('pkg-list', newItem);
-			this.controller.stageController.swapScene({name: 'pkg-list', transition: Mojo.Transition.crossFade}, newItem);
-		}
-		else 
-		{
-			this.controller.stageController.pushScene('pkg-list', newItem);
-		}
-	}
-	else
-	{
-		var catFound = false
-		var newPkgGroup = [];
+			name:     this.item.name,
+			pkgGroup: this.item.pkgGroup,
+			pkgList:  this.item.pkgList,
+			pkgType:  this.item.pkgType,
+			pkgFeed:  this.item.pkgFeed,
+			pkgCat:   this.item.pkgCat
+		};
 		
-		if (newItem.pkgGroup.length > 1) 
+		switch (this.item.pkgGroup[0])
 		{
-			for (var g = 1; g < newItem.pkgGroup.length; g++) 
-			{
-				newPkgGroup.push(newItem.pkgGroup[g]);
-				if (newItem.pkgGroup[g] == 'categories')
-				{
-					catFound = true;
-				}
-			}
+			case 'types':
+				newItem.pkgType = event.item.name;
+				break;
+			case 'feeds':
+				newItem.pkgFeed = event.item.name;
+				break;
+			case 'categories':
+				newItem.pkgCat  = event.item.name;
+				break;
+			default: break; // this really, really shouldn't ever happen
 		}
 		
-		if (!catFound)
+		if (newItem.pkgType && newItem.pkgCat || newItem.pkgType && newItem.pkgFeed && newItem.pkgCat)
 		{
-			if (newItem.pkgType) 
+			if (swap) 
 			{
-				var newPkgGroup = ['categories'];
+				//this.controller.stageController.swapScene('pkg-list', newItem);
+				this.controller.stageController.swapScene({name: 'pkg-list', transition: Mojo.Transition.crossFade}, newItem);
 			}
-			else
+			else 
 			{
-				var newPkgGroup = [];
+				this.controller.stageController.pushScene('pkg-list', newItem);
 			}
+		}
+		else
+		{
+			var catFound = false
+			var newPkgGroup = [];
+			
 			if (newItem.pkgGroup.length > 1) 
 			{
 				for (var g = 1; g < newItem.pkgGroup.length; g++) 
 				{
 					newPkgGroup.push(newItem.pkgGroup[g]);
+					if (newItem.pkgGroup[g] == 'categories')
+					{
+						catFound = true;
+					}
 				}
 			}
+			
+			if (!catFound)
+			{
+				if (newItem.pkgType) 
+				{
+					var newPkgGroup = ['categories'];
+				}
+				else
+				{
+					var newPkgGroup = [];
+				}
+				if (newItem.pkgGroup.length > 1) 
+				{
+					for (var g = 1; g < newItem.pkgGroup.length; g++) 
+					{
+						newPkgGroup.push(newItem.pkgGroup[g]);
+					}
+				}
+			}
+			
+			newItem.pkgGroup = newPkgGroup;
+			
+			if (swap) 
+			{
+				//this.controller.stageController.swapScene('pkg-groups', newItem);
+				this.controller.stageController.swapScene({name: 'pkg-groups', transition: Mojo.Transition.crossFade}, newItem);
+			}
+			else 
+			{
+				this.controller.stageController.pushScene('pkg-groups', newItem);
+			}
 		}
-		
-		newItem.pkgGroup = newPkgGroup;
-		
-		if (swap) 
-		{
-			//this.controller.stageController.swapScene('pkg-groups', newItem);
-			this.controller.stageController.swapScene({name: 'pkg-groups', transition: Mojo.Transition.crossFade}, newItem);
-		}
-		else 
-		{
-			this.controller.stageController.pushScene('pkg-groups', newItem);
-		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'pkg-groups#listTap');
+		this.alertMessage('pkg-groups Exception: ' + e);
 	}
 }
 PkgGroupsAssistant.prototype.buildList = function(skipUpdate)
@@ -306,7 +314,19 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
-};
+}
+
+PkgGroupsAssistant.prototype.alertMessage = function(message)
+{
+	this.controller.showAlertDialog(
+	{
+	    title:				'Preware',
+		allowHTMLMessage:	true,
+	    message:			message,
+	    choices:			[{label:$L('Ok'), value:''}],
+		onChoose:			function(value){}
+    });
+}
 
 PkgGroupsAssistant.prototype.cleanup = function(event)
 {

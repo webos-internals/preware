@@ -110,7 +110,7 @@ PkgListAssistant.prototype.setup = function()
 		// change scene if this is a single group
 		if (this.item.pkgGroup)
 		{
-			this.groupMenu = packages.getGroups(this.item);
+			this.groupMenu = [];//packages.getGroups(this.item);
 			
 			// if the list is more then one (or two in caegories case) don't display it
 			if ((this.groupMenu.length == 1 ||
@@ -188,6 +188,7 @@ PkgListAssistant.prototype.setup = function()
 	catch (e)
 	{
 		Mojo.Log.logException(e, 'pkg-list#setup');
+		this.alertMessage('pkg-list Exception: ' + e);
 	}
 }
 PkgListAssistant.prototype.activate = function(event)
@@ -528,6 +529,18 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
+}
+
+PkgListAssistant.prototype.alertMessage = function(message)
+{
+	this.controller.showAlertDialog(
+	{
+	    title:				'Preware',
+		allowHTMLMessage:	true,
+	    message:			message,
+	    choices:			[{label:$L('Ok'), value:''}],
+		onChoose:			function(value){}
+    });
 }
 
 PkgListAssistant.prototype.cleanup = function(event)
