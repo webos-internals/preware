@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.9',
+			log:
+			[
+				'MASSIVE LISTING SPEED BOOST!'
+			]
+		},
+		{
 			version: '0.9.8',
 			log:
 			[
