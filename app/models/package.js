@@ -878,6 +878,45 @@ packageModel.prototype.getDependent = function(justInstalled, installedFirst)
 }
 
 
+packageModel.prototype.matchItem = function(item)
+{
+	var matchIt = false;
+	
+	// push packages that meet the listing
+	if (item.pkgList == 'all')
+	{
+		matchIt = true;
+		// if is installed and installed is not to be shown, dont push it
+		if (this.isInstalled && !prefs.get().listInstalled) 
+		{
+			matchIt = false;
+			// if it is installed and is not to be shown but its the "list of everything", push it anyways
+			if (item.pkgType == 'all' && item.pkgFeed == 'all' && item.pkgCat == 'all')
+			{
+				matchIt = true;
+			}
+		}
+	}
+	else if (item.pkgList == 'other' && // other is for main scene where its not already there
+			this.type != 'Application' && this.type != 'Theme' &&
+			this.type != 'Patch') matchIt = true;
+	else if (item.pkgList == 'updates' && this.hasUpdate) matchIt = true;
+	else if (item.pkgList == 'installed' && this.isInstalled) matchIt = true;
+	
+	
+	// check type and dont push if not right
+	if (item.pkgType != 'all' && item.pkgType != '' && item.pkgType != this.type) matchIt = false;
+	
+	// check feed and dont push if not right
+	if (item.pkgFeed != 'all' && item.pkgFeed != '' && !this.inFeed(item.pkgFeed)) matchIt = false;
+	
+	// check category and dont push if not right
+	if (item.pkgCat != 'all' && item.pkgCat != '' && item.pkgCat != this.category) matchIt = false;
+	
+	return matchIt;
+}
+
+
 /* ------- below are for package actions -------- */
 
 packageModel.prototype.launch = function()

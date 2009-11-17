@@ -410,30 +410,27 @@ packagesModel.prototype.doneLoading = function()
 		for (var p = 0; p < this.packages.length; p++)
 		{
 			// build categories list
-			var catNum = this.categoryInList(this.packages[p].category);
-			if (catNum === false) 
+			if (this.categories.indexOf(this.packages[p].category) === -1) 
 			{
 				// push new category
-				this.categories.push({name: this.packages[p].category});
+				this.categories.push(this.packages[p].category);
 			}
 			
 			// build feeds list
 			for (var f = 0; f < this.packages[p].feeds.length; f++) 
 			{
-				var feedNum = this.feedInList(this.packages[p].feeds[f]);
-				if (feedNum === false) 
+				if (this.feeds.indexOf(this.packages[p].feeds[f]) === -1) 
 				{
 					// push new category
-					this.feeds.push({name: this.packages[p].feeds[f]});
+					this.feeds.push(this.packages[p].feeds[f]);
 				}
 			}
 			
 			// build types list
-			var typeNum = this.typeInList(this.packages[p].type);
-			if (typeNum === false) 
+			if (this.types.indexOf(this.packages[p].type) === -1) 
 			{
 				// push new category
-				this.types.push({name: this.packages[p].type});
+				this.types.push(this.packages[p].type);
 			}
 		}
 	}
@@ -448,10 +445,10 @@ packagesModel.prototype.doneLoading = function()
 		this.categories.sort(function(a, b)
 		{
 			// this needs to be lowercase for sorting.
-			if (a.name && b.name)
+			if (a && b)
 			{
-				strA = a.name.toLowerCase();
-				strB = b.name.toLowerCase();
+				strA = a.toLowerCase();
+				strB = b.toLowerCase();
 				return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
 			}
 			else
@@ -467,10 +464,10 @@ packagesModel.prototype.doneLoading = function()
 		this.feeds.sort(function(a, b)
 		{
 			// this needs to be lowercase for sorting.
-			if (a.name && b.name)
+			if (a && b)
 			{
-				strA = a.name.toLowerCase();
-				strB = b.name.toLowerCase();
+				strA = a.toLowerCase();
+				strB = b.toLowerCase();
 				return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
 			}
 			else
@@ -486,10 +483,10 @@ packagesModel.prototype.doneLoading = function()
 		this.types.sort(function(a, b)
 		{
 			// this needs to be lowercase for sorting.
-			if (a.name && b.name)
+			if (a && b)
 			{
-				strA = a.name.toLowerCase();
-				strB = b.name.toLowerCase();
+				strA = a.toLowerCase();
+				strB = b.toLowerCase();
 				return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
 			}
 			else
@@ -583,52 +580,11 @@ packagesModel.prototype.packageInList = function(pkg)
 	}
 	return false;
 }
-packagesModel.prototype.categoryInList = function(cat)
-{
-	if (this.categories.length > 0) 
-	{
-		for (var c = 0; c < this.categories.length; c++) 
-		{
-			if (this.categories[c].name == cat) 
-			{
-				return c;
-			}
-		}
-	}
-	return false;
-}
-packagesModel.prototype.feedInList = function(feed)
-{
-	if (this.feeds.length > 0) 
-	{
-		for (var f = 0; f < this.feeds.length; f++) 
-		{
-			if (this.feeds[f].name == feed) 
-			{
-				return f;
-			}
-		}
-	}
-	return false;
-}
-packagesModel.prototype.typeInList = function(type)
-{
-	if (this.types.length > 0) 
-	{
-		for (var t = 0; t < this.types.length; t++) 
-		{
-			if (this.types[t].name == type) 
-			{
-				return t;
-			}
-		}
-	}
-	return false;
-}
 
 packagesModel.prototype.getGroups = function(item)
 {
 	var returnArray = [];
+	var counts = $H();
 	
 	try
 	{
@@ -641,23 +597,124 @@ packagesModel.prototype.getGroups = function(item)
 			pkgCat:   item.pkgCat
 		};
 		
+		for (var p = 0; p < this.packages.length; p++) 
+		{
+			if (this.packages[p].matchItem(item))
+			{
+				if (item.pkgGroup[0] == 'types')
+				{
+					if (counts.get(this.packages[p].type))
+						counts.set(this.packages[p].type, counts.get(this.packages[p].type)+1);
+					else
+						counts.set(this.packages[p].type, 1);
+				}
+				else if (item.pkgGroup[0] == 'feeds')
+				{
+					for (var f = 0; f < this.packages[p].feeds.length; f++) 
+					{
+						if (counts.get(this.packages[p].feeds[f]))
+							counts.set(this.packages[p].feeds[f], counts.get(this.packages[p].feeds[f])+1);
+						else
+							counts.set(this.packages[p].feeds[f], 1);
+					}
+				}
+				else if (item.pkgGroup[0] == 'categories')
+				{
+					if (counts.get(this.packages[p].category))
+						counts.set(this.packages[p].category, counts.get(this.packages[p].category)+1);
+					else
+						counts.set(this.packages[p].category, 1);
+				}
+			}
+		}
+		
+		//alert(counts.inspect());
+		var keys = counts.keys();
+		
+		if (keys.length > 0)
+		{
+			if (item.pkgGroup[0] == 'categories') 
+			{
+				var all = 0;
+				for (var k = 0; k < keys.length; k++) 
+				{
+					all += counts.get(keys[k]);
+				}
+				returnArray.push(
+				{
+					// this is because its special
+					style: 'all',
+					
+					// this is for group list
+					name: 'all',
+					count: all,
+					
+					// this is for group selector
+					label: 'all',
+					command: 'all'
+				});
+			}
+			for (var k = 0; k < keys.length; k++)
+			{
+				returnArray.push(
+				{
+					// this is for group list
+					name: keys[k],
+					count: counts.get(keys[k]),
+					
+					// this is for group selector
+					label: keys[k],
+					command: keys[k]
+				});
+			}
+		}
+		
+		if (returnArray.length > 0)
+		{
+			returnArray.sort(function(a, b)
+			{
+				// test styles so all is always on top
+				if (a.style == 'all') 
+				{
+					return -1;
+				}
+				if (b.style == 'all') 
+				{
+					return 1;
+				}
+				
+				// this needs to be lowercase for sorting.
+				if (a.name && b.name)
+				{
+					strA = a.name.toLowerCase();
+					strB = b.name.toLowerCase();
+					return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
+				}
+				else
+				{
+					return -1;
+				}
+			});
+		}
+		
+		/*
 		if (item.pkgGroup[0] == 'types')
 		{
 			for (var t = 0; t < this.types.length; t++)
 			{
-				itemL.pkgType = this.types[t].name;
+				itemL.pkgType = this.types[t];
 				var count = this.getPackages(itemL).length;
 				if (count > 0) 
 				{
 					returnArray.push(
 					{
 						// this is for group list
-						name: this.types[t].name,
+						name: this.types[t],
 						count: count,
 						
 						// this is for group selector
-						label: this.types[t].name,
-						command: this.types[t].name
+						label: this.types[t],
+						command: this.types[t]
 					});
 				}
 			}
@@ -666,19 +723,19 @@ packagesModel.prototype.getGroups = function(item)
 		{
 			for (var f = 0; f < this.feeds.length; f++)
 			{
-				itemL.pkgFeed = this.feeds[f].name;
+				itemL.pkgFeed = this.feeds[f];
 				var count = this.getPackages(itemL).length;
 				if (count > 0) 
 				{
 					returnArray.push(
 					{
 						// this is for group list
-						name: this.feeds[f].name,
+						name: this.feeds[f],
 						count: count,
 						
 						// this is for group selector
-						label: this.feeds[f].name,
-						command: this.feeds[f].name
+						label: this.feeds[f],
+						command: this.feeds[f]
 					});
 				}
 			}
@@ -706,23 +763,24 @@ packagesModel.prototype.getGroups = function(item)
 			}
 			for (var c = 0; c < this.categories.length; c++)
 			{
-				itemL.pkgCat = this.categories[c].name;
+				itemL.pkgCat = this.categories[c];
 				var count = this.getPackages(itemL).length;
 				if (count > 0) 
 				{
 					returnArray.push(
 					{
 						// this is for group list
-						name: packages.categories[c].name,
+						name: this.categories[c],
 						count: count,
 						
 						// this is for group selector
-						label: packages.categories[c].name,
-						command: packages.categories[c].name
+						label: this.categories[c],
+						command: this.categories[c]
 					});
 				}
 			}
 		}
+		*/
 	}
 	catch (e)
 	{
@@ -731,6 +789,7 @@ packagesModel.prototype.getGroups = function(item)
 	
 	return returnArray;
 }
+
 packagesModel.prototype.getPackages = function(item)
 {
 	var returnArray = [];
@@ -743,7 +802,7 @@ packagesModel.prototype.getPackages = function(item)
 			// default to not pusing it
 			var pushIt = false;
 			
-			
+			/*
 			
 			// push packages that meet the listing
 			if (item.pkgList == 'all')
@@ -776,6 +835,9 @@ packagesModel.prototype.getPackages = function(item)
 			// check category and dont push if not right
 			if (item.pkgCat != 'all' && item.pkgCat != '' && item.pkgCat != this.packages[p].category) pushIt = false;
 			
+			*/
+			
+			pushIt = this.packages[p].matchItem(item);
 			
 			// push it to the list if we should
 			if (pushIt) 

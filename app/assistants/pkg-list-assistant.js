@@ -110,7 +110,7 @@ PkgListAssistant.prototype.setup = function()
 		// change scene if this is a single group
 		if (this.item.pkgGroup)
 		{
-			this.groupMenu = [];//packages.getGroups(this.item);
+			this.groupMenu = packages.getGroups(this.item);
 			
 			// if the list is more then one (or two in caegories case) don't display it
 			if ((this.groupMenu.length == 1 ||
