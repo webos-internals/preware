@@ -657,6 +657,7 @@ packageModel.prototype.getForList = function(item)
 			}
 		}
 		
+		
 		if (item) 
 		{
 			if (this.isInstalled && !this.hasUpdate &&

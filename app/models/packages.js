@@ -9,6 +9,7 @@ function packagesModel()
 	
 	// for storing all the package information
 	this.packages = [];
+	this.packagesReversed = $H();
 	this.categories = [];
 	this.feeds = [];
 	this.types = [];
@@ -93,6 +94,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 	{
 		// clear out our current data (incase this is a re-update)
 		this.packages = [];
+		this.packagesReversed = $H();
 		
 		// get our current data
 		this.feeds = feeds;
@@ -306,6 +308,9 @@ packagesModel.prototype.loadPackage = function(packageObj)
 	{
 		// add this package to global app list
 		this.packages.push(newPkg);
+		
+		// save to reverse lookup list
+		this.packagesReversed.set(newPkg.pkg, this.packages.length);
 	}
 	else 
 	{
@@ -568,17 +573,15 @@ packagesModel.prototype.can = function(type, condition)
 
 packagesModel.prototype.packageInList = function(pkg)
 {
-	if (this.packages.length > 0)
+	var pkgNum = this.packagesReversed.get(pkg);
+	if (pkgNum)
 	{
-		for (var p = 0; p < this.packages.length; p++)
-		{
-			if (this.packages[p].pkg == pkg) 
-			{
-				return p;
-			}
-		}
+		return pkgNum;
 	}
-	return false;
+	else
+	{
+		return false;
+	}
 }
 
 packagesModel.prototype.getGroups = function(item)
@@ -696,91 +699,6 @@ packagesModel.prototype.getGroups = function(item)
 				}
 			});
 		}
-		
-		/*
-		if (item.pkgGroup[0] == 'types')
-		{
-			for (var t = 0; t < this.types.length; t++)
-			{
-				itemL.pkgType = this.types[t];
-				var count = this.getPackages(itemL).length;
-				if (count > 0) 
-				{
-					returnArray.push(
-					{
-						// this is for group list
-						name: this.types[t],
-						count: count,
-						
-						// this is for group selector
-						label: this.types[t],
-						command: this.types[t]
-					});
-				}
-			}
-		}
-		else if (item.pkgGroup[0] == 'feeds')
-		{
-			for (var f = 0; f < this.feeds.length; f++)
-			{
-				itemL.pkgFeed = this.feeds[f];
-				var count = this.getPackages(itemL).length;
-				if (count > 0) 
-				{
-					returnArray.push(
-					{
-						// this is for group list
-						name: this.feeds[f],
-						count: count,
-						
-						// this is for group selector
-						label: this.feeds[f],
-						command: this.feeds[f]
-					});
-				}
-			}
-		}
-		else if (item.pkgGroup[0] == 'categories') 
-		{
-			// we push this all category first...
-			itemL.pkgCat = 'all';
-			var count = this.getPackages(itemL).length;
-			if (count > 0) 
-			{
-				returnArray.push(
-				{
-					// this is because its special
-					style: 'all',
-					
-					// this is for group list
-					name: 'all',
-					count: count,
-					
-					// this is for group selector
-					label: 'all',
-					command: 'all'
-				});
-			}
-			for (var c = 0; c < this.categories.length; c++)
-			{
-				itemL.pkgCat = this.categories[c];
-				var count = this.getPackages(itemL).length;
-				if (count > 0) 
-				{
-					returnArray.push(
-					{
-						// this is for group list
-						name: this.categories[c],
-						count: count,
-						
-						// this is for group selector
-						label: this.categories[c],
-						command: this.categories[c]
-					});
-				}
-			}
-		}
-		*/
 	}
 	catch (e)
 	{
@@ -799,48 +717,7 @@ packagesModel.prototype.getPackages = function(item)
 		// build list from global array
 		for (var p = 0; p < this.packages.length; p++)
 		{
-			// default to not pusing it
-			var pushIt = false;
-			
-			/*
-			
-			// push packages that meet the listing
-			if (item.pkgList == 'all')
-			{
-				pushIt = true;
-				// if is installed and installed is not to be shown, dont push it
-				if (this.packages[p].isInstalled && !prefs.get().listInstalled) 
-				{
-					pushIt = false;
-					// if it is installed and is not to be shown but its the "list of everything", push it anyways
-					if (item.pkgType == 'all' && item.pkgFeed == 'all' && item.pkgCat == 'all')
-					{
-						pushIt = true;
-					}
-				}
-			}
-			else if (item.pkgList == 'other' && // other is for main scene where its not already there
-					this.packages[p].type != 'Application' && this.packages[p].type != 'Theme' &&
-					this.packages[p].type != 'Patch') pushIt = true;
-			else if (item.pkgList == 'updates' && this.packages[p].hasUpdate) pushIt = true;
-			else if (item.pkgList == 'installed' && this.packages[p].isInstalled) pushIt = true;
-			
-			
-			// check type and dont push if not right
-			if (item.pkgType != 'all' && item.pkgType != '' && item.pkgType != this.packages[p].type) pushIt = false;
-			
-			// check feed and dont push if not right
-			if (item.pkgFeed != 'all' && item.pkgFeed != '' && !this.packages[p].inFeed(item.pkgFeed)) pushIt = false;
-			
-			// check category and dont push if not right
-			if (item.pkgCat != 'all' && item.pkgCat != '' && item.pkgCat != this.packages[p].category) pushIt = false;
-			
-			*/
-			
-			pushIt = this.packages[p].matchItem(item);
-			
-			// push it to the list if we should
-			if (pushIt) 
+			if (this.packages[p].matchItem(item)) 
 			{
 				// get object for list
 				var tmpItem = this.packages[p].getForList(item);
