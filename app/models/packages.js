@@ -609,16 +609,21 @@ packagesModel.prototype.getGroups = function(item)
 		
 		for (var p = 0; p < this.packages.length; p++) 
 		{
-			if (this.packages[p].matchItem(item))
+			if (item.pkgGroup[0] == 'types')
 			{
-				if (item.pkgGroup[0] == 'types')
+				itemL.pkgType = '';
+				if (this.packages[p].matchItem(itemL)) 
 				{
 					if (counts.get(this.packages[p].type))
 						counts.set(this.packages[p].type, counts.get(this.packages[p].type)+1);
 					else
 						counts.set(this.packages[p].type, 1);
 				}
-				else if (item.pkgGroup[0] == 'feeds')
+			}
+			else if (item.pkgGroup[0] == 'feeds')
+			{
+				itemL.pkgFeed = '';
+				if (this.packages[p].matchItem(itemL)) 
 				{
 					for (var f = 0; f < this.packages[p].feeds.length; f++) 
 					{
@@ -628,7 +633,11 @@ packagesModel.prototype.getGroups = function(item)
 							counts.set(this.packages[p].feeds[f], 1);
 					}
 				}
-				else if (item.pkgGroup[0] == 'categories')
+			}
+			else if (item.pkgGroup[0] == 'categories')
+			{
+				itemL.pkgCat = '';
+				if (this.packages[p].matchItem(itemL)) 
 				{
 					if (counts.get(this.packages[p].category))
 						counts.set(this.packages[p].category, counts.get(this.packages[p].category)+1);
