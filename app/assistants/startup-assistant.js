@@ -7,10 +7,18 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.10',
+			log:
+			[
+				'Added support for theme categories'
+			]
+		},
+		{
 			version: '0.9.9',
 			log:
 			[
-				'MASSIVE LISTING SPEED BOOST!'
+				'Massive listing speed boost!',
+				'Fixed the theme hanging problem caused by webOS 1.3.1'
 			]
 		},
 		{

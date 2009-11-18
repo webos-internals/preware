@@ -131,11 +131,12 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 				{
 					name:     $L('Available Themes'),
 					style:    'disabled',
-					scene:    'pkg-list',
+					scene:    'pkg-groups',
+					pkgGroup: ['categories','feeds'],
 					pkgList:  'all',
 					pkgType:  'Theme',
-					pkgFeed:  'all',
-					pkgCat:   'all',
+					pkgFeed:  '',
+					pkgCat:   '',
 					pkgCount: 0
 				});
 			}
