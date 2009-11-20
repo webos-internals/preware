@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.11',
+			log:
+			[
+				'Added preference for enabling and disabling the partial app limit fix'
+			]
+		},
+		{
 			version: '0.9.10',
 			log:
 			[

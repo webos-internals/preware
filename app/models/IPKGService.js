@@ -143,6 +143,7 @@ IPKGService.getAppinfoFile = function(callback, pkg)
 	});
 	return request;
 }
+
 IPKGService.getControlFile = function(callback, pkg)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -155,6 +156,30 @@ IPKGService.getControlFile = function(callback, pkg)
 	return request;
 }
 
+IPKGService.getIpkgWrapperState = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'getIpkgWrapperState',
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
+
+IPKGService.setIpkgWrapperState = function(callback, enabled)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'setIpkgWrapperState',
+		parameters: {
+			"enabled":enabled
+		},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
 
 IPKGService.logClear = function()
 {
