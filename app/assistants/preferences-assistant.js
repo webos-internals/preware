@@ -51,7 +51,7 @@ PreferencesAssistant.prototype.setup = function()
 		this.toggleShowTypesChanged();
 		
 		// init feed loading
-		IPKGService.getIpkgWrapperState(this.onWrapper.bindAsEventListener(this));
+		IPKGService.getIpkgWrapperState(this.onGetWrapper.bindAsEventListener(this));
 
 		// setup header button
 		this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
@@ -346,7 +346,7 @@ PreferencesAssistant.prototype.toggleChanged = function(event)
 
 PreferencesAssistant.prototype.toggleAppLimitChanged = function(event)
 {
-
+	IPKGService.setIpkgWrapperState(this.onSetWrapper.bindAsEventListener(this), event.value);
 }
 
 PreferencesAssistant.prototype.toggleShowTypesChanged = function(event)
@@ -409,7 +409,7 @@ PreferencesAssistant.prototype.keyPress = function(event)
 	}
 }
 
-PreferencesAssistant.prototype.onWrapper = function(payload)
+PreferencesAssistant.prototype.onGetWrapper = function(payload)
 {
 	try 
 	{
@@ -440,8 +440,38 @@ PreferencesAssistant.prototype.onWrapper = function(payload)
 	}
 	catch (e)
 	{
-		Mojo.Log.logException(e, 'configs#onWrapper');
-		this.alertMessage('onWrapper Error', e);
+		Mojo.Log.logException(e, 'configs#onGetWrapper');
+		this.alertMessage('onGetWrapper Error', e);
+	}
+}
+
+PreferencesAssistant.prototype.onSetWrapper = function(payload)
+{
+	try 
+	{
+		if (!payload) 
+		{
+			// i dont know if this will ever happen, but hey, it might
+			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
+		}
+		else if (payload.errorCode == -1) 
+		{
+			// we probably dont need to check this stuff here,
+			// it would have already been checked and errored out of this process
+			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and waiting longer before starting Preware.');
+			}
+			else
+			{
+				this.alertMessage('Preware', payload.errorText);
+			}
+		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'configs#onSetWrapper');
+		this.alertMessage('onSetWrapper Error', e);
 	}
 }
 
