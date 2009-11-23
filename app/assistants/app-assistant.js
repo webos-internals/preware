@@ -38,6 +38,7 @@ AppAssistant.prototype.handleLaunch = function(params)
 
 AppAssistant.prototype.launchFirstScene = function(controller)
 {
+	vers.init();
 	if (vers.showStartupScene()) 
 	{
 		controller.pushScene('startup');

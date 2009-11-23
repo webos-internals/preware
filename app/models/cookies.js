@@ -105,7 +105,7 @@ function versionCookie()
 	this.cookie = false;
 	this.isFirst = false;
 	this.isNew = false;
-	this.init();
+	//this.init();
 }
 versionCookie.prototype.init = function()
 {
