@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.12',
+			log:
+			[
+				'Added fix for recurring splash screen'
+			]
+		},
+		{
 			version: '0.9.11',
 			log:
 			[
