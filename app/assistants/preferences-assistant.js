@@ -475,6 +475,17 @@ PreferencesAssistant.prototype.onSetWrapper = function(payload)
 	}
 }
 
+PreferencesAssistant.prototype.alertMessage = function(title, message)
+{
+	this.controller.showAlertDialog({
+	    onChoose: function(value) {},
+		allowHTMLMessage: true,
+	    title: title,
+	    message: message,
+	    choices:[{label:$L('Ok'), value:""}]
+    });
+}
+
 PreferencesAssistant.prototype.activate = function(event) {}
 
 PreferencesAssistant.prototype.deactivate = function(event)
