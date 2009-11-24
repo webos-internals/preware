@@ -111,6 +111,11 @@ versionCookie.prototype.init = function()
 {
 	try
 	{
+		// reset these
+		this.cookie = false;
+		this.isFirst = false;
+		this.isNew = false;
+		
 		this.cookie = new Mojo.Model.Cookie('version');
 		// uncomment to delete cookie for testing
 		//this.cookie.remove();
