@@ -131,6 +131,16 @@ IPKGService.restartjava = function(callback)
 	});
 	return request;
 }
+IPKGService.restartdevice = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'restartDevice',
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
 
 IPKGService.getAppinfoFile = function(callback, pkg)
 {
@@ -143,7 +153,6 @@ IPKGService.getAppinfoFile = function(callback, pkg)
 	});
 	return request;
 }
-
 IPKGService.getControlFile = function(callback, pkg)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -166,7 +175,6 @@ IPKGService.getIpkgWrapperState = function(callback)
 	});
 	return request;
 }
-
 IPKGService.setIpkgWrapperState = function(callback, enabled)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,

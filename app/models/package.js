@@ -1425,7 +1425,7 @@ packageModel.prototype.runFlags = function(type)
 	{
 		if ((this.flags[type].RestartJava && this.flags[type].RestartLuna) || this.flags[type].RestartDevice) 
 		{
-			// TODO: run device restart code
+			IPKGService.restartdevice(function(){});
 		}
 		if (this.flags[type].RestartJava) 
 		{

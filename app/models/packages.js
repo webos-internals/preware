@@ -1040,7 +1040,7 @@ packagesModel.prototype.multiRunFlags = function(flags)
 	{
 		if ((flags.RestartLuna && flags.RestartJava) || flags.RestartDevice) 
 		{
-			// TODO: run device restart code
+			IPKGService.restartdevice(function(){});
 		}
 		if (flags.RestartJava && !flags.RestartLuna) 
 		{
