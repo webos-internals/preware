@@ -12,7 +12,8 @@ function StartupAssistant()
 			[
 				'Hopefully really truely fixed recurring splash screen this time',
 				'Now allows all action flags to be skipped at users request',
-				'Minor change to update error handling'
+				'Minor change to update error handling',
+				'Added "Update All" button to package updates list (it was already there, but now it actually works)'
 			]
 		},
 		{
