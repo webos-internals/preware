@@ -219,17 +219,12 @@ packageModel.prototype.infoLoad = function(info)
 				if (sourceJson.PostInstallFlags.include('RestartJava'))		this.flags.install.RestartJava		= true;
 				if (sourceJson.PostInstallFlags.include('RestartDevice'))	this.flags.install.RestartDevice	= true;
 			}
-			// update flags aren't supported by the feeds yet,
-			// so update is the same as install for now
-			this.flags.update = this.flags.install;
-			/* // uncomment this if statement when the feeds support update flags:
 			if (sourceJson.PostUpdateFlags) 
 			{
 				if (sourceJson.PostUpdateFlags.include('RestartLuna'))		this.flags.update.RestartLuna		= true;
 				if (sourceJson.PostUpdateFlags.include('RestartJava'))		this.flags.update.RestartJava		= true;
 				if (sourceJson.PostUpdateFlags.include('RestartDevice'))	this.flags.update.RestartDevice		= true;
 			}
-			*/
 			if (sourceJson.PostRemoveFlags) 
 			{
 				if (sourceJson.PostRemoveFlags.include('RestartLuna'))		this.flags.remove.RestartLuna		= true;
@@ -995,7 +990,7 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 			this.assistant.displayAction('Downloading / Installing');
 			
 			this.assistant.startAction();
-		
+			
 			// call install service
 			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.pkg, this.title);
 		}
@@ -1183,7 +1178,7 @@ packageModel.prototype.onInstall = function(payload, multi)
 		Mojo.Log.logException(e, 'packageModel#onInstall');
 	}
 }
-packageModel.prototype.onUpdate = function(payload)
+packageModel.prototype.onUpdate = function(payload, multi)
 {
 	try 
 	{
@@ -1219,20 +1214,29 @@ packageModel.prototype.onUpdate = function(payload)
 				var msg = this.type + ' updated';
 				
 				// do finishing stuff
-				if (this.hasFlags('update')) 
+				if (multi != undefined) 
 				{
-					this.assistant.actionMessage(
-						msg + ':<br /><br />' + this.actionMessage('update'),
-						[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
-						this.actionFunction.bindAsEventListener(this, 'update')
-					);
+					packages.doMultiInstall(multi + 1);
 					return;
 				}
-				else
+				else 
 				{
-					// we run this anyways to get the rescan
-					this.runFlags('update');
+					if (this.hasFlags('update')) 
+					{
+						this.assistant.actionMessage(
+							msg + ':<br /><br />' + this.actionMessage('update'),
+							[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
+							this.actionFunction.bindAsEventListener(this, 'update')
+						);
+						return;
+					}
+					else
+					{
+						// we run this anyways to get the rescan
+						this.runFlags('update');
+					}
 				}
+				
 			}
 			// we keep this around for services without flags that have a javarestart in their scripts
 			// of course, it might get here on accident, but thats a risk we'll have to take for now
@@ -1247,6 +1251,12 @@ packageModel.prototype.onUpdate = function(payload)
 				// message
 				var msg = this.type + ' probably updated';
 				var msgError = true;
+				
+				if (multi != undefined) 
+				{
+					packages.doMultiInstall(multi + 1);
+					return;
+				}
 			}
 			else return;
 		}
