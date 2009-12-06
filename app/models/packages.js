@@ -760,10 +760,11 @@ packagesModel.prototype.startMultiInstall = function(pkg, pkgs, assistant)
 	{
 		this.assistant = assistant;
 		
-		this.multiPkg = pkg;
-		this.multiPkgs = pkgs;
+		this.multiPkg	= pkg;
+		this.multiPkgs	= pkgs;
+		this.multiFlags	= this.getMultiFlags();
 		
-		this.assistant.displayAction('Installing');
+		this.assistant.displayAction('Installing / Updating');
 		this.assistant.startAction();
 		this.doMultiInstall(0);
 		
@@ -781,8 +782,9 @@ packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 		// save assistant
 		this.assistant = assistant;
 		
-		this.multiPkg = pkg;
-		this.multiPkgs = pkgs;
+		this.multiPkg	= pkg;
+		this.multiPkgs	= pkgs;
+		this.multiFlags	= this.getMultiFlags();
 		
 		// see what they want to do:
 		this.assistant.actionMessage(
@@ -808,8 +810,9 @@ packagesModel.prototype.checkMultiRemove = function(pkg, pkgs, assistant)
 		// save assistant
 		this.assistant = assistant;
 		
-		this.multiPkg = pkg;
-		this.multiPkgs = pkgs;
+		this.multiPkg	= pkg;
+		this.multiPkgs	= pkgs;
+		this.multiFlags	= this.getMultiFlags();
 		
 		// see what they want to do:
 		this.assistant.actionMessage(
@@ -844,8 +847,9 @@ packagesModel.prototype.testMultiInstall = function(value)
 			
 		case 'view':
 			this.assistant.controller.stageController.pushScene('pkg-connected', 'install', this.multiPkg, this.multiPkgs);
-			this.multiPkg = false;
-			this.multiPkgs = false;
+			this.multiPkg	= false;
+			this.multiPkgs	= false;
+			this.multiFlags	= false;
 			break;
 	}
 	return;
@@ -856,14 +860,16 @@ packagesModel.prototype.testMultiRemove = function(value)
 	{
 		case 'ok':
 			this.multiPkg.doRemove(this.assistant, true);
-			this.multiPkg = false;
-			this.multiPkgs = false;
+			this.multiPkg	= false;
+			this.multiPkgs	= false;
+			this.multiFlags	= false;
 			break;
 			
 		case 'view':
 			this.assistant.controller.stageController.pushScene('pkg-connected', 'remove', this.multiPkg, this.multiPkgs);
-			this.multiPkg = false;
-			this.multiPkgs = false;
+			this.multiPkg	= false;
+			this.multiPkgs	= false;
+			this.multiFlags	= false;
 			break;
 	}
 	return;
@@ -876,35 +882,49 @@ packagesModel.prototype.doMultiInstall = function(number)
 		// call install for dependencies
 		if (number < this.multiPkgs.length) 
 		{
-			this.packages[this.multiPkgs[number]].doInstall(this.assistant, number, true);
+			if (this.packages[this.multiPkgs[number]].isInstalled) 
+			{
+				this.packages[this.multiPkgs[number]].doUpdate(this.assistant, number, true);
+			}
+			else
+			{
+				this.packages[this.multiPkgs[number]].doInstall(this.assistant, number, true);
+			}
 		}
 		// call install for package
 		else if (number == this.multiPkgs.length && this.multiPkg) 
 		{
-			this.multiPkg.doInstall(this.assistant, number, true);
+			if (this.multiPkg.isInstalled) 
+			{
+				this.multiPkg.doUpdate(this.assistant, number, true);
+			}
+			else
+			{
+				this.multiPkg.doInstall(this.assistant, number, true);
+			}
 		}
 		// end actions!
 		else
 		{
-			var flags = this.getMultiFlags();
-			if (flags.RestartLuna || flags.RestartJava) 
+			if (this.multiFlags.RestartLuna || this.multiFlags.RestartJava || this.multiFlags.RestartDevice) 
 			{
 				this.assistant.actionMessage(
-					'Packages installed:<br /><br />' + this.multiActionMessage(flags),
+					'Packages installed:<br /><br />' + this.multiActionMessage(this.multiFlags),
 					[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
-					this.multiActionFunction.bindAsEventListener(this, flags)
+					this.multiActionFunction.bindAsEventListener(this, this.multiFlags)
 				);
 				return;
 			}
 			else
 			{
 				// we run this anyways to get the rescan
-				this.multiRunFlags(flags);
+				this.multiRunFlags(this.multiFlags);
 			}
 			this.assistant.simpleMessage('Packages installed');
 			this.assistant.endAction();
-			this.multiPkg = false;
-			this.multiPkgs = false;
+			this.multiPkg	= false;
+			this.multiPkgs	= false;
+			this.multiFlags	= false;
 		}
 	}
 	catch (e) 
@@ -917,20 +937,26 @@ packagesModel.prototype.getMultiFlags = function()
 {
 	try 
 	{
-		var mFlags = {RestartLuna:false, RestartJava:false};
+		var mFlags = {RestartLuna: false, RestartJava: false, RestartDevice: false};
 		
 		// check base package first if there is one
 		if (this.multiPkg) 
 		{
-			if (this.multiPkg.flags.install.RestartLuna) mFlags.RestartLuna = true;
-			if (this.multiPkg.flags.install.RestartJava) mFlags.RestartJava = true;
+			if (this.multiPkg.isInstalled)	var tmpType = 'update';
+			else							var tmpType = 'install';
+			if (this.multiPkg.flags[tmpType].RestartLuna)	mFlags.RestartLuna		= true;
+			if (this.multiPkg.flags[tmpType].RestartJava)	mFlags.RestartJava		= true;
+			if (this.multiPkg.flags[tmpType].RestartDevice)	mFlags.RestartDevice	= true;
 		}
 		
 		// check all deps
 		for (var d = 0; d < this.multiPkgs.length; d++)
 		{
-			if (this.packages[this.multiPkgs[d]].flags.install.RestartLuna) mFlags.RestartLuna = true;
-			if (this.packages[this.multiPkgs[d]].flags.install.RestartJava) mFlags.RestartJava = true;
+			if (this.packages[this.multiPkgs[d]].isInstalled)	var tmpType = 'update';
+			else												var tmpType = 'install';
+			if (this.packages[this.multiPkgs[d]].flags[tmpType].RestartLuna)	mFlags.RestartLuna		= true;
+			if (this.packages[this.multiPkgs[d]].flags[tmpType].RestartJava)	mFlags.RestartJava		= true;
+			if (this.packages[this.multiPkgs[d]].flags[tmpType].RestartDevice)	mFlags.RestartDevice	= true;
 		}
 		
 		// return them
@@ -956,8 +982,9 @@ packagesModel.prototype.multiActionFunction = function(value, flags)
 			IPKGService.rescan(function(){});
 		}
 		this.assistant.endAction();
-		this.multiPkg = false;
-		this.multiPkgs = false;
+		this.multiPkg	= false;
+		this.multiPkgs	= false;
+		this.multiFlags	= false;
 		return;
 	}
 	catch (e) 
