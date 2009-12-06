@@ -509,9 +509,21 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				
 			case 'do-updateAll':
 				var allList = [];
+				var hasPreware = false;
 				for (var p = 0; p < this.packages.length; p++)
 				{
-					allList.push(this.packages[p].pkgNum);
+					if (this.packages[p].pkg == 'org.webosinternals.preware') 
+					{
+						hasPreware = this.packages[p].pkgNum;
+					}
+					else 
+					{
+						allList.push(this.packages[p].pkgNum);
+					}
+				}
+				if (hasPreware !== false)
+				{
+					allList.push(hasPreware);
 				}
 				if (allList.length > 0) 
 				{
