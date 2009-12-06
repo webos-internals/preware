@@ -35,11 +35,11 @@ preferenceCookie.prototype.get = function(reload)
 				
 				// Background Group
 				backgroundUpdates: 'disabled',
-				autoInstallUpdates: false,
+				autoInstallUpdates: false//,
 				
 				// Hidden Advanced Group
 				//allowServiceUpdates: false
-				allowFlagSkip: false
+				//allowFlagSkip: false
 			};
 			
 			// uncomment to delete cookie for testing

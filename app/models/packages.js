@@ -891,7 +891,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 			{
 				this.assistant.actionMessage(
 					'Packages installed:<br /><br />' + this.multiActionMessage(flags),
-					(!prefs.get().allowFlagSkip?[{label:$L('Ok'), value:'ok'}]:[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}]),
+					[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
 					this.multiActionFunction.bindAsEventListener(this, flags)
 				);
 				return;
@@ -949,6 +949,11 @@ packagesModel.prototype.multiActionFunction = function(value, flags)
 		if (value == 'ok') 
 		{
 			this.multiRunFlags(flags);
+		}
+		else
+		{
+			// we should still rescan...
+			IPKGService.rescan(function(){});
 		}
 		this.assistant.endAction();
 		this.multiPkg = false;

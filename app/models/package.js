@@ -1099,7 +1099,7 @@ packageModel.prototype.onInstall = function(payload, multi)
 					{
 						this.assistant.actionMessage(
 							msg + ':<br /><br />' + this.actionMessage('install'),
-							(!prefs.get().allowFlagSkip?[{label:$L('Ok'), value:'ok'}]:[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}]),
+							[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
 							this.actionFunction.bindAsEventListener(this, 'install')
 						);
 						return;
@@ -1196,7 +1196,7 @@ packageModel.prototype.onUpdate = function(payload)
 				{
 					this.assistant.actionMessage(
 						msg + ':<br /><br />' + this.actionMessage('update'),
-						(!prefs.get().allowFlagSkip?[{label:$L('Ok'), value:'ok'}]:[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}]),
+						[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
 						this.actionFunction.bindAsEventListener(this, 'update')
 					);
 					return;
@@ -1285,7 +1285,7 @@ packageModel.prototype.onRemove = function(payload)
 				{
 					this.assistant.actionMessage(
 						msg + ':<br /><br />' + this.actionMessage('remove'),
-						(!prefs.get().allowFlagSkip?[{label:$L('Ok'), value:'ok'}]:[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}]),
+						[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
 						this.actionFunction.bindAsEventListener(this, 'remove')
 					);
 					return;
@@ -1348,6 +1348,11 @@ packageModel.prototype.actionFunction = function(value, type)
 	if (value == 'ok') 
 	{
 		this.runFlags(type);
+	}
+	else
+	{
+		// we should still rescan...
+		IPKGService.rescan(function(){});
 	}
 	this.assistant.endAction();
 	return;

@@ -299,6 +299,7 @@ PreferencesAssistant.prototype.setup = function()
 		this.keyPressHandler = this.keyPress.bindAsEventListener(this)
 		Mojo.Event.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyPressHandler);
 		
+		/*
 		this.controller.setupWidget
 		(
 			'allowFlagSkip',
@@ -314,6 +315,7 @@ PreferencesAssistant.prototype.setup = function()
 		);
 		
 		this.controller.listen('allowFlagSkip', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		*/
 		
 		// hide secret group
 		this.controller.get('secretPreferences').style.display = 'none';
