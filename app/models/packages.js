@@ -884,7 +884,17 @@ packagesModel.prototype.doMultiInstall = function(number)
 		{
 			if (this.packages[this.multiPkgs[number]].isInstalled) 
 			{
-				this.packages[this.multiPkgs[number]].doUpdate(this.assistant, number, true);
+				if (this.can(this.packages[this.multiPkgs[number]].type, 'update')) 
+				{
+					this.packages[this.multiPkgs[number]].doUpdate(this.assistant, number, true);
+				}
+				else
+				{
+					// it can't be updated, so we will just skip it
+					// we should probably message or something that this has been skipped
+					// or really, we should notify the user before we even get this far
+					this.doMultiInstall(number+1);
+				}
 			}
 			else
 			{
@@ -896,7 +906,15 @@ packagesModel.prototype.doMultiInstall = function(number)
 		{
 			if (this.multiPkg.isInstalled) 
 			{
-				this.multiPkg.doUpdate(this.assistant, number, true);
+				if (this.can(this.multiPkg.type, 'update')) 
+				{
+					this.multiPkg.doUpdate(this.assistant, number, true);
+				}
+				else
+				{
+					// see note above about this skipping if the type can't be updated
+					this.doMultiInstall(number+1);
+				}
 			}
 			else
 			{
