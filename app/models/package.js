@@ -34,7 +34,9 @@ function packageModel(info)
 		this.changeLog =		false;
 		this.screenshots =		[];
 		this.depends =			[];
-		this.flags =			{install: {RestartLuna:false, RestartJava:false}, remove: {RestartLuna:false, RestartJava:false}};
+		this.flags =			{install:	{RestartLuna:false, RestartJava:false, RestartDevice:false},
+								 update:	{RestartLuna:false, RestartJava:false, RestartDevice:false},
+								 remove:	{RestartLuna:false, RestartJava:false, RestartDevice:false}};
 		this.isInstalled =		false;
 		this.dateInstalled =	false;
 		this.sizeInstalled =	false;
@@ -213,15 +215,26 @@ packageModel.prototype.infoLoad = function(info)
 			
 			if (sourceJson.PostInstallFlags) 
 			{
-				//alert('PostInstallFlags: ' + sourceJson.PostInstallFlags);
-				if (sourceJson.PostInstallFlags.include('RestartLuna')) this.flags.install.RestartLuna = true;
-				if (sourceJson.PostInstallFlags.include('RestartJava')) this.flags.install.RestartJava = true;
+				if (sourceJson.PostInstallFlags.include('RestartLuna'))		this.flags.install.RestartLuna		= true;
+				if (sourceJson.PostInstallFlags.include('RestartJava'))		this.flags.install.RestartJava		= true;
+				if (sourceJson.PostInstallFlags.include('RestartDevice'))	this.flags.install.RestartDevice	= true;
 			}
+			// update flags aren't supported by the feeds yet,
+			// so update is the same as install for now
+			this.flags.update = this.flags.install;
+			/* // uncomment this if statement when the feeds support update flags:
+			if (sourceJson.PostUpdateFlags) 
+			{
+				if (sourceJson.PostUpdateFlags.include('RestartLuna'))		this.flags.update.RestartLuna		= true;
+				if (sourceJson.PostUpdateFlags.include('RestartJava'))		this.flags.update.RestartJava		= true;
+				if (sourceJson.PostUpdateFlags.include('RestartDevice'))	this.flags.update.RestartDevice		= true;
+			}
+			*/
 			if (sourceJson.PostRemoveFlags) 
 			{
-				//alert('PostRemoveFlags: ' + sourceJson.PostRemoveFlags);
-				if (sourceJson.PostRemoveFlags.include('RestartLuna')) this.flags.remove.RestartLuna = true;
-				if (sourceJson.PostRemoveFlags.include('RestartJava')) this.flags.remove.RestartJava = true;
+				if (sourceJson.PostRemoveFlags.include('RestartLuna'))		this.flags.remove.RestartLuna		= true;
+				if (sourceJson.PostRemoveFlags.include('RestartJava'))		this.flags.remove.RestartJava		= true;
+				if (sourceJson.PostRemoveFlags.include('RestartDevice'))	this.flags.remove.RestartDevice		= true;
 			}
 			
 		}
@@ -363,10 +376,15 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		}
 		
 		// join flags
-		if (!this.flags.install.RestartLuna && pkg.flags.install.RestartLuna) this.flags.install.RestartLuna = true;
-		if (!this.flags.install.RestartJava && pkg.flags.install.RestartJava) this.flags.install.RestartJava = true;
-		if (!this.flags.remove.RestartLuna  && pkg.flags.remove.RestartLuna)  this.flags.remove.RestartLuna  = true;
-		if (!this.flags.remove.RestartJava  && pkg.flags.remove.RestartJava)  this.flags.remove.RestartJava  = true;
+		if (!this.flags.install.RestartLuna		&& pkg.flags.install.RestartLuna)	this.flags.install.RestartLuna		= true;
+		if (!this.flags.install.RestartJava		&& pkg.flags.install.RestartJava)	this.flags.install.RestartJava		= true;
+		if (!this.flags.install.RestartDevice	&& pkg.flags.install.RestartDevice)	this.flags.install.RestartDevice	= true;
+		if (!this.flags.update.RestartLuna		&& pkg.flags.update.RestartLuna)	this.flags.update.RestartLuna		= true;
+		if (!this.flags.update.RestartJava		&& pkg.flags.update.RestartJava)	this.flags.update.RestartJava		= true;
+		if (!this.flags.update.RestartDevice	&& pkg.flags.update.RestartDevice)	this.flags.update.RestartDevice		= true;
+		if (!this.flags.remove.RestartLuna		&& pkg.flags.remove.RestartLuna)	this.flags.remove.RestartLuna		= true;
+		if (!this.flags.remove.RestartJava		&& pkg.flags.remove.RestartJava)	this.flags.remove.RestartJava		= true;
+		if (!this.flags.remove.RestartDevice	&& pkg.flags.remove.RestartDevice)	this.flags.remove.RestartDevice		= true;
 		
 	}
 	catch (e)
@@ -987,7 +1005,6 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 		Mojo.Log.logException(e, 'packageModel#doInstall');
 	}
 }
-
 packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 {
 	try 
@@ -1030,7 +1047,6 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 		Mojo.Log.logException(e, 'packageModel#doUpdate');
 	}
 }
-
 packageModel.prototype.doRemove = function(assistant, skipDeps)
 {
 	try 
@@ -1371,45 +1387,25 @@ packageModel.prototype.actionFunction = function(value, type)
 packageModel.prototype.actionMessage = function(type)
 {
 	var msg = '';
-	if (type == 'install' || type == 'update') 
+	if (this.flags[type].RestartJava) 
 	{
-		if (this.flags.install.RestartJava) 
-		{
-			msg += '<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />';
-		}
-		if (this.flags.install.RestartLuna) 
-		{
-			msg += '<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />';
-		}
+		msg += '<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />';
 	}
-	else if (type == 'remove')
+	if (this.flags[type].RestartLuna) 
 	{
-		if (this.flags.remove.RestartJava) 
-		{
-			msg += '<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />';
-		}
-		if (this.flags.remove.RestartLuna) 
-		{
-			msg += '<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />';
-		}
+		msg += '<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />';
+	}
+	if ((this.flags[type].RestartJava && this.flags[type].RestartLuna) || this.flags[type].RestartDevice) 
+	{
+		msg = '<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the package that you just installed.</i><br />';
 	}
 	return msg;
 }
 packageModel.prototype.hasFlags = function(type)
 {
-	if (type == 'install' || type == 'update') 
+	if (this.flags[type].RestartLuna || this.flags[type].RestartJava || this.flags[type].RestartDevice) 
 	{
-		if (this.flags.install.RestartLuna || this.flags.install.RestartJava) 
-		{
-			return true;
-		}
-	}
-	else if (type == 'remove')
-	{
-		if (this.flags.remove.RestartLuna || this.flags.remove.RestartJava)
-		{
-			return true;
-		}
+		return true;
 	}
 	return false;
 }
@@ -1417,33 +1413,23 @@ packageModel.prototype.runFlags = function(type)
 {
 	try 
 	{
-		if (type == 'install' || type == 'update') 
+		if ((this.flags[type].RestartJava && this.flags[type].RestartLuna) || this.flags[type].RestartDevice) 
 		{
-			if (this.flags.install.RestartJava) 
-			{
-				IPKGService.restartjava(function(){});
-			}
-			if (this.flags.install.RestartLuna) 
-			{
-				IPKGService.restartluna(function(){});
-			}
+			// TODO: run device restart code
 		}
-		else if (type == 'remove')
+		if (this.flags[type].RestartJava) 
 		{
-			if (this.flags.remove.RestartJava) 
-			{
-				IPKGService.restartjava(function(){});
-			}
-			if (this.flags.remove.RestartLuna) 
-			{
-				IPKGService.restartluna(function(){});
-			}
+			IPKGService.restartjava(function(){});
+		}
+		if (this.flags[type].RestartLuna) 
+		{
+			IPKGService.restartluna(function(){});
 		}
 		// this is always ran...
 		IPKGService.rescan(function(){});
 	}
 	catch (e) 
 	{
-		Mojo.Log.logException(e, 'packageModel#doneInstall');
+		Mojo.Log.logException(e, 'packageModel#runFlags');
 	}
 }

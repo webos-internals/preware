@@ -978,7 +978,7 @@ packagesModel.prototype.multiActionMessage = function(flags)
 		{
 			msg = '<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />';
 		}
-		if (flags.RestartLuna && flags.RestartJava) 
+		if ((flags.RestartLuna && flags.RestartJava) || flags.RestartDevice) 
 		{
 			msg = '<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the packages that were just installed.</i><br />';
 		}
@@ -993,6 +993,10 @@ packagesModel.prototype.multiRunFlags = function(flags)
 {
 	try
 	{
+		if ((flags.RestartLuna && flags.RestartJava) || flags.RestartDevice) 
+		{
+			// TODO: run device restart code
+		}
 		if (flags.RestartJava && !flags.RestartLuna) 
 		{
 			IPKGService.restartjava(function(){});
