@@ -327,6 +327,25 @@ body.palm-dark .pkg-list #searchText
 	z-index: 20001;
 	float: right;
 }
+.pkg-list #statusSpinner
+{
+	margin-top: 135px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.pkg-list #statusSpinner #spinnerStatus
+{
+	text-align: center;
+	padding-top: 122px;
+	width: 200px;
+	margin-left: -35px;
+	color: #666;
+	font-size: 16px;
+}
+body.palm-dark .palm-list #statusSpinner #spinnerStatus
+{
+	color: #999;
+}
 .pkg-list .group-source 
 {
 	display: none;
@@ -476,7 +495,7 @@ body.palm-dark .pkg-list .group-source
 	color: #666;
 	font-size: 16px;
 }
-body.palm-connected .pkg-view #spinner #spinnerStatus
+body.palm-dark .palm-connected #spinner #spinnerStatus
 {
 	color: #999;
 }

@@ -3,6 +3,9 @@ function PkgListAssistant(item, searchText, currentSort)
 	// the item passed by the parent scene
 	this.item = item;
 	
+	// this is true when a package action is in progress
+	this.active = false;
+	
 	/*
 	alert('-- list --');
 	alert('group: '+this.item.pkgGroup)
@@ -83,12 +86,18 @@ function PkgListAssistant(item, searchText, currentSort)
 			}
 		]
 	};
+	
+	// load stayawake class
+	this.stayAwake = new stayAwake();
 }
 
 PkgListAssistant.prototype.setup = function()
 {
 	try 
 	{
+		// clear log so it only shows stuff from this scene
+		IPKGService.logClear();
+		
 		// get elements
 		this.titleElement =			this.controller.get('listTitle');
 		this.headerElement =		this.controller.get('pkgListHeader');
@@ -148,11 +157,13 @@ PkgListAssistant.prototype.setup = function()
 		// setup sort command menu widget
 		this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
 		
-		// search spinner model
+		// search spinner widget
 		this.spinnerModel = {spinning: false};
-		
-		// setup spinner widget
 		this.controller.setupWidget('spinner', {spinnerSize: 'small'}, this.spinnerModel);
+		
+		// status spinner widget
+		this.statusSpinnerModel = {spinning: false};
+		this.controller.setupWidget('statusSpinner', {spinnerSize: 'large'}, this.statusSpinnerModel);
 		
 		// search model & attributes
 		this.searchAttributes =
@@ -497,12 +508,15 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				break;
 				
 			case 'do-updateAll':
-				this.controller.showAlertDialog({
-				    onChoose: function(value) {},
-				    title: $L("Update All"),
-				    message: 'This Does Nothing Yet!',
-				    choices:[{label:$L('Ok'), value:""}]
-			    });
+				var allList = [];
+				for (var p = 0; p < this.packages.length; p++)
+				{
+					allList.push(this.packages[p].pkgNum);
+				}
+				if (allList.length > 0) 
+				{
+					packages.startMultiInstall(false, allList, this);
+				}
 				break;
 				
 			case 'do-prefs':
@@ -542,6 +556,94 @@ PkgListAssistant.prototype.alertMessage = function(message)
 		onChoose:			function(value){}
     });
 }
+
+/* 
+ * this functions are called by the package model when doing stuff
+ * anywhere the package model will be installing stuff these functions are needed
+ */
+PkgListAssistant.prototype.startAction = function()
+{
+	// this is the start of the stayawake class to keep it awake till we're done with it
+	this.stayAwake.start();
+	
+	// set this to stop back gesture
+	this.active = true;
+	
+	// start action is to hide this menu
+	this.controller.setMenuVisible(Mojo.Menu.commandMenu, false);
+	
+	// to update the spinner
+	this.statusSpinnerModel.spinning = true;
+	this.controller.modelChanged(this.statusSpinnerModel);
+	
+	// and to hide the data while we do the action
+	this.controller.get('pkgSpacer').style.display = "none";
+	this.controller.get('pkgListContainer').style.display = "none";
+	
+	// and make sure the scene scroller is at the top
+	this.controller.sceneScroller.mojo.scrollTo(0, 0);
+}
+PkgListAssistant.prototype.displayAction = function(msg)
+{
+	this.controller.get('spinnerStatus').innerHTML = msg;
+}
+PkgListAssistant.prototype.endAction = function()
+{
+	// we're done loading so let the phone sleep if it needs to
+	this.stayAwake.end();
+	
+	// allow back gesture again
+	this.active = false;
+	
+	// end action action is to stop the spinner
+	this.statusSpinnerModel.spinning = false;
+	this.controller.modelChanged(this.statusSpinnerModel);
+	
+	// update the screens data
+	if (!this.simpleMessageUp) this.updateList();
+	
+	// show the data
+	this.controller.get('pkgSpacer').style.display = "inline";
+	this.controller.get('pkgListContainer').style.display = "inline";
+	
+	// and to show this menu again
+	this.updateCommandMenu();
+}
+PkgListAssistant.prototype.simpleMessage = function(message)
+{
+	this.simpleMessageUp = true;
+	this.controller.showAlertDialog(
+	{
+	    title:				'Packages',
+		allowHTMLMessage:	true,
+		preventCancel:		true,
+	    message:			message,
+	    choices:			[{label:$L('Ok'), value:'ok'}],
+		onChoose:			this.simpleMessageOK.bindAsEventListener(this)
+    });
+}
+PkgListAssistant.prototype.simpleMessageOK = function(value)
+{
+	if (value == 'ok')
+	{
+		this.updateList();
+	}
+	this.simpleMessageUp = false;
+}
+PkgListAssistant.prototype.actionMessage = function(message, choices, actions)
+{
+	this.controller.showAlertDialog(
+	{
+	    title:				'Packages',
+		allowHTMLMessage:	true,
+		preventCancel:		true,
+	    message:			message,
+	    choices:			choices,
+	    onChoose:			actions
+    });
+}
+/* end functions called by the package model */
+
 
 PkgListAssistant.prototype.cleanup = function(event)
 {
