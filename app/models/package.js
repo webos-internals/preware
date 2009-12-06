@@ -24,7 +24,7 @@ function packageModel(info)
 		this.size =				false;
 		this.hasUpdate =		false;
 		this.icon =				false;
-		this.iconImg =			{object: false, loading: false, loaded: false, target: false};
+		this.iconImg =			{object: false, loading: false, loaded: false, target: false, local: false};
 		this.date =				false;
 		this.feeds =			['Unknown'];
 		this.feedString =		'Unknown';
@@ -280,7 +280,6 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.maintainer)				this.maintainer =		pkg.maintainer;
 		if (!this.maintUrl)					this.maintUrl =			pkg.maintUrl;
 		if (!this.size)						this.size =				pkg.size;
-		if (!this.icon)						this.icon =				pkg.icon;
 		if (!this.date)						this.date =				pkg.date;
 		if (!this.homepage)					this.homepage =			pkg.homepage;
 		if (!this.license)					this.license =			pkg.license;
@@ -290,6 +289,11 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.hasUpdate)				this.hasUpdate =		pkg.hasUpdate;
 		if (!this.dateInstalled)			this.dateInstalled =	pkg.dateInstalled;
 		if (!this.sizeInstalled)			this.sizeInstalled =	pkg.sizeInstalled;
+		if (!this.icon) 
+		{
+			this.icon =				pkg.icon;
+			this.iconImg.local =	false;
+		}
 		
 		// join feeds
 		if (this.feeds[0] == 'Unknown') 
@@ -405,6 +409,7 @@ packageModel.prototype.loadAppinfoFileResponse = function(payload, callback)
 		}
 		if (!this.icon || this.icon == '')
 		{
+			this.iconImg.local = true;
 			if (appInfo.icon) 
 			{
 				this.icon = '../' + this.pkg + '/' + appInfo.icon;
@@ -473,6 +478,12 @@ packageModel.prototype.iconFill = function(target)
 {
 	if (this.icon) 
 	{
+		if (this.iconImg.local)
+		{
+			//this.iconImg.loaded = true;
+			target.style.backgroundImage = 'url(images/localIcon.png)';
+			return;
+		}
 		if (this.iconImg.loaded) 
 		{
 			target.style.backgroundImage = 'url(' + this.icon + ')';
