@@ -803,6 +803,34 @@ packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 		Mojo.Log.logException(e, 'packagesModel#checkMultiInstall');
 	}
 }
+packagesModel.prototype.checkMultiListInstall = function(pkgs, assistant)
+{
+	try 
+	{
+		// save assistant
+		this.assistant = assistant;
+		
+		this.multiPkg	= false;
+		this.multiPkgs	= pkgs;
+		this.multiFlags	= this.getMultiFlags();
+		
+		// see what they want to do:
+		this.assistant.actionMessage(
+			'These packages have dependencies that need to be installed or updated.',
+			[
+				{label:$L('Install / Update'), value:'ok'},
+				{label:$L('View All'), value:'view'},
+				{label:$L('Cancel'), value:'cancel'}
+			],
+			this.testMultiInstall.bindAsEventListener(this)
+		);
+		
+	}
+	catch (e) 
+	{
+		Mojo.Log.logException(e, 'packagesModel#checkMultiListInstall');
+	}
+}
 packagesModel.prototype.checkMultiRemove = function(pkg, pkgs, assistant)
 {
 	try 

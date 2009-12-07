@@ -516,18 +516,50 @@ PkgListAssistant.prototype.handleCommand = function(event)
 					{
 						hasPreware = this.packages[p].pkgNum;
 					}
-					else 
+					else
 					{
-						allList.push(this.packages[p].pkgNum);
+						var deps = packages.packages[this.packages[p].pkgNum].getDependenciesRecursive(true);
+						if (deps.length > 0) 
+						{
+							for (var d = 0; d < deps.length; d++)
+							{
+								if (allList.indexOf(deps[d]) === -1) 
+								{
+									allList.push(deps[d]);
+								}
+							}
+						}
+						if (allList.indexOf(this.packages[p].pkgNum) === -1) 
+						{
+							allList.push(this.packages[p].pkgNum);
+						}
 					}
 				}
 				if (hasPreware !== false)
 				{
+					var deps = packages.packages[hasPreware].getDependenciesRecursive(true);
+					if (deps.length > 0) 
+					{
+						for (var d = 0; d < deps.length; d++)
+						{
+							if (allList.indexOf(deps[d]) === -1) 
+							{
+								allList.push(deps[d]);
+							}
+						}
+					}
 					allList.push(hasPreware);
 				}
-				if (allList.length > 0) 
+				if (allList.length > 0)
 				{
-					packages.startMultiInstall(false, allList, this);
+					if (allList.length > this.packages.length)
+					{
+						packages.checkMultiListInstall(allList, this);
+					}
+					else
+					{
+						packages.startMultiInstall(false, allList, this);
+					}
 				}
 				break;
 				
