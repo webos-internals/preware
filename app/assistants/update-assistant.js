@@ -179,7 +179,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 			this.errorMessage('Preware', 'Update Error. The service probably isn\'t running.');
 			return;
 		}
-		else if (payload.errorCode == -1)
+		else if (payload.errorCode != undefined)
 		{
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
@@ -290,7 +290,7 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 			this.errorMessage('Preware', 'Update Error. The service probably isn\'t running.');
 			return;
 		}
-		else if (payload.errorCode == -1) 
+		else if (payload.errorCode != undefined) 
 		{
 			// we probably dont need to check this stuff here,
 			// it would have already been checked and errored out of this process
