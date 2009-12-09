@@ -1022,10 +1022,17 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 		// start action
 		if (multi != undefined)
 		{
-			this.assistant.displayAction('Downloading / Updating');
+			this.assistant.displayAction('Downloading / Updating<br />' + this.title);
 
-			// call install service for update, yes
-			this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title);
+			if (packages.can(this.type, 'updateAsReplace'))
+			{
+				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title);
+				this.assistant.displayAction('Downloading / Replacing<br />' + this.title);
+			}
+			else
+			{
+				this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title);
+			}
 		}
 		else
 		{
@@ -1033,8 +1040,15 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 
 			this.assistant.startAction();
 		
-			// call install service for update, yes
-			this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.pkg, this.title);
+			if (packages.can(this.type, 'updateAsReplace'))
+			{
+				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this), this.pkg, this.title);
+				this.assistant.displayAction('Downloading / Replacing');
+			}
+			else
+			{
+				this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.pkg, this.title);
+			}
 		}
 	}
 	catch (e) 

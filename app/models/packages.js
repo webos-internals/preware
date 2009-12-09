@@ -50,14 +50,14 @@ function packagesModel()
 		},
 		Patch:
 		{
-			//update: true,
+			update: true,
 			updateAsReplace: true,
 			showScreenshots: true,
 			showDependents: true
 		},
 		Theme:
 		{
-			//update: true,
+			update: true,
 			updateAsReplace: true,
 			showScreenshots: true
 		},

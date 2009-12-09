@@ -89,6 +89,17 @@ IPKGService.install = function(callback, pkg, title)
 	});
 	return request;
 }
+IPKGService.replace = function(callback, pkg, title)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'replace',
+		parameters: {"package":pkg, "title":title, "subscribe":true},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
 IPKGService.remove = function(callback, pkg, title)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
