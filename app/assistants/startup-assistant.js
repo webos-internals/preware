@@ -10,11 +10,12 @@ function StartupAssistant()
 			version: '0.9.13',
 			log:
 			[
-				'Hopefully really truely fixed the darn recurring splash screen this time',
+				'Added "Update All" button to package updates list',
+				'Added ability to update Patches and Themes (It just replaces them)',
 				'Now allows all action flags to be skipped at users request',
 				'Added support for "RestartDevice" action flags',
-				'Minor change to update error handling',
-				'Added "Update All" button to package updates list (it was already there, but now it actually works)'
+				'Minor change to error handling when updating feeds',
+				'Hopefully really truely fixed the darn recurring splash screen this time'
 			]
 		},
 		{
