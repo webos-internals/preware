@@ -144,7 +144,7 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	this.stayAwake.start();
 	
 	// start with checking the internet connection
-	this.displayAction('<strong>Checking Internet Connection</strong>', 'This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Packaage Manager Service and Preware are installed properly.');
+	this.displayAction('<strong>Checking Internet Connection</strong>', 'This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Package Manager Service and Preware are installed properly.');
 	this.showActionHelpTimer(2);
 	this.hideProgress();
 	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
