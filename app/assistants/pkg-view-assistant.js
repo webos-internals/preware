@@ -275,7 +275,7 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// if update, push button
 	if (this.item.hasUpdate && packages.can(this.item.type, 'update'))
 	{
-		if (packages.can(this.item.type, 'installByRedirect'))
+		if (this.item.appCatalog)
 		{
 			this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-redirect'});
 		}
@@ -292,7 +292,7 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// if not, push install button
 	else
 	{
-		if (packages.can(this.item.type, 'installByRedirect'))
+		if (this.item.appCatalog)
 		{
 			this.cmdMenuModel.items.push({label: $L('Install'), command: 'do-redirect'});
 		}

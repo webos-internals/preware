@@ -40,6 +40,7 @@ function packageModel(info)
 		this.isInstalled =		false;
 		this.dateInstalled =	false;
 		this.sizeInstalled =	false;
+		this.appCatalog =	false;
 		
 		// load the info
 		this.infoLoad(info);
@@ -270,6 +271,12 @@ packageModel.prototype.infoLoad = function(info)
 					this.maintainer.push({name: trim(mSplit[m]), url: false});
 				}
 			}
+		}
+
+		// override the type
+		if (this.type == "AppCatalog") {
+		    this.type = "Application";
+		    this.appCatalog = true;
 		}
 		
 	}
