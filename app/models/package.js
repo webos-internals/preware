@@ -958,6 +958,18 @@ packageModel.prototype.launch = function()
 	}
 }
 
+packageModel.prototype.doRedirect = function()
+{
+	var request = new Mojo.Service.Request('palm://com.palm.applicationManager', 
+	{
+		method: 'open',
+		parameters: 
+		{
+			target: this.homepage
+		}
+	});
+}
+
 packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 {
 	try 

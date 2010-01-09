@@ -7,6 +7,14 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.14',
+			log:
+			[
+				'Added Palm App Catalog feeds',
+				'Added support for installation of signed packages without confirmation'
+			]
+		},
+		{
 			version: '0.9.13',
 			log:
 			[

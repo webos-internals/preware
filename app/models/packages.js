@@ -25,6 +25,7 @@ function packagesModel()
 	 * launch			// can be launched by luna, makes the button appear in the view scene
 	 * update			// can be updated (installed over the top of the old version) this also makes the button appear in the view scene
 	 * updateAsReplace	// is updated by removing then reinstalling
+	 * installByRedirect	// is installed and removed by redirecting to the App Catalog
 	 * showScreenshots	// may have screenshots that should be displayed, for view scene
 	 * showDependents	// may have dependent packages that should be displayed, for view scene
 	 */
@@ -37,6 +38,13 @@ function packagesModel()
 			update: true,
 			showScreenshots: true,
 			showDependents: true
+		},
+		AppCatalog:
+		{
+			launch: true,
+			update: true,
+			showScreenshots: true,
+			installByRedirect: true,
 		},
 		Service:
 		{

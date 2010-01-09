@@ -275,7 +275,14 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// if update, push button
 	if (this.item.hasUpdate && packages.can(this.item.type, 'update'))
 	{
-		this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-update'});
+		if (packages.can(this.item.type, 'installByRedirect'))
+		{
+			this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-redirect'});
+		}
+		else
+		{
+			this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-update'});
+		}
 	}
 	// if installed, push remove button 
 	if (this.item.isInstalled)
@@ -285,7 +292,14 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// if not, push install button
 	else
 	{
-		this.cmdMenuModel.items.push({label: $L('Install'), command: 'do-install'});
+		if (packages.can(this.item.type, 'installByRedirect'))
+		{
+			this.cmdMenuModel.items.push({label: $L('Install'), command: 'do-redirect'});
+		}
+		else
+		{
+			this.cmdMenuModel.items.push({label: $L('Install'), command: 'do-install'});
+		}
 	}
 	
 	// this is to put space around the icons
@@ -337,6 +351,11 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			// remove
 			case 'do-remove':
 				this.item.doRemove(this);
+				break;
+			
+			// install
+			case 'do-redirect':
+				this.item.doRedirect(this);
 				break;
 			
 			case 'do-showLog':
