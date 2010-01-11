@@ -192,6 +192,12 @@ PkgViewAssistant.prototype.setupData = function()
 			data += Mojo.View.render({object: {title: 'Last Updated', data: formatDate(this.item.date)}, template: dataTemplate});
 		}
 		
+		// add price
+		if (this.item.price)
+		{
+			data += Mojo.View.render({object: {title: 'Price', data: '$'+this.item.price}, template: dataTemplate});
+		}
+		
 		// add download size
 		data += Mojo.View.render({object: {title: 'Download Size', data: formatSize(this.item.size)}, template: dataTemplate});
 		

@@ -232,7 +232,8 @@ PreferencesAssistant.prototype.setup = function()
 					{label:'Version & ID',		value:'v&i'},
 					{label:'Version & Maint.',	value:'v&m'},
 					{label:'Version & Date',	value:'v&d'},
-					{label:'License',		value:'license'}
+					{label:'License',		value:'license'},
+					{label:'Price',			value:'price'}
 				],
 				modelProperty: 'secondRow'
 			},
