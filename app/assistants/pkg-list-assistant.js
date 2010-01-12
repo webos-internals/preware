@@ -47,6 +47,10 @@ function PkgListAssistant(item, searchText, currentSort)
 		{
 			this.currentSort = 'date';
 		}
+		else if (prefs.get().listSort == 'price') 
+		{
+			this.currentSort = 'price';
+		}
 		else // listSort is empty or 'default'
 		{
 			if (this.item.pkgList == 'installed') 
@@ -232,6 +236,10 @@ PkgListAssistant.prototype.setupList = function()
 	{
 		this.listAttributes.dividerTemplate = 'pkg-list/rowDateDivider';
 	}
+	else if (this.currentSort == 'price') 
+	{
+		this.listAttributes.dividerTemplate = 'pkg-list/rowPriceDivider';
+	}
 	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all' && this.item.pkgValue == 'all') 
 	{
 		this.listAttributes.dividerTemplate = 'pkg-list/rowAlphaDivider';
@@ -275,6 +283,28 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 			
 			if (toReturn == 0)
 			{	// if date is the same, sort by title so things aren't jumbled
+				aTitle = a.title.toLowerCase();
+				bTitle = b.title.toLowerCase();
+				toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+			}
+			
+			return toReturn
+		});
+	}
+	else if (this.currentSort == 'price') 
+	{
+		this.packages.sort(function(a, b)
+		{
+			aPrice = 0;
+			bPrice = 0;
+			toReturn = 0;
+			
+			if (a.price) aPrice = a.price;
+			if (b.price) bPrice = b.price;
+			toReturn = aPrice - bPrice;
+			
+			if (toReturn == 0)
+			{	// if price is the same, sort by title so things aren't jumbled
 				aTitle = a.title.toLowerCase();
 				bTitle = b.title.toLowerCase();
 				toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
@@ -405,6 +435,26 @@ PkgListAssistant.prototype.getDivider = function(item)
 			return 'Unknown';
 		}
 	}
+	// how to divide when sorting by price
+	else if (this.currentSort == 'price')
+	{
+		if (item.price) 
+		{
+			price = parseFloat(item.price);
+			// a number of different price breakdowns
+			if      (price == 0.00)		return 'Free';
+			else if (price < 1.00)		return 'Less than $1';
+			else if (price < 2.00)		return 'Less than $2';
+			else if (price < 5.00)		return 'Less than $5';
+			else if (price < 10.00)		return 'Less than $10';
+			else return '$10 or greater';
+		}
+		else
+		{
+			// not all feeds will supply a price
+			return 'Free';
+		}
+	}
 	// how to divide when sorted by alpha (only used by the all list)
 	else if (this.currentSort == 'alpha' && this.item.pkgType == 'all')
 	{
@@ -476,7 +526,7 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	}
 	
 	// push the sort selector
-	this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}], toggleCmd: this.currentSort});
+	this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}, {icon: "icon-filter-price",  command: 'price'}], toggleCmd: this.currentSort});
 	
 	// this is to put space around the icons
 	this.cmdMenuModel.items.push({});
@@ -499,6 +549,7 @@ PkgListAssistant.prototype.handleCommand = function(event)
 		{
 			case 'date':
 			case 'alpha':
+			case 'price':
 				if (this.currentSort !== event.command) 
 				{
 					this.currentSort = event.command;
