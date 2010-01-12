@@ -605,7 +605,7 @@ packageModel.prototype.getForList = function(item)
 			}
 			if (tempM == '')
 			{
-				tempM = '<i>Unknown</i>';
+				tempM = '<i>Unknown Date</i>';
 			}
 			listObj.sub = tempM;
 		}
@@ -617,7 +617,18 @@ packageModel.prototype.getForList = function(item)
 			}
 			else
 			{
-				listObj.sub = "<i>Unknown</i>";
+				listObj.sub = "<i>Unknown Date</i>";
+			}
+		}
+		else if (prefs.get().secondRow == 'v&i') 
+		{
+			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
+			{
+				listObj.sub = 'v' + this.versionInstalled + ' - ' + this.pkg;
+			}
+			else
+			{
+				listObj.sub = 'v' + this.version + ' - ' + this.pkg;
 			}
 		}
 		else if (prefs.get().secondRow == 'v&m') 
@@ -633,7 +644,7 @@ packageModel.prototype.getForList = function(item)
 			}
 			if (tempM == '')
 			{
-				tempM = '<i>Unknown</i>';
+				tempM = '<i>Unknown Maintainer</i>';
 			}
 			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
 			{
@@ -642,17 +653,6 @@ packageModel.prototype.getForList = function(item)
 			else
 			{
 				listObj.sub = 'v' + this.version + ' - ' + tempM;
-			}
-		}
-		else if (prefs.get().secondRow == 'v&i') 
-		{
-			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-			{
-				listObj.sub = 'v' + this.versionInstalled + ' - ' + this.pkg;
-			}
-			else
-			{
-				listObj.sub = 'v' + this.version + ' - ' + this.pkg;
 			}
 		}
 		else if (prefs.get().secondRow == 'v&d') 
@@ -680,17 +680,6 @@ packageModel.prototype.getForList = function(item)
 				}
 			}
 		}
-		else if (prefs.get().secondRow == 'license') 
-		{
-			if (this.license)
-			{
-				listObj.sub = this.license;
-			}
-			else
-			{
-				listObj.sub = "<i>Unknown</i>";
-			}
-		}
 		else if (prefs.get().secondRow == 'price') 
 		{
 			if (this.price)
@@ -700,6 +689,118 @@ packageModel.prototype.getForList = function(item)
 			else
 			{
 				listObj.sub = "<i>Free</i>";
+			}
+		}
+		else if (prefs.get().secondRow == 'p&v&m') 
+		{
+			var tempP = '';
+			if (this.price)
+			{
+				tempP = '$'+this.price;
+			}
+			else
+			{
+				tempP = "<i>Free</i>";
+			}
+			var tempM = '';
+			for (var m = 0; m < this.maintainer.length; m++) 
+			{
+				if (tempM != '') 
+				{
+					tempM += ', ';
+				}
+				tempM += this.maintainer[m].name;
+			}
+			if (tempM == '')
+			{
+				tempM = '<i>Unknown Maintainer</i>';
+			}
+			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
+			{
+				listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled + ' - ' + tempM;
+			}
+			else
+			{
+				listObj.sub = tempP + ' - ' + 'v' + this.version + ' - ' + tempM;
+			}
+		}
+		else if (prefs.get().secondRow == 'p&v&d') 
+		{
+			var tempP = '';
+			if (this.price)
+			{
+				tempP = '$'+this.price;
+			}
+			else
+			{
+				tempP = "<i>Free</i>";
+			}
+			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
+			{
+				if (this.date) 
+				{
+					listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled + ' - ' + formatDate(this.date);
+				}
+				else
+				{
+					listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled
+				}
+			}
+			else
+			{
+				if (this.date) 
+				{
+					listObj.sub = tempP + ' - ' + 'v' + this.version + ' - ' + formatDate(this.date);
+				}
+				else
+				{
+					listObj.sub = tempP + ' - ' + 'v' + this.version
+				}
+			}
+		}
+		else if (prefs.get().secondRow == 'license') 
+		{
+			if (this.license)
+			{
+				listObj.sub = this.license;
+			}
+			else
+			{
+				if (this.appCatalog) 
+				{
+					listObj.sub = "<i>App Catalog</i>";
+				}
+				else
+				{
+					listObj.sub = "<i>Unknown License</i>";
+				}
+			}
+		}
+		else if (prefs.get().secondRow == 'p&l') 
+		{
+			var tempP = '';
+			if (this.price)
+			{
+				tempP = '$'+this.price;
+			}
+			else
+			{
+				tempP = "<i>Free</i>";
+			}
+			if (this.license)
+			{
+				listObj.sub = tempP + ' - ' + this.license;
+			}
+			else
+			{
+				if (this.appCatalog) 
+				{
+					listObj.sub = tempP + ' - ' + "<i>App Catalog</i>";
+				}
+				else
+				{
+					listObj.sub = tempP + ' - ' + "<i>Unknown License</i>";
+				}
 			}
 		}
 		
