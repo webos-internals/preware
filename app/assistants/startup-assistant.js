@@ -13,6 +13,7 @@ function StartupAssistant()
 				'Added Palm App Catalog feeds, including price information'
 			]
 		},
+		{
 			version: '0.9.14',
 			log:
 			[
