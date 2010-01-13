@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.16',
+			log:
+			[
+				'Removed the partial app limit fix (obsolete as of webOS 1.3.5)'
+			]
+		},
+		{
 			version: '0.9.15',
 			log:
 			[

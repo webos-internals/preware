@@ -4,9 +4,6 @@ function PreferencesAssistant()
 	this.cookie = new preferenceCookie();
 	this.prefs = this.cookie.get();
 	
-	// IpkgWrapper enabled?
-	this.wrapperEnabled = false;
-
 	// for secret group
 	this.secretString = '';
 	this.secretAnswer = 'iknowwhatimdoing';
@@ -22,13 +19,6 @@ function PreferencesAssistant()
 				command: 'do-help'
 			}
 		]
-	}
-
-	// setup app limit fix toggle
-	this.appLimitToggleModel =
-	{
-		value : this.wrapperEnabled,
-		disabled: false
 	}
 
 }
@@ -50,9 +40,6 @@ PreferencesAssistant.prototype.setup = function()
 		// toggle panes:
 		this.toggleShowTypesChanged();
 		
-		// init feed loading
-		IPKGService.getIpkgWrapperState(this.onGetWrapper.bindAsEventListener(this));
-
 		// setup header button
 		this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
 		
@@ -110,22 +97,10 @@ PreferencesAssistant.prototype.setup = function()
 			}
 		);
 
-		this.controller.setupWidget
-		(
-			'fixAppLimit',
-			{
-	  			trueLabel:  'Yes',
-	 			falseLabel: 'No',
-	  			fieldName:  'fixAppLimit'
-			},
-			this.appLimitToggleModel
-		);
-		
 		this.controller.listen('updateInterval', Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('fixUnknown',     Mojo.Event.propertyChange, this.toggleChangeHandler);
-		this.controller.listen('fixAppLimit',    Mojo.Event.propertyChange, this.toggleAppLimitChanged.bindAsEventListener(this));
-		
-		
+
+
 		
 		// Main Scene Group
 		this.controller.setupWidget
@@ -212,7 +187,8 @@ PreferencesAssistant.prototype.setup = function()
 				[
 					{label:'Category Default',	value:'default'},
 					{label:'Alphabetically',	value:'alpha'},
-					{label:'Last Updated',		value:'date'}
+					{label:'Last Updated',		value:'date'},
+					{label:'Price',			value:'price'}
 				],
 				modelProperty: 'listSort'
 			},
@@ -262,6 +238,7 @@ PreferencesAssistant.prototype.setup = function()
 		
 		
 		
+		/*
 		// Background Group
 		this.controller.setupWidget
 		(
@@ -296,8 +273,10 @@ PreferencesAssistant.prototype.setup = function()
 		
 		this.controller.listen('backgroundUpdates',  Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('autoInstallUpdates', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		*/
 		
-		
+		// hide background group
+		this.controller.get('backgroundPreferences').style.display = 'none';
 		
 		// Secret Group
 		this.keyPressHandler = this.keyPress.bindAsEventListener(this)
@@ -348,11 +327,6 @@ PreferencesAssistant.prototype.toggleChanged = function(event)
 {
 	this.prefs[event.target.id] = event.value;
 	this.cookie.put(this.prefs);
-}
-
-PreferencesAssistant.prototype.toggleAppLimitChanged = function(event)
-{
-	IPKGService.setIpkgWrapperState(this.onSetWrapper.bindAsEventListener(this), event.value);
 }
 
 PreferencesAssistant.prototype.toggleShowTypesChanged = function(event)
@@ -412,72 +386,6 @@ PreferencesAssistant.prototype.keyPress = function(event)
 	else if (this.secretString.length > this.secretAnswer.length)
 	{
 		this.secretString = '';
-	}
-}
-
-PreferencesAssistant.prototype.onGetWrapper = function(payload)
-{
-	try 
-	{
-		if (!payload) 
-		{
-			// i dont know if this will ever happen, but hey, it might
-			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-		}
-		else if (payload.errorCode == -1) 
-		{
-			// we probably dont need to check this stuff here,
-			// it would have already been checked and errored out of this process
-			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
-			{
-				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and waiting longer before starting Preware.');
-			}
-			else
-			{
-				this.alertMessage('Preware', payload.errorText);
-			}
-		}
-		else 
-		{
-			this.wrapperEnabled = payload.enabled;
-			this.appLimitToggleModel.value = this.wrapperEnabled;
-			this.controller.modelChanged(this.appLimitToggleModel);
-		}
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'configs#onGetWrapper');
-		this.alertMessage('onGetWrapper Error', e);
-	}
-}
-
-PreferencesAssistant.prototype.onSetWrapper = function(payload)
-{
-	try 
-	{
-		if (!payload) 
-		{
-			// i dont know if this will ever happen, but hey, it might
-			this.alertMessage('Preware', 'Update Error. The service probably isn\'t running.');
-		}
-		else if (payload.errorCode == -1) 
-		{
-			// we probably dont need to check this stuff here,
-			// it would have already been checked and errored out of this process
-			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
-			{
-				this.alertMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and waiting longer before starting Preware.');
-			}
-			else
-			{
-				this.alertMessage('Preware', payload.errorText);
-			}
-		}
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'configs#onSetWrapper');
-		this.alertMessage('onSetWrapper Error', e);
 	}
 }
 

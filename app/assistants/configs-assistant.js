@@ -30,6 +30,7 @@ ConfigsAssistant.prototype.setup = function()
 	// setup header button
 	this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
 	
+	/*
 	this.controller.setupWidget
 	(
 		'newName',
@@ -83,7 +84,11 @@ ConfigsAssistant.prototype.setup = function()
 	);
 	//this.controller.listen('allowServiceUpdates', Mojo.Event.propertyChange, this.toggleChangeHandler);
 	//this.controller.listen('newButton', Mojo.Event.tap, this.transferBestsButton.bindAsEventListener(this));
+	*/
 	
+	// hide newFeed group
+	this.controller.get('newFeed').style.display = 'none';
+		
 	
 	// setup list widget
 	this.confModel = { items: [] };
