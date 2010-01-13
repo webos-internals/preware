@@ -7,11 +7,17 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.15',
+			log:
+			[
+				'Added Palm App Catalog feeds, including price information'
+			]
+		},
 			version: '0.9.14',
 			log:
 			[
-				'Added Palm App Catalog feeds',
-				'Added support for installation of signed packages without confirmation'
+				'Added support for installation of signed packages without confirmation',
+				'Fixed the auto-configuration of disabled webos-patches feeds'
 			]
 		},
 		{
