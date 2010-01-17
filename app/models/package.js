@@ -620,6 +620,39 @@ packageModel.prototype.getForList = function(item)
 				listObj.sub = "<i>Unknown Date</i>";
 			}
 		}
+		else if (prefs.get().secondRow == 'price') 
+		{
+			if (this.price)
+			{
+				listObj.sub = '$'+this.price;
+			}
+			else
+			{
+				listObj.sub = "<i>Free</i>";
+			}
+		}
+		else if (prefs.get().secondRow == 'feed') 
+		{
+			listObj.sub = this.feedString;
+		}
+		else if (prefs.get().secondRow == 'license') 
+		{
+			if (this.license)
+			{
+				listObj.sub = this.license;
+			}
+			else
+			{
+				if (this.appCatalog) 
+				{
+					listObj.sub = "<i>App Catalog</i>";
+				}
+				else
+				{
+					listObj.sub = "<i>Unknown License</i>";
+				}
+			}
+		}
 		else if (prefs.get().secondRow == 'v&i') 
 		{
 			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
@@ -680,15 +713,44 @@ packageModel.prototype.getForList = function(item)
 				}
 			}
 		}
-		else if (prefs.get().secondRow == 'price') 
+		else if (prefs.get().secondRow == 'p&f') 
 		{
+			var tempP = '';
 			if (this.price)
 			{
-				listObj.sub = '$'+this.price;
+				tempP = '$'+this.price;
 			}
 			else
 			{
-				listObj.sub = "<i>Free</i>";
+				tempP = "<i>Free</i>";
+			}
+			listObj.sub = tempP + ' - ' + this.feedString;
+		}
+		else if (prefs.get().secondRow == 'p&l') 
+		{
+			var tempP = '';
+			if (this.price)
+			{
+				tempP = '$'+this.price;
+			}
+			else
+			{
+				tempP = "<i>Free</i>";
+			}
+			if (this.license)
+			{
+				listObj.sub = tempP + ' - ' + this.license;
+			}
+			else
+			{
+				if (this.appCatalog) 
+				{
+					listObj.sub = tempP + ' - ' + "<i>App Catalog</i>";
+				}
+				else
+				{
+					listObj.sub = tempP + ' - ' + "<i>Unknown License</i>";
+				}
 			}
 		}
 		else if (prefs.get().secondRow == 'p&v&m') 
@@ -758,25 +820,7 @@ packageModel.prototype.getForList = function(item)
 				}
 			}
 		}
-		else if (prefs.get().secondRow == 'license') 
-		{
-			if (this.license)
-			{
-				listObj.sub = this.license;
-			}
-			else
-			{
-				if (this.appCatalog) 
-				{
-					listObj.sub = "<i>App Catalog</i>";
-				}
-				else
-				{
-					listObj.sub = "<i>Unknown License</i>";
-				}
-			}
-		}
-		else if (prefs.get().secondRow == 'p&l') 
+		else if (prefs.get().secondRow == 'p&v&f') 
 		{
 			var tempP = '';
 			if (this.price)
@@ -787,20 +831,13 @@ packageModel.prototype.getForList = function(item)
 			{
 				tempP = "<i>Free</i>";
 			}
-			if (this.license)
+			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
 			{
-				listObj.sub = tempP + ' - ' + this.license;
+				listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled + ' - ' + this.feedString;
 			}
 			else
 			{
-				if (this.appCatalog) 
-				{
-					listObj.sub = tempP + ' - ' + "<i>App Catalog</i>";
-				}
-				else
-				{
-					listObj.sub = tempP + ' - ' + "<i>Unknown License</i>";
-				}
+				listObj.sub = tempP + ' - ' + 'v' + this.version + ' - ' + this.feedString;
 			}
 		}
 		
