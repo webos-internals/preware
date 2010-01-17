@@ -910,7 +910,13 @@ packagesModel.prototype.doMultiInstall = function(number)
 		// call install for dependencies
 		if (number < this.multiPkgs.length) 
 		{
-			if (this.packages[this.multiPkgs[number]].isInstalled) 
+			if (this.packages[this.multiPkgs[number]].appCatalog) {
+				// skip app catalog updates
+				// we should probably message or something that this has been skipped
+				// or really, we should notify the user before we even get this far
+				this.doMultiInstall(number+1);
+			}
+			else if (this.packages[this.multiPkgs[number]].isInstalled) 
 			{
 				if (this.can(this.packages[this.multiPkgs[number]].type, 'update')) 
 				{
@@ -932,7 +938,11 @@ packagesModel.prototype.doMultiInstall = function(number)
 		// call install for package
 		else if (number == this.multiPkgs.length && this.multiPkg) 
 		{
-			if (this.multiPkg.isInstalled) 
+			if (this.multiPkg.appCatalog) {
+				// see note above about this skipping if the type can't be updated
+				this.doMultiInstall(number+1);
+			}
+			else if (this.multiPkg.isInstalled) 
 			{
 				if (this.can(this.multiPkg.type, 'update')) 
 				{
