@@ -11,6 +11,7 @@ function StartupAssistant()
 			log:
 			[
 				'Added second line options for feed, price & feed, and price & version & feed'
+				'Added reporting of each feed index file as it is being downloaded'
 			]
 		},
 		{

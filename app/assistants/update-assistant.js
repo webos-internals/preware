@@ -258,6 +258,9 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 				return;
 			}
 		}
+		else if (payload.stage == "status") {
+			this.displayAction('<strong>Downloading Feed Information</strong><br>' + payload.status);
+		}
 		else if (payload.returnVal != undefined) 
 		{
 			// its returned, but we don't really care if anything was actually updated
