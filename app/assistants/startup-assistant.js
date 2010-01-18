@@ -7,7 +7,7 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
-			version: '0.9.17',
+			version: '0.9.18',
 			log:
 			[
 				'Added second line options for feed, price & feed, and price & version & feed',
