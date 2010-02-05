@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.19',
+			log:
+			[
+				'Fixed the OnFeeds split error, caused by zero length feed config files'
+			]
+		},
+		{
 			version: '0.9.18',
 			log:
 			[

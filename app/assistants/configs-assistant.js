@@ -140,15 +140,15 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 			// load feeds
 			for (var x = 0; x < payload.configs.length; x++)
 			{
-				var feedObj = 
-				{
-					config: payload.configs[x].config,
-					name: payload.configs[x].config.replace(/.conf/, ''),
-					urls: [],
-					enabled: payload.configs[x].enabled
-				};
+			    var feedObj = {
+				config: payload.configs[x].config,
+				name: payload.configs[x].config.replace(/.conf/, ''),
+				urls: [],
+				enabled: payload.configs[x].enabled
+			    };
 				
-				//var tmpSplit1 = payload.configs[x][p].split('<br>');
+			    if (payload.configs[x].contents) {
+
 				var tmpSplit1 = payload.configs[x].contents.split('<br>');
 				for (var c = 0; c < tmpSplit1.length; c++)
 				{
@@ -159,7 +159,9 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 					}
 				}
 				
-				this.feeds.push(feedObj);
+			    }
+
+			    this.feeds.push(feedObj);
 			}
 			
 			// sort them

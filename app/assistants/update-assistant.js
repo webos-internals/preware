@@ -318,6 +318,7 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 			{
 				if (payload.configs[x].enabled) 
 				{
+				    if (payload.configs[x].contents) {
 					var tmpSplit1 = payload.configs[x].contents.split('<br>');
 					for (var c = 0; c < tmpSplit1.length; c++) 
 					{
@@ -331,6 +332,7 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 							}
 						}
 					}
+				    }
 				}
 			}
 			
