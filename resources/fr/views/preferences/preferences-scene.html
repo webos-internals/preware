@@ -1,0 +1,177 @@
+<div class="prefs">
+	
+	<div class="scene-fade-top" x-mojo-scroll-fade="top"></div>
+	
+	<div class="palm-page-header multi-line">
+		<div class="palm-page-header-wrapper">
+			<div class="headerButton" id="headerButton" x-mojo-touch-feedback="delayed">Flux</div>
+			<div class="icon"></div>
+			<div class="title">Préférences</div>
+		</div>
+	</div>
+	
+	<div class="palm-group">
+		<div class="palm-group-title">Global</div>
+		<div class="palm-list">
+			
+			<div class="palm-row single"> <!-- x-mojo-tap-highlight="momentary" //-->
+				<div class="palm-row-wrapper">
+					<div id="theme" x-mojo-element="ListSelector"></div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	
+	<div class="palm-group">
+		<div class="palm-group-title">Démarrage</div>
+		<div class="palm-list">
+			
+			<div class="palm-row first">
+				<div class="palm-row-wrapper">
+					<div id="updateInterval" x-mojo-element="ListSelector"></div>
+				</div>
+			</div>
+			
+			<div class="palm-row">
+				<div class="palm-row-wrapper">
+					<div class="label left">Dernière mise à jour</div>
+					<div class="title right" id="lastUpdate">Jamais</div>
+				</div>
+			</div>
+			
+			<div class="palm-row last">
+				<div class="palm-row-wrapper">
+					<div class="label left">Corriger les types inconnus</div>
+					<div id="fixUnknown" x-mojo-element="ToggleButton"></div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	
+	<div class="palm-group">
+		<div class="palm-group-title">Ecran principal</div>
+		<div class="palm-list">
+			
+			<div class="palm-row single" id="showAvailableTypesContainer">
+				<div class="palm-row-wrapper">
+					<div class="label left">Montrer les types disponibles</div>
+					<div id="showAvailableTypes" x-mojo-element="ToggleButton"></div>
+				</div>
+			</div>
+			
+			<div id="availableTypes">
+				
+				<div class="palm-row">
+					<div class="palm-row-wrapper">
+						<div class="label left">Montrer les applications</div>
+						<div id="showTypeApplication" x-mojo-element="ToggleButton"></div>
+					</div>
+				</div>
+				
+				<div class="palm-row">
+					<div class="palm-row-wrapper">
+						<div class="label left">Montrer les thèmes</div>
+						<div id="showTypeTheme" x-mojo-element="ToggleButton"></div>
+					</div>
+				</div>
+				
+				<div class="palm-row">
+					<div class="palm-row-wrapper">
+						<div class="label left">Montrer les patches</div>
+						<div id="showTypePatch" x-mojo-element="ToggleButton"></div>
+					</div>
+				</div>
+				
+				<div class="palm-row last">
+					<div class="palm-row-wrapper">
+						<div class="label left">Montrer les autres types</div>
+						<div id="showTypeOther" x-mojo-element="ToggleButton"></div>
+					</div>
+				</div>
+				
+			</div>
+			
+		</div>
+	</div>
+	
+	<div class="palm-group">
+		<div class="palm-group-title">Ecran liste</div>
+		<div class="palm-list">
+			
+			<div class="palm-row first">
+				<div class="palm-row-wrapper">
+					<div id="listSort" x-mojo-element="ListSelector"></div>
+				</div>
+			</div>
+			
+			<div class="palm-row">
+				<div class="palm-row-wrapper">
+					<div id="secondRow" x-mojo-element="ListSelector"></div>
+				</div>
+			</div>
+			
+			<div class="palm-row last">
+				<div class="palm-row-wrapper">
+					<div class="label left">Installé est disponible</div>
+					<div id="listInstalled" x-mojo-element="ToggleButton"></div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	
+	<div class="palm-group" id="backgroundPreferences">
+		<div class="palm-group-title">Arrière-plan</div>
+		<div class="palm-list">
+			
+			<div class="palm-row first">
+				<div class="palm-row-wrapper">
+					<div id="backgroundUpdates" x-mojo-element="ListSelector"></div>
+				</div>
+			</div>
+			
+			<div class="palm-row last">
+				<div class="palm-row-wrapper">
+					<div class="label left">Installé automatiquement</div>
+					<div id="autoInstallUpdates" x-mojo-element="ToggleButton"></div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	
+	<div class="palm-group" id="secretPreferences">
+		<div class="palm-group-title">Partie secrète</div>
+		<div class="palm-list">
+			
+			<div class="palm-row single">
+				<div class="palm-row-wrapper">
+					<div class="label left">Cette version n'a pas d'options secrètes.</div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	
+	<!--
+	<div class="palm-group">
+		<div class="palm-group-title">asdf</div>
+		<div class="palm-list">
+			
+			<div class="palm-row single">
+				<div class="palm-row-wrapper">
+
+					asdf
+
+				</div>
+			</div>
+	
+		</div>
+	</div>
+	//-->
+	
+	<div class="scene-fade-bottom" x-mojo-scroll-fade="bottom"></div>
+	
+</div>
