@@ -183,7 +183,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 		{
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', $L('The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.');
+				this.errorMessage('Preware', $L('The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.'));
 				return;
 			}
 			else
