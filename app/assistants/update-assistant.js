@@ -27,19 +27,19 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 		items:
 		[
 			{
-				label: "Preferences",
+				label: $L("Preferences"),
 				command: 'do-prefs'
 			},
 			{
-				label: "Update Feeds",
+				label: $L("Update Feeds"),
 				command: 'do-update'
 			},
 			{
-				label: "Manage Feeds",
+				label: $L("Manage Feeds"),
 				command: 'do-feeds'
 			},
 			{
-				label: "Help",
+				label: $L("Help"),
 				command: 'do-help'
 			}
 		]
@@ -144,7 +144,7 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	this.stayAwake.start();
 	
 	// start with checking the internet connection
-	this.displayAction('<strong>Checking Internet Connection</strong>', 'This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Package Manager Service and Preware are installed properly.');
+	this.displayAction($L('<strong>Checking Internet Connection</strong>'), $L('This action should be immediate.  If it takes longer than that, then restart Preware.  If that does not work, then check that both the Package Manager Service and Preware are installed properly.'));
 	this.showActionHelpTimer(2);
 	this.hideProgress();
 	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
@@ -162,7 +162,7 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	}
 	
 	// run version check
-	this.displayAction('<strong>Checking Package Manager Version</strong>', 'This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and not launch Preware until you have a stable network connection available.');
+	this.displayAction($L('<strong>Checking Package Manager Version</strong>'), $L('This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and not launch Preware until you have a stable network connection available.'));
 	this.showActionHelpTimer(2);
 	IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
 }
@@ -176,14 +176,14 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
-			this.errorMessage('Preware', 'Update Error. The service probably isn\'t running.');
+			this.errorMessage('Preware', $L('Update Error. The service probably isn\'t running.'));
 			return;
 		}
 		else if (payload.errorCode != undefined)
 		{
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.');
+				this.errorMessage('Preware', $L('The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.');
 				return;
 			}
 			else
@@ -195,7 +195,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 		else if (payload.errorCode == "ErrorGenericUnknownMethod")
 		{
 			// this is if this version is too old for the version number stuff
-			this.errorMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [1]');
+			this.errorMessage('Preware', $L('The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [1]'));
 			return;
 		}
 		else
@@ -203,7 +203,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 			if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) 
 			{
 				// this is if this version is too old for the version number stuff
-				this.errorMessage('Preware', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [2]');
+				this.errorMessage('Preware', $L('The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [2]'));
 				return;
 			}
 			else 
@@ -211,14 +211,14 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 				if (hasNet && !onlyLoad) 
 				{
 					// initiate update if we have a connection
-					this.displayAction('<strong>Downloading Feed Information</strong>', 'This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding.');
+					this.displayAction($L('<strong>Downloading Feed Information</strong>'), $L('This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding.'));
 					this.showActionHelpTimer(120); // 2 minutes
 					IPKGService.update(this.onUpdate.bindAsEventListener(this));
 				}
 				else 
 				{
 					// if not, go right to loading the pkg info
-					this.displayAction('<strong>Loading Package Information</strong>');
+					this.displayAction($L('<strong>Loading Package Information</strong>'));
 					IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 				}
 			}
@@ -240,7 +240,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
-			this.errorMessage('Preware', 'Update Error. The service probably isn\'t running.');
+			this.errorMessage('Preware', $L('Update Error. The service probably isn\'t running.'));
 			return;
 		}
 		else if (payload.errorCode != undefined)
@@ -249,7 +249,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.');
+				this.errorMessage('Preware', $L('The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.'));
 				return;
 			}
 			else
@@ -259,7 +259,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			}
 		}
 		else if (payload.stage == "status") {
-			this.displayAction('<strong>Downloading Feed Information</strong><br>' + payload.status);
+			this.displayAction($L('<strong>Downloading Feed Information</strong><br>') + payload.status);
 		}
 		else if (payload.returnVal != undefined) 
 		{
@@ -270,7 +270,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			prefs.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
 			
 			// lets call the function to update the global list of pkgs
-			this.displayAction('<strong>Loading Package Information</strong>');
+			this.displayAction($L('<strong>Loading Package Information</strong>'));
 			IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 		}
 	}
@@ -290,7 +290,7 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
-			this.errorMessage('Preware', 'Update Error. The service probably isn\'t running.');
+			this.errorMessage('Preware', $L('Update Error. The service probably isn\'t running.'));
 			return;
 		}
 		else if (payload.errorCode != undefined) 
@@ -299,7 +299,7 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', 'The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.');
+				this.errorMessage('Preware', $L('The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available.'));
 				return;
 			}
 			else
@@ -408,7 +408,7 @@ UpdateAssistant.prototype.doneUpdating = function()
 	this.isLoading = false;
 	
 	// show that we're done (while the pushed scene is going)
-	this.displayAction('<strong>Done!</strong>');
+	this.displayAction($L('<strong>Done!</strong>'));
 	this.hideProgress();
 	
 	// we're done loading so let the phone sleep if it needs to
@@ -426,11 +426,11 @@ UpdateAssistant.prototype.doneUpdating = function()
 	{	// if we're not the active scene, let them know via banner:
 		if (this.onlyLoad) 
 		{
-			Mojo.Controller.getAppController().showBanner({messageText:'Preware: Done Loading Feeds', icon:'miniicon.png'}, {source:'updateNotification'});
+			Mojo.Controller.getAppController().showBanner({messageText:$L('Preware: Done Loading Feeds'), icon:'miniicon.png'}, {source:'updateNotification'});
 		}
 		else
 		{
-			Mojo.Controller.getAppController().showBanner({messageText:'Preware: Done Updating Feeds', icon:'miniicon.png'}, {source:'updateNotification'});
+			Mojo.Controller.getAppController().showBanner({messageText:$L('Preware: Done Updating Feeds'), icon:'miniicon.png'}, {source:'updateNotification'});
 		}
 	}
 }

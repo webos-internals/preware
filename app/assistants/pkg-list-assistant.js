@@ -73,19 +73,19 @@ function PkgListAssistant(item, searchText, currentSort)
 		items:
 		[
 			{
-				label: "Preferences",
+				label: $L("Preferences"),
 				command: 'do-prefs'
 			},
 			{
-				label: "Update Feeds",
+				label: $L("Update Feeds"),
 				command: 'do-update'
 			},
 			{
-				label: "Manage Feeds",
+				label: $L("Manage Feeds"),
 				command: 'do-feeds'
 			},
 			{
-				label: "Help",
+				label: $L("Help"),
 				command: 'do-help'
 			}
 		]
@@ -709,7 +709,7 @@ PkgListAssistant.prototype.simpleMessage = function(message)
 	this.simpleMessageUp = true;
 	this.controller.showAlertDialog(
 	{
-	    title:				'Packages',
+	    title:				$L('Packages'),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
 	    message:			message,
@@ -729,7 +729,7 @@ PkgListAssistant.prototype.actionMessage = function(message, choices, actions)
 {
 	this.controller.showAlertDialog(
 	{
-	    title:				'Packages',
+	    title:				$L('Packages'),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
 	    message:			message,

@@ -4,7 +4,7 @@ IpkgLogAssistant.prototype.setup = function()
 {
 	if (IPKGService.log == '') 
 	{
-		this.controller.get('logData').innerHTML = '<div class="noData">The log is empty.</div>';
+		this.controller.get('logData').innerHTML = $L('<div class="noData">The log is empty.</div>');
 	}
 	else 
 	{

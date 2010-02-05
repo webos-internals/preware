@@ -28,19 +28,19 @@ function PkgGroupsAssistant(item)
 		items:
 		[
 			{
-				label: "Preferences",
+				label: $L("Preferences"),
 				command: 'do-prefs'
 			},
 			{
-				label: "Update Feeds",
+				label: $L("Update Feeds"),
 				command: 'do-update'
 			},
 			{
-				label: "Manage Feeds",
+				label: $L("Manage Feeds"),
 				command: 'do-feeds'
 			},
 			{
-				label: "Help",
+				label: $L("Help"),
 				command: 'do-help'
 			}
 		]

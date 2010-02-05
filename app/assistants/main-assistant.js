@@ -3,15 +3,15 @@ function MainAssistant()
 	// subtitle random list
 	this.randomSub = 
 	[
-		{weight: 30, text: 'The Advanced Homebrew Installer'},
-		{weight: 20, text: 'Applications, Themes and Patches'},
-		{weight: 15, text: 'The Open Standard Installer'},
-		{weight: 15, text: 'The Universal Application Installer'},
-		{weight: 15, text: 'Accessing All Open Standard Feeds'},
-		{weight:  2, text: 'Random Taglines Are Awesome'},
-		{weight:  2, text: 'We Know Palm Loves Preware'},
-		{weight:  2, text: 'Now With More Cowbell'},
-		{weight:  2, text: 'We Did It First'}
+		{weight: 30, text: $L('The Advanced Homebrew Installer')},
+		{weight: 20, text: $L('Applications, Themes and Patches')},
+		{weight: 15, text: $L('The Open Standard Installer')},
+		{weight: 15, text: $L('The Universal Application Installer')},
+		{weight: 15, text: $L('Accessing All Open Standard Feeds')},
+		{weight:  2, text: $L('Random Taglines Are Awesome')},
+		{weight:  2, text: $L('We Know Palm Loves Preware')},
+		{weight:  2, text: $L('Now With More Cowbell')},
+		{weight:  2, text: $L('We Did It First')}
 	];
 	
 	// setup list model
@@ -24,19 +24,19 @@ function MainAssistant()
 		items:
 		[
 			{
-				label: "Preferences",
+				label: $L("Preferences"),
 				command: 'do-prefs'
 			},
 			{
-				label: "Update Feeds",
+				label: $L("Update Feeds"),
 				command: 'do-update'
 			},
 			{
-				label: "Manage Feeds",
+				label: $L("Manage Feeds"),
 				command: 'do-feeds'
 			},
 			{
-				label: "Help",
+				label: $L("Help"),
 				command: 'do-help'
 			}
 		]

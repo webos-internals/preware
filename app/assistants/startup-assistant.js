@@ -1,7 +1,7 @@
 function StartupAssistant()
 {
 	// on first start, this message is displayed, along with the current version message from below
-	this.firstMessage = 'Here are some tips for first-timers:<ul><li>Preware will take some time to download the data for all your enabled package feeds</li><li>Select the "Preferences" menu item to change how often the feeds are updated</li><li>Customize the main screen using the "Show Available Types" preference options</li><li>Select the "Manage Feeds" menu item to enable just your desired package feeds</li><li>To search, just start typing in the "List of Everything"</li></ul>We hope you enjoy all of the many Applications, Themes and Patches that Preware makes available.<br>Please consider making a <a href=http://www.webos-internals.org/wiki/WebOS_Internals:Site_support>donation</a> if you wish to show your appreciation.';
+	this.firstMessage = $L('Here are some tips for first-timers:<ul><li>Preware will take some time to download the data for all your enabled package feeds</li><li>Select the "Preferences" menu item to change how often the feeds are updated</li><li>Customize the main screen using the "Show Available Types" preference options</li><li>Select the "Manage Feeds" menu item to enable just your desired package feeds</li><li>To search, just start typing in the "List of Everything"</li></ul>We hope you enjoy all of the many Applications, Themes and Patches that Preware makes available.<br>Please consider making a <a href=http://www.webos-internals.org/wiki/WebOS_Internals:Site_support>donation</a> if you wish to show your appreciation.');
 	
 	// on new version start
 	this.newMessages =
@@ -120,11 +120,11 @@ function StartupAssistant()
 		items:
 		[
 			{
-				label: "Preferences",
+				label: $L("Preferences"),
 				command: 'do-prefs'
 			},
 			{
-				label: "Help",
+				label: $L("Help"),
 				command: 'do-help'
 			}
 		]
@@ -138,7 +138,7 @@ function StartupAssistant()
 		[
 			{},
 			{
-				label: "Ok, I've read this. Let's continue ...",
+				label: $L("Ok, I've read this. Let's continue ..."),
 				command: 'do-continue'
 			},
 			{}
@@ -158,11 +158,11 @@ StartupAssistant.prototype.setup = function()
 	// set title
 	if (vers.isFirst) 
 	{
-		this.titleContainer.innerHTML = 'Welcome To Preware';
+		this.titleContainer.innerHTML = $L('Welcome To Preware');
 	}
 	else if (vers.isNew) 
 	{
-		this.titleContainer.innerHTML = 'Preware Changelog';
+		this.titleContainer.innerHTML = $L('Preware Changelog');
 	}
 	
 	

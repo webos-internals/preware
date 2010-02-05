@@ -15,7 +15,7 @@ function PreferencesAssistant()
 		items:
 		[
 			{
-				label: "Help",
+				label: $L("Help"),
 				command: 'do-help'
 			}
 		]
@@ -48,11 +48,11 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'theme',
 			{
-				label: 'Theme',
+				label: $L('Theme'),
 				choices:
 				[
-					{label:'Palm Default',	value:'palm-default'},
-					{label:'Palm Dark',		value:'palm-dark'}
+					{label:$L('Palm Default'),	value:'palm-default'},
+					{label:$L('Palm Dark'),		value:'palm-dark'}
 				],
 				modelProperty: 'theme'
 			},
@@ -68,12 +68,12 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'updateInterval',
 			{
-				label: 'Update Feeds',
+				label: $L('Update Feeds'),
 				choices:
 				[
-					{label:'Every Launch',	value:'launch'},
-					{label:'Once Daily',	value:'daily'},
-					{label:'Manually Only',	value:'manual'}
+					{label:$L('Every Launch'),	value:'launch'},
+					{label:$L('Once Daily'),	value:'daily'},
+					{label:$L('Manually Only'),	value:'manual'}
 				],
 				modelProperty: 'updateInterval'
 			},
@@ -87,8 +87,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'fixUnknown',
 			{
-	  			trueLabel:  'Yes',
-	 			falseLabel: 'No',
+	  			trueLabel:  $L('Yes'),
+	 			falseLabel: $L('No'),
 	  			fieldName:  'fixUnknown'
 			},
 			{
@@ -107,8 +107,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'showAvailableTypes',
 			{
-	  			trueLabel:  'Yes',
-	 			falseLabel: 'No',
+	  			trueLabel:  $L('Yes'),
+	 			falseLabel: $L('No'),
 	  			fieldName:  'showAvailableTypes'
 			},
 			{
@@ -120,8 +120,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'showTypeApplication',
 			{
-	  			trueLabel:  'Yes',
-	 			falseLabel: 'No',
+	  			trueLabel:  $L('Yes'),
+	 			falseLabel: $L('No'),
 	  			fieldName:  'showTypeApplication'
 			},
 			{
@@ -133,8 +133,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'showTypeTheme',
 			{
-	  			trueLabel:  'Yes',
-	 			falseLabel: 'No',
+	  			trueLabel:  $L('Yes'),
+	 			falseLabel: $L('No'),
 	  			fieldName:  'showTypeTheme'
 			},
 			{
@@ -146,8 +146,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'showTypePatch',
 			{
-	  			trueLabel:  'Yes',
-	 			falseLabel: 'No',
+	  			trueLabel:  $L('Yes'),
+	 			falseLabel: $L('No'),
 	  			fieldName:  'showTypePatch'
 			},
 			{
@@ -159,8 +159,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'showTypeOther',
 			{
-	  			trueLabel:  'Yes',
-	 			falseLabel: 'No',
+	  			trueLabel:  $L('Yes'),
+	 			falseLabel: $L('No'),
 	  			fieldName:  'showTypeOther'
 			},
 			{
@@ -182,13 +182,13 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'listSort',
 			{
-				label: 'Default Sort',
+				label: $L('Default Sort'),
 				choices:
 				[
-					{label:'Category Default',	value:'default'},
-					{label:'Alphabetically',	value:'alpha'},
-					{label:'Last Updated',		value:'date'},
-					{label:'Price',			value:'price'}
+					{label:$L('Category Default'),	value:'default'},
+					{label:$L('Alphabetically'),	value:'alpha'},
+					{label:$L('Last Updated'),		value:'date'},
+					{label:$L('Price'),			value:'price'}
 				],
 				modelProperty: 'listSort'
 			},
@@ -198,24 +198,24 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'secondRow',
 			{
-				label: 'Second Line',
+				label: $L('Second Line'),
 				choices:
 				[
-					{label:'Package ID',		value:'id'},
-					{label:'Version',		value:'version'},
-					{label:'Maintainer',		value:'maint'},
-					{label:'Modified Date',		value:'date'},
-					{label:'Price',			value:'price'},
-					{label:'Feed',			value:'feed'},
-					{label:'License',		value:'license'},
-					{label:'Version & ID',		value:'v&i'},
-					{label:'Version & Maint.',	value:'v&m'},
-					{label:'Version & Date',	value:'v&d'},
-					{label:'Price & Feed',		value:'p&f'},
-					{label:'Price & License',	value:'p&l'},
-					{label:'Price, Vers. & Maint.',	value:'p&v&m'},
-					{label:'Price, Vers. & Date',	value:'p&v&d'},
-					{label:'Price, Vers. & Feed',	value:'p&v&f'},
+					{label:$L('Package ID'),		value:'id'},
+					{label:$L('Version'),		value:'version'},
+					{label:$L('Maintainer'),		value:'maint'},
+					{label:$L('Modified Date'),		value:'date'},
+					{label:$L('Price'),			value:'price'},
+					{label:$L('Feed'),			value:'feed'},
+					{label:$L('License'),		value:'license'},
+					{label:$L('Version & ID'),		value:'v&i'},
+					{label:$L('Version & Maint.'),	value:'v&m'},
+					{label:$L('Version & Date'),	value:'v&d'},
+					{label:$L('Price & Feed'),		value:'p&f'},
+					{label:$L('Price & License'),	value:'p&l'},
+					{label:$L('Price, Vers. & Maint.'),	value:'p&v&m'},
+					{label:$L('Price, Vers. & Date'),	value:'p&v&d'},
+					{label:$L('Price, Vers. & Feed'),	value:'p&v&f'},
 				],
 				modelProperty: 'secondRow'
 			},
@@ -225,8 +225,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'listInstalled',
 			{
-	  			trueLabel:  'Yes',
-	 			falseLabel: 'No',
+	  			trueLabel:  $L('Yes'),
+	 			falseLabel: $L('No'),
 	  			fieldName:  'listInstalled'
 			},
 			{

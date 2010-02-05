@@ -24,11 +24,11 @@ function PkgConnectedAssistant(type, pkg, pkgs)
 		items:
 		[
 			{
-				label: "IPKG Log",
+				label: $L("IPKG Log"),
 				command: 'do-showLog'
 			},
 			{
-				label: "Help",
+				label: $L("Help"),
 				command: 'do-help'
 			}
 		]
@@ -50,8 +50,8 @@ PkgConnectedAssistant.prototype.setup = function()
 	this.controller.get('pkgSingle').style.display = 'none';
 	
 	// set title
-	if (this.type == 'install')	this.controller.get('listTitle').innerHTML = 'Packages To Be Installed / Updated';
-	else if (this.type == 'remove') this.controller.get('listTitle').innerHTML = 'Packages That Depend On This';
+	if (this.type == 'install')	this.controller.get('listTitle').innerHTML = $L('Packages To Be Installed / Updated');
+	else if (this.type == 'remove') this.controller.get('listTitle').innerHTML = $L('Packages That Depend On This');
 	
 	// load single
 	this.loadSingle();
@@ -288,7 +288,7 @@ PkgConnectedAssistant.prototype.simpleMessage = function(message)
 	this.simpleMessageUp = true;
 	this.controller.showAlertDialog(
 	{
-	    title:				'Connected Packages',
+	    title:				$L('Connected Packages'),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
 	    message:			message,
@@ -308,7 +308,7 @@ PkgConnectedAssistant.prototype.actionMessage = function(message, choices, actio
 {
 	this.controller.showAlertDialog(
 	{
-	    title:				'Connected Packages',
+	    title:				$L('Connected Packages'),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
 	    message:			message,

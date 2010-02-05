@@ -8,7 +8,7 @@ HelpAssistant.prototype.setup = function()
 	this.controller.setupWidget(Mojo.Menu.appMenu, {omitDefaultItems: true}, {visible: false});
 	
 	this.controller.get('appname').innerHTML = Mojo.appInfo.title;
-	this.controller.get('appdetails').innerHTML = Mojo.appInfo.version + ' by WebOS Internals';
+	this.controller.get('appdetails').innerHTML = Mojo.appInfo.version + $L(' by WebOS Internals');
 	
 	this.supportModel = 
 	{
@@ -16,13 +16,13 @@ HelpAssistant.prototype.setup = function()
 	};
 	
 	this.supportModel.items.push({
-		text: 'Wiki Page',
+		text: $L('Wiki Page'),
 		detail: 'http://www.webos-internals.org/wiki/Application:Preware',
 		Class: 'img_web',
 		type: 'web'
 	});
 	this.supportModel.items.push({
-		text: 'IRC Channel',
+		text: $L('IRC Channel'),
 		detail: 'http://webchat.freenode.net?channels=webos-internals',
 		Class: 'img_web',
 		type: 'web'
