@@ -11,7 +11,8 @@ function StartupAssistant()
 			log:
 			[
 				'Localization support and French translations added, courtesy of Yannick LE NY',
-				'Fixed the OnFeeds split error, caused by zero length feed config files'
+				'Fixed the OnFeeds split error, caused by zero length feed config files',
+				'Now continues to load the package feeds after an update error'
 			]
 		},
 		{
