@@ -1,8 +1,8 @@
 {
 	"title": "Preware",
 	"id": "org.webosinternals.preware",
-	"version": "0.9.19",
-	"release_date":	"6-Feb-2010",
+	"version": "0.9.20",
+	"release_date":	"7-Feb-2010",
 	"vendor": "WebOS Internals",
 	"vendor_email":	"support@webos-internals.org",
 	"vendor_url": "http://www.webos-internals.org/wiki/Application:Preware",
