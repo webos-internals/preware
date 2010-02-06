@@ -10,7 +10,8 @@ function StartupAssistant()
 			version: '0.9.20',
 			log:
 			[
-				'Localization support for Germany added, courtesy of Volker Zota (DocZet)'
+				'Localization support for Germany added, courtesy of Volker Zota (DocZet)',
+				'Fixed an error in the French support which prevented Preware from loading'
 			]
 		},
 		{

@@ -8,7 +8,6 @@ function MainAssistant()
 		{weight: 15, text: $L('The Open Standard Installer')},
 		{weight: 15, text: $L('The Universal Application Installer')},
 		{weight: 15, text: $L('Accessing All Open Standard Feeds')},
-		{weight: 15, text: $L('The Global Application Installer')},
 		{weight:  2, text: $L('Random Taglines Are Awesome')},
 		{weight:  2, text: $L('We Know Palm Loves Preware')},
 		{weight:  2, text: $L('Now With More Cowbell')}
