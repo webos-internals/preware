@@ -10,6 +10,7 @@ function StartupAssistant()
 			version: '0.9.19',
 			log:
 			[
+				'Localization support and French translations added, courtesy of Yannick LE NY',
 				'Fixed the OnFeeds split error, caused by zero length feed config files'
 			]
 		},
