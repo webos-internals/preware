@@ -47,6 +47,9 @@ IPKGService.update = function(callback)
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
 		method: 'update',
+		parameters: {
+			"subscribe":true
+		},
 		onSuccess: callback,
 		onFailure: callback
 	});
@@ -59,7 +62,7 @@ IPKGService.rawlist = function(callback, feed)
 	{
 		method: 'getListFile',
 		parameters: {
-			"subscribe":true, // new in apiVersion 4
+			"subscribe":true,
 			"feed":feed
 		},
 		onSuccess: callback,
