@@ -89,4 +89,6 @@
 "<strong>Done!</strong>": "<strong>Terminé!</strong>",
 "Preware: Done Loading Feeds": "Preware: Chargement des flux terminé",
 "Preware: Done Updating Feeds": "Preware: Mise à jour des flux terminé",
+"Feeds": "Flux",
+"<strong>ERROR!</strong>": "<strong>ERREUR!</strong>",
 }

@@ -234,7 +234,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 	try 
 	{
 		// log payload for display
-		IPKGService.logPayload(payload, 'Update');
+		IPKGService.logPayload(payload, $L("Update"));
 		
 		if (!payload) 
 		{
@@ -289,7 +289,7 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 	try 
 	{
 		// log payload for display
-		IPKGService.logPayload(payload, 'Feeds');
+		IPKGService.logPayload(payload, $L("Feeds"));
 		
 		if (!payload) 
 		{
@@ -468,7 +468,7 @@ UpdateAssistant.prototype.handleCommand = function(event)
 }
 UpdateAssistant.prototype.errorMessage = function(title, message, okFunction)
 {
-	this.displayAction('<strong>ERROR!</strong>');
+	this.displayAction($L("<strong>ERROR!</strong>"));
 	this.hideProgress();
 	
 	this.controller.showAlertDialog(
