@@ -260,7 +260,8 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 		else if (payload.stage == "status") {
 			this.displayAction($L("<strong>Downloading Feed Information</strong><br>") + payload.status);
 		}
-		else if (payload.returnVal != undefined) 
+		else if (((payload.stage == undefined) && (payload.returnVal != undefined)) ||
+			 (payload.stage == "completed"))
 		{
 			// its returned, but we don't really care if anything was actually updated
 			//console.log(payload.returnVal);
