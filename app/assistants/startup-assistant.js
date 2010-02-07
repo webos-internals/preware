@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.21',
+			log:
+			[
+				'German translations added, courtesy of Volker Zota (DocZet)'
+			]
+		},
+		{
 			version: '0.9.20',
 			log:
 			[
