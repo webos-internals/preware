@@ -88,5 +88,7 @@
 "<strong>Downloading Feed Information</strong><br>": "<strong>Lade Feed-Informationen</strong><br>",
 "<strong>Done!</strong>": "<strong>Fertig!</strong>",
 "Preware: Done Loading Feeds": "Preware: Feeds heruntergeladen",
-"Preware: Done Updating Feeds": "Preware: Feeds aktualisiert"
+"Preware: Done Updating Feeds": "Preware: Feeds aktualisiert",
+"Feeds": "Feeds",
+"<strong>ERROR!</strong>": "<strong>ERROR!</strong>"
 }
