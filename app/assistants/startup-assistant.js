@@ -10,7 +10,8 @@ function StartupAssistant()
 			version: '0.9.21',
 			log:
 			[
-				'German translations added, courtesy of Volker Zota (DocZet)'
+				'German translations added, courtesy of Volker Zota (DocZet) and Tom Mobil (debilator)',
+				'Fixed updating of Linux Daemons'
 			]
 		},
 		{

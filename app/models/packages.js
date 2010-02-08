@@ -77,6 +77,11 @@ function packagesModel()
 			update: true,
 			showDependents: true
 		},
+		'Linux Daemon':
+		{
+			update: true,
+			showDependents: true
+		},
 		'System Utilities':
 		{
 			update: true,
