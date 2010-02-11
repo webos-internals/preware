@@ -7,6 +7,12 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.22',
+			log:
+			[
+				'Italian translations added, courtesy of Federico Pietta (Darkmagister)'
+			]
+		},
 			version: '0.9.21',
 			log:
 			[
