@@ -13,6 +13,7 @@ function StartupAssistant()
 				'Italian translations added, courtesy of Federico Pietta (Darkmagister)'
 			]
 		},
+		{
 			version: '0.9.21',
 			log:
 			[
