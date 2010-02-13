@@ -106,7 +106,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 		this.updateAssistant = updateAssistant;
 		
 		// set title and show progress
-		this.updateAssistant.displayAction('<strong>Loading Package Information</strong>');
+		this.updateAssistant.displayAction($L("<strong>Loading Package Information</strong>"));
 		this.updateAssistant.showProgress();
 		
 		// initiate status request
@@ -120,7 +120,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 packagesModel.prototype.infoStatusRequest = function()
 {
 	// update display
-	this.updateAssistant.displayAction('<strong>Loading Package Information</strong><br>Status');
+	this.updateAssistant.displayAction($L("<strong>Loading Package Information</strong><br>Status"));
 	this.updateAssistant.setProgress(Math.round((1/(this.feeds.length+1)) * 100));
 	
 	// request the rawdata
@@ -136,7 +136,7 @@ packagesModel.prototype.infoListRequest = function(num)
 	}
 	
 	// update display
-	this.updateAssistant.displayAction('<strong>Loading Package Information</strong><br>' + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1));
+	this.updateAssistant.displayAction($L("<strong>Loading Package Information</strong><br>") + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1));
 	this.updateAssistant.setProgress(Math.round(((num+2)/(this.feeds.length+1)) * 100));
 	this.feedNum++;
 	
@@ -220,7 +220,7 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		else 
 		{
 			// we're done
-			this.updateAssistant.displayAction('<strong>Complete!</strong>');
+			this.updateAssistant.displayAction($L("<strong>Complete!</strong>"));
 			this.updateAssistant.setProgress(0);
 			this.updateAssistant.hideProgress();
 			if (prefs.get().fixUnknown) 
@@ -369,12 +369,12 @@ packagesModel.prototype.fixUnknown = function()
 packagesModel.prototype.fixUnknownDone = function()
 {
 	this.unknownFixed++;
-	this.updateAssistant.displayAction('<strong>Fixing Unknown Packages</strong><br />' + this.unknownFixed + ' of ' + this.unknownCount);
+	this.updateAssistant.displayAction($L("<strong>Fixing Unknown Packages</strong><br />") + this.unknownFixed + ' of ' + this.unknownCount);
 	this.updateAssistant.setProgress(Math.round((this.unknownFixed/this.unknownCount) * 100));
 	
 	if (this.unknownFixed == this.unknownCount)
 	{
-		this.updateAssistant.displayAction('<strong>Complete!</strong>');
+		this.updateAssistant.displayAction($L("<strong>Complete!</strong>"));
 		this.updateAssistant.hideProgress();
 		this.doneLoading();
 	}
@@ -769,7 +769,7 @@ packagesModel.prototype.startMultiInstall = function(pkg, pkgs, assistant)
 		this.multiPkgs	= pkgs;
 		this.multiFlags	= this.getMultiFlags();
 		
-		this.assistant.displayAction('Installing / Updating');
+		this.assistant.displayAction($L("Installing / Updating"));
 		this.assistant.startAction();
 		this.doMultiInstall(0);
 		
@@ -793,11 +793,11 @@ packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 		
 		// see what they want to do:
 		this.assistant.actionMessage(
-			'This package depends on <b>' + this.multiPkgs.length + '</b> other package' + (this.multiPkgs.length>1?'s':'') + ' to be installed or updated.',
+			$L("This package depends on <b>") + this.multiPkgs.length + $L("</b> other package") + (this.multiPkgs.length>1?'s':'') + $L(" to be installed or updated."),
 			[
-				{label:$L('Install / Update ' + (this.multiPkgs.length>1?'Them':'It')), value:'ok'},
-				{label:$L('View ' + (this.multiPkgs.length>1?'Them':'It')), value:'view'},
-				{label:$L('Cancel'), value:'cancel'}
+				{label:$L("Install / Update ") + (this.multiPkgs.length>1?$L("Them"):$L("It")), value:'ok'},
+				{label:$L("View ") + (this.multiPkgs.length>1?$L("Them"):$L("It")), value:'view'},
+				{label:$L("Cancel"), value:'cancel'}
 			],
 			this.testMultiInstall.bindAsEventListener(this)
 		);
@@ -821,11 +821,11 @@ packagesModel.prototype.checkMultiListInstall = function(pkgs, assistant)
 		
 		// see what they want to do:
 		this.assistant.actionMessage(
-			'These packages have dependencies that need to be installed or updated.',
+			$L("These packages have dependencies that need to be installed or updated."),
 			[
-				{label:$L('Install / Update'), value:'ok'},
-				{label:$L('View All'), value:'view'},
-				{label:$L('Cancel'), value:'cancel'}
+				{label:$L("Install / Update"), value:'ok'},
+				{label:$L("View All"), value:'view'},
+				{label:$L("Cancel"), value:'cancel'}
 			],
 			this.testMultiInstall.bindAsEventListener(this)
 		);
@@ -849,14 +849,14 @@ packagesModel.prototype.checkMultiRemove = function(pkg, pkgs, assistant)
 		
 		// see what they want to do:
 		this.assistant.actionMessage(
-			'This package has <b>' + this.multiPkgs.length + '</b> other installed package' + (this.multiPkgs.length>1?'s':'') +
-			' that depend' + (this.multiPkgs.length>1?'':'s') + ' on it. <br\><br\>Removing this package may cause ' + (this.multiPkgs.length>1?'them':'it') +
-			' to no longer function.',
+			$L("This package has <b>") + this.multiPkgs.length + $L("</b> other installed package") + (this.multiPkgs.length>1?'s':'') +
+			$L(" that depend") + (this.multiPkgs.length>1?'':'s') + $L(" on it. <br\><br\>Removing this package may cause ") + (this.multiPkgs.length>1?$L("them"):$L("it")) +
+			$L(" to no longer function."),
 			[
 				// uncomment to allow removing of itself
 				//{label:$L('Remove Anyways'), value:'ok'},
-				{label:$L('View ' + (this.multiPkgs.length>1?'Them':'It')), value:'view'},
-				{label:$L('Cancel'), value:'cancel'}
+				{label:$L("View ") + (this.multiPkgs.length>1?$L("Them"):$L("It")), value:'view'},
+				{label:$L("Cancel"), value:'cancel'}
 			],
 			this.testMultiRemove.bindAsEventListener(this)
 		);
@@ -873,7 +873,7 @@ packagesModel.prototype.testMultiInstall = function(value)
 	switch(value)
 	{
 		case 'ok':
-			this.assistant.displayAction('Installing / Updating');
+			this.assistant.displayAction($L("Installing / Updating"));
 			this.assistant.startAction();
 			this.doMultiInstall(0);
 			break;
@@ -970,8 +970,8 @@ packagesModel.prototype.doMultiInstall = function(number)
 			if (this.multiFlags.RestartLuna || this.multiFlags.RestartJava || this.multiFlags.RestartDevice) 
 			{
 				this.assistant.actionMessage(
-					'Packages installed:<br /><br />' + this.multiActionMessage(this.multiFlags),
-					[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
+					$L("Packages installed:<br /><br />") + this.multiActionMessage(this.multiFlags),
+					[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
 					this.multiActionFunction.bindAsEventListener(this, this.multiFlags)
 				);
 				return;
@@ -981,7 +981,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 				// we run this anyways to get the rescan
 				this.multiRunFlags(this.multiFlags);
 			}
-			this.assistant.simpleMessage('Packages installed');
+			this.assistant.simpleMessage($L("Packages installed"));
 			this.assistant.endAction();
 			this.multiPkg	= false;
 			this.multiPkgs	= false;
@@ -1060,15 +1060,15 @@ packagesModel.prototype.multiActionMessage = function(flags)
 		var msg = '';
 		if (flags.RestartJava) 
 		{
-			msg = '<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />';
+			msg = $L("<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />");
 		}
 		if (flags.RestartLuna) 
 		{
-			msg = '<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />';
+			msg = $L("<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />");
 		}
 		if ((flags.RestartLuna && flags.RestartJava) || flags.RestartDevice) 
 		{
-			msg = '<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the packages that were just installed.</i><br />';
+			msg = $L("<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the packages that were just installed.</i><br />");
 		}
 		return msg;
 	}
