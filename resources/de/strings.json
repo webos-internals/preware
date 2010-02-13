@@ -27,7 +27,7 @@
 "Installed Packages": "Installierte Pakete",
 "List of Everything": "Komplette Liste",
 "IPKG Log": "IPKG-Logdatei",
-"Packages To Be Installed / Updated": "Zu installierende / aktualisierende Pakete",
+"Packages To Be Installed / Updated": "Zu installieren / aktualisieren",
 "Packages That Depend On This": "Davon abh&auml;ngige Pakete",
 "Connected Packages": "Verbundene Pakete",
 "Packages": "Pakete",
@@ -47,7 +47,7 @@
 "Category": "Kategorie",
 "Launch": "Starten",
 "Update": "Aktualisieren",
-"Remove": "Loeschen",
+"Remove": "Entfernen",
 "Install": "Installieren",
 "Theme": "Thema",
 "Palm Default": "Palm Default",
@@ -90,5 +90,5 @@
 "Preware: Done Loading Feeds": "Preware: Feeds heruntergeladen",
 "Preware: Done Updating Feeds": "Preware: Feeds aktualisiert",
 "Feeds": "Feeds",
-"<strong>ERROR!</strong>": "<strong>ERROR!</strong>"
+"<strong>ERROR!</strong>": "<strong>FEHLER!</strong>"
 }
