@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.23',
+			log:
+			[
+				'Spanish translations added, courtesy of Ángel Prada (Malakun)'
+			]
+		},
+		{
 			version: '0.9.22',
 			log:
 			[
