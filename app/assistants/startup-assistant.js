@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.24',
+			log:
+			[
+				'Added protection against App Catalog installs clobbering the ipkg status file'
+			]
+		},
+		{
 			version: '0.9.23',
 			log:
 			[

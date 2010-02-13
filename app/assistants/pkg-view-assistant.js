@@ -346,17 +346,17 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			
 			// install
 			case 'do-install':
-				this.item.doInstall(this);
+				this.doGetAppCatInstallStatus('install');
 				break;
 			
 			// update
 			case 'do-update':
-				this.item.doUpdate(this);
+				this.doGetAppCatInstallStatus('update');
 				break;
 			
 			// remove
 			case 'do-remove':
-				this.item.doRemove(this);
+				this.doGetAppCatInstallStatus('remove');
 				break;
 			
 			// install
@@ -379,6 +379,37 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 	}
 }
 
+
+PkgViewAssistant.prototype.doGetAppCatInstallStatus = function(operation)
+{
+    this.controller.serviceRequest("palm://com.palm.appInstallService", {
+	    method:"status",
+	    parameters:{},
+	    onSuccess: this.doCheckAppCatInstalls.bindAsEventListener(this, operation),
+	    onFailure: this.doCheckAppCatInstalls.bindAsEventListener(this, operation)
+	});
+}
+
+PkgViewAssistant.prototype.doCheckAppCatInstalls = function(response, operation)
+{
+    if (response.status.apps.length == 0) {
+	if (operation == 'install') {
+	    alert("Calling doInstall");
+	    this.item.doInstall(this);
+	}
+	else if (operation == 'update') {
+	    alert("Calling doUpdate");
+	    this.item.doUpdate(this);
+	}
+	else if (operation == 'remove') {
+	    alert("Calling doRemove");
+	    this.item.doRemove(this);
+	}
+    }
+    else {
+	Mojo.Controller.errorDialog("App Catalog installation in progress, please try again later.", this.controller.window);
+    }
+}
 
 /* 
  * this functions are called by the package model when doing stuff
