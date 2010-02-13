@@ -85,6 +85,8 @@
 "<strong>Downloading Feed Information</strong>": "<strong>Lade Feed-Informationen</strong>",
 "This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding.": "Dies sollte selbst bei einer langsamen Verbindung nur wenige Minuten dauern.<br>Wenn es l&auml;nger dauert, pr&uuml;fen Sie zun&auml;chst die Netzwerkverbindung, anschlie&szlig;end deaktivieren Sie einen Feed nach dem anderen, bis Sie herausfinden, welcher nicht reagiert.",
 "<strong>Loading Package Information</strong>": "<strong>Lade Paket-Informationen</strong>",
+"<strong>Loading Package Information</strong><br>": "<strong>Loading Package Information</strong><br>",
+"<strong>Loading Package Information</strong><br>Status": "<strong>Loading Package Information</strong><br>Status",
 "<strong>Downloading Feed Information</strong><br>": "<strong>Lade Feed-Informationen</strong><br>",
 "<strong>Done!</strong>": "<strong>Fertig!</strong>",
 "Preware: Done Loading Feeds": "Preware: Feeds heruntergeladen",
