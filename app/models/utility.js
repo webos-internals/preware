@@ -30,18 +30,18 @@ formatDate = function(date)
 // condences bytes to a better rate
 formatSize = function(size)
 {
-	var toReturn = size + ' B';
+	var toReturn = size + $L(" B");
 	var formatSize = size;
 	
 	if (formatSize > 1024)
 	{
 		formatSize = (Math.round((formatSize / 1024) * 100) / 100);
-		toReturn = formatSize + ' KB';
+		toReturn = formatSize + $L(" KB");
 	}
 	if (formatSize > 1024)
 	{
 		formatSize = (Math.round((formatSize / 1024) * 100) / 100);
-		toReturn = formatSize + ' MB';
+		toReturn = formatSize + $L(" MB");
 	}
 	// I don't think we need to worry about GB here...
 	

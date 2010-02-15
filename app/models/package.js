@@ -1140,7 +1140,7 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 		// check dependencies and do multi-install
 		if (!skipDeps) 
 		{
-			this.assistant.displayAction('Checking Dependencies');
+			this.assistant.displayAction($L("Checking Dependencies"));
 			var deps = this.getDependenciesRecursive(true); // true to get "just needed" packages
 			if (deps.length > 0) 
 			{
@@ -1152,14 +1152,14 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 		// start action
 		if (multi != undefined)
 		{
-			this.assistant.displayAction('Downloading / Installing<br />' + this.title);
+			this.assistant.displayAction($L("Downloading / Installing<br />") + this.title);
 			
 			// call install service
 			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this, multi), this.pkg, this.title);
 		}
 		else
 		{
-			this.assistant.displayAction('Downloading / Installing');
+			this.assistant.displayAction($L("Downloading / Installing"));
 			
 			this.assistant.startAction();
 			
@@ -1182,7 +1182,7 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 		// check dependencies and do multi-install
 		if (!skipDeps) 
 		{
-			this.assistant.displayAction('Checking Dependencies');
+			this.assistant.displayAction($L("Checking Dependencies"));
 			var deps = this.getDependenciesRecursive(true); // true to get "just needed" packages
 			if (deps.length > 0) 
 			{
@@ -1194,7 +1194,7 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 		// start action
 		if (multi != undefined)
 		{
-			this.assistant.displayAction('Downloading / Updating<br />' + this.title);
+			this.assistant.displayAction($L("Downloading / Updating<br />") + this.title);
 
 			if (packages.can(this.type, 'updateAsReplace'))
 			{
@@ -1208,14 +1208,14 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 		}
 		else
 		{
-			this.assistant.displayAction('Downloading / Updating');
+			this.assistant.displayAction($L("Downloading / Updating"));
 
 			this.assistant.startAction();
 		
 			if (packages.can(this.type, 'updateAsReplace'))
 			{
 				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this), this.pkg, this.title);
-				this.assistant.displayAction('Downloading / Replacing');
+				this.assistant.displayAction($L("Downloading / Replacing"));
 			}
 			else
 			{
@@ -1238,7 +1238,7 @@ packageModel.prototype.doRemove = function(assistant, skipDeps)
 		// check dependencies and do multi-install
 		if (!skipDeps)
 		{
-			this.assistant.displayAction('Checking Dependencies');
+			this.assistant.displayAction($L("Checking Dependencies"));
 			var deps = this.getDependent(true); // true to get "just installed" packages
 			if (deps.length > 0) 
 			{
@@ -1248,7 +1248,7 @@ packageModel.prototype.doRemove = function(assistant, skipDeps)
 		}
 		
 		// start action
-		this.assistant.displayAction('Removing');
+		this.assistant.displayAction($L("Removing"));
 		this.assistant.startAction();
 		
 		// call remove service
@@ -1269,19 +1269,19 @@ packageModel.prototype.onInstall = function(payload, multi)
 		
 		if (!payload) 
 		{
-			var msg = 'Error Installing: Communication Error';
+			var msg = $L("Error Installing: Communication Error");
 			var msgError = true;
 		}
 		else 
 		{
 			if (!payload.returnValue)
 			{
-				var msg = 'Error Installing: No Further Information';
+				var msg = $L("Error Installing: No Further Information");
 				var msgError = true;
 			}
 			if (payload.stage == "failed")
 			{
-				var msg = 'Error Installing: See IPKG Log';
+				var msg = $L("Error Installing: See IPKG Log");
 				var msgError = true;
 			}
 			else if (payload.stage == "completed")
@@ -1293,7 +1293,7 @@ packageModel.prototype.onInstall = function(payload, multi)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' installed';
+				var msg = this.type + $L(" installed");
 				
 				// do finishing stuff
 				if (multi != undefined) 
@@ -1307,7 +1307,7 @@ packageModel.prototype.onInstall = function(payload, multi)
 					{
 						this.assistant.actionMessage(
 							msg + ':<br /><br />' + this.actionMessage('install'),
-							[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
+							[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
 							this.actionFunction.bindAsEventListener(this, 'install')
 						);
 						return;
@@ -1331,7 +1331,7 @@ packageModel.prototype.onInstall = function(payload, multi)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' probably installed';
+				var msg = this.type + $L(" probably installed");
 				var msgError = true;
 				
 				if (multi != undefined) 
@@ -1347,7 +1347,7 @@ packageModel.prototype.onInstall = function(payload, multi)
 		{
 			this.assistant.actionMessage(
 				msg,
-				[{label:$L('Ok'), value:'ok'}, {label:$L('IPKG Log'), value:'view-log'}],
+				[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
 				this.errorLogFunction.bindAsEventListener(this)
 			);
 		}
@@ -1373,19 +1373,19 @@ packageModel.prototype.onUpdate = function(payload, multi)
 		
 		if (!payload) 
 		{
-			var msg = 'Error Updating: Communication Error';
+			var msg = $L("Error Updating: Communication Error");
 			var msgError = true;
 		}
 		else
 		{
 			if (!payload.returnValue)
 			{
-				var msg = 'Error Updating: No Further Information';
+				var msg = $L("Error Updating: No Further Information");
 				var msgError = true;
 			}
 			if (payload.stage == "failed")
 			{
-				var msg = 'Error Updating: See IPKG Log';
+				var msg = $L("Error Updating: See IPKG Log");
 				var msgError = true;
 			}
 			else if (payload.stage == "completed")
@@ -1397,7 +1397,7 @@ packageModel.prototype.onUpdate = function(payload, multi)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' updated';
+				var msg = this.type + $L(" updated");
 				
 				// do finishing stuff
 				if (multi != undefined) 
@@ -1411,7 +1411,7 @@ packageModel.prototype.onUpdate = function(payload, multi)
 					{
 						this.assistant.actionMessage(
 							msg + ':<br /><br />' + this.actionMessage('update'),
-							[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
+							[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
 							this.actionFunction.bindAsEventListener(this, 'update')
 						);
 						return;
@@ -1435,7 +1435,7 @@ packageModel.prototype.onUpdate = function(payload, multi)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' probably updated';
+				var msg = this.type + $L(" probably updated");
 				var msgError = true;
 				
 				if (multi != undefined) 
@@ -1451,7 +1451,7 @@ packageModel.prototype.onUpdate = function(payload, multi)
 		{
 			this.assistant.actionMessage(
 				msg,
-				[{label:$L('Ok'), value:'ok'}, {label:$L('IPKG Log'), value:'view-log'}],
+				[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
 				this.errorLogFunction.bindAsEventListener(this)
 			);
 		}
@@ -1476,19 +1476,19 @@ packageModel.prototype.onRemove = function(payload)
 		
 		if (!payload) 
 		{
-			var msg = 'Error Removing: Communication Error';
+			var msg = $L("Error Removing: Communication Error");
 			var msgError = true;
 		}
 		else
 		{
 			if (!payload.returnValue)
 			{
-				var msg = 'Error Removing: No Further Information';
+				var msg = $L("Error Removing: No Further Information");
 				var msgError = true;
 			}
 			if (payload.stage == "failed")
 			{
-				var msg = 'Error Removing: See IPKG Log';
+				var msg = $L("Error Removing: See IPKG Log");
 				var msgError = true;
 			}
 			else if (payload.stage == "completed")
@@ -1501,14 +1501,14 @@ packageModel.prototype.onRemove = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' removed';
+				var msg = this.type + $L(" removed");
 				
 				// do finishing stuff
 				if (this.hasFlags('remove')) 
 				{
 					this.assistant.actionMessage(
 						msg + ':<br /><br />' + this.actionMessage('remove'),
-						[{label:$L('Ok'), value:'ok'}, {label:$L('Later'), value:'skip'}],
+						[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
 						this.actionFunction.bindAsEventListener(this, 'remove')
 					);
 					return;
@@ -1531,7 +1531,7 @@ packageModel.prototype.onRemove = function(payload)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + ' removal probably failed';
+				var msg = this.type + $L(" removal probably failed");
 				var msgError = true;
 			}
 			else return;
@@ -1541,7 +1541,7 @@ packageModel.prototype.onRemove = function(payload)
 		{
 			this.assistant.actionMessage(
 				msg,
-				[{label:$L('Ok'), value:'ok'}, {label:$L('IPKG Log'), value:'view-log'}],
+				[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
 				this.errorLogFunction.bindAsEventListener(this)
 			);
 		}
@@ -1585,15 +1585,15 @@ packageModel.prototype.actionMessage = function(type)
 	var msg = '';
 	if (this.flags[type].RestartJava) 
 	{
-		msg += '<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />';
+		msg += $L("<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />");
 	}
 	if (this.flags[type].RestartLuna) 
 	{
-		msg += '<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />';
+		msg += $L("<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />");
 	}
 	if ((this.flags[type].RestartJava && this.flags[type].RestartLuna) || this.flags[type].RestartDevice) 
 	{
-		msg = '<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the package that you just installed.</i><br />';
+		msg = $L("<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the package that you just installed.</i><br />");
 	}
 	return msg;
 }

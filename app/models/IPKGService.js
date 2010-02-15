@@ -222,7 +222,7 @@ IPKGService.logPayload = function(payload, stage)
 			for (var s = 0; s < payload.stdErr.length; s++)
 			{
 				// These messages just confuse users
-				if (!payload.stdErr[s].include("(offline root mode: not running "))
+				if (!payload.stdErr[s].include($L("(offline root mode: not running ")))
 				{      
 					this.log += '<div>' + payload.stdErr[s] + '</div>';
 				}
@@ -232,7 +232,7 @@ IPKGService.logPayload = function(payload, stage)
 		
 		if (!stdPlus)
 		{
-			this.log += '<div class="msg">Nothing Interesting.</div>';
+			this.log += $L("<div class=\"msg\">Nothing Interesting.</div>");
 		}
 		
 		this.log += '</div>';
