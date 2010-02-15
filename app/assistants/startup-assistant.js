@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.25',
+			log:
+			[
+				'Added a preference to only show free applications'
+			]
+		},
+		{
 			version: '0.9.24',
 			log:
 			[

@@ -307,6 +307,12 @@ packagesModel.prototype.loadPackage = function(packageObj)
 	// load the package from the info
 	var newPkg = new packageModel(packageObj);
 	
+	// Filter out paid apps if desired
+	if ((prefs.get().onlyShowFree) && (newPkg.price != undefined) &&
+	    (newPkg.price != "0") && (newPkg.price != "0.00")) {
+		return;
+	}
+
 	// look for a previous package with the same name
 	var pkgNum = this.packageInList(newPkg.pkg);
 	if (pkgNum === false) 

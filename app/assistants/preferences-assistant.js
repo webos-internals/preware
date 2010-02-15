@@ -234,10 +234,24 @@ PreferencesAssistant.prototype.setup = function()
 	 			disabled: false
 			}
 		);
+		this.controller.setupWidget
+		(
+			'onlyShowFree',
+			{
+	  			trueLabel:  $L('Yes'),
+	 			falseLabel: $L('No'),
+	  			fieldName:  'onlyShowFree'
+			},
+			{
+				value : this.prefs.onlyShowFree,
+	 			disabled: false
+			}
+		);
 		
 		this.controller.listen('listSort',      Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('secondRow',     Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('listInstalled', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		this.controller.listen('onlyShowFree',  Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		
 		

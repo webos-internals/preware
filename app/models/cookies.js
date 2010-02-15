@@ -32,6 +32,7 @@ preferenceCookie.prototype.get = function(reload)
 				listSort: 'default',
 				secondRow: 'v&m',
 				listInstalled: false,
+				onlyShowFree: false,
 				
 				// Background Group
 				backgroundUpdates: 'disabled',
