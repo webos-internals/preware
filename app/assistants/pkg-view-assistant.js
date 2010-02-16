@@ -392,7 +392,20 @@ PkgViewAssistant.prototype.doGetAppCatInstallStatus = function(operation)
 
 PkgViewAssistant.prototype.doCheckAppCatInstalls = function(response, operation)
 {
-    if (response.status.apps.length == 0) {
+    var installing = false;
+
+    if (response.status.apps.length > 0) {
+	for (var x = 0; x < response.status.apps.length; x++) {
+	    // We're going to ignore "removing" here, because it's either modal or erroneous.
+	    if ((response.status.apps[x].details.state == "ipk download current") ||
+		(response.status.apps[x].details.state == "ipk download complete") ||
+		(response.status.apps[x].details.state == "installing")) {
+		installing = true;
+	    }
+	}
+    }
+
+    if (installing == false) {
 	if (operation == 'install') {
 	    alert("Calling doInstall");
 	    this.item.doInstall(this);
@@ -407,7 +420,7 @@ PkgViewAssistant.prototype.doCheckAppCatInstalls = function(response, operation)
 	}
     }
     else {
-	Mojo.Controller.errorDialog("App Catalog installation in progress, please try again later.", this.controller.window);
+	Mojo.Controller.errorDialog("An App Catalog background operation is in progress, please try again later.", this.controller.window);
     }
 }
 

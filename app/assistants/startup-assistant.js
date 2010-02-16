@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.26',
+			log:
+			[
+				'Fixed a bug in App Catalog background operation detection'
+			]
+		},
+		{
 			version: '0.9.25',
 			log:
 			[
