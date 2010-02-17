@@ -15,6 +15,9 @@ function packagesModel()
 	this.types = [];
 	this.unknown = [];
 	
+	// stores if there are packages with prices or not
+	this.hasPrices = false;
+	
 	// we'll need these for the subscription based rawlist
 	this.subscription = false;
 	this.rawData = '';
@@ -100,6 +103,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 		// clear out our current data (incase this is a re-update)
 		this.packages = [];
 		this.packagesReversed = $H();
+		this.hasPrices = false;
 		
 		// get our current data
 		this.feeds = feeds;

@@ -26,7 +26,7 @@ function packageModel(info)
 		this.icon =				false;
 		this.iconImg =			{object: false, loading: false, loaded: false, target: false, local: false};
 		this.date =				false;
-		this.price =				false;
+		this.price =			false;
 		this.feeds =			['Unknown'];
 		this.feedString =		'Unknown';
 		this.homepage =			false;
@@ -203,12 +203,17 @@ packageModel.prototype.infoLoad = function(info)
 			if (!this.title &&			sourceJson.Title)			this.title =		sourceJson.Title;
 			if (!this.icon &&			sourceJson.Icon)			this.icon =			sourceJson.Icon;
 			if (!this.date &&			sourceJson.LastUpdated)		this.date =			sourceJson.LastUpdated;
-			if (!this.price &&			sourceJson.Price)		this.price =			sourceJson.Price;
 			if (!this.homepage &&		sourceJson.Homepage)		this.homepage =		sourceJson.Homepage;
 			if (!this.license &&		sourceJson.License)			this.license =		sourceJson.License;
 			if (!this.description &&	sourceJson.FullDescription)	this.description =	sourceJson.FullDescription;
 			if (!this.changeLog &&		sourceJson.Changelog)		this.changeLog =	sourceJson.Changelog;
 			if (!this.screenshots || this.screenshots.length == 0 && sourceJson.Screenshots) this.screenshots =	sourceJson.Screenshots;
+			
+			if (!this.price && sourceJson.Price)
+			{
+				this.price = sourceJson.Price;
+				packages.hasPrices = true;
+			}
 			
 			if (sourceJson.Feed) 
 			{
@@ -298,7 +303,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.maintUrl)					this.maintUrl =			pkg.maintUrl;
 		if (!this.size)						this.size =				pkg.size;
 		if (!this.date)						this.date =				pkg.date;
-		if (!this.price)					this.price =				pkg.price;
+		if (!this.price)					this.price =			pkg.price;
 		if (!this.homepage)					this.homepage =			pkg.homepage;
 		if (!this.license)					this.license =			pkg.license;
 		if (!this.description)				this.description =		pkg.description;

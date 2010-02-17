@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.27',
+			log:
+			[
+				'Now hides the price sort option when none of the loaded packages have any prices'
+			]
+		},
+		{
 			version: '0.9.26',
 			log:
 			[

@@ -526,7 +526,16 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	}
 	
 	// push the sort selector
-	this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}, {icon: "icon-filter-price",  command: 'price'}], toggleCmd: this.currentSort});
+	if (packages.hasPrices)
+	{
+		// with prices if the packages have any
+		this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}, {icon: "icon-filter-price",  command: 'price'}], toggleCmd: this.currentSort});
+	}
+	else
+	{
+		// and without if there are no prices
+		this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}], toggleCmd: this.currentSort});
+	}
 	
 	// this is to put space around the icons
 	this.cmdMenuModel.items.push({});
