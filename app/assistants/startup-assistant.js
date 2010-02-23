@@ -7,11 +7,18 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.28',
+			log:
+			[
+				'Added support for displaying the countries for which an application is released'
+			]
+		},
+		{
 			version: '0.9.27',
 			log:
 			[
 				'Now hides the price sort option when none of the loaded packages have any prices',
-				'Fixed a bug in update subscription handling.'
+				'Fixed a bug in update subscription handling'
 			]
 		},
 		{

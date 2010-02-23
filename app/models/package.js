@@ -29,6 +29,8 @@ function packageModel(info)
 		this.price =			false;
 		this.feeds =			['Unknown'];
 		this.feedString =		'Unknown';
+		this.countries =		[];
+		this.countryString =		false;
 		this.homepage =			false;
 		this.license =			false;
 		this.description =		false;
@@ -221,6 +223,12 @@ packageModel.prototype.infoLoad = function(info)
 				this.feedString = sourceJson.Feed;
 			}
 			
+			if (sourceJson.Countries) 
+			{
+				this.countries = sourceJson.Countries;
+				this.countryString = sourceJson.Countries.join(", ");
+			}
+			
 			if (sourceJson.PostInstallFlags) 
 			{
 				if (sourceJson.PostInstallFlags.include('RestartLuna'))		this.flags.install.RestartLuna		= true;
@@ -332,6 +340,24 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 				{
 					this.feeds.push(pkg.feeds[f]);
 					this.feedString += ', ' + pkg.feeds[f];
+				}
+			}
+		}
+		
+		// join countries
+		if (this.countries.length == 0) 
+		{
+			this.countries = pkg.countries;
+			this.countryString = pkg.countryString;
+		}
+		else if (pkg.countries.length != 0)
+		{
+			for (var f = 0; f < pkg.countries.length; f++) 
+			{
+				if (!this.inCountry(pkg.countries[f])) 
+				{
+					this.countries.push(pkg.countries[f]);
+					this.countryString += ', ' + pkg.countries[f];
 				}
 			}
 		}
@@ -565,6 +591,19 @@ packageModel.prototype.inFeed = function(feed)
 	return false;
 }
 
+// checks if this package is in the country
+packageModel.prototype.inCountry = function(country)
+{
+	for (var f = 0; f < this.countries.length; f++)
+	{
+		if (this.countries[f] == country)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 // this function will return an object ready for inclusion in the list widget
 packageModel.prototype.getForList = function(item)
 {
@@ -639,6 +678,15 @@ packageModel.prototype.getForList = function(item)
 		else if (prefs.get().secondRow == 'feed') 
 		{
 			listObj.sub = this.feedString;
+		}
+		else if (prefs.get().secondRow == 'country') 
+		{
+			if (this.countryString) {
+			    listObj.sub = this.countryString;
+			}
+			else {
+				listObj.sub = "<i>All Countries</i>";
+			}
 		}
 		else if (prefs.get().secondRow == 'license') 
 		{
@@ -730,6 +778,24 @@ packageModel.prototype.getForList = function(item)
 				tempP = "<i>Free</i>";
 			}
 			listObj.sub = tempP + ' - ' + this.feedString;
+		}
+		else if (prefs.get().secondRow == 'p&c') 
+		{
+			var tempP = '';
+			if (this.price)
+			{
+				tempP = '$'+this.price;
+			}
+			else
+			{
+				tempP = "<i>Free</i>";
+			}
+			if (this.countryString) {
+			    listObj.sub = tempP + ' - ' + this.countryString;
+			}
+			else {
+			    listObj.sub = tempP + ' - ' + "<i>All Countries</i>";
+			}
 		}
 		else if (prefs.get().secondRow == 'p&l') 
 		{

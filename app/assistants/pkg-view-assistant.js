@@ -238,8 +238,15 @@ PkgViewAssistant.prototype.setupData = function()
 		// add package category
 		data += Mojo.View.render({object: {title: $L('Category'), data: this.item.category}, template: dataTemplate});
 		
+		// add package country
+		if (this.item.countries.length) 
+		{
+		    data += Mojo.View.render({object: {title: (this.item.countries.length>1?$L('Countries'):$L('Country')), data: this.item.countryString}, template: dataTemplate});
+		}
+		
+		
 		// add package feed
-		data += Mojo.View.render({object: {title: $L('Feed') + (this.item.feeds.length>1?'s':''), data: this.item.feedString, rowStyle: 'last'}, template: dataTemplate});
+		data += Mojo.View.render({object: {title: (this.item.feeds.length>1?$L('Feeds'):$L('Feed')), data: this.item.feedString, rowStyle: 'last'}, template: dataTemplate});
 		
 		
 		// fillin the div with data
