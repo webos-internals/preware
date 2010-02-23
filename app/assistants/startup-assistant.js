@@ -10,7 +10,8 @@ function StartupAssistant()
 			version: '0.9.27',
 			log:
 			[
-				'Now hides the price sort option when none of the loaded packages have any prices'
+				'Now hides the price sort option when none of the loaded packages have any prices',
+				'Fixed a bug in update subscription handling.'
 			]
 		},
 		{

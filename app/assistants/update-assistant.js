@@ -14,6 +14,9 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 	this.isVisible = false;
 	this.onlyLoad  = false;
 	
+	// we'll need these for the subscription based update
+	this.subscription = false;
+
 	// load stayawake class
 	this.stayAwake = new stayAwake();
 	
@@ -212,13 +215,13 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 					// initiate update if we have a connection
 					this.displayAction($L("<strong>Downloading Feed Information</strong>"), $L("This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding."));
 					this.showActionHelpTimer(120); // 2 minutes
-					IPKGService.update(this.onUpdate.bindAsEventListener(this));
+					this.subscription = IPKGService.update(this.onUpdate.bindAsEventListener(this));
 				}
 				else 
 				{
 					// if not, go right to loading the pkg info
 					this.displayAction($L("<strong>Loading Package Information</strong>"));
-					IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
+					this.subscription = IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 				}
 			}
 		}
@@ -280,9 +283,15 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 }
 UpdateAssistant.prototype.continueFeeds = function(value)
 {
+	// cancel the last subscription, this may not be needed
+	if (this.subscription)
+	{
+		this.subscription.cancel();
+	}
+	
 	// lets call the function to update the global list of pkgs
 	this.displayAction($L("<strong>Loading Package Information</strong>"));
-	IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
+	this.subscription = IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 }
 UpdateAssistant.prototype.onFeeds = function(payload)
 {
@@ -508,6 +517,12 @@ UpdateAssistant.prototype.deactivate = function(event)
 }
 UpdateAssistant.prototype.cleanup = function(event)
 {
+	// cancel the last subscription, this may not be needed
+	if (this.subscription)
+	{
+		this.subscription.cancel();
+	}
+	
 	// should maybe stop the power timer?
 	this.stayAwake.end();
 	
