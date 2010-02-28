@@ -578,20 +578,23 @@ PkgListAssistant.prototype.handleCommand = function(event)
 					}
 					else
 					{
-						var deps = packages.packages[this.packages[p].pkgNum].getDependenciesRecursive(true);
-						if (deps.length > 0) 
+						if (!this.packages[p].appCatalog)
 						{
-							for (var d = 0; d < deps.length; d++)
+							var deps = packages.packages[this.packages[p].pkgNum].getDependenciesRecursive(true);
+							if (deps.length > 0) 
 							{
-								if (allList.indexOf(deps[d]) === -1) 
+								for (var d = 0; d < deps.length; d++)
 								{
-									allList.push(deps[d]);
+									if (allList.indexOf(deps[d]) === -1) 
+									{
+										allList.push(deps[d]);
+									}
 								}
 							}
-						}
-						if (allList.indexOf(this.packages[p].pkgNum) === -1) 
-						{
-							allList.push(this.packages[p].pkgNum);
+							if (allList.indexOf(this.packages[p].pkgNum) === -1) 
+							{
+								allList.push(this.packages[p].pkgNum);
+							}
 						}
 					}
 				}
