@@ -164,12 +164,13 @@ packagesModel.prototype.infoResponse = function(payload, num)
 			{
 				this.updateAssistant.errorMessage('Preware', $L("The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available."),
 						  this.updateAssistant.doneUpdating);
+				return;
 			}
 			else
 			{
-				this.updateAssistant.errorMessage('Preware', payload.errorText, this.updateAssistant.doneUpdating);
+				this.updateAssistant.errorMessage('Preware', payload.errorText, function(){});
+				doneLoading = true;
 			}
-			return;
 		}
 		
 		// no stage means its not a subscription, and we shouold hav all the contents right now
@@ -192,13 +193,7 @@ packagesModel.prototype.infoResponse = function(payload, num)
 			//alert('chunksize: ' + payload.chunksize);
 			//alert('datasize: ' + payload.datasize);
 			
-			if (payload.stage == 'failed')
-			{
-				this.updateAssistant.errorMessage('Preware', $L("Error, File too large to load."),
-						function(){});
-				doneLoading = true;
-			}
-			else if (payload.stage == 'start')
+			if (payload.stage == 'start')
 			{
 				// at start we clear the old data to make sure its empty
 				this.rawData = '';
