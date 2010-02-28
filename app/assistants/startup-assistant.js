@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.29',
+			log:
+			[
+				'Fixed "Installed is Available" bug in "Available Other" list'
+			]
+		},
+		{
 			version: '0.9.28',
 			log:
 			[

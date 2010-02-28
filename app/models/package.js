@@ -1138,7 +1138,10 @@ packageModel.prototype.matchItem = function(item)
 	var matchIt = false;
 	
 	// push packages that meet the listing
-	if (item.pkgList == 'all')
+	if ((item.pkgList == 'all') ||
+		(item.pkgList == 'other' &&
+		this.type != 'Application' && this.type != 'Theme' &&
+		this.type != 'Patch'))
 	{
 		matchIt = true;
 		// if is installed and installed is not to be shown, dont push it
@@ -1152,9 +1155,6 @@ packageModel.prototype.matchItem = function(item)
 			}
 		}
 	}
-	else if (item.pkgList == 'other' && // other is for main scene where its not already there
-			this.type != 'Application' && this.type != 'Theme' &&
-			this.type != 'Patch') matchIt = true;
 	else if (item.pkgList == 'updates' && this.hasUpdate) matchIt = true;
 	else if (item.pkgList == 'installed' && this.isInstalled) matchIt = true;
 	
