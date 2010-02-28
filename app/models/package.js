@@ -626,299 +626,98 @@ packageModel.prototype.getForList = function(item)
 			listObj.description = this.description.stripTags();
 		}
 		
-		// this is out of control, the option need to be turned into a comma separated list we can loop through to build the string,
-		// then price, version, etc, only need one case, instead of included in the case for every one they're part of.
-		switch (prefs.get().secondRow)
+		listObj.sub = '';
+		var secondOptions = prefs.get().secondRow.split(',');
+		for (s = 0; s < secondOptions.length; s++)
 		{
-			case 'id':
-				listObj.sub = this.pkg;
-				break;
-				
-			case 'version':
-				if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-				{
-					listObj.sub = 'v' + this.versionInstalled;
-				}
-				else
-				{
-					listObj.sub = 'v' + this.version;
-				}
-				break;
-				
-			case 'maint':
-				var tempM = '';
-				for (var m = 0; m < this.maintainer.length; m++) 
-				{
-					if (tempM != '') 
+			if (s > 0) listObj.sub += ' - ';
+			switch (secondOptions[s])
+			{
+				case 'id':
+					listObj.sub += this.pkg;
+					break;
+					
+				case 'version':
+					if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
 					{
-						tempM += ', ';
-					}
-					tempM += this.maintainer[m].name;
-				}
-				if (tempM == '')
-				{
-					tempM = '<i>Unknown Date</i>';
-				}
-				listObj.sub = tempM;
-				break;
-				
-			case 'date':
-				if (this.date) 
-				{
-					listObj.sub = formatDate(this.date);
-				}
-				else
-				{
-					listObj.sub = "<i>Unknown Date</i>";
-				}
-				break;
-				
-			case 'price':
-				if (this.price)
-				{
-					listObj.sub = '$'+this.price;
-				}
-				else
-				{
-					listObj.sub = "<i>Free</i>";
-				}
-				break;
-				
-			case 'feed':
-				listObj.sub = this.feedString;
-				break;
-				
-			case 'country':
-				if (this.countryString) {
-				    listObj.sub = this.countryString;
-				}
-				else {
-					listObj.sub = "<i>All Countries</i>";
-				}
-				break;
-				
-			case 'license':
-				if (this.license)
-				{
-					listObj.sub = this.license;
-				}
-				else
-				{
-					if (this.appCatalog) 
-					{
-						listObj.sub = "<i>App Catalog</i>";
+						listObj.sub += 'v' + this.versionInstalled;
 					}
 					else
 					{
-						listObj.sub = "<i>Unknown License</i>";
+						listObj.sub += 'v' + this.version;
 					}
-				}
-				break;
-				
-			case 'v&i':
-				if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-				{
-					listObj.sub = 'v' + this.versionInstalled + ' - ' + this.pkg;
-				}
-				else
-				{
-					listObj.sub = 'v' + this.version + ' - ' + this.pkg;
-				}
-				break;
-				
-			case 'v&m':
-				var tempM = '';
-				for (var m = 0; m < this.maintainer.length; m++) 
-				{
-					if (tempM != '') 
+					break;
+					
+				case 'maint':
+					var tempM = '';
+					for (var m = 0; m < this.maintainer.length; m++) 
 					{
-						tempM += ', ';
+						if (tempM != '') 
+						{
+							tempM += ', ';
+						}
+						tempM += this.maintainer[m].name;
 					}
-					tempM += this.maintainer[m].name;
-				}
-				if (tempM == '')
-				{
-					tempM = '<i>Unknown Maintainer</i>';
-				}
-				if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-				{
-					listObj.sub = 'v' + this.versionInstalled + ' - ' + tempM;
-				}
-				else
-				{
-					listObj.sub = 'v' + this.version + ' - ' + tempM;
-				}
-				break;
-				
-			case 'v&d':
-				if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-				{
+					if (tempM == '')
+					{
+						tempM = '<i>Unknown Date</i>';
+					}
+					listObj.sub += tempM;
+					break;
+					
+				case 'date':
 					if (this.date) 
 					{
-						listObj.sub = 'v' + this.versionInstalled + ' - ' + formatDate(this.date);
+						listObj.sub += formatDate(this.date);
 					}
 					else
 					{
-						listObj.sub = 'v' + this.versionInstalled
+						listObj.sub += "<i>Unknown Date</i>";
 					}
-				}
-				else
-				{
-					if (this.date) 
+					break;
+					
+				case 'price':
+					if (this.price)
 					{
-						listObj.sub = 'v' + this.version + ' - ' + formatDate(this.date);
+						listObj.sub += '$'+this.price;
 					}
 					else
 					{
-						listObj.sub = 'v' + this.version
+						listObj.sub += "<i>Free</i>";
 					}
-				}
-				break;
-				
-			case 'p&f':
-				var tempP = '';
-				if (this.price)
-				{
-					tempP = '$'+this.price;
-				}
-				else
-				{
-					tempP = "<i>Free</i>";
-				}
-				listObj.sub = tempP + ' - ' + this.feedString;
-				break;
-				
-			case 'p&c':
-				var tempP = '';
-				if (this.price)
-				{
-					tempP = '$'+this.price;
-				}
-				else
-				{
-					tempP = "<i>Free</i>";
-				}
-				if (this.countryString) {
-				    listObj.sub = tempP + ' - ' + this.countryString;
-				}
-				else {
-				    listObj.sub = tempP + ' - ' + "<i>All Countries</i>";
-				}
-				break;
-				
-			case 'p&l':
-				var tempP = '';
-				if (this.price)
-				{
-					tempP = '$'+this.price;
-				}
-				else
-				{
-					tempP = "<i>Free</i>";
-				}
-				if (this.license)
-				{
-					listObj.sub = tempP + ' - ' + this.license;
-				}
-				else
-				{
-					if (this.appCatalog) 
+					break;
+					
+				case 'feed':
+					listObj.sub += this.feedString;
+					break;
+					
+				case 'country':
+					if (this.countryString) {
+					    listObj.sub += this.countryString;
+					}
+					else {
+						listObj.sub += "<i>All Countries</i>";
+					}
+					break;
+					
+				case 'license':
+					if (this.license)
 					{
-						listObj.sub = tempP + ' - ' + "<i>App Catalog</i>";
+						listObj.sub += this.license;
 					}
 					else
 					{
-						listObj.sub = tempP + ' - ' + "<i>Unknown License</i>";
+						if (this.appCatalog) 
+						{
+							listObj.sub += "<i>App Catalog</i>";
+						}
+						else
+						{
+							listObj.sub += "<i>Unknown License</i>";
+						}
 					}
-				}
-				break;
-				
-			case 'p&v&m':
-				var tempP = '';
-				if (this.price)
-				{
-					tempP = '$'+this.price;
-				}
-				else
-				{
-					tempP = "<i>Free</i>";
-				}
-				var tempM = '';
-				for (var m = 0; m < this.maintainer.length; m++) 
-				{
-					if (tempM != '') 
-					{
-						tempM += ', ';
-					}
-					tempM += this.maintainer[m].name;
-				}
-				if (tempM == '')
-				{
-					tempM = '<i>Unknown Maintainer</i>';
-				}
-				if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-				{
-					listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled + ' - ' + tempM;
-				}
-				else
-				{
-					listObj.sub = tempP + ' - ' + 'v' + this.version + ' - ' + tempM;
-				}
-				break;
-				
-			case 'p&v&d':
-				var tempP = '';
-				if (this.price)
-				{
-					tempP = '$'+this.price;
-				}
-				else
-				{
-					tempP = "<i>Free</i>";
-				}
-				if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-				{
-					if (this.date) 
-					{
-						listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled + ' - ' + formatDate(this.date);
-					}
-					else
-					{
-						listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled
-					}
-				}
-				else
-				{
-					if (this.date) 
-					{
-						listObj.sub = tempP + ' - ' + 'v' + this.version + ' - ' + formatDate(this.date);
-					}
-					else
-					{
-						listObj.sub = tempP + ' - ' + 'v' + this.version
-					}
-				}
-				break;
-				
-			case 'p&v&f':
-				var tempP = '';
-				if (this.price)
-				{
-					tempP = '$'+this.price;
-				}
-				else
-				{
-					tempP = "<i>Free</i>";
-				}
-				if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-				{
-					listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled + ' - ' + this.feedString;
-				}
-				else
-				{
-					listObj.sub = tempP + ' - ' + 'v' + this.version + ' - ' + this.feedString;
-				}
-				break;
+					break;
+			}
 		}
 		
 		if (item) 
