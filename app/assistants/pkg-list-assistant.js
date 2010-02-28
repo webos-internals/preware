@@ -85,6 +85,10 @@ function PkgListAssistant(item, searchText, currentSort)
 				command: 'do-feeds'
 			},
 			{
+				label: $L("Luna Manager"),
+				command: 'do-luna'
+			},
+			{
 				label: $L("Help"),
 				command: 'do-help'
 			}
@@ -647,6 +651,10 @@ PkgListAssistant.prototype.handleCommand = function(event)
 	
 			case 'do-showLog':
 				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+				break;
+				
+			case 'do-luna':
+				this.controller.stageController.pushScene('luna');
 				break;
 				
 			case 'do-help':

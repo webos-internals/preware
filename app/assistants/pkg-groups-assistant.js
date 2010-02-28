@@ -40,6 +40,10 @@ function PkgGroupsAssistant(item)
 				command: 'do-feeds'
 			},
 			{
+				label: $L("Luna Manager"),
+				command: 'do-luna'
+			},
+			{
 				label: $L("Help"),
 				command: 'do-help'
 			}
@@ -304,6 +308,10 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 			
 			case 'do-feeds':
 				this.controller.stageController.pushScene('configs');
+				break;
+				
+			case 'do-luna':
+				this.controller.stageController.pushScene('luna');
 				break;
 	
 			case 'do-help':
