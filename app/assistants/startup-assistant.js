@@ -10,7 +10,9 @@ function StartupAssistant()
 			version: '0.9.29',
 			log:
 			[
-				'Fixed "Installed is Available" bug in "Available Other" list'
+				'Added option to search package descriptions instead of just the titles',
+				'Fixed "Installed is Available" bug in "Available Other" list',
+				'Doesn\'t try to update app catalog apps with "Update All" anymore'
 			]
 		},
 		{

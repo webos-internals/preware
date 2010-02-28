@@ -180,6 +180,19 @@ PreferencesAssistant.prototype.setup = function()
 		// List Scene Group
 		this.controller.setupWidget
 		(
+			'searchDesc',
+			{
+	  			trueLabel:  $L('Yes'),
+	 			falseLabel: $L('No'),
+	  			fieldName:  'searchDesc'
+			},
+			{
+				value : this.prefs.searchDesc,
+	 			disabled: false
+			}
+		);
+		this.controller.setupWidget
+		(
 			'listSort',
 			{
 				label: $L('Default Sort'),
@@ -250,6 +263,7 @@ PreferencesAssistant.prototype.setup = function()
 			}
 		);
 		
+		this.controller.listen('searchDesc', 	Mojo.Event.propertyChange, this.toggleChangeHandler);
 		this.controller.listen('listSort',      Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('secondRow',     Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('listInstalled', Mojo.Event.propertyChange, this.toggleChangeHandler);

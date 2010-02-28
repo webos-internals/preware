@@ -386,6 +386,13 @@ PkgListAssistant.prototype.filter = function(skipUpdate)
      		this.packages[p].displayTitle = this.packages[p].title.replace(new RegExp('(' + this.searchText + ')', 'gi'), '<span class="highlight">$1</span>');
 			pushIt = true;
 		}
+		else if (prefs.get().searchDesc && this.packages[p].description)
+		{
+			if (this.packages[p].description.toLowerCase().include(this.searchText.toLowerCase()))
+			{
+				pushIt = true;
+			}
+		}
 		
 		if (pushIt) 
 		{
