@@ -85,6 +85,10 @@ function PkgListAssistant(item, searchText, currentSort)
 				command: 'do-feeds'
 			},
 			{
+				label: $L("Luna Manager"),
+				command: 'do-luna'
+			},
+			{
 				label: $L("Help"),
 				command: 'do-help'
 			}
@@ -386,6 +390,13 @@ PkgListAssistant.prototype.filter = function(skipUpdate)
      		this.packages[p].displayTitle = this.packages[p].title.replace(new RegExp('(' + this.searchText + ')', 'gi'), '<span class="highlight">$1</span>');
 			pushIt = true;
 		}
+		else if (prefs.get().searchDesc && this.packages[p].description)
+		{
+			if (this.packages[p].description.toLowerCase().include(this.searchText.toLowerCase()))
+			{
+				pushIt = true;
+			}
+		}
 		
 		if (pushIt) 
 		{
@@ -578,20 +589,23 @@ PkgListAssistant.prototype.handleCommand = function(event)
 					}
 					else
 					{
-						var deps = packages.packages[this.packages[p].pkgNum].getDependenciesRecursive(true);
-						if (deps.length > 0) 
+						if (!this.packages[p].appCatalog)
 						{
-							for (var d = 0; d < deps.length; d++)
+							var deps = packages.packages[this.packages[p].pkgNum].getDependenciesRecursive(true);
+							if (deps.length > 0) 
 							{
-								if (allList.indexOf(deps[d]) === -1) 
+								for (var d = 0; d < deps.length; d++)
 								{
-									allList.push(deps[d]);
+									if (allList.indexOf(deps[d]) === -1) 
+									{
+										allList.push(deps[d]);
+									}
 								}
 							}
-						}
-						if (allList.indexOf(this.packages[p].pkgNum) === -1) 
-						{
-							allList.push(this.packages[p].pkgNum);
+							if (allList.indexOf(this.packages[p].pkgNum) === -1) 
+							{
+								allList.push(this.packages[p].pkgNum);
+							}
 						}
 					}
 				}
@@ -637,6 +651,10 @@ PkgListAssistant.prototype.handleCommand = function(event)
 	
 			case 'do-showLog':
 				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+				break;
+				
+			case 'do-luna':
+				this.controller.stageController.pushScene('luna');
 				break;
 				
 			case 'do-help':

@@ -7,6 +7,16 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.29',
+			log:
+			[
+				'Added option to search package descriptions instead of just the titles',
+				'Integrated Luna Manager into Preware, find it in the app menu',
+				'Fixed "Installed is Available" bug in "Available Other" list',
+				'Doesn\'t try to update app catalog apps with "Update All" anymore'
+			]
+		},
+		{
 			version: '0.9.28',
 			log:
 			[
@@ -191,6 +201,10 @@ function StartupAssistant()
 				command: 'do-prefs'
 			},
 			{
+				label: $L("Luna Manager"),
+				command: 'do-luna'
+			},
+			{
 				label: $L("Help"),
 				command: 'do-help'
 			}
@@ -293,6 +307,10 @@ StartupAssistant.prototype.handleCommand = function(event)
 			
 			case 'do-showLog':
 				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+				break;
+				
+			case 'do-luna':
+				this.controller.stageController.pushScene('luna');
 				break;
 			
 			case 'do-help':

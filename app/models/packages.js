@@ -156,10 +156,21 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		// log payload for display
 		//IPKGService.logPayload(payload);
 		
-		if (!payload || payload.errorCode == -1) 
+		if (!payload || payload.errorCode != undefined)
 		{
-			// some sort of error message perhapse?
-			return;
+			// we probably dont need to check this stuff here,
+			// it would have already been checked and errored out of this process
+			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				this.updateAssistant.errorMessage('Preware', $L("The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available."),
+						  this.updateAssistant.doneUpdating);
+				return;
+			}
+			else
+			{
+				this.updateAssistant.errorMessage('Preware', payload.errorText, function(){});
+				doneLoading = true;
+			}
 		}
 		
 		// no stage means its not a subscription, and we shouold hav all the contents right now

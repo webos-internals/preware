@@ -30,7 +30,7 @@ function packageModel(info)
 		this.feeds =			['Unknown'];
 		this.feedString =		'Unknown';
 		this.countries =		[];
-		this.countryString =		false;
+		this.countryString =	false;
 		this.homepage =			false;
 		this.license =			false;
 		this.description =		false;
@@ -43,7 +43,7 @@ function packageModel(info)
 		this.isInstalled =		false;
 		this.dateInstalled =	false;
 		this.sizeInstalled =	false;
-		this.appCatalog =	false;
+		this.appCatalog =		false;
 		
 		// load the info
 		this.infoLoad(info);
@@ -620,298 +620,105 @@ packageModel.prototype.getForList = function(item)
 		
 		listObj.rowClass = '';
 		
-		
-		if (prefs.get().secondRow == 'id') 
+		// include description if we need it for searching.
+		if (prefs.get().searchDesc && this.description)
 		{
-			listObj.sub = this.pkg;
-		}
-		else if (prefs.get().secondRow == 'version') 
-		{
-			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-			{
-				listObj.sub = 'v' + this.versionInstalled;
-			}
-			else
-			{
-				listObj.sub = 'v' + this.version;
-			}
-		}
-		else if (prefs.get().secondRow == 'maint') 
-		{
-			var tempM = '';
-			for (var m = 0; m < this.maintainer.length; m++) 
-			{
-				if (tempM != '') 
-				{
-					tempM += ', ';
-				}
-				tempM += this.maintainer[m].name;
-			}
-			if (tempM == '')
-			{
-				tempM = '<i>Unknown Date</i>';
-			}
-			listObj.sub = tempM;
-		}
-		else if (prefs.get().secondRow == 'date') 
-		{
-			if (this.date) 
-			{
-				listObj.sub = formatDate(this.date);
-			}
-			else
-			{
-				listObj.sub = "<i>Unknown Date</i>";
-			}
-		}
-		else if (prefs.get().secondRow == 'price') 
-		{
-			if (this.price)
-			{
-				listObj.sub = '$'+this.price;
-			}
-			else
-			{
-				listObj.sub = "<i>Free</i>";
-			}
-		}
-		else if (prefs.get().secondRow == 'feed') 
-		{
-			listObj.sub = this.feedString;
-		}
-		else if (prefs.get().secondRow == 'country') 
-		{
-			if (this.countryString) {
-			    listObj.sub = this.countryString;
-			}
-			else {
-				listObj.sub = "<i>All Countries</i>";
-			}
-		}
-		else if (prefs.get().secondRow == 'license') 
-		{
-			if (this.license)
-			{
-				listObj.sub = this.license;
-			}
-			else
-			{
-				if (this.appCatalog) 
-				{
-					listObj.sub = "<i>App Catalog</i>";
-				}
-				else
-				{
-					listObj.sub = "<i>Unknown License</i>";
-				}
-			}
-		}
-		else if (prefs.get().secondRow == 'v&i') 
-		{
-			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-			{
-				listObj.sub = 'v' + this.versionInstalled + ' - ' + this.pkg;
-			}
-			else
-			{
-				listObj.sub = 'v' + this.version + ' - ' + this.pkg;
-			}
-		}
-		else if (prefs.get().secondRow == 'v&m') 
-		{
-			var tempM = '';
-			for (var m = 0; m < this.maintainer.length; m++) 
-			{
-				if (tempM != '') 
-				{
-					tempM += ', ';
-				}
-				tempM += this.maintainer[m].name;
-			}
-			if (tempM == '')
-			{
-				tempM = '<i>Unknown Maintainer</i>';
-			}
-			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-			{
-				listObj.sub = 'v' + this.versionInstalled + ' - ' + tempM;
-			}
-			else
-			{
-				listObj.sub = 'v' + this.version + ' - ' + tempM;
-			}
-		}
-		else if (prefs.get().secondRow == 'v&d') 
-		{
-			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-			{
-				if (this.date) 
-				{
-					listObj.sub = 'v' + this.versionInstalled + ' - ' + formatDate(this.date);
-				}
-				else
-				{
-					listObj.sub = 'v' + this.versionInstalled
-				}
-			}
-			else
-			{
-				if (this.date) 
-				{
-					listObj.sub = 'v' + this.version + ' - ' + formatDate(this.date);
-				}
-				else
-				{
-					listObj.sub = 'v' + this.version
-				}
-			}
-		}
-		else if (prefs.get().secondRow == 'p&f') 
-		{
-			var tempP = '';
-			if (this.price)
-			{
-				tempP = '$'+this.price;
-			}
-			else
-			{
-				tempP = "<i>Free</i>";
-			}
-			listObj.sub = tempP + ' - ' + this.feedString;
-		}
-		else if (prefs.get().secondRow == 'p&c') 
-		{
-			var tempP = '';
-			if (this.price)
-			{
-				tempP = '$'+this.price;
-			}
-			else
-			{
-				tempP = "<i>Free</i>";
-			}
-			if (this.countryString) {
-			    listObj.sub = tempP + ' - ' + this.countryString;
-			}
-			else {
-			    listObj.sub = tempP + ' - ' + "<i>All Countries</i>";
-			}
-		}
-		else if (prefs.get().secondRow == 'p&l') 
-		{
-			var tempP = '';
-			if (this.price)
-			{
-				tempP = '$'+this.price;
-			}
-			else
-			{
-				tempP = "<i>Free</i>";
-			}
-			if (this.license)
-			{
-				listObj.sub = tempP + ' - ' + this.license;
-			}
-			else
-			{
-				if (this.appCatalog) 
-				{
-					listObj.sub = tempP + ' - ' + "<i>App Catalog</i>";
-				}
-				else
-				{
-					listObj.sub = tempP + ' - ' + "<i>Unknown License</i>";
-				}
-			}
-		}
-		else if (prefs.get().secondRow == 'p&v&m') 
-		{
-			var tempP = '';
-			if (this.price)
-			{
-				tempP = '$'+this.price;
-			}
-			else
-			{
-				tempP = "<i>Free</i>";
-			}
-			var tempM = '';
-			for (var m = 0; m < this.maintainer.length; m++) 
-			{
-				if (tempM != '') 
-				{
-					tempM += ', ';
-				}
-				tempM += this.maintainer[m].name;
-			}
-			if (tempM == '')
-			{
-				tempM = '<i>Unknown Maintainer</i>';
-			}
-			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-			{
-				listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled + ' - ' + tempM;
-			}
-			else
-			{
-				listObj.sub = tempP + ' - ' + 'v' + this.version + ' - ' + tempM;
-			}
-		}
-		else if (prefs.get().secondRow == 'p&v&d') 
-		{
-			var tempP = '';
-			if (this.price)
-			{
-				tempP = '$'+this.price;
-			}
-			else
-			{
-				tempP = "<i>Free</i>";
-			}
-			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-			{
-				if (this.date) 
-				{
-					listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled + ' - ' + formatDate(this.date);
-				}
-				else
-				{
-					listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled
-				}
-			}
-			else
-			{
-				if (this.date) 
-				{
-					listObj.sub = tempP + ' - ' + 'v' + this.version + ' - ' + formatDate(this.date);
-				}
-				else
-				{
-					listObj.sub = tempP + ' - ' + 'v' + this.version
-				}
-			}
-		}
-		else if (prefs.get().secondRow == 'p&v&f') 
-		{
-			var tempP = '';
-			if (this.price)
-			{
-				tempP = '$'+this.price;
-			}
-			else
-			{
-				tempP = "<i>Free</i>";
-			}
-			if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
-			{
-				listObj.sub = tempP + ' - ' + 'v' + this.versionInstalled + ' - ' + this.feedString;
-			}
-			else
-			{
-				listObj.sub = tempP + ' - ' + 'v' + this.version + ' - ' + this.feedString;
-			}
+			listObj.description = this.description.stripTags();
 		}
 		
+		listObj.sub = '';
+		var secondOptions = prefs.get().secondRow.split(',');
+		for (s = 0; s < secondOptions.length; s++)
+		{
+			if (s > 0) listObj.sub += ' - ';
+			switch (secondOptions[s])
+			{
+				case 'id':
+					listObj.sub += this.pkg;
+					break;
+					
+				case 'version':
+					if (item && item.pkgList == 'installed' && this.isInstalled && this.versionInstalled) 
+					{
+						listObj.sub += 'v' + this.versionInstalled;
+					}
+					else
+					{
+						listObj.sub += 'v' + this.version;
+					}
+					break;
+					
+				case 'maint':
+					var tempM = '';
+					for (var m = 0; m < this.maintainer.length; m++) 
+					{
+						if (tempM != '') 
+						{
+							tempM += ', ';
+						}
+						tempM += this.maintainer[m].name;
+					}
+					if (tempM == '')
+					{
+						tempM = '<i>Unknown Date</i>';
+					}
+					listObj.sub += tempM;
+					break;
+					
+				case 'date':
+					if (this.date) 
+					{
+						listObj.sub += formatDate(this.date);
+					}
+					else
+					{
+						listObj.sub += "<i>Unknown Date</i>";
+					}
+					break;
+					
+				case 'price':
+					if (this.price)
+					{
+						listObj.sub += '$'+this.price;
+					}
+					else
+					{
+						listObj.sub += "<i>Free</i>";
+					}
+					break;
+					
+				case 'feed':
+					listObj.sub += this.feedString;
+					break;
+					
+				case 'country':
+					if (this.countryString) {
+					    listObj.sub += this.countryString;
+					}
+					else {
+						listObj.sub += "<i>All Countries</i>";
+					}
+					break;
+					
+				case 'license':
+					if (this.license)
+					{
+						listObj.sub += this.license;
+					}
+					else
+					{
+						if (this.appCatalog) 
+						{
+							listObj.sub += "<i>App Catalog</i>";
+						}
+						else
+						{
+							listObj.sub += "<i>Unknown License</i>";
+						}
+					}
+					break;
+			}
+		}
 		
 		if (item) 
 		{
@@ -1138,7 +945,10 @@ packageModel.prototype.matchItem = function(item)
 	var matchIt = false;
 	
 	// push packages that meet the listing
-	if (item.pkgList == 'all')
+	if ((item.pkgList == 'all') ||
+		(item.pkgList == 'other' &&
+		this.type != 'Application' && this.type != 'Theme' &&
+		this.type != 'Patch'))
 	{
 		matchIt = true;
 		// if is installed and installed is not to be shown, dont push it
@@ -1152,9 +962,6 @@ packageModel.prototype.matchItem = function(item)
 			}
 		}
 	}
-	else if (item.pkgList == 'other' && // other is for main scene where its not already there
-			this.type != 'Application' && this.type != 'Theme' &&
-			this.type != 'Patch') matchIt = true;
 	else if (item.pkgList == 'updates' && this.hasUpdate) matchIt = true;
 	else if (item.pkgList == 'installed' && this.isInstalled) matchIt = true;
 	
