@@ -156,9 +156,19 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		// log payload for display
 		//IPKGService.logPayload(payload);
 		
-		if (!payload || payload.errorCode == -1) 
+		if (!payload || payload.errorCode != undefined)
 		{
-			// some sort of error message perhapse?
+			// we probably dont need to check this stuff here,
+			// it would have already been checked and errored out of this process
+			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+			{
+				this.updateAssistant.errorMessage('Preware', $L("The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available."),
+						  this.updateAssistant.doneUpdating);
+			}
+			else
+			{
+				this.updateAssistant.errorMessage('Preware', payload.errorText, this.updateAssistant.doneUpdating);
+			}
 			return;
 		}
 		
@@ -182,7 +192,13 @@ packagesModel.prototype.infoResponse = function(payload, num)
 			//alert('chunksize: ' + payload.chunksize);
 			//alert('datasize: ' + payload.datasize);
 			
-			if (payload.stage == 'start')
+			if (payload.stage == 'failed')
+			{
+				this.updateAssistant.errorMessage('Preware', $L("Error, File too large to load."),
+						function(){});
+				doneLoading = true;
+			}
+			else if (payload.stage == 'start')
 			{
 				// at start we clear the old data to make sure its empty
 				this.rawData = '';
