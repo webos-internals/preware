@@ -155,7 +155,7 @@ packageModel.prototype.infoLoad = function(info)
 		if (!this.size &&		info.Size)			this.size =		info.Size;
 		
 		// check if is installed
-		if (info.Status && !info.Status.include('not-installed'))
+		if (info.Status && !info.Status.include('not-installed') && !info.Status.include('deinstall'))
 		{
 			this.isInstalled =		true;
 			this.dateInstalled =	info['Installed-Time'];

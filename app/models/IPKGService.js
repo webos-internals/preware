@@ -179,6 +179,41 @@ IPKGService.getControlFile = function(callback, pkg)
 	return request;
 }
 
+IPKGService.addConfig = function(callback, config, name, url, gzip)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'addConfig',
+		parameters:
+		{
+			'subscribe': true,
+			'config': config,
+			'name': name,
+			'url': url,
+			'gzip': gzip
+		},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
+IPKGService.deleteConfig = function(callback, config, name)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'deleteConfig',
+		parameters:
+		{
+			'subscribe': true,
+			'config': config,
+			'name': name
+		},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+}
+
 IPKGService.logClear = function()
 {
 	this.log = '';
