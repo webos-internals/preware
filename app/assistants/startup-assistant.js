@@ -13,7 +13,7 @@ function StartupAssistant()
 				'Added option to search package descriptions instead of just the titles',
 				'Integrated Luna Manager into Preware, find it in the app menu',
 				'Fixed "Installed is Available" bug in "Available Other" list',
-				'Doesn\'t try to update app catalog apps with "Update All" anymore'
+				'No longer tries to update app catalog apps with "Update All"'
 			]
 		},
 		{
