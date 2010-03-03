@@ -319,15 +319,21 @@ packagesModel.prototype.parsePackages = function(rawData)
 }
 packagesModel.prototype.loadPackage = function(packageObj)
 {
-	// load the package from the info
-	var newPkg = new packageModel(packageObj);
-	
+	// Skip packages that are in the status file, but are not actually installed
+	if (packageObj.Status &&
+	    (packageObj.Status.include('not-installed') || packageObj.Status.include('deinstall'))) {
+		return
+	}
+
 	// Filter out paid apps if desired
-	if ((prefs.get().onlyShowFree) && (newPkg.price != undefined) &&
-	    (newPkg.price != "0") && (newPkg.price != "0.00")) {
+	if ((prefs.get().onlyShowFree) && (packageObj.price != undefined) &&
+	    (packageObj.price != "0") && (packageObj.price != "0.00")) {
 		return;
 	}
 
+	// load the package from the info
+	var newPkg = new packageModel(packageObj);
+	
 	// look for a previous package with the same name
 	var pkgNum = this.packageInList(newPkg.pkg);
 	if (pkgNum === false) 
