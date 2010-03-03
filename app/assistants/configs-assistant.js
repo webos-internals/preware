@@ -30,29 +30,30 @@ ConfigsAssistant.prototype.setup = function()
 	// setup header button
 	this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
 	
-	/*
+	
+	// setup new feed form
 	this.controller.setupWidget
 	(
 		'newName',
 		{
+			autoFocus: false,
 			multiline: false,
-			enterSubmits: false,
+			enterSubmits: false
 		},
 		{
-			value: '',
-			disabled: true // comment this for go time
+			value: ''
 		}
 	);
 	this.controller.setupWidget
 	(
 		'newUrl',
 		{
+			autoFocus: false,
 			multiline: false,
-			enterSubmits: false,
+			enterSubmits: false
 		},
 		{
-			value: 'http://',
-			disabled: true // comment this for go time
+			value: 'http://'
 		}
 	);
 	this.controller.setupWidget
@@ -64,31 +65,23 @@ ConfigsAssistant.prototype.setup = function()
   			fieldName:  'newCompressed'
 		},
 		{
-			value: true,
-			//disabled: true // comment this for go time
+			value: true
 		}
 	);
 	this.controller.setupWidget
 	(
 		'newButton',
-		this.attributes = 
 		{
 			type: Mojo.Widget.activityButton
 		},
-		this.model =
 		{
 			buttonLabel: 'Add Feed',
-			buttonClass: 'palm-button',
-			disabled: true // comment this for go time
+			buttonClass: 'palm-button'
 		}
 	);
-	//this.controller.listen('allowServiceUpdates', Mojo.Event.propertyChange, this.toggleChangeHandler);
-	//this.controller.listen('newButton', Mojo.Event.tap, this.transferBestsButton.bindAsEventListener(this));
-	*/
+	this.controller.listen('newButton', Mojo.Event.tap, this.newConfButton.bindAsEventListener(this));
 	
-	// hide newFeed group
-	this.controller.get('newFeed').style.display = 'none';
-		
+	
 	
 	// setup list widget
 	this.confModel = { items: [] };
@@ -97,7 +90,7 @@ ConfigsAssistant.prototype.setup = function()
 		'confList',
 		{
 			itemTemplate: "configs/rowTemplate",
-			//swipeToDelete: true, // uncomment this for go time
+			swipeToDelete: true,
 			reorderable: false
 		},
 		this.confModel
@@ -186,7 +179,6 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 		this.alertMessage('onFeeds Error', e);
 	}
 }
-
 ConfigsAssistant.prototype.doneLoading = function()
 {
 	try 
@@ -229,24 +221,44 @@ ConfigsAssistant.prototype.doneLoading = function()
 	}
 }
 
+ConfigsAssistant.prototype.test = function(payload)
+{
+	for (var p in payload) alert(p + ': ' + payload[p]);
+}
+
 ConfigsAssistant.prototype.confToggled = function(event)
 {
 	// make sure this is a toggle button
 	if (event.property == 'value' && event.target.id.include('_toggle')) 
 	{
 		//alert(event.target.id.replace(/_toggle/, '') + ' - ' + event.value);
-		IPKGService.setConfigState(this.test.bindAsEventListener(this), this.feeds[event.target.id.replace(/_toggle/, '')].config, event.value)
+		IPKGService.setConfigState(this.test.bindAsEventListener(this), this.feeds[event.target.id.replace(/_toggle/, '')].config, event.value);
 	}
 }
-
-ConfigsAssistant.prototype.test = function(payload)
-{
-	//for (var p in payload) alert(p + ': ' + payload[p]);
-}
-
 ConfigsAssistant.prototype.confDeleted = function(event)
 {
-	alert ('Delete: ' + event.item.toggleName);
+	IPKGService.deleteConfig(this.test.bindAsEventListener(this),
+		this.feeds[event.item.toggleName].config,
+		this.feeds[event.item.toggleName].name);
+}
+
+ConfigsAssistant.prototype.newConfButton = function()
+{
+	IPKGService.addConfig(this.newConfResponse.bindAsEventListener(this),
+		this.controller.get('newName').mojo.getValue(),
+		this.controller.get('newName').mojo.getValue(),
+		this.controller.get('newUrl').mojo.getValue(),
+		true);
+}
+ConfigsAssistant.prototype.newConfResponse = function(payload)
+{
+	if (payload.stage == 'completed')
+	{
+		this.controller.get('newName').mojo.setValue('');
+		this.controller.get('newUrl').mojo.setValue('http://');
+		
+		this.controller.get('newButton').mojo.deactivate();
+	}
 }
 
 ConfigsAssistant.prototype.headerButton = function(event)
