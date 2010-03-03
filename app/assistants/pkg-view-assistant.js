@@ -179,7 +179,7 @@ PkgViewAssistant.prototype.setupData = function()
 			}
 			if (dataM)
 			{
-				data += Mojo.View.render({object: {title: $L('Maintainer') + (this.item.maintainer.length > 1 ? 's' : ''), data: dataM}, template: dataTemplate});
+				data += Mojo.View.render({object: {title: (this.item.maintainer.length>1?$L('Maintainers'):$L('Maintainer')), data: dataM}, template: dataTemplate});
 			}
 		}
 		
