@@ -81,23 +81,23 @@ IPKGService.rawstatus = function(callback)
 	return request;
 }
 
-IPKGService.install = function(callback, pkg, title)
+IPKGService.install = function(callback, pkg, title, url)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
 		method: 'install',
-		parameters: {"package":pkg, "title":title, "subscribe":true},
+		parameters: {"package":pkg, "title":title, "url":url, "subscribe":true},
 		onSuccess: callback,
 		onFailure: callback
 	});
 	return request;
 }
-IPKGService.replace = function(callback, pkg, title)
+IPKGService.replace = function(callback, pkg, title, url)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
 		method: 'replace',
-		parameters: {"package":pkg, "title":title, "subscribe":true},
+		parameters: {"package":pkg, "title":title, "url":url, "subscribe":true},
 		onSuccess: callback,
 		onFailure: callback
 	});

@@ -328,6 +328,7 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 		{
 			// clear feeds array
 			var feeds = [];
+			var urls = [];
 			
 			// load feeds
 			for (var x = 0; x < payload.configs.length; x++)
@@ -344,6 +345,7 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 							if (tmpSplit2[1]) 
 							{
 								feeds.push(tmpSplit2[1]);
+								urls.push(tmpSplit2[2]);
 								//alert(x + '-' + p + ': ' + tmpSplit2[1]);
 							}
 						}
@@ -352,11 +354,8 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 				}
 			}
 			
-			// sort them (mostly so precentral is in the middle so it doesnt seem like it hangs at the end.)
-			feeds.sort();
-			
 			// send payload to items object
-			packages.loadFeeds(feeds, this);
+			packages.loadFeeds(feeds, urls, this);
 		}
 	}
 	catch (e)

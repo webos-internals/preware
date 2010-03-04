@@ -22,6 +22,8 @@ function packageModel(info)
 		this.maintainer =		false;
 		this.title =			false;
 		this.size =				false;
+		this.filename =			false;
+		this.location =			false;
 		this.hasUpdate =		false;
 		this.icon =				false;
 		this.iconImg =			{object: false, loading: false, loaded: false, target: false, local: false};
@@ -153,6 +155,7 @@ packageModel.prototype.infoLoad = function(info)
 		if (!this.pkg &&		info.Package)		this.pkg =		info.Package;
 		if (!this.version &&	info.Version)		this.version =	info.Version;
 		if (!this.size &&		info.Size)			this.size =		info.Size;
+		if (!this.filename &&	info.Filename)		this.filename =	info.Filename;
 		
 		// check if is installed
 		if (info.Status && !info.Status.include('not-installed') && !info.Status.include('deinstall'))
@@ -206,6 +209,8 @@ packageModel.prototype.infoLoad = function(info)
 			if (!this.icon &&			sourceJson.Icon)			this.icon =			sourceJson.Icon;
 			if (!this.date &&			sourceJson.LastUpdated)		this.date =			sourceJson.LastUpdated;
 			if (!this.homepage &&		sourceJson.Homepage)		this.homepage =		sourceJson.Homepage;
+			if (!this.filename &&		sourceJson.Filename)		this.filename =		sourceJson.Filename;
+			if (!this.location &&		sourceJson.Location)		this.location =		sourceJson.Location;
 			if (!this.license &&		sourceJson.License)			this.license =		sourceJson.License;
 			if (!this.description &&	sourceJson.FullDescription)	this.description =	sourceJson.FullDescription;
 			if (!this.changeLog &&		sourceJson.Changelog)		this.changeLog =	sourceJson.Changelog;
@@ -310,6 +315,8 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.maintainer)				this.maintainer =		pkg.maintainer;
 		if (!this.maintUrl)					this.maintUrl =			pkg.maintUrl;
 		if (!this.size)						this.size =				pkg.size;
+		if (!this.filename)					this.filename =			pkg.filename;
+		if (!this.location)					this.location =			pkg.location;
 		if (!this.date)						this.date =				pkg.date;
 		if (!this.price)					this.price =			pkg.price;
 		if (!this.homepage)					this.homepage =			pkg.homepage;
@@ -1033,7 +1040,7 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 			this.assistant.displayAction($L("Downloading / Installing<br />") + this.title);
 			
 			// call install service
-			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this, multi), this.pkg, this.title);
+			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this, multi), this.pkg, this.title, this.location);
 		}
 		else
 		{
@@ -1042,7 +1049,7 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 			this.assistant.startAction();
 			
 			// call install service
-			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.pkg, this.title);
+			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.pkg, this.title, this.location);
 		}
 	}
 	catch (e) 
@@ -1076,12 +1083,12 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 
 			if (packages.can(this.type, 'updateAsReplace'))
 			{
-				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title);
+				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title, this.location);
 				this.assistant.displayAction('Downloading / Replacing<br />' + this.title);
 			}
 			else
 			{
-				this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title);
+				this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title, this.location);
 			}
 		}
 		else
@@ -1092,12 +1099,12 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 		
 			if (packages.can(this.type, 'updateAsReplace'))
 			{
-				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this), this.pkg, this.title);
+				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this), this.pkg, this.title, this.location);
 				this.assistant.displayAction($L("Downloading / Replacing"));
 			}
 			else
 			{
-				this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.pkg, this.title);
+				this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.pkg, this.title, this.location);
 			}
 		}
 	}
@@ -1507,3 +1514,7 @@ packageModel.prototype.runFlags = function(type)
 		Mojo.Log.logException(e, 'packageModel#runFlags');
 	}
 }
+
+// Local Variables:
+// tab-width: 4
+// End:

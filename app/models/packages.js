@@ -12,6 +12,7 @@ function packagesModel()
 	this.packagesReversed = $H();
 	this.categories = [];
 	this.feeds = [];
+	this.urls = [];
 	this.types = [];
 	this.unknown = [];
 	
@@ -96,7 +97,7 @@ function packagesModel()
 	}
 }
 
-packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
+packagesModel.prototype.loadFeeds = function(feeds, urls, updateAssistant)
 {
 	try 
 	{
@@ -107,6 +108,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 		
 		// get our current data
 		this.feeds = feeds;
+		this.urls = urls;
 		this.updateAssistant = updateAssistant;
 		
 		// set title and show progress
@@ -178,7 +180,7 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		{
 			if (payload.contents) 
 			{
-				this.parsePackages(payload.contents);
+				this.parsePackages(payload.contents, this.urls[num]);
 			}
 			
 			// flag so the end of this function knows to move on to the next feed
@@ -211,7 +213,7 @@ packagesModel.prototype.infoResponse = function(payload, num)
 				// at end, we parse the data we've recieved this whole time
 				if (this.rawData != '') 
 				{
-					this.parsePackages(this.rawData);
+					this.parsePackages(this.rawData, this.urls[num]);
 				}
 				
 				// flag so the end of this function knows to move on to the next feed
@@ -249,7 +251,7 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		}
 	}
 }
-packagesModel.prototype.parsePackages = function(rawData)
+packagesModel.prototype.parsePackages = function(rawData, url)
 {
 	try 
 	{
@@ -299,7 +301,7 @@ packagesModel.prototype.parsePackages = function(rawData)
 				{
 					if (curPkg) 
 					{
-						this.loadPackage(curPkg);
+						this.loadPackage(curPkg, url);
 						curPkg = false;
 					}
 				}
@@ -307,7 +309,7 @@ packagesModel.prototype.parsePackages = function(rawData)
 			
 			if (curPkg) 
 			{
-				this.loadPackage(curPkg);
+				this.loadPackage(curPkg, url);
 				curPkg = false;
 			}
 		}
@@ -317,7 +319,7 @@ packagesModel.prototype.parsePackages = function(rawData)
 		Mojo.Log.logException(e, 'packagesModel#parsePackages');
 	}
 }
-packagesModel.prototype.loadPackage = function(packageObj)
+packagesModel.prototype.loadPackage = function(packageObj, url)
 {
 	// Skip packages that are in the status file, but are not actually installed
 	if (packageObj.Status &&
@@ -334,6 +336,11 @@ packagesModel.prototype.loadPackage = function(packageObj)
 	// load the package from the info
 	var newPkg = new packageModel(packageObj);
 	
+	// default location is none is set
+	if (!newPkg.location && newPkg.filename && url) {
+		newPkg.location = url + '/' + newPkg.filename;
+	}
+
 	// look for a previous package with the same name
 	var pkgNum = this.packageInList(newPkg.pkg);
 	if (pkgNum === false) 
@@ -1128,3 +1135,7 @@ packagesModel.prototype.multiRunFlags = function(flags)
 		Mojo.Log.logException(e, 'packagesModel#multiRunFlags');
 	}
 }
+
+// Local Variables:
+// tab-width: 4
+// End:
