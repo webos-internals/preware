@@ -30,7 +30,7 @@ ConfigsAssistant.prototype.setup = function()
 	// setup header button
 	this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
 	
-	
+	/*
 	// setup new feed form
 	this.controller.setupWidget
 	(
@@ -80,7 +80,7 @@ ConfigsAssistant.prototype.setup = function()
 		}
 	);
 	this.controller.listen('newButton', Mojo.Event.tap, this.newConfButton.bindAsEventListener(this));
-	
+	*/
 	
 	
 	// setup list widget

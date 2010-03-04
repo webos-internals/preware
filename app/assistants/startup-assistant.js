@@ -10,7 +10,8 @@ function StartupAssistant()
 			version: '0.9.30',
 			log:
 			[
-				'Now chooses the correct information to display for packages in multiple feeds'
+				'Now chooses the correct information to display for packages in multiple feeds',
+				'Fixes the bug in the only show free applications preference'
 			]
 		},
 		{

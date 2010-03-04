@@ -327,15 +327,15 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 		return
 	}
 
-	// Filter out paid apps if desired
-	if ((prefs.get().onlyShowFree) && (packageObj.price != undefined) &&
-	    (packageObj.price != "0") && (packageObj.price != "0.00")) {
-		return;
-	}
-
 	// load the package from the info
 	var newPkg = new packageModel(packageObj);
 	
+	// Filter out paid apps if desired
+	if ((prefs.get().onlyShowFree) && (newPkg.price != undefined) &&
+	    (newPkg.price != "0") && (newPkg.price != "0.00")) {
+		return;
+	}
+
 	// default location is none is set
 	if (!newPkg.location && newPkg.filename && url) {
 		newPkg.location = url + '/' + newPkg.filename;
