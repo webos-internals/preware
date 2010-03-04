@@ -394,6 +394,7 @@ PkgListAssistant.prototype.filter = function(skipUpdate)
 		{
 			if (this.packages[p].description.toLowerCase().include(this.searchText.toLowerCase()))
 			{
+				this.packages[p].displayTitle = this.packages[p].title;
 				pushIt = true;
 			}
 		}
