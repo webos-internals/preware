@@ -91,13 +91,17 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		
 		if (!newPackage.isInstalled && !this.isInstalled && newer)
 		{
+			// Package in multiple feeds, with different versions
 			//alert('Replace Type: 1');
+			// Fill in any missing information from the older version
 			newPackage.infoLoadFromPkg(this);
 			return newPackage;
 		}
 		
 		if (newPackage.isInstalled && !this.isInstalled && !newer)
 		{
+			// Package in multiple feeds, older version installed from later feed
+			// (why wasn't it found in the status file?)
 			//alert('Replace Type: 2');
 			this.isInstalled = true;
 			this.hasUpdate = true; // comment when status is last?
@@ -108,16 +112,18 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		
 		if (!newPackage.isInstalled && this.isInstalled && !newer)
 		{
+			// Package loaded from status, and same or older version in a feed
 			//alert('Replace Type: 3');
 			this.isInstalled = true;
 			//this.hasUpdate = false; // this fixes the not update thing?
-			this.versionInstalled = newPackage.version;
+			//this.versionInstalled = newPackage.version; // don't override the newer version
 			this.infoLoadFromPkg(newPackage);
 			return false;
 		}
 		
 		if (newPackage.isInstalled && !this.isInstalled && newer)
 		{
+			// Package in multiple feeds, installed from later version
 			//alert('Replace Type: 4');
 			newPackage.isInstalled = true;
 			//newPackage.hasUpdate = false; // this fixes the not update thing?
@@ -128,6 +134,7 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		
 		if (!newPackage.isInstalled && this.isInstalled && newer)
 		{
+			// Package in multiple feeds, installed from earlier version
 			//alert('Replace Type: 5');
 			newPackage.isInstalled = true;
 			newPackage.hasUpdate = true;
@@ -136,8 +143,10 @@ packageModel.prototype.infoUpdate = function(newPackage)
 			return newPackage;
 		}
 		
+		// Neither package is installed, and the versions are the same.
 		//alert('Replace Type: 6');
-		this.infoLoadFromPkg(newPackage);
+		// Just use the information from the first package found
+		// this.infoLoadFromPkg(newPackage);
 		return false;
 	}
 	catch (e)
@@ -312,7 +321,8 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.title || this.title == 'This is a webOS application.')	this.title = pkg.title;
 		if (this.type == 'Unknown')			this.type =				pkg.type;
 		if (this.category == 'Unsorted')	this.category =			pkg.category;
-		if (!this.maintainer)				this.maintainer =		pkg.maintainer;
+		if (!this.maintainer || this.maintainer.length == 0
+			|| (this.maintainer.length == 1 && this.maintainer[0].name == 'N/A')) this.maintainer = pkg.maintainer;
 		if (!this.maintUrl)					this.maintUrl =			pkg.maintUrl;
 		if (!this.size)						this.size =				pkg.size;
 		if (!this.filename)					this.filename =			pkg.filename;
@@ -339,6 +349,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 			this.feeds = pkg.feeds;
 			this.feedString = pkg.feedString;
 		}
+		/*
 		else if (pkg.feeds[0] != 'Unknown')
 		{
 			for (var f = 0; f < pkg.feeds.length; f++) 
@@ -350,6 +361,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 				}
 			}
 		}
+		*/
 		
 		// join countries
 		if (this.countries.length == 0) 
@@ -357,6 +369,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 			this.countries = pkg.countries;
 			this.countryString = pkg.countryString;
 		}
+		/*
 		else if (pkg.countries.length != 0)
 		{
 			for (var f = 0; f < pkg.countries.length; f++) 
@@ -368,12 +381,14 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 				}
 			}
 		}
+		*/
 		
 		// join deps
 		if (this.depends.length == 0 && pkg.depends.length > 0) 
 		{
 			this.depends = pkg.depends;
 		}
+		/*
 		else if (this.depends.length > 0 && pkg.depends.length > 0) 
 		{
 			for (var pd = 0; pd < pkg.depends.length; pd++) 
@@ -393,12 +408,14 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 				}
 			}
 		}
+		*/
 		
 		// join screenshots
 		if (this.screenshots.length == 0 && pkg.screenshots.length > 0)
 		{
 			this.screenshots = pkg.screenshots;
 		}
+		/*
 		else if (this.screenshots.length > 0 && pkg.screenshots.length > 0)
 		{
 			for (var ps = 0; ps < pkg.screenshots.length; ps++) 
@@ -417,7 +434,8 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 				}
 			}
 		}
-		
+		*/
+
 		// join flags
 		if (!this.flags.install.RestartLuna		&& pkg.flags.install.RestartLuna)	this.flags.install.RestartLuna		= true;
 		if (!this.flags.install.RestartJava		&& pkg.flags.install.RestartJava)	this.flags.install.RestartJava		= true;
@@ -1169,6 +1187,11 @@ packageModel.prototype.onInstall = function(payload, multi)
 				var msg = $L("Error Installing: See IPKG Log");
 				var msgError = true;
 			}
+			else if (payload.stage == "status")
+			{
+				// this.assistant.displayAction($L("Downloading / Installing<br />") + payload.status);
+				return;
+			}
 			else if (payload.stage == "completed")
 			{
 				// update info
@@ -1272,6 +1295,11 @@ packageModel.prototype.onUpdate = function(payload, multi)
 			{
 				var msg = $L("Error Updating: See IPKG Log");
 				var msgError = true;
+			}
+			else if (payload.stage == "status")
+			{
+				// this.assistant.displayAction($L("Downloading / Updating<br />") + payload.status);
+				return;
 			}
 			else if (payload.stage == "completed")
 			{

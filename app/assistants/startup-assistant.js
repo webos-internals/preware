@@ -7,6 +7,13 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.30',
+			log:
+			[
+				'Now chooses the correct information to display for packages in multiple feeds'
+			]
+		},
+		{
 			version: '0.9.29',
 			log:
 			[
