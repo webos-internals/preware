@@ -170,12 +170,13 @@ packagesModel.prototype.infoResponse = function(payload, num)
 			}
 			else
 			{
-				this.updateAssistant.errorMessage('Preware', payload.errorText, function(){});
+				// Do not do this until we work out how to handle multiple errors.
+				// this.updateAssistant.errorMessage('Preware', payload.errorText, this.updateAssistant.doneUpdating);
 				doneLoading = true;
 			}
 		}
 		
-		// no stage means its not a subscription, and we shouold hav all the contents right now
+		// no stage means its not a subscription, and we should have all the contents right now
 		if (!payload.stage)
 		{
 			if (payload.contents) 
