@@ -2,6 +2,9 @@ function ConfigsAssistant()
 {
 	this.feeds = [];
 	
+	// we'll need this for the subscription based services
+	this.subscription = false;
+
 	// setup menu
 	this.menuModel =
 	{
@@ -30,7 +33,6 @@ ConfigsAssistant.prototype.setup = function()
 	// setup header button
 	this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
 	
-	/*
 	// setup new feed form
 	this.controller.setupWidget
 	(
@@ -80,8 +82,7 @@ ConfigsAssistant.prototype.setup = function()
 		}
 	);
 	this.controller.listen('newButton', Mojo.Event.tap, this.newConfButton.bindAsEventListener(this));
-	*/
-	
+
 	
 	// setup list widget
 	this.confModel = { items: [] };
@@ -237,15 +238,15 @@ ConfigsAssistant.prototype.confToggled = function(event)
 }
 ConfigsAssistant.prototype.confDeleted = function(event)
 {
-	IPKGService.deleteConfig(this.test.bindAsEventListener(this),
+	this.subsciption = IPKGService.deleteConfig(this.test.bindAsEventListener(this),
 		this.feeds[event.item.toggleName].config,
 		this.feeds[event.item.toggleName].name);
 }
 
 ConfigsAssistant.prototype.newConfButton = function()
 {
-	IPKGService.addConfig(this.newConfResponse.bindAsEventListener(this),
-		this.controller.get('newName').mojo.getValue(),
+	this.subsciption = IPKGService.addConfig(this.newConfResponse.bindAsEventListener(this),
+		this.controller.get('newName').mojo.getValue() + ".conf",
 		this.controller.get('newName').mojo.getValue(),
 		this.controller.get('newUrl').mojo.getValue(),
 		true);
@@ -258,6 +259,9 @@ ConfigsAssistant.prototype.newConfResponse = function(payload)
 		this.controller.get('newUrl').mojo.setValue('http://');
 		
 		this.controller.get('newButton').mojo.deactivate();
+
+		// init feed loading
+		IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 	}
 }
 
@@ -292,5 +296,11 @@ ConfigsAssistant.prototype.handleCommand = function(event)
 
 ConfigsAssistant.prototype.activate = function(event) {}
 ConfigsAssistant.prototype.deactivate = function(event) {}
-ConfigsAssistant.prototype.cleanup = function(event) {}
+ConfigsAssistant.prototype.cleanup = function(event) {
+	// cancel the last subscription, this may not be needed
+	if (this.subscription)
+	{
+		this.subscription.cancel();
+	}
+}
 
