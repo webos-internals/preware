@@ -24,22 +24,16 @@
 
 static struct option long_options[] = {
   { "help",	no_argument,		0, 'h' },
-  { "version",	no_argument,		0, 'V' },
   { "debug",	required_argument,	0, 'D' },
   { 0, 0, 0, 0 }
 };
-
-void print_version() {
-  printf("Package Manager Service (%s)\n", VERSION);
-}
 
 void print_help(char *argv[]) {
 
   printf("Usage: %s [OPTION]...\n\n"
 	 "Miscellaneous:\n"
 	 "  -h, --help\t\tprint help information and exit\n"
-	 "  -D, --debug\t\tset debug level\n"
-	 "  -V, --version\t\tprint version information and exit\n", argv[0]);
+	 "  -D, --debug\t\tset debug level\n", argv[0]);
 }
 
 int getopts(int argc, char *argv[]) {
@@ -48,16 +42,12 @@ int getopts(int argc, char *argv[]) {
 
   while (1) {
     int option_index = 0;
-    c = getopt_long(argc, argv, "D:Vh", long_options, &option_index);
+    c = getopt_long(argc, argv, "D:h", long_options, &option_index);
     if (c == -1)
       break;
     switch (c) {
     case 'D':
       debug = atoi(optarg);
-      break;
-    case 'V':
-      print_version();
-      retVal = 1;
       break;
     case 'h':
       print_help(argv);

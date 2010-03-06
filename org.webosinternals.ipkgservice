@@ -1,0 +1,26 @@
+description "Package Manager Service"
+
+start on stopped finish
+
+pre-start script
+   logger "org.webosinternals.ipkgservice upstart: script called"
+
+   APPS=/media/cryptofs/apps
+
+   # Remove erroneously large list database cache files
+   find $APPS/usr/lib/ipkg/lists -size +1024k -delete
+
+   # Configure the webos-patches feed
+   VERSION=`grep PRODUCT_VERSION_STRING /etc/palm-build-info | sed -e 's/.*=Palm webOS \([0-9.]*\).*/\1/'`
+   if [ -f $APPS/etc/ipkg/webos-patches.conf ] ; then
+      echo "src/gz webos-patches http://ipkg.preware.org/feeds/webos-patches/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-patches.conf
+   fi  
+   if [ -f $APPS/etc/ipkg/webos-patches.conf.disabled ] ; then
+      echo "src/gz webos-patches http://ipkg.preware.org/feeds/webos-patches/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-patches.conf.disabled
+   fi  
+
+end script
+
+exec /media/cryptofs/apps/usr/palm/applications/org.webosinternals.preware/bin/ipkgservice
+
+respawn

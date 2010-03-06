@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "luna_service.h"
 #include "luna_methods.h"
@@ -27,6 +28,53 @@
 #define ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-"
 
 #define API_VERSION "10"
+
+char *json_escape_str(char *str)
+{
+  const char *json_hex_chars = "0123456789abcdef";
+
+  char *results = (char*)malloc(8193);
+  char *resultsPt = results;
+  int pos = 0, start_offset = 0;
+  unsigned char c;
+  do {
+    c = str[pos];
+    switch(c) {
+    case '\0':
+      break;
+    case '\b':
+    case '\n':
+    case '\r':
+    case '\t':
+    case '"':
+    case '\\':
+      if(pos - start_offset > 0)
+	{memcpy(resultsPt, str + start_offset, pos - start_offset); resultsPt+=pos - start_offset;} 
+    if(c == '\b')  {memcpy(resultsPt, "\\b", 2); resultsPt+=2;} 
+    else if(c == '\n') {memcpy(resultsPt, "\\n", 2); resultsPt+=2;} 
+    else if(c == '\r') {memcpy(resultsPt, "\\r", 2); resultsPt+=2;} 
+    else if(c == '\t') {memcpy(resultsPt, "\\t", 2); resultsPt+=2;} 
+    else if(c == '"') {memcpy(resultsPt, "\\\"", 2); resultsPt+=2;} 
+    else if(c == '\\') {memcpy(resultsPt, "\\\\", 2); resultsPt+=2;} 
+    start_offset = ++pos;
+    break;
+    default:
+      if ((c < ' ') || (c > 127)) {
+	if(pos - start_offset > 0)
+	  {memcpy(resultsPt, str + start_offset, pos - start_offset); resultsPt+=pos-start_offset;} 
+	sprintf(resultsPt, "\\u00%c%c",
+		json_hex_chars[c >> 4],
+		json_hex_chars[c & 0xf]);
+	start_offset = ++pos;
+      } else pos++;
+    }
+  } while(c);
+  if(pos - start_offset > 0)
+    {memcpy(resultsPt, str + start_offset, pos - start_offset); resultsPt+=pos-start_offset;} 
+  memcpy(resultsPt, "\0", 1);
+  return results;
+}
+
 
 bool dummy_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
@@ -60,9 +108,12 @@ bool version_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
 bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
+  // %%% MAGIC NUMBERS ALERT %%%
+  char buffer[4097];
   char line[MAXLINELEN];
   // %%% MAGIC NUMBERS ALERT %%%
   char name[128];
+  char command[128];
 
   bool retVal;
   LSError lserror;
@@ -75,14 +126,42 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   FILE *fp = popen("/bin/ls -1 /media/cryptofs/apps/etc/ipkg/", "r");
   if (fp) {
     json_t *array = json_new_array();
-    while ( fgets( name, sizeof line, fp)) {
+    while ( fgets( name, sizeof name, fp)) {
+      // %%% SEGFAULT ALERT %%%
       *strchr(name,'\n') = 0;
       if (strcmp(name, "arch.conf")) {
 	json_t *object = json_new_object();
+
+	bool enabled = true;
+	char *p = strstr(name,".disabled");
+	json_insert_pair_into_object(object, "enabled", p ? json_new_false() : json_new_true());
+	if (p) *p = '\0';
 	// %%% IGNORING RETURN ALERT %%%
 	json_insert_pair_into_object(object, "config", json_new_string(name));
-	json_insert_pair_into_object(object, "contents", json_new_string("src/gz webos-internals http://ipkg.preware.org/feeds/webos-internals/all<br>src/gz webos-internals-i686 http://ipkg.preware.org/feeds/webos-internals/i686"));
-	json_insert_pair_into_object(object, "enabled", json_new_true());
+	if (p) *p = '.';
+
+	strcpy(command, "/bin/cat /media/cryptofs/apps/etc/ipkg/");
+	strcat(command, name);
+
+	strcpy(buffer, "");
+
+	FILE *cp = popen(command, "r");
+	if (cp) {
+	  while ( fgets( line, sizeof line, cp)) {
+	    if (*buffer) {
+	      strcat(buffer, "<br>");
+	    }
+	    strcat(buffer, line);
+	    char *eol = strchr(buffer,'\n');
+	    if (eol) {
+	      *eol = 0;
+	    }
+	  }
+	}
+	if (!pclose(cp)) {
+	  json_insert_pair_into_object(object, "contents", json_new_string(buffer));
+	}
+
 	json_insert_child(array, object);
       }
     }
@@ -99,8 +178,10 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   if (jsonResponse) {
     retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
     free(jsonResponse);
-  } else
+  }
+  else {
     retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Internal Error\"}", &lserror);
+  }
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
     LSErrorFree(&lserror);
@@ -109,153 +190,306 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return retVal;
 }
 
-bool start_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal = true;
+  // %%% MAGIC NUMBERS ALERT %%%
+  char buffer[4097];
   char line[MAXLINELEN];
   // %%% MAGIC NUMBERS ALERT %%%
   char name[128];
-  char status[128];
+  char command[128];
 
+  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
-  char *jsonResponse = 0;
-  int len = 0;
-
-  json_t *object = LSMessageGetPayloadJSON(message);
-
-  json_t *id = json_find_first_label(object, "id");               
-  if (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text)) {
-    LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Invalid id\"}", &lserror);
+  retVal = LSMessageReply(lshandle, message, "{\"returnValue\":true,\"stage\":\"update\"}", &lserror);
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
     LSErrorFree(&lserror);
-    return true;
+    return retVal;
   }
 
-  // %%% MAGIC NUMBERS ALERT %%%
-  char command[128];
-  char format[128];
-
-  // %%% IGNORING RETURN ALERT %%%
-  sprintf((char *)&command, "/sbin/initctl start %s 2>&1", id->child->text);
+  char *jsonResponse = 0;
 
   json_t *response = json_new_object();
 
-  FILE *fp = popen(command, "r");
+  strcpy(buffer, "");
+
+  FILE *fp = popen("/usr/bin/ipkg -o /media/cryptofs/apps update 2>&1", "r");
   if (fp) {
+    json_t *array = json_new_array();
     while ( fgets( line, sizeof line, fp)) {
-      if (sscanf(line, "(%*d/%*d) Job not changed: %127s\n", (char *)&name) == 1) {
-	// %%% IGNORING RETURN ALERT %%%
-	json_insert_pair_into_object(response, "status", json_new_string("Job not changed"));
-      }
-      else if (sscanf(line, "(%*d/%*d) %s %127c\n", (char *)&name, (char *)&status) == 2) {
-	// %%% HACK ALERT %%%
-	*strchr(status,'\n') = 0;
-	// %%% IGNORING RETURN ALERT %%%
-	json_insert_pair_into_object(response, "status", json_new_string(status));
+      // %%% SEGFAULT ALERT %%%
+      *strchr(line,'\n') = 0;
+      json_t *object = json_new_object();
+      json_insert_pair_into_object(object, "returnValue", json_new_true());
+      json_insert_pair_into_object(object, "status", json_new_string(line));
+      json_insert_pair_into_object(object, "stage", json_new_string("status"));
+      json_tree_to_string(object, &jsonResponse);
+      json_free_value(&object);
+      retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
+      free(jsonResponse); jsonResponse = 0;
+      if (!retVal) {
+	LSErrorPrint(&lserror, stderr);
+	LSErrorFree(&lserror);
+	return retVal;
       }
     }
     if (!pclose(fp)) {
       // %%% IGNORING RETURN ALERT %%%
       json_insert_pair_into_object(response, "returnValue", json_new_true());
+      json_insert_pair_into_object(response, "stage", json_new_string("completed"));
+      json_tree_to_string(response, &jsonResponse);
     }
-    else {
-      // %%% IGNORING RETURN ALERT %%%
-      json_insert_pair_into_object(response, "returnValue", json_new_false());
-    }
-    json_tree_to_string(response, &jsonResponse);
   }
 
   if (jsonResponse) {
-    LSMessageReply(lshandle, message, jsonResponse, &lserror);
+    retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
     free(jsonResponse);
-  } else
-    LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Generic error\"}", &lserror);
+  }
+  else {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Internal Error\"}", &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
  
-  json_free_value(&response);
-  LSErrorFree(&lserror);
-
   return retVal;
 }
 
-bool stop_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
-  bool retVal = true;
-  char line[MAXLINELEN];
+bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscribed) {
   // %%% MAGIC NUMBERS ALERT %%%
-  char name[128];
-  char status[128];
+  char buffer[4097];
+  // %%% MAGIC NUMBERS ALERT %%%
+  char string[128];
+  int chunksize = 4096;
 
+  fseek(file, 0, SEEK_END);
+  int filesize = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
-
   char *jsonResponse = 0;
-  int len = 0;
-
-  json_t *object = LSMessageGetPayloadJSON(message);
-
-  json_t *id = json_find_first_label(object, "id");               
-  if (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text)) {
-    LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Invalid id\"}", &lserror);
-    LSErrorFree(&lserror);
-    return true;
+  
+  if (subscribed) {
+    retVal = false;
+    if (asprintf(&jsonResponse, "{\"returnValue\":true,\"filesize\":%d,\"chunksize\":%d,\"stage\":\"start\"}", filesize, chunksize)) {
+      retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
+    }
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+      return retVal;
+    }
   }
-
-  // %%% MAGIC NUMBERS ALERT %%%
-  char command[128];
-  char format[128];
-
-  // %%% IGNORING RETURN ALERT %%%
-  sprintf((char *)&command, "/sbin/initctl stop %s 2>&1", id->child->text);
+  else {
+    chunksize = filesize;
+  }
 
   json_t *response = json_new_object();
 
-  FILE *fp = popen(command, "r");
-  if (fp) {
-    while ( fgets( line, sizeof line, fp)) {
-      if (sscanf(line, "(%*d/%*d) Job not changed: %127s\n", (char *)&name) == 1) {
-	// %%% IGNORING RETURN ALERT %%%
-	json_insert_pair_into_object(response, "status", json_new_string("Job not changed"));
-      }
-      else if (sscanf(line, "(%*d/%*d) %s %127c\n", (char *)&name, (char *)&status) == 2) {
-	// %%% HACK ALERT %%%
-	*strchr(status,'\n') = 0;
-	// %%% IGNORING RETURN ALERT %%%
-	json_insert_pair_into_object(response, "status", json_new_string(status));
-      }
+  json_t *array = json_new_array();
+  int size;
+  int datasize = 0;
+  while ((size = fread(buffer, 1, chunksize, file)) > 0) {
+    datasize += size;
+    buffer[size] = '\0';
+    json_t *object = json_new_object();
+    json_insert_pair_into_object(object, "returnValue", json_new_true());
+    char *formatted = json_escape_str(buffer);
+    sprintf(string, "%d", strlen(formatted));
+    json_insert_pair_into_object(object, "size", json_new_number(string));
+    json_insert_pair_into_object(object, "contents", json_new_string(formatted));
+    if (subscribed) {
+      json_insert_pair_into_object(object, "stage", json_new_string("middle"));
     }
-    if (!pclose(fp)) {
-      // %%% IGNORING RETURN ALERT %%%
-      json_insert_pair_into_object(response, "returnValue", json_new_true());
+    json_tree_to_string(object, &jsonResponse);
+    json_free_value(&object);
+    free(formatted);
+    retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
+    free(jsonResponse); jsonResponse = 0;
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+      return retVal;
     }
-    else {
-      // %%% IGNORING RETURN ALERT %%%
-      json_insert_pair_into_object(response, "returnValue", json_new_false());
-    }
-    json_tree_to_string(response, &jsonResponse);
   }
 
-  if (jsonResponse) {
-    LSMessageReply(lshandle, message, jsonResponse, &lserror);
-    free(jsonResponse);
-  } else
-    LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Generic error\"}", &lserror);
+  if (!fclose(file)) {
+    if (subscribed) {
+      // %%% IGNORING RETURN ALERT %%%
+      json_insert_pair_into_object(response, "returnValue", json_new_true());
+      sprintf(string, "%d", datasize);
+      json_insert_pair_into_object(response, "datasize", json_new_number(string));
+      json_insert_pair_into_object(response, "stage", json_new_string("end"));
+      json_tree_to_string(response, &jsonResponse);
+      retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
+      free(jsonResponse); jsonResponse = 0;
+    }
+  }
+  else {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Internal Error\"}", &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
  
-  json_free_value(&response);
-  LSErrorFree(&lserror);
-
   return retVal;
+}
+
+bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  // %%% MAGIC NUMBERS ALERT %%%
+  char command[128];
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  // Extract the feed argument from the message
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id = json_find_first_label(object, "feed");               
+  if (!id || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Invalid or missing feed\"}", &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+
+  strcpy(command, "/media/cryptofs/apps/usr/lib/ipkg/lists/");
+  strcat(command, id->child->text);
+
+  FILE * listfile = fopen(command, "r");
+  
+  if (listfile == NULL) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Cannot find feed\"}", &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+
+  return read_file(lshandle, message, listfile, true);
+}
+
+bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  // %%% MAGIC NUMBERS ALERT %%%
+  char command[128];
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  // Extract the feed argument from the message
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id = json_find_first_label(object, "package");               
+  if (!id || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Invalid or missing package\"}", &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+
+  strcpy(command, "/media/cryptofs/apps/usr/lib/ipkg/info/");
+  strcat(command, id->child->text);
+  strcat(command, ".control");
+
+  FILE * controlfile = fopen(command, "r");
+  
+  if (controlfile == NULL) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Cannot find package\"}", &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+
+  return read_file(lshandle, message, controlfile, false);
+}
+
+bool get_status_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  FILE * statusfile = fopen("/media/cryptofs/apps/usr/lib/ipkg/status", "r");
+  
+  if (statusfile == NULL) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Cannot find status file\"}", &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+
+  return read_file(lshandle, message, statusfile, false);
+}
+
+bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  // %%% MAGIC NUMBERS ALERT %%%
+  char command[128];
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  // Extract the feed argument from the message
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id = json_find_first_label(object, "package");               
+  if (!id || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Invalid or missing package\"}", &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+
+  strcpy(command, "/media/cryptofs/apps/usr/palm/applications/");
+  strcat(command, id->child->text);
+  strcat(command, "/appinfo.json");
+
+  FILE * appinfofile = fopen(command, "r");
+  
+  if (appinfofile == NULL) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Cannot find package\"}", &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+
+  return read_file(lshandle, message, appinfofile, false);
 }
 
 LSMethod luna_methods[] = {
   { "status",		dummy_method },
   { "version",		version_method },
+  { "update",		update_method },
   { "getConfigs",	get_configs_method },
-
+  { "getListFile",	get_list_file_method },
+  { "getControlFile",	get_control_file_method },
+  { "getStatusFile",	get_status_file_method },
+  { "getAppinfoFile",	get_appinfo_file_method },
   { "install",		dummy_method },
   { "remove",		dummy_method },
   { "replace",		dummy_method },
-  { "update",		dummy_method },
   { "rescan",		dummy_method },
   { "restartLuna",	dummy_method },
   { "restartJava",	dummy_method },
@@ -263,10 +497,6 @@ LSMethod luna_methods[] = {
   { "addConfig",	dummy_method },
   { "deleteConfig",	dummy_method },
   { "setConfigState",	dummy_method },
-  { "getListFile",	dummy_method },
-  { "getStatusFile",	dummy_method },
-  { "getControlFile",	dummy_method },
-  { "getAppinfoFile",	dummy_method },
   { 0, 0 }
 };
 
