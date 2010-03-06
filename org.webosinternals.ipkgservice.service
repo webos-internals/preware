@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.webosinternals.ipkgservice
+Exec=/media/cryptofs/apps/usr/palm/applications/org.webosintenals.preware/bin/ipkgservice
