@@ -82,7 +82,7 @@ bool dummy_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  retVal = LSMessageReply(lshandle, message, "{\"returnValue\":true}", &lserror);
+  retVal = LSMessageReply(lshandle, message, "{\"returnValue\": true}", &lserror);
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
     LSErrorFree(&lserror);
@@ -97,7 +97,7 @@ bool version_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  retVal = LSMessageReply(lshandle, message, "{\"returnValue\":true,\"apiVersion\":\"" API_VERSION "\"}", &lserror);
+  retVal = LSMessageReply(lshandle, message, "{\"returnValue\": true, \"apiVersion\": \"" API_VERSION "\"}", &lserror);
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
     LSErrorFree(&lserror);
@@ -151,18 +151,20 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
       strcat(command, name);
 
       strcpy(buffer, "");
+      bool append = false;
 
       FILE *cp = popen(command, "r");
       if (cp) {
 	while ( fgets( line, sizeof line, cp)) {
-	  if (*buffer) {
+	  if (append) {
 	    strcat(buffer, "<br>");
 	  }
-	  strcat(buffer, line);
-	  char *eol = strchr(buffer,'\n');
+	  char *eol = strchr(line,'\n');
 	  if (eol) {
 	    *eol = 0;
 	  }
+	  strcat(buffer, line);
+	  append = true;
 	}
       }
       if (!pclose(cp)) {
@@ -186,7 +188,7 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     free(jsonResponse);
   }
   else {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Internal Error\"}", &lserror);
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Internal Error\"}", &lserror);
   }
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
@@ -206,7 +208,7 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  retVal = LSMessageReply(lshandle, message, "{\"returnValue\":true,\"stage\":\"update\"}", &lserror);
+  retVal = LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"update\"}", &lserror);
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
     LSErrorFree(&lserror);
@@ -254,13 +256,58 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     free(jsonResponse);
   }
   else {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Internal Error\"}", &lserror);
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Internal Error\"}", &lserror);
   }
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
     LSErrorFree(&lserror);
   }
  
+  return retVal;
+}
+
+bool run_command(LSHandle* lshandle, LSMessage *message, char *command) {
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  char buffer[MAXBUFLEN];
+  strcpy(buffer, "{");
+  bool first = true;
+
+  FILE *fp = popen(command, "r");
+  if (fp) {
+    char line[MAXLINLEN];
+    while (fgets(line, sizeof line, fp)) {
+      if (first) {
+	strcat(buffer, "\"errorText\": \"");
+	first = false;
+      }
+      else {
+	strcat(buffer, "<br>");
+      }
+      char *eol = strchr(line,'\n'); if (eol) *eol = 0;
+      strcat(buffer, json_escape_str(line));
+    }
+    if (!first) strcat(buffer, "\", ");
+    strcat(buffer, "\"returnValue\": ");
+    if (!pclose(fp)) {
+      strcat(buffer, "true, \"stage\": \"completed\"}");
+    }
+    else {
+      strcat(buffer, "false, \"errorCode\": -1}");
+    }
+  }
+  else {
+    strcat(buffer, "\"errorText\": \"Unable to run command\", \"returnValue\": false, \"errorCode\": -1}");
+  }
+
+  retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+
   return retVal;
 }
 
@@ -280,7 +327,7 @@ bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscrib
   
   if (subscribed) {
     retVal = false;
-    if (asprintf(&jsonResponse, "{\"returnValue\":true,\"filesize\":%d,\"chunksize\":%d,\"stage\":\"start\"}", filesize, chunksize)) {
+    if (asprintf(&jsonResponse, "{\"returnValue\": true, \"filesize\": %d, \"chunksize\": %d, \"stage\": \"start\"}", filesize, chunksize)) {
       retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
     }
     if (!retVal) {
@@ -335,7 +382,7 @@ bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscrib
     }
   }
   else {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Internal Error\"}", &lserror);
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Internal Error\"}", &lserror);
   }
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
@@ -356,8 +403,8 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   // Extract the feed argument from the message
   json_t *object = LSMessageGetPayloadJSON(message);
   json_t *id = json_find_first_label(object, "feed");               
-  if (!id || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Invalid or missing feed\"}", &lserror);
+  if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing feed\"}", &lserror);
     if (!retVal) {
       LSErrorPrint(&lserror, stderr);
       LSErrorFree(&lserror);
@@ -371,7 +418,7 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   FILE * listfile = fopen(command, "r");
   
   if (listfile == NULL) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Cannot find feed\"}", &lserror);
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find feed\"}", &lserror);
     if (!retVal) {
       LSErrorPrint(&lserror, stderr);
       LSErrorFree(&lserror);
@@ -393,8 +440,8 @@ bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   // Extract the feed argument from the message
   json_t *object = LSMessageGetPayloadJSON(message);
   json_t *id = json_find_first_label(object, "package");               
-  if (!id || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Invalid or missing package\"}", &lserror);
+  if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing package\"}", &lserror);
     if (!retVal) {
       LSErrorPrint(&lserror, stderr);
       LSErrorFree(&lserror);
@@ -409,7 +456,7 @@ bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   FILE * controlfile = fopen(command, "r");
   
   if (controlfile == NULL) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Cannot find package\"}", &lserror);
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find package\"}", &lserror);
     if (!retVal) {
       LSErrorPrint(&lserror, stderr);
       LSErrorFree(&lserror);
@@ -429,7 +476,7 @@ bool get_status_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   FILE * statusfile = fopen("/media/cryptofs/apps/usr/lib/ipkg/status", "r");
   
   if (statusfile == NULL) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Cannot find status file\"}", &lserror);
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find status file\"}", &lserror);
     if (!retVal) {
       LSErrorPrint(&lserror, stderr);
       LSErrorFree(&lserror);
@@ -451,8 +498,8 @@ bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   // Extract the feed argument from the message
   json_t *object = LSMessageGetPayloadJSON(message);
   json_t *id = json_find_first_label(object, "package");               
-  if (!id || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Invalid or missing package\"}", &lserror);
+  if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing package\"}", &lserror);
     if (!retVal) {
       LSErrorPrint(&lserror, stderr);
       LSErrorFree(&lserror);
@@ -467,7 +514,7 @@ bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   FILE * appinfofile = fopen(command, "r");
   
   if (appinfofile == NULL) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\":false,\"errorCode\":-1,\"errorText\":\"Cannot find package\"}", &lserror);
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find package\"}", &lserror);
     if (!retVal) {
       LSErrorPrint(&lserror, stderr);
       LSErrorFree(&lserror);
@@ -476,6 +523,200 @@ bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   }
 
   return read_file(lshandle, message, appinfofile, false);
+}
+
+bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id;
+
+  // Extract the config argument from the message
+  id = json_find_first_label(object, "config");               
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing config parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char config[MAXNAMLEN];
+  strcpy(config, id->child->text);
+
+  // Extract the enabled argument from the message
+  id = json_find_first_label(object, "enabled");
+  if (!id || ((id->child->type != JSON_TRUE) && id->child->type != JSON_FALSE)) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing enabled parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  bool enabled = (id->child->type == JSON_TRUE);
+
+  char command[MAXLINLEN];
+  if (enabled) {
+    snprintf(command, MAXLINLEN,
+	     "mv /media/cryptofs/apps/etc/ipkg/%s.disabled /media/cryptofs/apps/etc/ipkg/%s 2>&1",
+	     config, config);
+  }
+  else {
+    snprintf(command, MAXLINLEN,
+	     "mv /media/cryptofs/apps/etc/ipkg/%s /media/cryptofs/apps/etc/ipkg/%s.disabled 2>&1",
+	     config, config);
+  }
+
+  return run_command(lshandle, message, command);
+}
+
+bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id;
+
+  // Extract the config argument from the message
+  id = json_find_first_label(object, "config");               
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing config parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char config[MAXNAMLEN];
+  strcpy(config, id->child->text);
+
+  // Extract the name argument from the message
+  id = json_find_first_label(object, "name");               
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing name parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char name[MAXNAMLEN];
+  strcpy(name, id->child->text);
+
+  // Extract the url argument from the message
+  id = json_find_first_label(object, "url");               
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXLINLEN)) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing url parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char url[MAXLINLEN];
+  strcpy(url, id->child->text);
+
+  // Extract the gzip argument from the message
+  id = json_find_first_label(object, "gzip");
+  if (!id || ((id->child->type != JSON_TRUE) && id->child->type != JSON_FALSE)) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing gzip parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  bool gzip = (id->child->type == JSON_TRUE);
+
+  char command[MAXLINLEN];
+  snprintf(command, MAXLINLEN,
+	   "echo \"%s %s %s\" > /media/cryptofs/apps/etc/ipkg/%s 2>&1",
+	   gzip?"src/gz":"src", name, url, config);
+
+  return run_command(lshandle, message, command);
+}
+
+bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id;
+
+  // Extract the config argument from the message
+  id = json_find_first_label(object, "config");               
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing config parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char config[MAXNAMLEN];
+  strcpy(config, id->child->text);
+
+  // Extract the name argument from the message
+  id = json_find_first_label(object, "name");               
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing name parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char name[MAXNAMLEN];
+  strcpy(name, id->child->text);
+
+  char command[MAXLINLEN];
+  snprintf(command, MAXLINLEN,
+	   "/bin/rm /media/cryptofs/apps/etc/ipkg/%s 2>&1", config);
+
+  return run_command(lshandle, message, command);
 }
 
 LSMethod luna_methods[] = {
@@ -487,6 +728,9 @@ LSMethod luna_methods[] = {
   { "getControlFile",	get_control_file_method },
   { "getStatusFile",	get_status_file_method },
   { "getAppinfoFile",	get_appinfo_file_method },
+  { "setConfigState",	set_config_state_method },
+  { "addConfig",	add_config_method },
+  { "deleteConfig",	delete_config_method },
   { "install",		dummy_method },
   { "remove",		dummy_method },
   { "replace",		dummy_method },
@@ -494,9 +738,6 @@ LSMethod luna_methods[] = {
   { "restartLuna",	dummy_method },
   { "restartJava",	dummy_method },
   { "restartDevice",	dummy_method },
-  { "addConfig",	dummy_method },
-  { "deleteConfig",	dummy_method },
-  { "setConfigState",	dummy_method },
   { 0, 0 }
 };
 
