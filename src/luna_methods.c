@@ -108,18 +108,17 @@ bool version_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
 bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  // %%% MAGIC NUMBERS ALERT %%%
-  char buffer[4097];
-  char line[MAXLINELEN];
-  // %%% MAGIC NUMBERS ALERT %%%
-  char name[128];
-  char command[128];
+  char buffer[MAXBUFLEN];
+  char line[MAXLINLEN];
+  char name[MAXNAMLEN];
+  char command[MAXLINLEN];
 
   bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
   char *jsonResponse = 0;
+  enum json_error jsonError = JSON_OK;
 
   json_t *response = json_new_object();
 
@@ -127,43 +126,50 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   if (fp) {
     json_t *array = json_new_array();
     while ( fgets( name, sizeof name, fp)) {
-      // %%% SEGFAULT ALERT %%%
-      *strchr(name,'\n') = 0;
-      if (strcmp(name, "arch.conf")) {
-	json_t *object = json_new_object();
 
-	bool enabled = true;
-	char *p = strstr(name,".disabled");
-	json_insert_pair_into_object(object, "enabled", p ? json_new_false() : json_new_true());
-	if (p) *p = '\0';
-	// %%% IGNORING RETURN ALERT %%%
-	json_insert_pair_into_object(object, "config", json_new_string(name));
-	if (p) *p = '.';
+      // Chomp the newline
+      char *nl = strchr(name,'\n'); if (nl) *nl = 0;
 
-	strcpy(command, "/bin/cat /media/cryptofs/apps/etc/ipkg/");
-	strcat(command, name);
+      // Ignore the arch.conf file
+      if (!strcmp(name, "arch.conf")) continue;
 
-	strcpy(buffer, "");
+      // Create a JSON object for each config file
+      json_t *object = json_new_object();
 
-	FILE *cp = popen(command, "r");
-	if (cp) {
-	  while ( fgets( line, sizeof line, cp)) {
-	    if (*buffer) {
-	      strcat(buffer, "<br>");
-	    }
-	    strcat(buffer, line);
-	    char *eol = strchr(buffer,'\n');
-	    if (eol) {
-	      *eol = 0;
-	    }
+      // Determine if the config file is enabled or not
+      char *p = strstr(name,".disabled");
+      // %%% IGNORING RETURN ALERT %%%
+      json_insert_pair_into_object(object, "enabled", p ? json_new_false() : json_new_true());
+
+      // Store the config name, excluding any .disabled suffix
+      if (p) *p = '\0';
+      // %%% IGNORING RETURN ALERT %%%
+      json_insert_pair_into_object(object, "config", json_new_string(name));
+      if (p) *p = '.';
+
+      strcpy(command, "/bin/cat /media/cryptofs/apps/etc/ipkg/");
+      strcat(command, name);
+
+      strcpy(buffer, "");
+
+      FILE *cp = popen(command, "r");
+      if (cp) {
+	while ( fgets( line, sizeof line, cp)) {
+	  if (*buffer) {
+	    strcat(buffer, "<br>");
+	  }
+	  strcat(buffer, line);
+	  char *eol = strchr(buffer,'\n');
+	  if (eol) {
+	    *eol = 0;
 	  }
 	}
-	if (!pclose(cp)) {
-	  json_insert_pair_into_object(object, "contents", json_new_string(buffer));
-	}
-
-	json_insert_child(array, object);
       }
+      if (!pclose(cp)) {
+	json_insert_pair_into_object(object, "contents", json_new_string(buffer));
+      }
+      
+      json_insert_child(array, object);
     }
     if (!pclose(fp)) {
       // %%% IGNORING RETURN ALERT %%%
@@ -192,12 +198,9 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
 bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  // %%% MAGIC NUMBERS ALERT %%%
-  char buffer[4097];
-  char line[MAXLINELEN];
-  // %%% MAGIC NUMBERS ALERT %%%
-  char name[128];
-  char command[128];
+  char buffer[MAXBUFLEN];
+  char line[MAXLINLEN];
+  char name[MAXNAMLEN];
 
   bool retVal;
   LSError lserror;
@@ -220,8 +223,10 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   if (fp) {
     json_t *array = json_new_array();
     while ( fgets( line, sizeof line, fp)) {
-      // %%% SEGFAULT ALERT %%%
-      *strchr(line,'\n') = 0;
+
+      // Chomp the newline
+      char *nl = strchr(line,'\n'); if (nl) *nl = 0;
+
       json_t *object = json_new_object();
       json_insert_pair_into_object(object, "returnValue", json_new_true());
       json_insert_pair_into_object(object, "status", json_new_string(line));
@@ -260,11 +265,9 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscribed) {
-  // %%% MAGIC NUMBERS ALERT %%%
-  char buffer[4097];
-  // %%% MAGIC NUMBERS ALERT %%%
-  char string[128];
-  int chunksize = 4096;
+  char buffer[MAXBUFLEN];
+  char sizestr[MAXNUMLEN];
+  int chunksize = CHUNKSIZE;
 
   fseek(file, 0, SEEK_END);
   int filesize = ftell(file);
@@ -301,8 +304,8 @@ bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscrib
     json_t *object = json_new_object();
     json_insert_pair_into_object(object, "returnValue", json_new_true());
     char *formatted = json_escape_str(buffer);
-    sprintf(string, "%d", strlen(formatted));
-    json_insert_pair_into_object(object, "size", json_new_number(string));
+    sprintf(sizestr, "%d", strlen(formatted));
+    json_insert_pair_into_object(object, "size", json_new_number(sizestr));
     json_insert_pair_into_object(object, "contents", json_new_string(formatted));
     if (subscribed) {
       json_insert_pair_into_object(object, "stage", json_new_string("middle"));
@@ -323,8 +326,8 @@ bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscrib
     if (subscribed) {
       // %%% IGNORING RETURN ALERT %%%
       json_insert_pair_into_object(response, "returnValue", json_new_true());
-      sprintf(string, "%d", datasize);
-      json_insert_pair_into_object(response, "datasize", json_new_number(string));
+      sprintf(sizestr, "%d", datasize);
+      json_insert_pair_into_object(response, "datasize", json_new_number(sizestr));
       json_insert_pair_into_object(response, "stage", json_new_string("end"));
       json_tree_to_string(response, &jsonResponse);
       retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
@@ -344,8 +347,7 @@ bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscrib
 
 bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  // %%% MAGIC NUMBERS ALERT %%%
-  char command[128];
+  char command[MAXLINLEN];
 
   bool retVal;
   LSError lserror;
@@ -382,8 +384,7 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
 bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  // %%% MAGIC NUMBERS ALERT %%%
-  char command[128];
+  char command[MAXLINLEN];
 
   bool retVal;
   LSError lserror;
@@ -441,8 +442,7 @@ bool get_status_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
 bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  // %%% MAGIC NUMBERS ALERT %%%
-  char command[128];
+  char command[MAXLINLEN];
 
   bool retVal;
   LSError lserror;

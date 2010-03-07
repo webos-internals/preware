@@ -24,7 +24,15 @@
 
 bool register_methods(LSPalmService *serviceHandle, LSError lserror);
 
-#define MAXLINELEN 1024
-#define MAXVERLEN 32
+// Twice the chunk size (so any character can be escaped), plus a terminating null.
+#define MAXBUFLEN 8193
+// Size of file chunks to pass back up to webOS.
+#define CHUNKSIZE 4096
+// Max size of any text line in a config file and elsewhere.
+#define MAXLINLEN 1024
+// Max size of the name of something.
+#define MAXNAMLEN  128
+// Max size of a version number or size string.
+#define MAXNUMLEN   32
 
 #endif /* LUNA_METHODS_H_ */
