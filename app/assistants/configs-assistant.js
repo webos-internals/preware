@@ -28,7 +28,7 @@ ConfigsAssistant.prototype.setup = function()
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 	
 	// init feed loading
-	IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
+	this.subscription = IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 	
 	// setup header button
 	this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
@@ -233,19 +233,19 @@ ConfigsAssistant.prototype.confToggled = function(event)
 	if (event.property == 'value' && event.target.id.include('_toggle')) 
 	{
 		//alert(event.target.id.replace(/_toggle/, '') + ' - ' + event.value);
-		IPKGService.setConfigState(this.test.bindAsEventListener(this), this.feeds[event.target.id.replace(/_toggle/, '')].config, event.value);
+		this.subscription = IPKGService.setConfigState(this.test.bindAsEventListener(this), this.feeds[event.target.id.replace(/_toggle/, '')].config, event.value);
 	}
 }
 ConfigsAssistant.prototype.confDeleted = function(event)
 {
-	this.subsciption = IPKGService.deleteConfig(this.test.bindAsEventListener(this),
+	this.subscription = IPKGService.deleteConfig(this.test.bindAsEventListener(this),
 		this.feeds[event.item.toggleName].config,
 		this.feeds[event.item.toggleName].name);
 }
 
 ConfigsAssistant.prototype.newConfButton = function()
 {
-	this.subsciption = IPKGService.addConfig(this.newConfResponse.bindAsEventListener(this),
+	this.subscription = IPKGService.addConfig(this.newConfResponse.bindAsEventListener(this),
 		this.controller.get('newName').mojo.getValue() + ".conf",
 		this.controller.get('newName').mojo.getValue(),
 		this.controller.get('newUrl').mojo.getValue(),
@@ -261,7 +261,7 @@ ConfigsAssistant.prototype.newConfResponse = function(payload)
 		this.controller.get('newButton').mojo.deactivate();
 
 		// init feed loading
-		IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
+		this.subscription = IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 	}
 }
 
