@@ -29,7 +29,11 @@
 
 #define API_VERSION "10"
 
-char *json_escape_str(char *str)
+static char buffer[MAXBUFLEN+MAXBUFLEN];
+static char run_command_buffer[MAXBUFLEN];
+static char read_file_buffer[MAXBUFLEN];
+
+static char *json_escape_str(char *str)
 {
   const char *json_hex_chars = "0123456789abcdef";
 
@@ -104,6 +108,62 @@ bool version_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   }
 
   return retVal;
+}
+
+static bool run_command(LSHandle* lshandle, LSMessage *message, char *command, bool subscribed) {
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  char status[MAXBUFLEN];
+  char line[MAXLINLEN];
+
+  strcpy(run_command_buffer, "{");
+  bool first = true;
+
+  FILE *fp = popen(command, "r");
+  if (fp) {
+    while (fgets(line, sizeof line, fp)) {
+      if (first) {
+	strcat(run_command_buffer, "\"errorText\": \"");
+	first = false;
+      }
+      else {
+	strcat(run_command_buffer, "<br>");
+      }
+      char *eol = strchr(line,'\n'); if (eol) *eol = 0;
+      char *escline = json_escape_str(line);
+      if (lshandle && message && subscribed) {
+	strcpy(status, "{\"returnValue\": true, \"stage\": \"status\", \"status\": \"");
+	strcat(status, escline);
+	strcat(status, "\"}");
+	retVal = LSMessageReply(lshandle, message, status, &lserror);
+	if (!retVal) {
+	  LSErrorPrint(&lserror, stderr);
+	  LSErrorFree(&lserror);
+	  // Don't continue sending messages
+	  free(escline);
+	  strcpy(run_command_buffer, "");
+	  return false;
+	}
+      }
+      strcat(run_command_buffer, escline);
+      free(escline);
+    }
+    if (!first) strcat(run_command_buffer, "\", ");
+    strcat(run_command_buffer, "\"returnValue\": ");
+    if (!pclose(fp)) {
+      strcat(run_command_buffer, "true}");
+    }
+    else {
+      strcat(run_command_buffer, "false, \"errorCode\": -1}");
+    }
+  }
+  else {
+    return false;
+  }
+
+  return true;
 }
 
 bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -266,55 +326,8 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return retVal;
 }
 
-bool run_command(LSHandle* lshandle, LSMessage *message, char *command) {
-  bool retVal;
-  LSError lserror;
-  LSErrorInit(&lserror);
-
-  char buffer[MAXBUFLEN];
-  strcpy(buffer, "{");
-  bool first = true;
-
-  FILE *fp = popen(command, "r");
-  if (fp) {
-    char line[MAXLINLEN];
-    while (fgets(line, sizeof line, fp)) {
-      if (first) {
-	strcat(buffer, "\"errorText\": \"");
-	first = false;
-      }
-      else {
-	strcat(buffer, "<br>");
-      }
-      char *eol = strchr(line,'\n'); if (eol) *eol = 0;
-      strcat(buffer, json_escape_str(line));
-    }
-    if (!first) strcat(buffer, "\", ");
-    strcat(buffer, "\"returnValue\": ");
-    if (!pclose(fp)) {
-      // %%% Remove the stage parameter when Preware is updated %%%
-      strcat(buffer, "true, \"stage\": \"completed\"}");
-    }
-    else {
-      strcat(buffer, "false, \"errorCode\": -1}");
-    }
-  }
-  else {
-    strcat(buffer, "\"errorText\": \"Unable to run command\", \"returnValue\": false, \"errorCode\": -1}");
-  }
-
-  retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
-
-  return retVal;
-}
-
-bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscribed) {
-  char buffer[MAXBUFLEN];
-  char sizestr[MAXNUMLEN];
+static bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscribed) {
+  char chunk[CHUNKSIZE];
   int chunksize = CHUNKSIZE;
 
   fseek(file, 0, SEEK_END);
@@ -324,66 +337,56 @@ bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscrib
   bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
-  char *jsonResponse = 0;
-  
+
   if (subscribed) {
     retVal = false;
-    if (asprintf(&jsonResponse, "{\"returnValue\": true, \"filesize\": %d, \"chunksize\": %d, \"stage\": \"start\"}", filesize, chunksize)) {
-      retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
+    if (sprintf(read_file_buffer,
+		"{\"returnValue\": true, \"filesize\": %d, \"chunksize\": %d, \"stage\": \"start\"}",
+		filesize, chunksize)) {
+      retVal = LSMessageReply(lshandle, message, read_file_buffer, &lserror);
     }
     if (!retVal) {
       LSErrorPrint(&lserror, stderr);
       LSErrorFree(&lserror);
-      return retVal;
+      return false;
     }
   }
   else {
     chunksize = filesize;
   }
 
-  json_t *response = json_new_object();
-
-  json_t *array = json_new_array();
   int size;
   int datasize = 0;
-  while ((size = fread(buffer, 1, chunksize, file)) > 0) {
+  while ((size = fread(chunk, 1, chunksize, file)) > 0) {
     datasize += size;
-    buffer[size] = '\0';
-    json_t *object = json_new_object();
-    json_insert_pair_into_object(object, "returnValue", json_new_true());
-    char *formatted = json_escape_str(buffer);
-    sprintf(sizestr, "%d", strlen(formatted));
-    json_insert_pair_into_object(object, "size", json_new_number(sizestr));
-    json_insert_pair_into_object(object, "contents", json_new_string(formatted));
+    chunk[size] = '\0';
+    sprintf(read_file_buffer, "{\"returnValue\": true, \"size\": %d, \"contents\": \"", size);
+    char *escchunk = json_escape_str(chunk);
+    strcat(read_file_buffer, escchunk);
+    free(escchunk);
+    strcat(read_file_buffer, "\"");
     if (subscribed) {
-      json_insert_pair_into_object(object, "stage", json_new_string("middle"));
+      strcat(read_file_buffer, ", \"stage\": \"middle\"");
     }
-    json_tree_to_string(object, &jsonResponse);
-    json_free_value(&object);
-    free(formatted);
-    retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
-    free(jsonResponse); jsonResponse = 0;
+    strcat(read_file_buffer, "}");
+    retVal = LSMessageReply(lshandle, message, read_file_buffer, &lserror);
     if (!retVal) {
       LSErrorPrint(&lserror, stderr);
       LSErrorFree(&lserror);
-      return retVal;
+      return false;
     }
   }
 
   if (!fclose(file)) {
+    retVal = true;
     if (subscribed) {
-      // %%% IGNORING RETURN ALERT %%%
-      json_insert_pair_into_object(response, "returnValue", json_new_true());
-      sprintf(sizestr, "%d", datasize);
-      json_insert_pair_into_object(response, "datasize", json_new_number(sizestr));
-      json_insert_pair_into_object(response, "stage", json_new_string("end"));
-      json_tree_to_string(response, &jsonResponse);
-      retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
-      free(jsonResponse); jsonResponse = 0;
+      sprintf(read_file_buffer, "{\"returnValue\": true, \"datasize\": %d, \"stage\": \"end\"}", datasize);
+      retVal = LSMessageReply(lshandle, message, read_file_buffer, &lserror);
     }
   }
   else {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Internal Error\"}", &lserror);
+    sprintf(read_file_buffer, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot close file\"}");
+    retVal = LSMessageReply(lshandle, message, read_file_buffer, &lserror);
   }
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
@@ -580,7 +583,22 @@ bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
 	     config, config);
   }
 
-  return run_command(lshandle, message, command);
+  if (run_command(lshandle, message, command, false)) {
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    char *esccom = json_escape_str(command);
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
+	     esccom);
+    free(esccom);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
 }
 
 bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -665,7 +683,24 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 	   "echo \"%s %s %s\" > /media/cryptofs/apps/etc/ipkg/%s 2>&1",
 	   gzip?"src/gz":"src", name, url, config);
 
-  return run_command(lshandle, message, command);
+  if (run_command(lshandle, message, command, false)) {
+    // %%% Remove this line when Preware is updated %%%
+    strcpy(run_command_buffer+strlen(run_command_buffer)-1, ", \"stage\": \"completed\"}");
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    char *esccom = json_escape_str(command);
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
+	     esccom);
+    free(esccom);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
 }
 
 bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -717,7 +752,22 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   snprintf(command, MAXLINLEN,
 	   "/bin/rm /media/cryptofs/apps/etc/ipkg/%s 2>&1", config);
 
-  return run_command(lshandle, message, command);
+  if (run_command(lshandle, message, command, false)) {
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    char *esccom = json_escape_str(command);
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
+	     esccom);
+    free(esccom);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
 }
 
 bool rescan_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -726,8 +776,25 @@ bool rescan_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  return run_command(lshandle, message,
-		     "/usr/bin/luna-send -n 1 palm://com.palm.applicationManager/rescan {} 2>&1");
+  char command[MAXLINLEN];
+  strcpy(command, "/usr/bin/luna-send -n 1 palm://com.palm.applicationManager/rescan {} 2>&1");
+
+  if (run_command(lshandle, message, command, false)) {
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    char *esccom = json_escape_str(command);
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
+	     esccom);
+    free(esccom);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
 }
 
 bool restart_luna_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -736,8 +803,25 @@ bool restart_luna_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  return run_command(lshandle, message,
-		     "/usr/bin/killall -HUP LunaSysMgr 2>&1");
+  char command[MAXLINLEN];
+  strcpy(command, "/usr/bin/killall -HUP LunaSysMgr 2>&1");
+
+  if (run_command(lshandle, message, command, false)) {
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    char *esccom = json_escape_str(command);
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
+	     esccom);
+    free(esccom);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
 }
 
 bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -746,8 +830,25 @@ bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  return run_command(lshandle, message,
-		     "/usr/bin/killall java 2>&1");
+  char command[MAXLINLEN];
+  strcpy(command, "/usr/bin/killall java 2>&1");
+
+  if (run_command(lshandle, message, command, false)) {
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    char *esccom = json_escape_str(command);
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
+	     esccom);
+    free(esccom);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
 }
 
 bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -756,8 +857,25 @@ bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  return run_command(lshandle, message,
-		     "/sbin/tellbootie 2>&1");
+  char command[MAXLINLEN];
+  strcpy(command, "/sbin/tellbootie 2>&1");
+
+  if (run_command(lshandle, message, command, false)) {
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    char *esccom = json_escape_str(command);
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
+	     esccom);
+    free(esccom);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
 }
 
 LSMethod luna_methods[] = {
