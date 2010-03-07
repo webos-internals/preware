@@ -292,6 +292,7 @@ bool run_command(LSHandle* lshandle, LSMessage *message, char *command) {
     if (!first) strcat(buffer, "\", ");
     strcat(buffer, "\"returnValue\": ");
     if (!pclose(fp)) {
+      // %%% Remove the stage parameter when Preware is updated %%%
       strcat(buffer, "true, \"stage\": \"completed\"}");
     }
     else {
@@ -719,6 +720,46 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return run_command(lshandle, message, command);
 }
 
+bool rescan_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  return run_command(lshandle, message,
+		     "/usr/bin/luna-send -n 1 palm://com.palm.applicationManager/rescan {} 2>&1");
+}
+
+bool restart_luna_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  return run_command(lshandle, message,
+		     "/usr/bin/killall -HUP LunaSysMgr 2>&1");
+}
+
+bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  return run_command(lshandle, message,
+		     "/usr/bin/killall java 2>&1");
+}
+
+bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  return run_command(lshandle, message,
+		     "/sbin/tellbootie 2>&1");
+}
+
 LSMethod luna_methods[] = {
   { "status",		dummy_method },
   { "version",		version_method },
@@ -731,13 +772,13 @@ LSMethod luna_methods[] = {
   { "setConfigState",	set_config_state_method },
   { "addConfig",	add_config_method },
   { "deleteConfig",	delete_config_method },
+  { "rescan",		rescan_method },
+  { "restartLuna",	restart_luna_method },
+  { "restartJava",	restart_java_method },
+  { "restartDevice",	restart_device_method },
   { "install",		dummy_method },
   { "remove",		dummy_method },
   { "replace",		dummy_method },
-  { "rescan",		dummy_method },
-  { "restartLuna",	dummy_method },
-  { "restartJava",	dummy_method },
-  { "restartDevice",	dummy_method },
   { 0, 0 }
 };
 

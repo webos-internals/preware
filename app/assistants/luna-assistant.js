@@ -1,4 +1,7 @@
-function LunaAssistant() {}
+function LunaAssistant() {
+	// we'll need this for the subscription based services
+	this.subscription = false;
+}
 
 LunaAssistant.prototype.setup = function()
 {
@@ -98,7 +101,7 @@ LunaAssistant.prototype.doRescan = function()
 	try
 	{
 		var callback = this.callbackFunction.bindAsEventListener(this, 'Rescan');
-		IPKGService.rescan(callback);
+		this.subscription = IPKGService.rescan(callback);
 	}
 	catch (e)
 	{
@@ -111,7 +114,7 @@ LunaAssistant.prototype.doRestartLuna = function()
 	try
 	{
 		var callback = this.callbackFunction.bindAsEventListener(this, 'RestartLuna');
-		IPKGService.restartluna(callback);
+		this.subscription = IPKGService.restartluna(callback);
 	}
 	catch (e)
 	{
@@ -124,7 +127,7 @@ LunaAssistant.prototype.doRestartJava = function()
 	try
 	{
 		var callback = this.callbackFunction.bindAsEventListener(this, 'RestartJava');
-		IPKGService.restartjava(callback);
+		this.subscription = IPKGService.restartjava(callback);
 	}
 	catch (e)
 	{
