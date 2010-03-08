@@ -29,7 +29,8 @@
 
 #define API_VERSION "10"
 
-static char buffer[MAXBUFLEN+MAXBUFLEN];
+static char buffer[MAXBUFLEN];
+static char esc_buffer[MAXBUFLEN];
 static char run_command_buffer[MAXBUFLEN];
 static char read_file_buffer[MAXBUFLEN];
 
@@ -37,8 +38,7 @@ static char *json_escape_str(char *str)
 {
   const char *json_hex_chars = "0123456789abcdef";
 
-  char *results = (char*)malloc(8193);
-  char *resultsPt = results;
+  char *resultsPt = (char *)esc_buffer;
   int pos = 0, start_offset = 0;
   unsigned char c;
   do {
@@ -76,7 +76,7 @@ static char *json_escape_str(char *str)
   if(pos - start_offset > 0)
     {memcpy(resultsPt, str + start_offset, pos - start_offset); resultsPt+=pos-start_offset;} 
   memcpy(resultsPt, "\0", 1);
-  return results;
+  return (char *)esc_buffer;
 }
 
 
@@ -118,14 +118,21 @@ static bool run_command(LSHandle* lshandle, LSMessage *message, char *command, b
   char status[MAXBUFLEN];
   char line[MAXLINLEN];
 
-  strcpy(run_command_buffer, "{");
+  if (lshandle && message) {
+    strcpy(run_command_buffer, "{");
+  }
+  else {
+    strcpy(run_command_buffer, "");
+  }
   bool first = true;
 
   FILE *fp = popen(command, "r");
   if (fp) {
     while (fgets(line, sizeof line, fp)) {
       if (first) {
-	strcat(run_command_buffer, "\"errorText\": \"");
+	if (lshandle && message) {
+	  strcat(run_command_buffer, "\"errorText\": \"");
+	}
 	first = false;
       }
       else {
@@ -142,21 +149,26 @@ static bool run_command(LSHandle* lshandle, LSMessage *message, char *command, b
 	  LSErrorPrint(&lserror, stderr);
 	  LSErrorFree(&lserror);
 	  // Don't continue sending messages
-	  free(escline);
 	  strcpy(run_command_buffer, "");
 	  return false;
 	}
       }
       strcat(run_command_buffer, escline);
-      free(escline);
     }
-    if (!first) strcat(run_command_buffer, "\", ");
-    strcat(run_command_buffer, "\"returnValue\": ");
+    if (lshandle && message) {
+      if (!first) strcat(run_command_buffer, "\", ");
+      strcat(run_command_buffer, "\"returnValue\": ");
+    }
     if (!pclose(fp)) {
-      strcat(run_command_buffer, "true}");
+      if (lshandle && message) {
+	strcat(run_command_buffer, "true}");
+      }
     }
     else {
-      strcat(run_command_buffer, "false, \"errorCode\": -1}");
+      if (lshandle && message) {
+	strcat(run_command_buffer, "false, \"errorCode\": -1}");
+      }
+      return false;
     }
   }
   else {
@@ -173,18 +185,16 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   char name[MAXNAMLEN];
   char command[MAXLINLEN];
 
-  bool retVal;
+  bool retVal = true;
   LSError lserror;
   LSErrorInit(&lserror);
 
-  char *jsonResponse = 0;
-  enum json_error jsonError = JSON_OK;
-
-  json_t *response = json_new_object();
+  bool first = true;
 
   FILE *fp = popen("/bin/ls -1 /media/cryptofs/apps/etc/ipkg/", "r");
+
   if (fp) {
-    json_t *array = json_new_array();
+    strcpy(buffer, "{");
     while ( fgets( name, sizeof name, fp)) {
 
       // Chomp the newline
@@ -193,62 +203,64 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
       // Ignore the arch.conf file
       if (!strcmp(name, "arch.conf")) continue;
 
-      // Create a JSON object for each config file
-      json_t *object = json_new_object();
+      if (first) {
+	strcat(buffer, "\"configs\": [");
+	first = false;
+      }
+      else {
+	strcat(buffer, ", ");
+      }
 
+      strcat(buffer, "{");
+	
       // Determine if the config file is enabled or not
       char *p = strstr(name,".disabled");
-      // %%% IGNORING RETURN ALERT %%%
-      json_insert_pair_into_object(object, "enabled", p ? json_new_false() : json_new_true());
+      if (p) {
+	strcat(buffer, "\"enabled\": false, ");
+      }
+      else {
+	strcat(buffer, "\"enabled\": true, ");
+      }
 
       // Store the config name, excluding any .disabled suffix
       if (p) *p = '\0';
-      // %%% IGNORING RETURN ALERT %%%
-      json_insert_pair_into_object(object, "config", json_new_string(name));
+      strcat(buffer, "\"config\": \"");
+      strcat(buffer, name);
+      strcat(buffer, "\", ");
       if (p) *p = '.';
 
       strcpy(command, "/bin/cat /media/cryptofs/apps/etc/ipkg/");
       strcat(command, name);
+      strcat(command, " 2>&1");
 
-      strcpy(buffer, "");
-      bool append = false;
-
-      FILE *cp = popen(command, "r");
-      if (cp) {
-	while ( fgets( line, sizeof line, cp)) {
-	  if (append) {
-	    strcat(buffer, "<br>");
-	  }
-	  char *eol = strchr(line,'\n');
-	  if (eol) {
-	    *eol = 0;
-	  }
-	  strcat(buffer, line);
-	  append = true;
-	}
+      if (run_command(NULL, NULL, command, false)) {
+	strcat(buffer, "\"contents\": \"");
       }
-      if (!pclose(cp)) {
-	json_insert_pair_into_object(object, "contents", json_new_string(buffer));
+      else {
+	strcat(buffer, "\"errorText\": \"");
+	retVal = false;
       }
-      
-      json_insert_child(array, object);
+      strcat(buffer, run_command_buffer);
+      strcat(buffer, "\"}");
     }
     if (!pclose(fp)) {
-      // %%% IGNORING RETURN ALERT %%%
-      json_insert_pair_into_object(response, "returnValue", json_new_true());
-      json_insert_pair_into_object(response, "configs", array);
-      json_tree_to_string(response, &jsonResponse);
+      if (!first) {
+	strcat(buffer, "], ");
+      }
+      if (retVal) {
+	strcat(buffer, "\"returnValue\": true}");
+      }
+      else {
+	strcat(buffer, "\"returnValue\": false}");
+      }
     }
-  }
-
-  json_free_value(&response);
-
-  if (jsonResponse) {
-    retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
-    free(jsonResponse);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
   else {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Internal Error\"}", &lserror);
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
+	     json_escape_str(command));
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
@@ -260,11 +272,9 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
 bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  char buffer[MAXBUFLEN];
-  char line[MAXLINLEN];
-  char name[MAXNAMLEN];
+  char command[MAXLINLEN];
 
-  bool retVal;
+  bool retVal = true;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -275,48 +285,15 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     return retVal;
   }
 
-  char *jsonResponse = 0;
-
-  json_t *response = json_new_object();
-
-  strcpy(buffer, "");
-
-  FILE *fp = popen("/usr/bin/ipkg -o /media/cryptofs/apps update 2>&1", "r");
-  if (fp) {
-    json_t *array = json_new_array();
-    while ( fgets( line, sizeof line, fp)) {
-
-      // Chomp the newline
-      char *nl = strchr(line,'\n'); if (nl) *nl = 0;
-
-      json_t *object = json_new_object();
-      json_insert_pair_into_object(object, "returnValue", json_new_true());
-      json_insert_pair_into_object(object, "status", json_new_string(line));
-      json_insert_pair_into_object(object, "stage", json_new_string("status"));
-      json_tree_to_string(object, &jsonResponse);
-      json_free_value(&object);
-      retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
-      free(jsonResponse); jsonResponse = 0;
-      if (!retVal) {
-	LSErrorPrint(&lserror, stderr);
-	LSErrorFree(&lserror);
-	return retVal;
-      }
-    }
-    if (!pclose(fp)) {
-      // %%% IGNORING RETURN ALERT %%%
-      json_insert_pair_into_object(response, "returnValue", json_new_true());
-      json_insert_pair_into_object(response, "stage", json_new_string("completed"));
-      json_tree_to_string(response, &jsonResponse);
-    }
-  }
-
-  if (jsonResponse) {
-    retVal = LSMessageReply(lshandle, message, jsonResponse, &lserror);
-    free(jsonResponse);
+  strcpy(command, "/usr/bin/ipkg -o /media/cryptofs/apps update 2>&1");
+  if (run_command(lshandle, message, command, true)) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror);
   }
   else {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Internal Error\"}", &lserror);
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
+	     json_escape_str(command));
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
@@ -361,9 +338,7 @@ static bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool s
     datasize += size;
     chunk[size] = '\0';
     sprintf(read_file_buffer, "{\"returnValue\": true, \"size\": %d, \"contents\": \"", size);
-    char *escchunk = json_escape_str(chunk);
-    strcat(read_file_buffer, escchunk);
-    free(escchunk);
+    strcat(read_file_buffer, json_escape_str(chunk));
     strcat(read_file_buffer, "\"");
     if (subscribed) {
       strcat(read_file_buffer, ", \"stage\": \"middle\"");
@@ -587,11 +562,9 @@ bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
-    char *esccom = json_escape_str(command);
     snprintf(buffer, MAXBUFLEN,
 	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
-	     esccom);
-    free(esccom);
+	     json_escape_str(command));
     retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
   if (!retVal) {
@@ -689,11 +662,9 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
-    char *esccom = json_escape_str(command);
     snprintf(buffer, MAXBUFLEN,
 	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
-	     esccom);
-    free(esccom);
+	     json_escape_str(command));
     retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
   if (!retVal) {
@@ -756,11 +727,9 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
-    char *esccom = json_escape_str(command);
     snprintf(buffer, MAXBUFLEN,
 	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
-	     esccom);
-    free(esccom);
+	     json_escape_str(command));
     retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
   if (!retVal) {
@@ -783,11 +752,9 @@ bool rescan_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
-    char *esccom = json_escape_str(command);
     snprintf(buffer, MAXBUFLEN,
 	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
-	     esccom);
-    free(esccom);
+	     json_escape_str(command));
     retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
   if (!retVal) {
@@ -810,11 +777,9 @@ bool restart_luna_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
-    char *esccom = json_escape_str(command);
     snprintf(buffer, MAXBUFLEN,
 	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
-	     esccom);
-    free(esccom);
+	     json_escape_str(command));
     retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
   if (!retVal) {
@@ -837,11 +802,9 @@ bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
-    char *esccom = json_escape_str(command);
     snprintf(buffer, MAXBUFLEN,
 	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
-	     esccom);
-    free(esccom);
+	     json_escape_str(command));
     retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
   if (!retVal) {
@@ -864,11 +827,9 @@ bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
-    char *esccom = json_escape_str(command);
     snprintf(buffer, MAXBUFLEN,
 	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
-	     esccom);
-    free(esccom);
+	     json_escape_str(command));
     retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
   if (!retVal) {
