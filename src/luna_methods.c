@@ -25,7 +25,7 @@
 #include "luna_service.h"
 #include "luna_methods.h"
 
-#define ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-"
+#define ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-+_"
 
 #define API_VERSION "10"
 
@@ -110,13 +110,36 @@ bool version_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return retVal;
 }
 
-static bool run_command(LSHandle* lshandle, LSMessage *message, char *command, bool subscribed) {
+typedef bool (*subscribefun)(char *);
+
+static bool passthrough(char *message) {
+  return true;
+}
+
+static bool downloadstats(char *message) {
+  // 100  164k  100  164k    0     0  10055      0  0:00:16  0:00:16 --:--:-- 37284
+  char total[MAXNUMLEN];
+  char current[MAXNUMLEN];
+  char togo[MAXNUMLEN];
+  char speed[MAXNUMLEN];
+
+  if ((sscanf(message, "%*s %s %*s %s %*s %*s %*s %*s %*s %*s %s %s",
+	      &total, &current, &togo, &speed) == 4) &&
+      strcmp(speed, "0") && strcmp(speed, "Current")) {
+    sprintf(message, "Transferred: %s / %s<br>Time Left: %s<br>Transfer Speed: %s",
+	    current, total, togo, speed);
+    return true;
+  }
+  return false;
+}
+
+static bool run_command(LSHandle* lshandle, LSMessage *message, char *command, subscribefun subscriber) {
   bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
-  char status[MAXBUFLEN];
   char line[MAXLINLEN];
+  char lastline[MAXLINLEN];
 
   if (lshandle && message) {
     strcpy(run_command_buffer, "{");
@@ -128,7 +151,17 @@ static bool run_command(LSHandle* lshandle, LSMessage *message, char *command, b
 
   FILE *fp = popen(command, "r");
   if (fp) {
-    while (fgets(line, sizeof line, fp)) {
+    strcpy(lastline, "");
+    while (!feof(fp)) {
+      int len = 0;
+      char c;
+      while ((len < MAXLINLEN) && ((c = fgetc(fp)) != EOF)) { 
+	if ((c == '\r') || (c == '\n')) {
+	  if (!len) continue;
+	  break;
+	}
+	line[len++] = c; line[len] = '\0';
+      }
       if (first) {
 	if (lshandle && message) {
 	  strcat(run_command_buffer, "\"errorText\": \"");
@@ -138,22 +171,27 @@ static bool run_command(LSHandle* lshandle, LSMessage *message, char *command, b
       else {
 	strcat(run_command_buffer, "<br>");
       }
-      char *eol = strchr(line,'\n'); if (eol) *eol = 0;
-      char *escline = json_escape_str(line);
-      if (lshandle && message && subscribed) {
-	strcpy(status, "{\"returnValue\": true, \"stage\": \"status\", \"status\": \"");
-	strcat(status, escline);
-	strcat(status, "\"}");
-	retVal = LSMessageReply(lshandle, message, status, &lserror);
-	if (!retVal) {
-	  LSErrorPrint(&lserror, stderr);
-	  LSErrorFree(&lserror);
-	  // Don't continue sending messages
-	  strcpy(run_command_buffer, "");
-	  return false;
+      if (lshandle && message && subscriber) {
+	if (strcmp(line, lastline)) {
+	  char newline[MAXLINLEN];
+	  strcpy(newline, line);
+	  if (subscriber(newline)) {
+	    strcpy(buffer, "{\"returnValue\": true, \"stage\": \"status\", \"status\": \"");
+	    strcat(buffer, json_escape_str(newline));
+	    strcat(buffer, "\"}");
+	    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+	    if (!retVal) {
+	      LSErrorPrint(&lserror, stderr);
+	      LSErrorFree(&lserror);
+	      // Don't continue sending messages
+	      strcpy(run_command_buffer, "");
+	      return false;
+	    }
+	  }
+	  strcpy(lastline, line);
 	}
       }
-      strcat(run_command_buffer, escline);
+      strcat(run_command_buffer, json_escape_str(line));
     }
     if (lshandle && message) {
       if (!first) strcat(run_command_buffer, "\", ");
@@ -180,7 +218,6 @@ static bool run_command(LSHandle* lshandle, LSMessage *message, char *command, b
 
 bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  char buffer[MAXBUFLEN];
   char line[MAXLINLEN];
   char name[MAXNAMLEN];
   char command[MAXLINLEN];
@@ -233,7 +270,7 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
       strcat(command, name);
       strcat(command, " 2>&1");
 
-      if (run_command(NULL, NULL, command, false)) {
+      if (run_command(NULL, NULL, command, NULL)) {
 	strcat(buffer, "\"contents\": \"");
       }
       else {
@@ -286,7 +323,7 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   }
 
   strcpy(command, "/usr/bin/ipkg -o /media/cryptofs/apps update 2>&1");
-  if (run_command(lshandle, message, command, true)) {
+  if (run_command(lshandle, message, command, passthrough)) {
     retVal = LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror);
   }
   else {
@@ -558,7 +595,7 @@ bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
 	     config, config);
   }
 
-  if (run_command(lshandle, message, command, false)) {
+  if (run_command(lshandle, message, command, NULL)) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
@@ -656,7 +693,7 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 	   "echo \"%s %s %s\" > /media/cryptofs/apps/etc/ipkg/%s 2>&1",
 	   gzip?"src/gz":"src", name, url, config);
 
-  if (run_command(lshandle, message, command, false)) {
+  if (run_command(lshandle, message, command, NULL)) {
     // %%% Remove this line when Preware is updated %%%
     strcpy(run_command_buffer+strlen(run_command_buffer)-1, ", \"stage\": \"completed\"}");
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
@@ -723,7 +760,7 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   snprintf(command, MAXLINLEN,
 	   "/bin/rm /media/cryptofs/apps/etc/ipkg/%s 2>&1", config);
 
-  if (run_command(lshandle, message, command, false)) {
+  if (run_command(lshandle, message, command, NULL)) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
@@ -748,7 +785,7 @@ bool rescan_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   char command[MAXLINLEN];
   strcpy(command, "/usr/bin/luna-send -n 1 palm://com.palm.applicationManager/rescan {} 2>&1");
 
-  if (run_command(lshandle, message, command, false)) {
+  if (run_command(lshandle, message, command, NULL)) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
@@ -773,7 +810,7 @@ bool restart_luna_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   char command[MAXLINLEN];
   strcpy(command, "/usr/bin/killall -HUP LunaSysMgr 2>&1");
 
-  if (run_command(lshandle, message, command, false)) {
+  if (run_command(lshandle, message, command, NULL)) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
@@ -798,7 +835,7 @@ bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   char command[MAXLINLEN];
   strcpy(command, "/usr/bin/killall java 2>&1");
 
-  if (run_command(lshandle, message, command, false)) {
+  if (run_command(lshandle, message, command, NULL)) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
@@ -823,12 +860,94 @@ bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   char command[MAXLINLEN];
   strcpy(command, "/sbin/tellbootie 2>&1");
 
-  if (run_command(lshandle, message, command, false)) {
+  if (run_command(lshandle, message, command, NULL)) {
     retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
   }
   else {
     snprintf(buffer, MAXBUFLEN,
 	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
+	     json_escape_str(command));
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
+}
+
+bool install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id;
+
+  // Extract the package argument from the message
+  id = json_find_first_label(object, "package");
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing package parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char package[MAXNAMLEN];
+  strcpy(package, id->child->text);
+
+  // Extract the filename argument from the message
+  id = json_find_first_label(object, "filename");
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing filename parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char filename[MAXNAMLEN];
+  strcpy(filename, id->child->text);
+
+  // Extract the url argument from the message
+  id = json_find_first_label(object, "url");               
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXLINLEN)) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing url parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char url[MAXLINLEN];
+  strcpy(url, id->child->text);
+
+  char command[MAXLINLEN];
+  snprintf(command, MAXLINLEN,
+	   "curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
+
+  if (run_command(lshandle, message, command, downloadstats)) {
+    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror);
+  }
+  else {
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
 	     json_escape_str(command));
     retVal = LSMessageReply(lshandle, message, buffer, &lserror);
   }
@@ -855,7 +974,7 @@ LSMethod luna_methods[] = {
   { "restartLuna",	restart_luna_method },
   { "restartJava",	restart_java_method },
   { "restartDevice",	restart_device_method },
-  { "install",		dummy_method },
+  { "install",		install_method },
   { "remove",		dummy_method },
   { "replace",		dummy_method },
   { 0, 0 }
