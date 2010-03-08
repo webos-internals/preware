@@ -135,14 +135,22 @@ static bool downloadstats(char *message) {
 }
 
 static bool appinstaller(char *message) {
-  if (strstr(message, "FAILED_IPKG_INSTALL")) {
-    return false;
+  char status[MAXLINLEN];
+  // ** Message: serviceResponse Handling: 2, { \"ticket\":28 , \"status\":\"VERIFYING\" }
+  if ((sscanf(message, "%*s %*s %*s %*s %*s { %*s , \"status\":\"%s }",
+	      &status) == 1)) {
+    status[strlen(status)-1] = '\0';
+    sprintf(message, "%s", status);
+    if (!strcmp(status, "FAILED_IPKG_INSTALL")) {
+      return false;
+    }
+    return true;
   }
+  strcpy(message, "");
   return true;
 }
 
 static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, subscribefun subscriber) {
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -152,6 +160,8 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
   // run_command_buffer is assumed to be initialised, ready for strcat to append.
 
   bool first = true;
+  bool retVal = true;
+  bool error = false;
 
   FILE *fp = popen(command, "r");
   if (!fp) {
@@ -180,9 +190,9 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
 	char newline[MAXLINLEN];
 	strcpy(newline, line);
 	if (!subscriber(newline)) {
-	  break;
+	  error = true;
 	}
-	else if (strlen(newline)) {
+	if (strlen(newline)) {
 	  strcpy(buffer, "{\"returnValue\": true, \"stage\": \"status\", \"status\": \"");
 	  strcat(buffer, json_escape_str(newline));
 	  strcat(buffer, "\"}");
@@ -195,12 +205,15 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
 	    return false;
 	  }
 	}
+	if (error) {
+	  break;
+	}
 	strcpy(lastline, line);
       }
     }
     strcat(run_command_buffer, json_escape_str(line));
   }
-  return !pclose(fp);
+  return (!(pclose(fp) || error));
 }
 
 bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -940,7 +953,7 @@ bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return retVal;
 }
 
-bool install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
   bool retVal;
   LSError lserror;
@@ -1047,7 +1060,115 @@ bool install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return retVal;
 }
 
-bool remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id;
+
+  // Extract the package argument from the message
+  id = json_find_first_label(object, "package");
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing package parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char package[MAXNAMLEN];
+  strcpy(package, id->child->text);
+
+  // Extract the filename argument from the message
+  id = json_find_first_label(object, "filename");
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing filename parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char filename[MAXNAMLEN];
+  strcpy(filename, id->child->text);
+
+  // Extract the url argument from the message
+  id = json_find_first_label(object, "url");               
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXLINLEN)) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing url parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char url[MAXLINLEN];
+  strcpy(url, id->child->text);
+
+  char command[MAXLINLEN];
+
+  snprintf(command, MAXLINLEN,
+	   "curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
+
+  strcpy(run_command_buffer, "{\"output\": \"");
+  if (run_command(command, lshandle, message, downloadstats)) {
+    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"install\"}");
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    strcat(run_command_buffer, "\"}");
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
+	     json_escape_str(command), run_command_buffer);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+    return retVal;
+  }
+
+  snprintf(command, MAXLINLEN,
+	   "ipkg -o /media/cryptofs/apps -force-overwrite install /media/internal/.developer/%s 2>&1", filename);
+
+  strcpy(run_command_buffer, "{\"output\": \"");
+  if (run_command(command, lshandle, message, passthrough)) {
+    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    strcat(run_command_buffer, "\"}");
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
+	     json_escape_str(command), run_command_buffer);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+
+  return retVal;
+}
+
+bool appinstaller_remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
   bool retVal;
   LSError lserror;
@@ -1098,6 +1219,134 @@ bool remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return retVal;
 }
 
+bool appinstaller_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id;
+
+  // Extract the package argument from the message
+  id = json_find_first_label(object, "package");
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing package parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char package[MAXNAMLEN];
+  strcpy(package, id->child->text);
+
+  // Extract the filename argument from the message
+  id = json_find_first_label(object, "filename");
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing filename parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char filename[MAXNAMLEN];
+  strcpy(filename, id->child->text);
+
+  // Extract the url argument from the message
+  id = json_find_first_label(object, "url");               
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXLINLEN)) {
+    retVal = LSMessageReply(lshandle, message,
+			    "{\"returnValue\": false, \"errorCode\": -1, "
+			    "\"errorText\": \"Invalid or missing url parameter\"}",
+			    &lserror);
+    if (!retVal) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return retVal;
+  }
+  char url[MAXLINLEN];
+  strcpy(url, id->child->text);
+
+  char command[MAXLINLEN];
+
+  snprintf(command, MAXLINLEN,
+	   "luna-send -n 3 luna://com.palm.appinstaller/remove '{\"subscribe\":true, \"packageName\": \"%s\"}' 2>&1", package);
+
+  strcpy(run_command_buffer, "{\"output\": \"");
+  if (run_command(command, lshandle, message, appinstaller)) {
+    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    strcat(run_command_buffer, "\"}");
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
+	     json_escape_str(command), run_command_buffer);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+    return retVal;
+  }
+
+  snprintf(command, MAXLINLEN,
+	   "curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
+
+  strcpy(run_command_buffer, "{\"output\": \"");
+  if (run_command(command, lshandle, message, downloadstats)) {
+    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"install\"}");
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    strcat(run_command_buffer, "\"}");
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
+	     json_escape_str(command), run_command_buffer);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+    return retVal;
+  }
+
+  snprintf(command, MAXLINLEN,
+	   "luna-send -n 6 luna://com.palm.appinstaller/installNoVerify '{\"subscribe\":true, \"target\": \"/media/internal/.developer/%s\", \"uncompressedSize\": 0}' 2>&1", filename);
+
+  strcpy(run_command_buffer, "{\"output\": \"");
+  if (run_command(command, lshandle, message, appinstaller)) {
+    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
+    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+  }
+  else {
+    strcat(run_command_buffer, "\"}");
+    snprintf(buffer, MAXBUFLEN,
+	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
+	     json_escape_str(command), run_command_buffer);
+    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
+}
+
 LSMethod luna_methods[] = {
   { "status",		dummy_method },
   { "version",		version_method },
@@ -1114,9 +1363,10 @@ LSMethod luna_methods[] = {
   { "restartLuna",	restart_luna_method },
   { "restartJava",	restart_java_method },
   { "restartDevice",	restart_device_method },
-  { "install",		install_method },
-  { "remove",		remove_method },
-  { "replace",		dummy_method },
+  { "install",		appinstaller_install_method },
+//{ "install",		ipkg_install_method },
+  { "remove",		appinstaller_remove_method },
+  { "replace",		appinstaller_replace_method },
   { 0, 0 }
 };
 
