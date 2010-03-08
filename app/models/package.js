@@ -1298,7 +1298,7 @@ packageModel.prototype.onUpdate = function(payload, multi)
 			}
 			else if (payload.stage == "status")
 			{
-				// this.assistant.displayAction($L("Downloading / Updating<br />") + payload.status);
+				this.assistant.displayAction($L("Downloading / Updating<br />") + payload.status);
 				return;
 			}
 			else if (payload.stage == "completed")
@@ -1403,6 +1403,11 @@ packageModel.prototype.onRemove = function(payload)
 			{
 				var msg = $L("Error Removing: See IPKG Log");
 				var msgError = true;
+			}
+			else if (payload.stage == "status")
+			{
+				this.assistant.displayAction($L("Removing<br />") + payload.status);
+				return;
 			}
 			else if (payload.stage == "completed")
 			{
