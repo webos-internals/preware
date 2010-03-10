@@ -75,6 +75,9 @@ IPKGService.rawstatus = function(callback)
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
 		method: 'getStatusFile',
+		parameters: {
+			"subscribe":true,
+		},
 		onSuccess: callback,
 		onFailure: callback
 	});
@@ -236,6 +239,14 @@ IPKGService.logPayload = function(payload, stage)
 			this.log += '<div class="stdErr">';
 			this.log += '<b>' + payload.errorCode + '</b>: '
 			this.log += payload.errorText;
+			this.log += '</div>';
+		}
+		
+		if (payload.output && payload.output.length > 0)
+		{
+			stdPlus = true;
+			this.log += '<div class="stdOut">';
+			this.log += '<div>' + payload.output + '</div>';
 			this.log += '</div>';
 		}
 		
