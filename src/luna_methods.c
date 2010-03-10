@@ -32,7 +32,7 @@
 static char buffer[MAXBUFLEN];
 static char esc_buffer[MAXBUFLEN];
 static char run_command_buffer[MAXBUFLEN];
-static char read_file_buffer[MAXBUFLEN];
+static char read_file_buffer[CHUNKSIZE+CHUNKSIZE+1];
 
 static char *json_escape_str(char *str)
 {
@@ -82,32 +82,32 @@ static char *json_escape_str(char *str)
 
 bool dummy_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
-  retVal = LSMessageReply(lshandle, message, "{\"returnValue\": true}", &lserror);
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
+  if (!LSMessageReply(lshandle, message, "{\"returnValue\": true}", &lserror)) goto error;
 
-  return retVal;
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool version_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
-  retVal = LSMessageReply(lshandle, message, "{\"returnValue\": true, \"apiVersion\": \"" API_VERSION "\"}", &lserror);
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
+  if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"apiVersion\": \"" API_VERSION "\"}", &lserror)) goto error;
 
-  return retVal;
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 typedef bool (*subscribefun)(char *);
@@ -157,10 +157,11 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
   char line[MAXLINLEN];
   char lastline[MAXLINLEN];
 
+  fprintf(stderr, "Running command %s\n", command);
+
   // run_command_buffer is assumed to be initialised, ready for strcat to append.
 
   bool first = true;
-  bool retVal = true;
   bool error = false;
 
   FILE *fp = popen(command, "r");
@@ -170,68 +171,117 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
 
   strcpy(lastline, "");
   while (!feof(fp)) {
+
+    strcpy(line, "");
     int len = 0;
+
     char c;
     while ((len < MAXLINLEN) && ((c = fgetc(fp)) != EOF)) { 
       if ((c == '\r') || (c == '\n')) {
+	line[len] = '\0';
 	if (!len) continue;
 	break;
       }
       line[len++] = c; line[len] = '\0';
     }
-    if (first) {
-      first = false;
-    }
-    else {
-      strcat(run_command_buffer, "<br>");
-    }
-    if (lshandle && message && subscriber) {
-      if (strcmp(line, lastline)) {
-	char newline[MAXLINLEN];
-	strcpy(newline, line);
-	if (!subscriber(newline)) {
-	  error = true;
-	}
-	if (strlen(newline)) {
-	  strcpy(buffer, "{\"returnValue\": true, \"stage\": \"status\", \"status\": \"");
-	  strcat(buffer, json_escape_str(newline));
-	  strcat(buffer, "\"}");
-	  retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-	  if (!retVal) {
-	    LSErrorPrint(&lserror, stderr);
-	    LSErrorFree(&lserror);
-	    // Don't continue sending messages
-	    strcpy(run_command_buffer, "");
-	    return false;
-	  }
-	}
-	if (error) {
-	  break;
-	}
-	strcpy(lastline, line);
+
+    if (len) {
+
+      if (first) {
+	first = false;
       }
+      else {
+	strcat(run_command_buffer, "<br>");
+      }
+
+      if (lshandle && message && subscriber) {
+
+	if (strcmp(line, lastline)) {
+
+	  char newline[MAXLINLEN];
+	  strcpy(newline, line);
+
+	  if (!subscriber(newline)) error = true;
+
+	  if (strlen(newline)) {
+
+	    strcpy(buffer, "{\"returnValue\": true, \"stage\": \"status\", \"status\": \"");
+	    strcat(buffer, json_escape_str(newline));
+	    strcat(buffer, "\"}");
+
+	    if (!LSMessageReply(lshandle, message, buffer, &lserror)) goto error;
+
+	  }
+
+	  if (error) break;
+
+	  strcpy(lastline, line);
+	}
+      }
+
+      strcat(run_command_buffer, json_escape_str(line));
     }
-    strcat(run_command_buffer, json_escape_str(line));
   }
+
   return (!(pclose(fp) || error));
+
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
+static bool report_command_failure(LSHandle* lshandle, LSMessage *message, char *command, char *output, char *additional) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  snprintf(buffer, MAXBUFLEN,
+	   "{\"errorText\": \"Unable to run command: %s",
+	   json_escape_str(command));
+
+  if (output) {
+    strcat(buffer, "<br>");
+    strcat(buffer, json_escape_str(output));
+  }
+
+  strcat(buffer, "\", \"returnValue\": false, \"errorCode\": -1");
+
+  if (additional) {
+    strcat(buffer, ", ");
+    strcat(buffer, additional);
+  }
+
+  strcat(buffer, "}");
+
+  if (!LSMessageReply(lshandle, message, buffer, &lserror)) goto error;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+
+  LSError lserror;
+  LSErrorInit(&lserror);
 
   char line[MAXLINLEN];
   char name[MAXNAMLEN];
   char command[MAXLINLEN];
 
-  bool retVal = true;
-  LSError lserror;
-  LSErrorInit(&lserror);
-
   bool first = true;
+  bool error = false;
 
   FILE *fp = popen("/bin/ls -1 /media/cryptofs/apps/etc/ipkg/", "r");
 
   if (fp) {
+
     strcpy(buffer, "{");
+
     while ( fgets( name, sizeof name, fp)) {
 
       // Chomp the newline
@@ -270,135 +320,126 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
       strcat(command, name);
       strcat(command, " 2>&1");
 
-      strcpy(run_command_buffer, "");
+      strcpy(run_command_buffer, "{");
+
       if (run_command(command, NULL, NULL, NULL)) {
 	strcat(buffer, "\"contents\": \"");
       }
       else {
 	strcat(buffer, "\"errorText\": \"");
-	retVal = false;
+	error = true;
       }
+
       strcat(buffer, run_command_buffer);
+
       strcat(buffer, "\"}");
     }
+
     if (!pclose(fp)) {
+
       if (!first) {
 	strcat(buffer, "], ");
       }
-      if (retVal) {
+
+      if (error) {
 	strcat(buffer, "\"returnValue\": true}");
       }
       else {
 	strcat(buffer, "\"returnValue\": false}");
       }
     }
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+
+    if (!LSMessageReply(lshandle, message, buffer, &lserror)) goto error;
+
   }
   else {
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command));
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+
+    if (!report_command_failure(lshandle, message, command, NULL, NULL)) goto error;
+
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
- 
-  return retVal;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  char command[MAXLINLEN];
-
-  bool retVal = true;
   LSError lserror;
   LSErrorInit(&lserror);
 
-  retVal = LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"update\"}", &lserror);
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-    return retVal;
-  }
+  char command[MAXLINLEN];
+
+  if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"update\"}", &lserror)) goto error;
 
   strcpy(command, "/usr/bin/ipkg -o /media/cryptofs/apps update 2>&1");
+
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, passthrough)) {
     strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-  }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
+    // Even if there is an error, continue to move the files below
   }
  
   strcpy(command, "/bin/mkdir -p /media/cryptofs/apps/usr/lib/ipkg/cache 2>&1");
+
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, passthrough)) {
     strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-  }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
+    // Even if there is an error, continue to move the files below
   }
  
   strcpy(command, "/bin/rm -f /media/cryptofs/apps/usr/lib/ipkg/cache/* 2>&1");
+
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, passthrough)) {
     strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-  }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
+    // Even if there is an error, continue to move the files below
   }
  
   strcpy(command, "/bin/mv /media/cryptofs/apps/usr/lib/ipkg/lists/* /media/cryptofs/apps/usr/lib/ipkg/cache/ 2>&1");
+
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, passthrough)) {
     strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-  }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
+    // At this point, we're done anyway
   }
  
-  return retVal;
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 static bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscribed) {
+
+  LSError lserror;
+  LSErrorInit(&lserror);
+
   char chunk[CHUNKSIZE];
   int chunksize = CHUNKSIZE;
 
@@ -406,21 +447,13 @@ static bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool s
   int filesize = ftell(file);
   fseek(file, 0, SEEK_SET);
 
-  bool retVal;
-  LSError lserror;
-  LSErrorInit(&lserror);
-
   if (subscribed) {
-    retVal = false;
     if (sprintf(read_file_buffer,
 		"{\"returnValue\": true, \"filesize\": %d, \"chunksize\": %d, \"stage\": \"start\"}",
 		filesize, chunksize)) {
-      retVal = LSMessageReply(lshandle, message, read_file_buffer, &lserror);
-    }
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-      return false;
+
+      if (!LSMessageReply(lshandle, message, read_file_buffer, &lserror)) goto error;
+
     }
   }
   else {
@@ -439,51 +472,49 @@ static bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool s
       strcat(read_file_buffer, ", \"stage\": \"middle\"");
     }
     strcat(read_file_buffer, "}");
-    retVal = LSMessageReply(lshandle, message, read_file_buffer, &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-      return false;
-    }
+
+    if (!LSMessageReply(lshandle, message, read_file_buffer, &lserror)) goto error;
+
   }
 
   if (!fclose(file)) {
-    retVal = true;
     if (subscribed) {
       sprintf(read_file_buffer, "{\"returnValue\": true, \"datasize\": %d, \"stage\": \"end\"}", datasize);
-      retVal = LSMessageReply(lshandle, message, read_file_buffer, &lserror);
+
+      if (!LSMessageReply(lshandle, message, read_file_buffer, &lserror)) goto error;
+
     }
   }
   else {
     sprintf(read_file_buffer, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot close file\"}");
-    retVal = LSMessageReply(lshandle, message, read_file_buffer, &lserror);
+
+    if (!LSMessageReply(lshandle, message, read_file_buffer, &lserror)) goto error;
+
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
- 
-  return retVal;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  char command[MAXLINLEN];
-
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
+
+  char command[MAXLINLEN];
 
   // Extract the feed argument from the message
   json_t *object = LSMessageGetPayloadJSON(message);
   json_t *id = json_find_first_label(object, "feed");               
   if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing feed\"}", &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing feed\"}",
+			&lserror)) goto error;
+    return true;
   }
 
   strcpy(command, "/media/cryptofs/apps/usr/lib/ipkg/cache/");
@@ -491,36 +522,37 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
   FILE * listfile = fopen(command, "r");
   
-  if (listfile == NULL) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find feed\"}", &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+  if (listfile) {
+    return read_file(lshandle, message, listfile, true);
+  }
+  else {
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find feed\"}",
+			&lserror)) goto error;
   }
 
-  return read_file(lshandle, message, listfile, true);
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  char command[MAXLINLEN];
-
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
+
+  char command[MAXLINLEN];
 
   // Extract the feed argument from the message
   json_t *object = LSMessageGetPayloadJSON(message);
   json_t *id = json_find_first_label(object, "package");               
   if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing package\"}", &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing package\"}",
+			&lserror)) goto error;
   }
 
   strcpy(command, "/media/cryptofs/apps/usr/lib/ipkg/info/");
@@ -529,56 +561,62 @@ bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
 
   FILE * controlfile = fopen(command, "r");
   
-  if (controlfile == NULL) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find package\"}", &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+  if (controlfile) {
+    return read_file(lshandle, message, controlfile, false);
+  }
+  else {
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find package\"}",
+			&lserror)) goto error;
   }
 
-  return read_file(lshandle, message, controlfile, false);
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool get_status_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
   FILE * statusfile = fopen("/media/cryptofs/apps/usr/lib/ipkg/status", "r");
   
-  if (statusfile == NULL) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find status file\"}", &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+  if (statusfile) {
+    return read_file(lshandle, message, statusfile, true);
+  }
+  else {
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find status file\"}",
+			&lserror)) goto error;
   }
 
-  return read_file(lshandle, message, statusfile, false);
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  char command[MAXLINLEN];
-
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
+
+  char command[MAXLINLEN];
 
   // Extract the feed argument from the message
   json_t *object = LSMessageGetPayloadJSON(message);
   json_t *id = json_find_first_label(object, "package");               
   if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing package\"}", &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing package\"}",
+			&lserror)) goto error;
+    return true;
   }
 
   strcpy(command, "/media/cryptofs/apps/usr/palm/applications/");
@@ -587,21 +625,25 @@ bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
 
   FILE * appinfofile = fopen(command, "r");
   
-  if (appinfofile == NULL) {
-    retVal = LSMessageReply(lshandle, message, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find package\"}", &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+  if (appinfofile) {
+    return read_file(lshandle, message, appinfofile, false);
+  }
+  else {
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find package\"}",
+			&lserror)) goto error;
   }
 
-  return read_file(lshandle, message, appinfofile, false);
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -613,15 +655,11 @@ bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing config parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing config parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char config[MAXNAMLEN];
   strcpy(config, id->child->text);
@@ -629,15 +667,11 @@ bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   // Extract the enabled argument from the message
   id = json_find_first_label(object, "enabled");
   if (!id || ((id->child->type != JSON_TRUE) && id->child->type != JSON_FALSE)) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing enabled parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing enabled parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   bool enabled = (id->child->type == JSON_TRUE);
 
@@ -656,25 +690,23 @@ bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, NULL, NULL, NULL)) {
     strcat(run_command_buffer, "\", \"returnValue\": true}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
-  return retVal;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -686,15 +718,11 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing config parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing config parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char config[MAXNAMLEN];
   strcpy(config, id->child->text);
@@ -704,15 +732,11 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing name parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing name parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char name[MAXNAMLEN];
   strcpy(name, id->child->text);
@@ -721,15 +745,11 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   id = json_find_first_label(object, "url");               
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXLINLEN)) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing url parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing url parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char url[MAXLINLEN];
   strcpy(url, id->child->text);
@@ -737,15 +757,11 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   // Extract the gzip argument from the message
   id = json_find_first_label(object, "gzip");
   if (!id || ((id->child->type != JSON_TRUE) && id->child->type != JSON_FALSE)) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing gzip parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing gzip parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   bool gzip = (id->child->type == JSON_TRUE);
 
@@ -757,25 +773,23 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, NULL, NULL, NULL)) {
     strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
-  return retVal;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -787,15 +801,11 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing config parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing config parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char config[MAXNAMLEN];
   strcpy(config, id->child->text);
@@ -805,15 +815,11 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing name parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing name parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char name[MAXNAMLEN];
   strcpy(name, id->child->text);
@@ -825,25 +831,23 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, NULL, NULL, NULL)) {
     strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
-  return retVal;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool rescan_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -853,25 +857,23 @@ bool rescan_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, NULL, NULL, NULL)) {
     strcat(run_command_buffer, "\", \"returnValue\": true}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
-  return retVal;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool restart_luna_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -881,25 +883,23 @@ bool restart_luna_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, NULL, NULL, NULL)) {
     strcat(run_command_buffer, "\", \"returnValue\": true}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
-  return retVal;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -909,25 +909,23 @@ bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, NULL, NULL, NULL)) {
     strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
-  return retVal;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -937,27 +935,27 @@ bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, NULL, NULL, NULL)) {
     strcat(run_command_buffer, "\", \"returnValue\": true}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
-  return retVal;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
+
+  struct stat info;
 
   json_t *object = LSMessageGetPayloadJSON(message);
   json_t *id;
@@ -967,15 +965,11 @@ bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *c
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing package parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing package parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char package[MAXNAMLEN];
   strcpy(package, id->child->text);
@@ -985,15 +979,11 @@ bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *c
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing filename parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing filename parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char filename[MAXNAMLEN];
   strcpy(filename, id->child->text);
@@ -1002,15 +992,11 @@ bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *c
   id = json_find_first_label(object, "url");               
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXLINLEN)) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing url parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing url parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char url[MAXLINLEN];
   strcpy(url, id->child->text);
@@ -1022,20 +1008,13 @@ bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *c
 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, downloadstats)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"install\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"download\"}");
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-  }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-    return retVal;
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
+    return true;
   }
 
   snprintf(command, MAXLINLEN,
@@ -1043,26 +1022,95 @@ bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *c
 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, appinstaller)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"install\"}");
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, "\"stage\": \"failed\"")) goto end;
+    return true;
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
+
+  char prerm[MAXLINLEN];
+  sprintf(prerm, "/media/cryptofs/apps/.scripts/%s/pmPreRemove.script", package);
+
+  // Does the pmPreRemove.script exist and contain something
+  if (stat(prerm, &info) || !info.st_size) {
+    
+    // If not, then check for an ipkg prerm script
+    sprintf(prerm, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.prerm", package);
+
+    if (!stat(prerm, &info)) {
+
+      snprintf(command, MAXLINLEN,
+	       "/bin/cp %s /media/cryptofs/apps/.scripts/%s/pmPreRemove.script 2>&1", prerm, package);
+      
+      strcpy(run_command_buffer, "{\"output\": \"");
+      if (run_command(command, lshandle, message, passthrough)) {
+	strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"saveprerm\"}");
+	if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+      }
+      else {
+	strcat(run_command_buffer, "\"}");
+	if (!report_command_failure(lshandle, message, command, run_command_buffer, "\"stage\": \"failed\"")) goto end;
+	return true;
+      }
+    }
   }
-  return retVal;
+ 
+  char postinst[MAXLINLEN];
+  sprintf(postinst, "/media/cryptofs/apps/.scripts/%s/pmPostInstall.script", package);
+
+  // Does the pmPostInstall.script exist and contain something
+  if (stat(postinst, &info) || !info.st_size) {
+    
+    // If not, then check for an ipkg postinst script
+    sprintf(postinst, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.postinst", package);
+
+    if (!stat(postinst, &info)) {
+
+      snprintf(command, MAXLINLEN,
+	       "/bin/cp %s /media/cryptofs/apps/.scripts/%s/pmPostInstall.script 2>&1", postinst, package);
+      
+      strcpy(run_command_buffer, "{\"output\": \"");
+      if (run_command(command, lshandle, message, passthrough)) {
+	strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"savepostinst\"}");
+	if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+      }
+      else {
+	strcat(run_command_buffer, "\"}");
+	if (!report_command_failure(lshandle, message, command, run_command_buffer, "\"stage\": \"failed\"")) goto end;
+	return true;
+      }
+
+      snprintf(command, MAXLINLEN,
+	       "IPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", postinst);
+      
+      strcpy(run_command_buffer, "{\"output\": \"");
+      if (run_command(command, lshandle, message, passthrough)) {
+	strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"postinst\"}");
+	if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+      }
+      else {
+	strcat(run_command_buffer, "\"}");
+	if (!report_command_failure(lshandle, message, command, run_command_buffer, "\"stage\": \"failed\"")) goto end;
+	return true;
+      }
+    }
+  }
+
+  if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1074,15 +1122,11 @@ bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing package parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing package parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char package[MAXNAMLEN];
   strcpy(package, id->child->text);
@@ -1092,15 +1136,11 @@ bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing filename parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing filename parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char filename[MAXNAMLEN];
   strcpy(filename, id->child->text);
@@ -1109,68 +1149,88 @@ bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   id = json_find_first_label(object, "url");               
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXLINLEN)) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing url parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing url parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char url[MAXLINLEN];
   strcpy(url, id->child->text);
 
   char command[MAXLINLEN];
 
+  /* */
   snprintf(command, MAXLINLEN,
 	   "curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, downloadstats)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"install\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"download\"}");
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, "\"stage\": \"failed\"")) goto end;
+    return true;
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-    return retVal;
-  }
+  /*  */
 
   snprintf(command, MAXLINLEN,
 	   "ipkg -o /media/cryptofs/apps -force-overwrite install /media/internal/.developer/%s 2>&1", filename);
 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, passthrough)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"install\"}");
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-  }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, "\"stage\": \"failed\"")) goto end;
+    return true;
   }
 
-  return retVal;
+  struct stat info;
+  char postinst[MAXLINLEN];
+ 
+  sprintf(postinst, "/media/cryptofs/apps/.scripts/%s/pmPostInstall.script", package);
+
+  // Does the pmPostInstall.script exist and contain something
+  if (stat(postinst, &info) || !info.st_size) {
+    
+    // If not, then check for an ipkg postinst script
+    sprintf(postinst, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.postinst", package);
+
+    if (!stat(postinst, &info)) {
+
+      snprintf(command, MAXLINLEN,
+	       "IPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", postinst);
+      
+      strcpy(run_command_buffer, "{\"output\": \"");
+      if (run_command(command, lshandle, message, passthrough)) {
+	strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"postinst\"}");
+	if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+      }
+      else {
+	strcat(run_command_buffer, "\"}");
+	if (!report_command_failure(lshandle, message, command, run_command_buffer, "\"stage\": \"failed\"")) goto end;
+	return true;
+      }
+    }
+  }
+
+  if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool appinstaller_remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1182,46 +1242,72 @@ bool appinstaller_remove_method(LSHandle* lshandle, LSMessage *message, void *ct
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing package parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing package parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
   char package[MAXNAMLEN];
   strcpy(package, id->child->text);
 
   char command[MAXLINLEN];
 
+  struct stat info;
+  char prerm[MAXLINLEN];
+ 
+  sprintf(prerm, "/media/cryptofs/apps/.scripts/%s/pmPreRemove.script", package);
+
+  // Does the pmPreRemove.script exist and contain something
+  if (stat(prerm, &info) || !info.st_size) {
+    
+    // If not, then check for an ipkg prerm script
+    sprintf(prerm, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.prerm", package);
+
+    if (!stat(prerm, &info)) {
+
+      snprintf(command, MAXLINLEN,
+	       "IPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", prerm);
+      
+      strcpy(run_command_buffer, "{\"output\": \"");
+      if (run_command(command, lshandle, message, passthrough)) {
+	strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"prerm\"}");
+	if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+      }
+      else {
+	strcat(run_command_buffer, "\"}");
+	if (!report_command_failure(lshandle, message, command, run_command_buffer, "\"stage\": \"failed\"")) goto end;
+	return true;
+      }
+    }
+  }
+
   snprintf(command, MAXLINLEN,
 	   "luna-send -n 3 luna://com.palm.appinstaller/remove '{\"subscribe\":true, \"packageName\": \"%s\"}' 2>&1", package);
 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, appinstaller)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
+    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"remove\"}");
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, "\"stage\": \"failed\"")) goto end;
+    return true;
   }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
-  return retVal;
+  
+  if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 bool appinstaller_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
-  bool retVal;
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1233,118 +1319,46 @@ bool appinstaller_replace_method(LSHandle* lshandle, LSMessage *message, void *c
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing package parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing package parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
-  char package[MAXNAMLEN];
-  strcpy(package, id->child->text);
 
   // Extract the filename argument from the message
   id = json_find_first_label(object, "filename");
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXNAMLEN) ||
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing filename parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing filename parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
-  char filename[MAXNAMLEN];
-  strcpy(filename, id->child->text);
 
   // Extract the url argument from the message
   id = json_find_first_label(object, "url");               
   if (!id || (id->child->type != JSON_STRING) ||
       (strlen(id->child->text) >= MAXLINLEN)) {
-    retVal = LSMessageReply(lshandle, message,
-			    "{\"returnValue\": false, \"errorCode\": -1, "
-			    "\"errorText\": \"Invalid or missing url parameter\"}",
-			    &lserror);
-    if (!retVal) {
-      LSErrorPrint(&lserror, stderr);
-      LSErrorFree(&lserror);
-    }
-    return retVal;
-  }
-  char url[MAXLINLEN];
-  strcpy(url, id->child->text);
-
-  char command[MAXLINLEN];
-
-  snprintf(command, MAXLINLEN,
-	   "luna-send -n 3 luna://com.palm.appinstaller/remove '{\"subscribe\":true, \"packageName\": \"%s\"}' 2>&1", package);
-
-  strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, lshandle, message, appinstaller)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
-  }
-  else {
-    strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-  }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-    return retVal;
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing url parameter\"}",
+			&lserror)) goto error;
+    return true;
   }
 
-  snprintf(command, MAXLINLEN,
-	   "curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
+  // %%% This doesn't stop after removal errors %%%
+  if (!appinstaller_remove_method(lshandle, message, ctx)) goto end;
+  if (!appinstaller_install_method(lshandle, message, ctx)) goto end;
 
-  strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, lshandle, message, downloadstats)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"install\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
-  }
-  else {
-    strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-  }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-    return retVal;
-  }
-
-  snprintf(command, MAXLINLEN,
-	   "luna-send -n 6 luna://com.palm.appinstaller/installNoVerify '{\"subscribe\":true, \"target\": \"/media/internal/.developer/%s\", \"uncompressedSize\": 0}' 2>&1", filename);
-
-  strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, lshandle, message, appinstaller)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    retVal = LSMessageReply(lshandle, message, run_command_buffer, &lserror);
-  }
-  else {
-    strcat(run_command_buffer, "\"}");
-    snprintf(buffer, MAXBUFLEN,
-	     "\"errorText\": \"Unable to run command: %s<br>%s\", \"returnValue\": false, \"errorCode\": -1, \"stage\": \"failed\"}",
-	     json_escape_str(command), run_command_buffer);
-    retVal = LSMessageReply(lshandle, message, buffer, &lserror);
-  }
-  if (!retVal) {
-    LSErrorPrint(&lserror, stderr);
-    LSErrorFree(&lserror);
-  }
-  return retVal;
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 LSMethod luna_methods[] = {

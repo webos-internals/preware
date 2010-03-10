@@ -9,7 +9,7 @@ ipkgservice: ipkgservice.o luna_service.o luna_methods.o
 install: ipkgservice
 	- ssh root@webos killall ipkgservice
 	scp ipkgservice root@webos:/var/usr/bin/ipkgservice
-	ssh root@webos /var/usr/bin/ipkgservice
+#	ssh root@webos /var/usr/bin/ipkgservice
 
 clobber:
 	rm -rf *.o ipkgservice
