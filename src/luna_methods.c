@@ -29,59 +29,114 @@
 
 #define API_VERSION "10"
 
+
+//
+// We use static buffers instead of continually allocating and deallocating stuff,
+// since we're a long-running service, and do not want to leak anything.
+//
 static char buffer[MAXBUFLEN];
 static char esc_buffer[MAXBUFLEN];
 static char run_command_buffer[MAXBUFLEN];
 static char read_file_buffer[CHUNKSIZE+CHUNKSIZE+1];
 
+//
+// Escape a string so that it can be used directly in a JSON response.
+// In general, this means escaping quotes, backslashes and control chars.
+// It uses the static esc_buffer, which must be twice as large as the
+// largest string this routine can handle.
+//
 static char *json_escape_str(char *str)
 {
   const char *json_hex_chars = "0123456789abcdef";
 
+  // Initialise the output buffer
+  strcpy(esc_buffer, "");
+
+  // Check the constraints on the input string
+  if (strlen(str) > MAXBUFLEN) return (char *)esc_buffer;
+
+  // Initialise the pointers used to step through the input and output.
   char *resultsPt = (char *)esc_buffer;
   int pos = 0, start_offset = 0;
+
+  // Traverse the input, copying to the output in the largest chunks
+  // possible, escaping characters as we go.
   unsigned char c;
   do {
     c = str[pos];
-    switch(c) {
+    switch (c) {
     case '\0':
+      // Terminate the copying
       break;
     case '\b':
     case '\n':
     case '\r':
     case '\t':
     case '"':
-    case '\\':
-      if(pos - start_offset > 0)
-	{memcpy(resultsPt, str + start_offset, pos - start_offset); resultsPt+=pos - start_offset;} 
-    if(c == '\b')  {memcpy(resultsPt, "\\b", 2); resultsPt+=2;} 
-    else if(c == '\n') {memcpy(resultsPt, "\\n", 2); resultsPt+=2;} 
-    else if(c == '\r') {memcpy(resultsPt, "\\r", 2); resultsPt+=2;} 
-    else if(c == '\t') {memcpy(resultsPt, "\\t", 2); resultsPt+=2;} 
-    else if(c == '"') {memcpy(resultsPt, "\\\"", 2); resultsPt+=2;} 
-    else if(c == '\\') {memcpy(resultsPt, "\\\\", 2); resultsPt+=2;} 
-    start_offset = ++pos;
-    break;
+    case '\\': {
+      // Copy the chunk before the character which must be escaped
+      if (pos - start_offset > 0) {
+	memcpy(resultsPt, str + start_offset, pos - start_offset);
+	resultsPt += pos - start_offset;
+      };
+      
+      // Escape the character
+      if      (c == '\b') {memcpy(resultsPt, "\\b",  2); resultsPt += 2;} 
+      else if (c == '\n') {memcpy(resultsPt, "\\n",  2); resultsPt += 2;} 
+      else if (c == '\r') {memcpy(resultsPt, "\\r",  2); resultsPt += 2;} 
+      else if (c == '\t') {memcpy(resultsPt, "\\t",  2); resultsPt += 2;} 
+      else if (c == '"')  {memcpy(resultsPt, "\\\"", 2); resultsPt += 2;} 
+      else if (c == '\\') {memcpy(resultsPt, "\\\\", 2); resultsPt += 2;} 
+
+      // Reset the start of the next chunk
+      start_offset = ++pos;
+      break;
+    }
+
     default:
+      
+      // Check for "special" characters
       if ((c < ' ') || (c > 127)) {
-	if(pos - start_offset > 0)
-	  {memcpy(resultsPt, str + start_offset, pos - start_offset); resultsPt+=pos-start_offset;} 
+
+	// Copy the chunk before the character which must be escaped
+	if (pos - start_offset > 0) {
+	  memcpy(resultsPt, str + start_offset, pos - start_offset);
+	  resultsPt += pos - start_offset;
+	}
+
+	// Insert a normalised representation
 	sprintf(resultsPt, "\\u00%c%c",
 		json_hex_chars[c >> 4],
 		json_hex_chars[c & 0xf]);
+
+	// Reset the start of the next chunk
 	start_offset = ++pos;
-      } else pos++;
+      }
+      else {
+	// Just move along the source string, without copying
+	pos++;
+      }
     }
-  } while(c);
-  if(pos - start_offset > 0)
-    {memcpy(resultsPt, str + start_offset, pos - start_offset); resultsPt+=pos-start_offset;} 
+  } while (c);
+
+  // Copy the final chunk, if required
+  if (pos - start_offset > 0) {
+    memcpy(resultsPt, str + start_offset, pos - start_offset);
+    resultsPt += pos - start_offset;
+  } 
+
+  // Terminate the output buffer ...
   memcpy(resultsPt, "\0", 1);
+
+  // and return a pointer to it.
   return (char *)esc_buffer;
 }
 
-
+//
+// A dummy method, useful for unimplemented functions or as a status function.
+// Called directly from webOS, and returns directly to webOS.
+//
 bool dummy_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -95,8 +150,11 @@ bool dummy_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
+//
+// Return the current API version of the service.
+// Called directly from webOS, and returns directly to webOS.
+//
 bool version_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -110,50 +168,99 @@ bool version_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
+//
+// A function pointer, used to filter output messages from commands.
+// The input string is assumed to be a buffer large enough to hold
+// the filtered output string, and is forcibly overwritten.
+// The return value says whether this message should be considered
+// to be an immediate terminating error condition from the command.
+//
 typedef bool (*subscribefun)(char *);
 
+//
+// Pass through all messages unchanged.
+//
 static bool passthrough(char *message) {
   return true;
 }
 
+//
+// Parse progress messages from curl --verbose and format for display in webOS.
+// curl provides a correct command return status value, so we always return true.
+// Messages are of the form:
+// 100  164k  100  164k    0     0  10055      0  0:00:16  0:00:16 --:--:-- 37284
+//
 static bool downloadstats(char *message) {
-  // 100  164k  100  164k    0     0  10055      0  0:00:16  0:00:16 --:--:-- 37284
+
+  // Buffers to store the extracted data
   char total[MAXNUMLEN];
   char current[MAXNUMLEN];
   char togo[MAXNUMLEN];
   char speed[MAXNUMLEN];
 
+  // Check for curl progress messages, and extract the relevant data
   if ((sscanf(message, "%*s %s %*s %s %*s %*s %*s %*s %*s %*s %s %s",
 	      &total, &current, &togo, &speed) == 4) &&
+      // Ignore the first line and initial fetch latency
       strcmp(speed, "0") && strcmp(speed, "Current")) {
+    // Format in a short human-readable format.
     sprintf(message, "Transferred: %s / %s<br>Time Left: %s<br>Transfer Speed: %s",
 	    current, total, togo, speed);
     return true;
   }
+
+  // Nullify any other messages
   strcpy(message, "");
   return true;
 }
 
+//
+// Parse progress messages from the com.palm.appinstaller service and format for display in webOS.
+// We also need to force a termination on install failures (since luna-send will hang early).
+// Messages are of the form:
+// ** Message: serviceResponse Handling: 2, { \"ticket\":28 , \"status\":\"VERIFYING\" }
+//
 static bool appinstaller(char *message) {
+
+  // A buffer to store the extracted data
   char status[MAXLINLEN];
-  // ** Message: serviceResponse Handling: 2, { \"ticket\":28 , \"status\":\"VERIFYING\" }
+
+  // Check for appinstaller progress messages, and extract the relevant data
   if ((sscanf(message, "%*s %*s %*s %*s %*s { %*s , \"status\":\"%s }",
 	      &status) == 1)) {
+
+    // The last string field will still have the ending ", so remove that.
     status[strlen(status)-1] = '\0';
+
+    // %%% We may want to do a mapping to more end-user friendly messages here. %%%
+
+    // Format in a short human-readable format.
     sprintf(message, "%s", status);
+
+    // Terminate the command early if there is an install failure.
     if (!strcmp(status, "FAILED_IPKG_INSTALL")) {
       return false;
     }
+
     return true;
   }
+
+  // Nullify any other messages
   strcpy(message, "");
   return true;
 }
 
+//
+// Run a shell command, and return the output in-line in a buffer for returning to webOS.
+// If lshandle, message and subscriber are defined, then also send back status messages.
+// The global run_command_buffer must be initialised before calling this function.
+// The return value says whether the command executed successfully or not.
+//
 static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, subscribefun subscriber) {
   LSError lserror;
   LSErrorInit(&lserror);
 
+  // Local buffers to store the current and previous lines.
   char line[MAXLINLEN];
   char lastline[MAXLINLEN];
 
@@ -161,99 +268,142 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
 
   // run_command_buffer is assumed to be initialised, ready for strcat to append.
 
+  // Is this the first line of output?
   bool first = true;
+
+  // Has an early termination error been detected?
   bool error = false;
 
+  // Start execution of the command, and read the output.
   FILE *fp = popen(command, "r");
+
+  // Return immediately if we cannot even start the command.
   if (!fp) {
     return false;
   }
 
+  // Initialise the previous line contents.
   strcpy(lastline, "");
+
+  // Loop through the output lines
   while (!feof(fp)) {
 
+    // Initialise the current line contents.
     strcpy(line, "");
     int len = 0;
 
+    // Read and store characters up to the next LF or NL.
     char c;
     while ((len < MAXLINLEN) && ((c = fgetc(fp)) != EOF)) { 
       if ((c == '\r') || (c == '\n')) {
 	line[len] = '\0';
+	// Skip empty lines
 	if (!len) continue;
 	break;
       }
       line[len++] = c; line[len] = '\0';
     }
 
+    // If we read something, then process it
     if (len) {
 
+      // Add formatting breaks between lines
       if (first) {
 	first = false;
       }
       else {
+	// %%% Would a JSON array be better to use here? %%%
 	strcat(run_command_buffer, "<br>");
       }
 
+      // Have status updates been requested?
       if (lshandle && message && subscriber) {
 
+	// Is the current line different from the last line?
 	if (strcmp(line, lastline)) {
 
+	  // Copy into a new local buffer for possible modification
+	  // cause we want the original to be return in run_command_buffer.
 	  char newline[MAXLINLEN];
 	  strcpy(newline, line);
 
+	  // Perform the filtering modificatons, and check for termination errors.
 	  if (!subscriber(newline)) error = true;
 
+	  // Is there anything left after filtering?
 	  if (strlen(newline)) {
 
+	    // Send it as a status message.
 	    strcpy(buffer, "{\"returnValue\": true, \"stage\": \"status\", \"status\": \"");
 	    strcat(buffer, json_escape_str(newline));
 	    strcat(buffer, "\"}");
 
+	    // %%% Should we break out of the loop here, or just ignore the error? %%%
 	    if (!LSMessageReply(lshandle, message, buffer, &lserror)) goto error;
 
 	  }
 
+	  // If a termination failure has been detected, then break out of the loop.
 	  if (error) break;
 
+	  // Store the current line as the previous line to check next time around.
 	  strcpy(lastline, line);
 	}
       }
 
+      // Append the unfiltered output to the run_command_buffer.
       strcat(run_command_buffer, json_escape_str(line));
     }
   }
 
-  return (!(pclose(fp) || error));
+  // Check the close status of the process, and return the combined error status
+  if (pclose(fp) || error) {
+    return false;
+  }
 
+  return true;
  error:
   LSErrorPrint(&lserror, stderr);
   LSErrorFree(&lserror);
  end:
+  // %%% We need a way to distinguish command failures from LSMessage failures %%%
+  // %%% This may need to be true if we just want to ignore LSMessage failures %%%
   return false;
 }
 
+//
+// Send a standard format command failure message back to webOS.
+// command and output will be escaped.  additional will not be escaped.
+// The return value is from the LSMessageReply call, not related to the command execution.
+//
 static bool report_command_failure(LSHandle* lshandle, LSMessage *message, char *command, char *output, char *additional) {
   LSError lserror;
   LSErrorInit(&lserror);
 
+  // Include the command that was executed, in escaped form.
   snprintf(buffer, MAXBUFLEN,
 	   "{\"errorText\": \"Unable to run command: %s",
 	   json_escape_str(command));
 
+  // Include any output from the command, in escaped form.
   if (output) {
     strcat(buffer, "<br>");
     strcat(buffer, json_escape_str(output));
   }
 
+  // Report that an error occurred.
   strcat(buffer, "\", \"returnValue\": false, \"errorCode\": -1");
 
+  // Add any additional JSON fields.
   if (additional) {
     strcat(buffer, ", ");
     strcat(buffer, additional);
   }
 
+  // Terminate the JSON reply message ...
   strcat(buffer, "}");
 
+  // and send it.
   if (!LSMessageReply(lshandle, message, buffer, &lserror)) goto error;
 
   return true;
@@ -264,99 +414,183 @@ static bool report_command_failure(LSHandle* lshandle, LSMessage *message, char 
   return false;
 }
 
-bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
+//
+// Run a simple shell command, and return the output to webOS.
+//
+static bool simple_command(LSHandle* lshandle, LSMessage *message, char *command) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  char line[MAXLINLEN];
-  char name[MAXNAMLEN];
-  char command[MAXLINLEN];
+  // Initialise the output buffer
+  strcpy(run_command_buffer, "{\"output\": \"");
 
-  bool first = true;
-  bool error = false;
+  // Run the command
+  if (run_command(command, NULL, NULL, NULL)) {
 
-  FILE *fp = popen("/bin/ls -1 /media/cryptofs/apps/etc/ipkg/", "r");
+    // Finalise the message ...
+    strcat(run_command_buffer, "\", \"returnValue\": true}");
 
-  if (fp) {
-
-    strcpy(buffer, "{");
-
-    while ( fgets( name, sizeof name, fp)) {
-
-      // Chomp the newline
-      char *nl = strchr(name,'\n'); if (nl) *nl = 0;
-
-      // Ignore the arch.conf file
-      if (!strcmp(name, "arch.conf")) continue;
-
-      if (first) {
-	strcat(buffer, "\"configs\": [");
-	first = false;
-      }
-      else {
-	strcat(buffer, ", ");
-      }
-
-      strcat(buffer, "{");
-	
-      // Determine if the config file is enabled or not
-      char *p = strstr(name,".disabled");
-      if (p) {
-	strcat(buffer, "\"enabled\": false, ");
-      }
-      else {
-	strcat(buffer, "\"enabled\": true, ");
-      }
-
-      // Store the config name, excluding any .disabled suffix
-      if (p) *p = '\0';
-      strcat(buffer, "\"config\": \"");
-      strcat(buffer, name);
-      strcat(buffer, "\", ");
-      if (p) *p = '.';
-
-      strcpy(command, "/bin/cat /media/cryptofs/apps/etc/ipkg/");
-      strcat(command, name);
-      strcat(command, " 2>&1");
-
-      strcpy(run_command_buffer, "{");
-
-      if (run_command(command, NULL, NULL, NULL)) {
-	strcat(buffer, "\"contents\": \"");
-      }
-      else {
-	strcat(buffer, "\"errorText\": \"");
-	error = true;
-      }
-
-      strcat(buffer, run_command_buffer);
-
-      strcat(buffer, "\"}");
-    }
-
-    if (!pclose(fp)) {
-
-      if (!first) {
-	strcat(buffer, "], ");
-      }
-
-      if (error) {
-	strcat(buffer, "\"returnValue\": true}");
-      }
-      else {
-	strcat(buffer, "\"returnValue\": false}");
-      }
-    }
-
-    if (!LSMessageReply(lshandle, message, buffer, &lserror)) goto error;
-
+    // and send it to webOS.
+    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
   }
   else {
 
-    if (!report_command_failure(lshandle, message, command, NULL, NULL)) goto error;
+    // Finalise the command output ...
+    strcat(run_command_buffer, "\"}");
 
+    // and use it in a failure report message.
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
   }
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
+//
+// Call the rescan service, and return the output to webOS.
+//
+bool rescan_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  return simple_command(lshandle, message, "/usr/bin/luna-send -n 1 palm://com.palm.applicationManager/rescan {} 2>&1");
+}
+
+//
+// Restart Luna, and return the output to webOS.
+//
+bool restart_luna_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  return simple_command(lshandle, message, "/usr/bin/killall -HUP LunaSysMgr 2>&1");
+}
+
+//
+// Restart Java, and return the output to webOS.
+//
+bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  return simple_command(lshandle, message, "/usr/bin/killall java 2>&1");
+}
+
+//
+// Restart the device, and return the output to webOS.
+//
+bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  return simple_command(lshandle, message, "/sbin/tellbootie 2>&1");
+}
+
+//
+// Get the list of ipkg configuration files, and return them and their contents.
+//
+bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  // Local buffer to store the config filename
+  char filename[MAXNAMLEN];
+
+  // Local buffer to build a command to read the config file contents
+  char command[MAXLINLEN];
+
+  // Is this the first line of output?
+  bool first = true;
+
+  // Was there an error in accessing any of the files?
+  bool error = false;
+
+  // Initialise the command to read the list of config files.
+  strcpy(command, "/bin/ls -1 /media/cryptofs/apps/etc/ipkg/ 2>&1");
+
+  // Start execution of the command to list the config files.
+  FILE *fp = popen(command, "r");
+
+  // If the command cannot be started
+  if (!fp) {
+
+    // then report the error to webOS.
+    if (!report_command_failure(lshandle, message, command, NULL, NULL)) goto end;
+
+    // The error report has been sent, so return to webOS.
+    return true;
+  }
+
+  // Initialise the output message.
+  strcpy(buffer, "{");
+
+  // Loop through the list of files in the config directory.
+  while ( fgets( filename, sizeof filename, fp)) {
+
+    // Chomp the newline
+    char *nl = strchr(filename,'\n'); if (nl) *nl = 0;
+
+    // Ignore the arch.conf file
+    if (!strcmp(filename, "arch.conf")) continue;
+
+    // Start or continue the JSON array
+    if (first) {
+      strcat(buffer, "\"configs\": [");
+      first = false;
+    }
+    else {
+      strcat(buffer, ", ");
+    }
+
+    // Start the entry for each config file
+    strcat(buffer, "{");
+	
+    // Determine if the config file is enabled or not
+    char *p = strstr(filename,".disabled");
+
+    // Store the config name, excluding any .disabled suffix
+    if (p) *p = '\0';
+    strcat(buffer, "\"config\": \"");
+    strcat(buffer, filename);
+    strcat(buffer, "\", ");
+    if (p) *p = '.';
+
+    // Store the enabled flag
+    strcat(buffer, "\"enabled\": ");
+    strcat(buffer, p ? "false" : "true");
+    strcat(buffer, ", ");
+
+    // Initialise the command to read the contents of the file.
+    strcpy(command, "/bin/cat /media/cryptofs/apps/etc/ipkg/");
+    strcat(command, filename);
+    strcat(command, " 2>&1");
+
+    // Initialise the output buffer.
+    strcpy(run_command_buffer, "");
+
+    // Retrieve the file contents, and check for an error
+    if (run_command(command, NULL, NULL, NULL)) {
+      strcat(buffer, "\"contents\": \"");
+    }
+    else {
+      strcat(buffer, "\"errorText\": \"");
+      error = true;
+    }
+
+    // Store the command output (the contents of the file)
+    strcat(buffer, run_command_buffer);
+
+    // Terminate the JSON entry
+    strcat(buffer, "\"}");
+  }
+
+  // Terminate the JSON array
+  if (!first) {
+    strcat(buffer, "], ");
+  }
+
+  // Check the close status of the process, and return the combined error status
+  if (pclose(fp) || error) {
+    strcat(buffer, "\"returnValue\": false}");
+  }
+  else {
+    strcat(buffer, "\"returnValue\": true}");
+  }
+
+  // Return the results to webOS.
+  if (!LSMessageReply(lshandle, message, buffer, &lserror)) goto error;
 
   return true;
  error:
@@ -367,66 +601,63 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
   char command[MAXLINLEN];
+
+  // Capture any errors
+  bool error = false;
 
   if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"update\"}", &lserror)) goto error;
 
   strcpy(command, "/usr/bin/ipkg -o /media/cryptofs/apps update 2>&1");
 
   strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, lshandle, message, passthrough)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-  }
-  else {
+  if (!run_command(command, lshandle, message, passthrough)) {
     strcat(run_command_buffer, "\"}");
     if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
+    error = true;
     // Even if there is an error, continue to move the files below
   }
  
   strcpy(command, "/bin/mkdir -p /media/cryptofs/apps/usr/lib/ipkg/cache 2>&1");
 
   strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, lshandle, message, passthrough)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-  }
-  else {
+  if (!run_command(command, lshandle, message, passthrough)) {
     strcat(run_command_buffer, "\"}");
     if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
+    error = true;
     // Even if there is an error, continue to move the files below
   }
  
   strcpy(command, "/bin/rm -f /media/cryptofs/apps/usr/lib/ipkg/cache/* 2>&1");
 
   strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, lshandle, message, passthrough)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-  }
-  else {
+  if (!run_command(command, lshandle, message, passthrough)) {
     strcat(run_command_buffer, "\"}");
     if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
+    error = true;
     // Even if there is an error, continue to move the files below
   }
  
   strcpy(command, "/bin/mv /media/cryptofs/apps/usr/lib/ipkg/lists/* /media/cryptofs/apps/usr/lib/ipkg/cache/ 2>&1");
 
   strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, lshandle, message, passthrough)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-  }
-  else {
+  if (!run_command(command, lshandle, message, passthrough)) {
     strcat(run_command_buffer, "\"}");
     if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
+    error = true;
     // At this point, we're done anyway
   }
  
+  if (error) {
+    if (!LSMessageReply(lshandle, message, "{\"returnValue\": false, \"stage\": \"failed\"}", &lserror)) goto error;
+  }
+  else {
+    if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
+  }
+
   return true;
  error:
   LSErrorPrint(&lserror, stderr);
@@ -436,7 +667,6 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 static bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscribed) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -501,7 +731,6 @@ static bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool s
 }
 
 bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -540,7 +769,6 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -579,7 +807,6 @@ bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
 }
 
 bool get_status_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -603,7 +830,6 @@ bool get_status_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -643,7 +869,6 @@ bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
 }
 
 bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -706,7 +931,6 @@ bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
 }
 
 bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -789,7 +1013,6 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -846,112 +1069,7 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
-bool rescan_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
-  LSError lserror;
-  LSErrorInit(&lserror);
-
-  char command[MAXLINLEN];
-  strcpy(command, "/usr/bin/luna-send -n 1 palm://com.palm.applicationManager/rescan {} 2>&1");
-
-  strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, NULL, NULL, NULL)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true}");
-    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-  }
-  else {
-    strcat(run_command_buffer, "\"}");
-    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
-  }
-
-  return true;
- error:
-  LSErrorPrint(&lserror, stderr);
-  LSErrorFree(&lserror);
- end:
-  return false;
-}
-
-bool restart_luna_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
-  LSError lserror;
-  LSErrorInit(&lserror);
-
-  char command[MAXLINLEN];
-  strcpy(command, "/usr/bin/killall -HUP LunaSysMgr 2>&1");
-
-  strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, NULL, NULL, NULL)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true}");
-    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-  }
-  else {
-    strcat(run_command_buffer, "\"}");
-    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
-  }
-
-  return true;
- error:
-  LSErrorPrint(&lserror, stderr);
-  LSErrorFree(&lserror);
- end:
-  return false;
-}
-
-bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
-  LSError lserror;
-  LSErrorInit(&lserror);
-
-  char command[MAXLINLEN];
-  strcpy(command, "/usr/bin/killall java 2>&1");
-
-  strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, NULL, NULL, NULL)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true, \"stage\": \"completed\"}");
-    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-  }
-  else {
-    strcat(run_command_buffer, "\"}");
-    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
-  }
-
-  return true;
- error:
-  LSErrorPrint(&lserror, stderr);
-  LSErrorFree(&lserror);
- end:
-  return false;
-}
-
-bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
-  LSError lserror;
-  LSErrorInit(&lserror);
-
-  char command[MAXLINLEN];
-  strcpy(command, "/sbin/tellbootie 2>&1");
-
-  strcpy(run_command_buffer, "{\"output\": \"");
-  if (run_command(command, NULL, NULL, NULL)) {
-    strcat(run_command_buffer, "\", \"returnValue\": true}");
-    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-  }
-  else {
-    strcat(run_command_buffer, "\"}");
-    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
-  }
-
-  return true;
- error:
-  LSErrorPrint(&lserror, stderr);
-  LSErrorFree(&lserror);
- end:
-  return false;
-}
-
 bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1004,7 +1122,7 @@ bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *c
   char command[MAXLINLEN];
 
   snprintf(command, MAXLINLEN,
-	   "curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
+	   "/usr/bin/curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, downloadstats)) {
@@ -1018,7 +1136,7 @@ bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *c
   }
 
   snprintf(command, MAXLINLEN,
-	   "luna-send -n 6 luna://com.palm.appinstaller/installNoVerify '{\"subscribe\":true, \"target\": \"/media/internal/.developer/%s\", \"uncompressedSize\": 0}' 2>&1", filename);
+	   "/usr/bin/luna-send -n 6 luna://com.palm.appinstaller/installNoVerify '{\"subscribe\":true, \"target\": \"/media/internal/.developer/%s\", \"uncompressedSize\": 0}' 2>&1", filename);
 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, appinstaller)) {
@@ -1110,7 +1228,6 @@ bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *c
 }
 
 bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1162,7 +1279,7 @@ bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
   /* */
   snprintf(command, MAXLINLEN,
-	   "curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
+	   "/usr/bin/curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, downloadstats)) {
@@ -1177,7 +1294,7 @@ bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   /*  */
 
   snprintf(command, MAXLINLEN,
-	   "ipkg -o /media/cryptofs/apps -force-overwrite install /media/internal/.developer/%s 2>&1", filename);
+	   "/usr/bin/ipkg -o /media/cryptofs/apps -force-overwrite install /media/internal/.developer/%s 2>&1", filename);
 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, passthrough)) {
@@ -1230,7 +1347,6 @@ bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 bool appinstaller_remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1283,7 +1399,7 @@ bool appinstaller_remove_method(LSHandle* lshandle, LSMessage *message, void *ct
   }
 
   snprintf(command, MAXLINLEN,
-	   "luna-send -n 3 luna://com.palm.appinstaller/remove '{\"subscribe\":true, \"packageName\": \"%s\"}' 2>&1", package);
+	   "/usr/bin/luna-send -n 3 luna://com.palm.appinstaller/remove '{\"subscribe\":true, \"packageName\": \"%s\"}' 2>&1", package);
 
   strcpy(run_command_buffer, "{\"output\": \"");
   if (run_command(command, lshandle, message, appinstaller)) {
@@ -1307,7 +1423,6 @@ bool appinstaller_remove_method(LSHandle* lshandle, LSMessage *message, void *ct
 }
 
 bool appinstaller_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1365,22 +1480,31 @@ LSMethod luna_methods[] = {
   { "status",		dummy_method },
   { "version",		version_method },
   { "update",		update_method },
+
+  { "rescan",		rescan_method },
+  { "restartLuna",	restart_luna_method },
+  { "restartJava",	restart_java_method },
+  { "restartDevice",	restart_device_method },
+
   { "getConfigs",	get_configs_method },
   { "getListFile",	get_list_file_method },
   { "getControlFile",	get_control_file_method },
   { "getStatusFile",	get_status_file_method },
   { "getAppinfoFile",	get_appinfo_file_method },
+
   { "setConfigState",	set_config_state_method },
   { "addConfig",	add_config_method },
   { "deleteConfig",	delete_config_method },
-  { "rescan",		rescan_method },
-  { "restartLuna",	restart_luna_method },
-  { "restartJava",	restart_java_method },
-  { "restartDevice",	restart_device_method },
+
   { "install",		appinstaller_install_method },
 //{ "install",		ipkg_install_method },
+
   { "remove",		appinstaller_remove_method },
+//{ "remove",		ipkg_remove_method },
+
   { "replace",		appinstaller_replace_method },
+//{ "replace",		ipkg_replace_method },
+
   { 0, 0 }
 };
 
