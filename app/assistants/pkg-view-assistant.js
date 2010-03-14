@@ -414,15 +414,12 @@ PkgViewAssistant.prototype.doCheckAppCatInstalls = function(response, operation)
 
     if (installing == false) {
 	if (operation == 'install') {
-	    alert("Calling doInstall");
 	    this.item.doInstall(this);
 	}
 	else if (operation == 'update') {
-	    alert("Calling doUpdate");
 	    this.item.doUpdate(this);
 	}
 	else if (operation == 'remove') {
-	    alert("Calling doRemove");
 	    this.item.doRemove(this);
 	}
     }
