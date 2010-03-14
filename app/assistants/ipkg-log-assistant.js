@@ -19,7 +19,8 @@ IpkgLogAssistant.prototype.setup = function()
 	);
 	
 	// listen to window resize
-	this.controller.listen(this.controller.stageController.window, 'resize', this.handleWindowResize.bindAsEventListener(this));
+	this.windowResizeHandler = this.handleWindowResize.bindAsEventListener(this);
+	this.controller.listen(this.controller.stageController.window, 'resize', this.windowResizeHandler);
 	this.handleWindowResize();
 	
 	// setup menu that is no menu
@@ -35,5 +36,5 @@ IpkgLogAssistant.prototype.activate = function(event) {}
 IpkgLogAssistant.prototype.deactivate = function(event) {}
 IpkgLogAssistant.prototype.cleanup = function(event)
 {
-	this.controller.stopListening(this.controller.stageController.window, 'resize', this.handleWindowResize.bindAsEventListener(this));
+	this.controller.stopListening(this.controller.stageController.window, 'resize', this.windowResizeHandler);
 }
