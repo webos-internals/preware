@@ -169,6 +169,18 @@ bool version_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 //
+// Restart ipkgservice.
+//
+bool restart_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+  (void)LSMessageReply(lshandle, message, "{\"returnValue\": true}", &lserror);
+  (void)system("/usr/bin/killall org.webosinternals.ipkgservice");
+  // It's likely that this point will never be reached.
+  return true;
+}
+
+//
 // A function pointer, used to filter output messages from commands.
 // The input string is assumed to be a buffer large enough to hold
 // the filtered output string, and is forcibly overwritten.
@@ -1428,6 +1440,8 @@ bool replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 LSMethod luna_methods[] = {
   { "status",		dummy_method },
   { "version",		version_method },
+  { "restart",		restart_method },
+
   { "update",		update_method },
 
   { "rescan",		rescan_method },
