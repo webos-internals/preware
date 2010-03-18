@@ -242,14 +242,6 @@ IPKGService.logPayload = function(payload, stage)
 			this.log += '</div>';
 		}
 		
-		if (payload.output && payload.output.length > 0)
-		{
-			stdPlus = true;
-			this.log += '<div class="stdOut">';
-			this.log += '<div>' + payload.output + '</div>';
-			this.log += '</div>';
-		}
-		
 		if (payload.stdOut && payload.stdOut.length > 0)
 		{
 			stdPlus = true;
