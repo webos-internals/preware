@@ -389,6 +389,7 @@ packagesModel.prototype.fixUnknown = function()
 		if (this.unknownCount > 0) 
 		{
 			this.updateAssistant.showProgress();
+			this.updateAssistant.displayAction($L("<strong>Scanning Unknown Packages</strong><br />") + this.packages[this.unknown[0]].pkg.substr(-32));
 			this.packages[this.unknown[0]].loadAppinfoFile(this.fixUnknownDone.bind(this));
 		}
 		else
@@ -404,7 +405,7 @@ packagesModel.prototype.fixUnknown = function()
 packagesModel.prototype.fixUnknownDone = function()
 {
 	this.unknownFixed++;
-	this.updateAssistant.displayAction($L("<strong>Fixing Unknown Packages</strong><br />") + this.unknownFixed + ' of ' + this.unknownCount);
+	//	this.updateAssistant.displayAction($L("<strong>Fixing Unknown Packages</strong><br />") + this.unknownFixed + ' of ' + this.unknownCount);
 	this.updateAssistant.setProgress(Math.round((this.unknownFixed/this.unknownCount) * 100));
 	
 	if (this.unknownFixed == this.unknownCount)
@@ -415,6 +416,7 @@ packagesModel.prototype.fixUnknownDone = function()
 	}
 	else
 	{
+		this.updateAssistant.displayAction($L("<strong>Scanning Unknown Packages</strong><br />") + this.packages[this.unknown[this.unknownFixed]].pkg.substr(-32));
 		this.packages[this.unknown[this.unknownFixed]].loadAppinfoFile(this.fixUnknownDone.bind(this));
 	}
 }
