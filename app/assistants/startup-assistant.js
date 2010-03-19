@@ -9,6 +9,14 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.31',
+			log:
+			[
+				'Renamed Fix Unknown Types to Scan Unknown Packages',
+				'Reports the id of the package being scannned'
+			]
+		},
+		{
 			version: '0.9.30',
 			log:
 			[
