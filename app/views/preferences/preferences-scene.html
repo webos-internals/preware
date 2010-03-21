@@ -4,14 +4,14 @@ cd <div class="prefs">
 	
 	<div class="palm-page-header multi-line">
 		<div class="palm-page-header-wrapper">
-			<div class="headerButton" id="headerButton" x-mojo-touch-feedback="delayed">Feeds</div>
+			<div class="headerButton" id="headerButtonPrefs" x-mojo-touch-feedback="delayed">Feeds</div>
 			<div class="icon"></div>
-			<div class="title">Preferences</div>
+			<div class="title" id="preferences-title">Preferences</div>
 		</div>
 	</div>
 	
 	<div class="palm-group">
-		<div class="palm-group-title">Global</div>
+		<div class="palm-group-title" id="preferences-global">Global</div>
 		<div class="palm-list">
 			
 			<div class="palm-row single"> <!-- x-mojo-tap-highlight="momentary" //-->
@@ -24,7 +24,7 @@ cd <div class="prefs">
 	</div>
 	
 	<div class="palm-group">
-		<div class="palm-group-title">Startup</div>
+		<div class="palm-group-title" id="preferences-startup">Startup</div>
 		<div class="palm-list">
 			
 			<div class="palm-row first">
@@ -35,14 +35,14 @@ cd <div class="prefs">
 			
 			<div class="palm-row">
 				<div class="palm-row-wrapper">
-					<div class="label left">Last Update</div>
+					<div class="label left" id="last-update-title">Last Update</div>
 					<div class="title right" id="lastUpdate">Never</div>
 				</div>
 			</div>
 			
 			<div class="palm-row last">
 				<div class="palm-row-wrapper">
-					<div class="label left">Scan Unknown Packages</div>
+					<div class="label left" id="scan-unknown-packages">Scan Unknown Packages</div>
 					<div id="fixUnknown" x-mojo-element="ToggleButton"></div>
 				</div>
 			</div>
@@ -51,12 +51,12 @@ cd <div class="prefs">
 	</div>
 	
 	<div class="palm-group">
-		<div class="palm-group-title">Main Scene</div>
+		<div class="palm-group-title" id="main-scene-title">Main Scene</div>
 		<div class="palm-list">
 			
 			<div class="palm-row single" id="showAvailableTypesContainer">
 				<div class="palm-row-wrapper">
-					<div class="label left">Show Available Types</div>
+					<div class="label left" id="show-available-types">Show Available Types</div>
 					<div id="showAvailableTypes" x-mojo-element="ToggleButton"></div>
 				</div>
 			</div>
@@ -65,28 +65,28 @@ cd <div class="prefs">
 				
 				<div class="palm-row">
 					<div class="palm-row-wrapper">
-						<div class="label left">Show Applications</div>
+						<div class="label left" id="show-applicatons">Show Applications</div>
 						<div id="showTypeApplication" x-mojo-element="ToggleButton"></div>
 					</div>
 				</div>
 				
 				<div class="palm-row">
 					<div class="palm-row-wrapper">
-						<div class="label left">Show Themes</div>
+						<div class="label left" id="show-themes">Show Themes</div>
 						<div id="showTypeTheme" x-mojo-element="ToggleButton"></div>
 					</div>
 				</div>
 				
 				<div class="palm-row">
 					<div class="palm-row-wrapper">
-						<div class="label left">Show Patches</div>
+						<div class="label left" id="show-patches">Show Patches</div>
 						<div id="showTypePatch" x-mojo-element="ToggleButton"></div>
 					</div>
 				</div>
 				
 				<div class="palm-row last">
 					<div class="palm-row-wrapper">
-						<div class="label left">Show Other Types</div>
+						<div class="label left" id="show-other-types">Show Other Types</div>
 						<div id="showTypeOther" x-mojo-element="ToggleButton"></div>
 					</div>
 				</div>
@@ -97,12 +97,12 @@ cd <div class="prefs">
 	</div>
 	
 	<div class="palm-group">
-		<div class="palm-group-title">List Scene</div>
+		<div class="palm-group-title" id="list-scene">List Scene</div>
 		<div class="palm-list">
 			
 			<div class="palm-row first">
 				<div class="palm-row-wrapper">
-					<div class="label left">Search Descriptions</div>
+					<div class="label left" id="search-descriptions">Search Descriptions</div>
 					<div id="searchDesc" x-mojo-element="ToggleButton"></div>
 				</div>
 			</div>
@@ -121,14 +121,14 @@ cd <div class="prefs">
 			
 			<div class="palm-row">
 				<div class="palm-row-wrapper">
-					<div class="label left">Installed is Available</div>
+					<div class="label left" id="installed-is-available">Installed is Available</div>
 					<div id="listInstalled" x-mojo-element="ToggleButton"></div>
 				</div>
 			</div>
 			
 			<div class="palm-row last">
 				<div class="palm-row-wrapper">
-					<div class="label left">Only Show Free Apps</div>
+					<div class="label left" id="only-show-free-apps">Only Show Free Apps</div>
 					<div id="onlyShowFree" x-mojo-element="ToggleButton"></div>
 				</div>
 			</div>
@@ -137,7 +137,7 @@ cd <div class="prefs">
 	</div>
 	
 	<div class="palm-group" id="backgroundPreferences">
-		<div class="palm-group-title">Background</div>
+		<div class="palm-group-title" id="background">Background</div>
 		<div class="palm-list">
 			
 			<div class="palm-row first">
@@ -148,7 +148,7 @@ cd <div class="prefs">
 			
 			<div class="palm-row last">
 				<div class="palm-row-wrapper">
-					<div class="label left">Automatically Install</div>
+					<div class="label left" id="automatically-install">Automatically Install</div>
 					<div id="autoInstallUpdates" x-mojo-element="ToggleButton"></div>
 				</div>
 			</div>
@@ -157,12 +157,12 @@ cd <div class="prefs">
 	</div>
 	
 	<div class="palm-group" id="secretPreferences">
-		<div class="palm-group-title">Secret Stuff</div>
+		<div class="palm-group-title" id="secret-stuff">Secret Stuff</div>
 		<div class="palm-list">
 			
 			<div class="palm-row single">
 				<div class="palm-row-wrapper">
-					<div class="label left">This version has no secret options.</div>
+					<div class="label left" id="secret-options">This version has no secret options.</div>
 				</div>
 			</div>
 			

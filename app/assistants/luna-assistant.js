@@ -5,6 +5,9 @@ function LunaAssistant() {
 
 LunaAssistant.prototype.setup = function()
 {
+		this.controller.get('luna-title').innerHTML = $L('Luna Manager');	
+		this.controller.get('restart-luna-text').innerHTML = $L('This will close all the applications you have open when it restarts.');
+		this.controller.get('restart-java-text').innerHTML = $L('This will cause your phone to lose network connections and be pretty slow until it\'s done restarting.');
 	try
 	{
 		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });

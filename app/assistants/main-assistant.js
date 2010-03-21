@@ -47,7 +47,11 @@ function MainAssistant()
 }
 
 MainAssistant.prototype.setup = function()
-{
+{	
+	this.controller.get('main-title').innerHTML = $L('Preware');
+	this.controller.get('version').innerHTML = $L('v0.0.0');
+	this.controller.get('subTitle').innerHTML = $L('The Open Source Installer');	
+
 	// get elements
 	this.versionElement =	this.controller.get('version');
 	this.subTitleElement =	this.controller.get('subTitle');

@@ -101,6 +101,8 @@ function PkgListAssistant(item, searchText, currentSort)
 
 PkgListAssistant.prototype.setup = function()
 {
+	this.controller.get('groupTitle').innerHTML = $L('None');
+	
 	try 
 	{
 		// clear log so it only shows stuff from this scene

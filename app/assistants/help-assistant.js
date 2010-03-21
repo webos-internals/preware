@@ -5,6 +5,9 @@ function HelpAssistant()
 
 HelpAssistant.prototype.setup = function()
 {
+	this.controller.get('help-title').innerHTML = $L('Help');
+	this.controller.get('help-support').innerHTML = $L('Support');
+	
 	this.controller.setupWidget(Mojo.Menu.appMenu, {omitDefaultItems: true}, {visible: false});
 	
 	this.controller.get('appname').innerHTML = Mojo.appInfo.title;
