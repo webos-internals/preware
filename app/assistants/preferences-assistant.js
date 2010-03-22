@@ -25,6 +25,29 @@ function PreferencesAssistant()
 
 PreferencesAssistant.prototype.setup = function()
 {
+		this.controller.get('headerButtonPrefs').innerHTML = $L('Feeds');
+		this.controller.get('preferences-title').innerHTML = $L('Preferences');
+		this.controller.get('preferences-global').innerHTML = $L('Global');
+		this.controller.get('preferences-startup').innerHTML = $L('Startup');
+		this.controller.get('last-update-title').innerHTML = $L('Last Update');
+		this.controller.get('lastUpdate').innerHTML = $L('Never');
+		this.controller.get('scan-unknown-packages').innerHTML = $L('Scan Unknown Packages');
+		this.controller.get('main-scene-title').innerHTML = $L('Main Scene');
+		this.controller.get('show-available-types').innerHTML = $L('Show Available Types');
+		this.controller.get('show-applicatons').innerHTML = $L('Show Applications');
+		this.controller.get('show-themes').innerHTML = $L('Show Themes');
+		this.controller.get('show-patches').innerHTML = $L('Show Patches');
+		this.controller.get('show-other-types').innerHTML = $L('Show Other Types');
+		this.controller.get('list-scene').innerHTML = $L('List Scene');
+		this.controller.get('"search-descriptions').innerHTML = $L('Search Descriptions');
+		this.controller.get('installed-is-available').innerHTML = $L('Installed is Available');
+		this.controller.get('only-show-free-apps').innerHTML = $L('Only Show Free Apps');
+		this.controller.get('background').innerHTML = $L('Background');
+		this.controller.get('automatically-install').innerHTML = $L('Automatically Install');
+		this.controller.get('secret-stuff').innerHTML = $L('Secret Stuff');
+		this.controller.get('secret-options').innerHTML = $L('This version has no secret options.');
+
+
 	try
 	{
 		// setup menu

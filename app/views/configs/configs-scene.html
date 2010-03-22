@@ -6,25 +6,25 @@
 		<div class="palm-page-header-wrapper">
 			<div class="headerButton" id="headerButton" x-mojo-touch-feedback="delayed">Preferences</div>
 			<div class="icon"></div>
-			<div class="title">Feeds</div>
+			<div class="title" id="headerTitle">Feeds</div>
 		</div>
 	</div>
 	
 	<div class="palm-group">
-		<div class="palm-group-title">Installed</div>
+		<div class="palm-group-title" id="installed-feeds-title">Installed</div>
 		<div class="palm-list" id="confList" x-mojo-element="List">
 			
 		</div>
 	</div>
 	
 	<div class="palm-group" id="newFeed">
-		<div class="palm-group-title">New Feed</div>
+		<div class="palm-group-title" id="new-feed-title">New Feed</div>
 		<div class="palm-list">
 				
 			<div class="palm-row first">
 				<div class="palm-row-wrapper textfield-group" x-mojo-focus-highlight="true">
 					<div class="title">
-						<div class="label">Name</div>
+						<div class="label" id="new-feed-name">Name</div>
 						<div id="newName" x-mojo-element="TextField"></div>
 					</div>
 				</div>
@@ -33,7 +33,7 @@
 			<div class="palm-row">
 				<div class="palm-row-wrapper textfield-group" x-mojo-focus-highlight="true">
 					<div class="title">
-						<div class="label">URL</div>
+						<div class="label" id="new-feed-url">URL</div>
 						<div id="newUrl" x-mojo-element="TextField"></div>
 					</div>
 				</div>
@@ -41,7 +41,7 @@
 			
 			<div class="palm-row">
 				<div class="palm-row-wrapper">
-					<div class="label left">Is Compressed</div>
+					<div class="label left" id="new-feed-is-compressed">Is Compressed</div>
 					<div id="newCompressed" x-mojo-element="ToggleButton"></div>
 				</div>
 			</div>

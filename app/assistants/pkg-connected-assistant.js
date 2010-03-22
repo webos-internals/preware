@@ -40,6 +40,8 @@ function PkgConnectedAssistant(type, pkg, pkgs)
 
 PkgConnectedAssistant.prototype.setup = function()
 {
+	this.controller.get('listTitle').innerHTML = $L('Connected Packages');
+	
 	// clear log so it only shows stuff from this scene
 	IPKGService.logClear();
 	
