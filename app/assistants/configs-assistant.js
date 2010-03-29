@@ -39,8 +39,10 @@ ConfigsAssistant.prototype.setup = function()
 		'newName',
 		{
 			autoFocus: false,
+			focus: false,
 			multiline: false,
-			enterSubmits: false
+			enterSubmits: false,
+			charsAllow: this.validChars
 		},
 		{
 			value: ''
@@ -222,6 +224,18 @@ ConfigsAssistant.prototype.doneLoading = function()
 	}
 }
 
+ConfigsAssistant.prototype.validChars = function(test)
+{
+	if (String.fromCharCode(test).match(/^[-a-zA-Z0-9]*$/))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 ConfigsAssistant.prototype.test = function(payload)
 {
 	for (var p in payload) alert(p + ': ' + payload[p]);
@@ -244,6 +258,17 @@ ConfigsAssistant.prototype.confDeleted = function(event)
 }
 
 ConfigsAssistant.prototype.newConfButton = function()
+{
+	this.controller.showAlertDialog(
+	{
+	    title:				$L('Custom Feed'),
+		allowHTMLMessage:	true,
+	    message:			'By adding a custom feed, you take full responsibility for any and all potential outcomes that may occur as a result of doing so, including (but not limited to): loss of warranty, loss of all data, loss of all privacy, security vulnerabilities and device damage.',
+	    choices:			[{label:$L('Ok'), value:''}],
+		onChoose:			this.newConfCall.bindAsEventListener(this)
+    });
+}
+ConfigsAssistant.prototype.newConfCall = function(e)
 {
 	this.subscription = IPKGService.addConfig(this.newConfResponse.bindAsEventListener(this),
 		this.controller.get('newName').mojo.getValue() + ".conf",
