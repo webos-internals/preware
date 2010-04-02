@@ -12,7 +12,7 @@ LDFLAGS  := -g -L${STAGING_DIR}/usr/lib -llunaservice -lmjson -lglib-2.0
 ipkgservice: ipkgservice.o luna_service.o luna_methods.o
 
 install: ipkgservice
-#	- ssh root@webos killall org.webosinternals.ipkgservice
+	- ssh root@webos killall org.webosinternals.ipkgservice
 	scp ipkgservice root@webos:/var/usr/sbin/org.webosinternals.ipkgservice.new
 	ssh root@webos mv /var/usr/sbin/org.webosinternals.ipkgservice.new /var/usr/sbin/org.webosinternals.ipkgservice
 

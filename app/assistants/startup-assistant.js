@@ -9,6 +9,14 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.34',
+			log:
+			[
+				'Consolidated translation resources - all strings in HTML are now localised',
+				'Began transition to a C-language based ipkgservice implementation'
+			]
+		},
+		{
 			version: '0.9.33',
 			log:
 			[
