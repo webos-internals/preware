@@ -8,7 +8,7 @@ pre-start script
    APPS=/media/cryptofs/apps
 
    # Remove erroneously large list database cache files
-   find $APPS/usr/lib/ipkg/lists -size +1024k -delete
+   find $APPS/usr/lib/ipkg/lists -size +10240k -delete
 
    # Configure the webos-patches feed
    VERSION=`grep PRODUCT_VERSION_STRING /etc/palm-build-info | sed -e 's/.*=Palm webOS \([0-9.]*\).*/\1/'`
@@ -19,8 +19,17 @@ pre-start script
       echo "src/gz webos-patches http://ipkg.preware.org/feeds/webos-patches/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-patches.conf.disabled
    fi  
 
+   # Configure the hardware-patches feed
+   VERSION=`grep PRODUCT_VERSION_STRING /etc/palm-build-info | sed -e 's/.*=Palm webOS \([0-9.]*\).*/\1/'`
+   if [ -f $APPS/etc/ipkg/hardware-patches.conf ] ; then
+      echo "src/gz hardware-patches http://ipkg.preware.org/feeds/hardware-patches/${VERSION:-unknown}" > $APPS/etc/ipkg/hardware-patches.conf
+   fi  
+   if [ -f $APPS/etc/ipkg/hardware-patches.conf.disabled ] ; then
+      echo "src/gz hardware-patches http://ipkg.preware.org/feeds/hardware-patches/${VERSION:-unknown}" > $APPS/etc/ipkg/hardware-patches.conf.disabled
+   fi  
+
 end script
 
-exec /media/cryptofs/apps/usr/palm/applications/org.webosinternals.preware/bin/ipkgservice
+exec /var/usr/sbin/org.webosinternals.ipkgservice
 
 respawn

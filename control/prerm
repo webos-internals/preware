@@ -1,0 +1,31 @@
+#!/bin/sh
+
+PID="org.webosinternals.ipkgservice"
+
+# Handle execution as pmPreRemove.script
+if [ -z "$IPKG_OFFLINE_ROOT" ]; then
+  IPKG_OFFLINE_ROOT=/media/cryptofs/apps
+  mount -o remount,rw /
+fi
+
+APPS=/media/cryptofs/apps
+
+[ -d $APPS ] || { echo "Requires webOS 1.3.5 or later" ; exit 1 ; }
+
+# Stop the service if running
+/sbin/stop ${PID} || true
+
+# Remove the dbus service
+rm -f /usr/share/dbus-1/system-services/${PID}.service /var/palm/system-services/${PID}.service
+
+# Remove the upstart script
+rm -f /etc/event.d/${PID} /var/palm/event.d/${PID}
+
+# Remove the ipkgservice executable
+rm -f /var/usr/sbin/${PID}
+
+# Remove all list database cache files
+rm -f $APPS/usr/lib/ipkg/lists/*
+rm -f $APPS/usr/lib/ipkg/cache/*
+
+exit 0

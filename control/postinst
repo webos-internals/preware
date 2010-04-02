@@ -1,0 +1,86 @@
+#!/bin/sh                                                                                       
+
+PID="org.webosinternals.ipkgservice"
+
+# Handle execution as pmPostInstall.script
+if [ -z "$IPKG_OFFLINE_ROOT" ]; then
+  IPKG_OFFLINE_ROOT=/media/cryptofs/apps
+  mount -o remount,rw /
+fi
+
+APPS=/media/cryptofs/apps
+
+[ -d $APPS ] || { echo "Requires webOS 1.3.5 or later" ; exit 1 ; }
+
+# Install the upstart script
+rm -f /etc/event.d/${PID} /var/palm/event.d/${PID}
+if [ -d /var/palm/event.d ] ; then
+  cp $APPS/usr/palm/applications/${PID}/upstart/${PID} /var/palm/event.d/${PID}
+else
+  cp $APPS/usr/palm/applications/${PID}/upstart/${PID} /etc/event.d/${PID}
+fi
+
+# Install the dbus service
+rm -f /usr/share/dbus-1/system-services/${PID}.service /var/palm/system-services/${PID}.service
+if [ -d /var/palm/system-services ] ; then
+  cp $APPS/usr/palm/applications/${PID}/dbus/${PID}.service /var/palm/system-services/${PID}.service
+else
+  cp $APPS/usr/palm/applications/${PID}/dbus/${PID}.service /usr/share/dbus-1/system-services/${PID}.service
+fi
+
+# Stop any existing service
+/sbin/stop ${PID} || true
+
+# Install the ipkgservice executable
+mkdir -p /var/usr/sbin/
+rm -f /var/usr/sbin/${PID}
+install -m 755 $APPS/usr/palm/applications/${PID}/bin/${PID} /var/usr/sbin/${PID}
+
+# Start the service
+/sbin/start ${PID}
+
+# Remove all list database cache files
+rm -f $APPS/usr/lib/ipkg/lists/*
+
+# Set up the architecture configuration file
+rm -f $APPS/etc/ipkg/arch.conf
+cp /etc/ipkg/arch.conf $APPS/etc/ipkg/arch.conf
+
+# Install webosinternals feeds
+echo "src/gz webosinternals http://ipkg.preware.org/feeds/webos-internals/all" > $APPS/etc/ipkg/webos-internals.conf
+echo "src/gz webosinternals-`/bin/uname -m` http://ipkg.preware.org/feeds/webos-internals/`/bin/uname -m`" >> $APPS/etc/ipkg/webos-internals.conf
+sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/webos-internals.conf
+sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/webos-internals.conf
+
+# Install optware feeds
+echo "src/gz optware http://ipkg.preware.org/feeds/optware/all" > $APPS/etc/ipkg/optware.conf
+echo "src/gz optware-`/bin/uname -m` http://ipkg.preware.org/feeds/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/optware.conf
+sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/optware.conf
+sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/optware.conf
+
+# Configure the webos-patches feed
+VERSION=`grep PRODUCT_VERSION_STRING /etc/palm-build-info | sed -e 's/.*=Palm webOS \([0-9.]*\).*/\1/'`
+if [ -f $APPS/etc/ipkg/webos-patches.conf ] ; then
+  sed -i -e "s^/\(all\|[0-9.]*\)\$^/$VERSION^g" $APPS/etc/ipkg/webos-patches.conf
+fi
+if [ -f $APPS/etc/ipkg/webos-patches.conf.disabled ] ; then
+  sed -i -e "s^/\(all\|[0-9.]*\)\$^/$VERSION^g" $APPS/etc/ipkg/webos-patches.conf.disabled
+fi  
+
+# Retain disabled status of feeds
+if [ "`ls $APPS/etc/ipkg/*.disabled`" ] ; then
+  for f in $APPS/etc/ipkg/*.disabled ; do
+    if [ -f $APPS/etc/ipkg/`basename $f .disabled` ] ; then
+      rm -f $f
+      mv $APPS/etc/ipkg/`basename $f .disabled` $f
+    fi
+  done
+fi
+
+# Check the upstart script is installed
+[ -f /var/palm/event.d/${PID} ] || [ -f /etc/event.d/${PID} ] || exit 1
+
+# Check the dbus service is installed
+[ -f /var/palm/system-services/${PID}.service ] || [ -f /usr/share/dbus-1/system-services/${PID}.service ] || exit 1
+
+exit 0
