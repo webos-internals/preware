@@ -12,8 +12,7 @@ function StartupAssistant()
 			version: '0.9.34',
 			log:
 			[
-				'Consolidated translation resources - all strings in HTML are now localised',
-				'Began transition to a C-language based ipkgservice implementation'
+				'Updated German translations, courtesy of Markus Leutwyler (swisstomcat)'
 			]
 		},
 		{
