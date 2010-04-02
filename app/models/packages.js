@@ -207,6 +207,11 @@ packagesModel.prototype.infoResponse = function(payload, num)
 				if (payload.contents) 
 				{
 					this.rawData += payload.contents;
+					var position = this.rawData.lastIndexOf("\n\n");
+					if (position) {
+						this.parsePackages(this.rawData.substr(0, position), this.urls[num]);
+						this.rawData = this.rawData.substr(position);
+					}
 				}
 			}
 			else if (payload.stage == 'end')
@@ -265,11 +270,6 @@ packagesModel.prototype.parsePackages = function(rawData, url)
 			for (var x = 0; x < test.length; x++) 
 			{
 			
-				/*if (this.feeds[num] == 'preyourmind')
-				{
-					alert(x + ': ' + test[x]);
-				}*/
-				
 				var match = lineRegExp.exec(test[x]);
 				if (match) 
 				{
