@@ -34,12 +34,12 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('scan-unknown-packages').innerHTML = $L('Scan Unknown Packages');
 		this.controller.get('main-scene-title').innerHTML = $L('Main Scene');
 		this.controller.get('show-available-types').innerHTML = $L('Show Available Types');
-		this.controller.get('show-applicatons').innerHTML = $L('Show Applications');
+		this.controller.get('show-applications').innerHTML = $L('Show Applications');
 		this.controller.get('show-themes').innerHTML = $L('Show Themes');
 		this.controller.get('show-patches').innerHTML = $L('Show Patches');
 		this.controller.get('show-other-types').innerHTML = $L('Show Other Types');
 		this.controller.get('list-scene').innerHTML = $L('List Scene');
-		this.controller.get('"search-descriptions').innerHTML = $L('Search Descriptions');
+		this.controller.get('search-descriptions').innerHTML = $L('Search Descriptions');
 		this.controller.get('installed-is-available').innerHTML = $L('Installed is Available');
 		this.controller.get('only-show-free-apps').innerHTML = $L('Only Show Free Apps');
 		this.controller.get('background').innerHTML = $L('Background');
@@ -57,8 +57,8 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 		
 		// setup handlers for preferences
-		this.toggleChangeHandler = this.toggleChanged.bindAsEventListener(this)
-		this.listChangedHandler  = this.listChanged.bindAsEventListener(this)
+		this.toggleChangeHandler = this.toggleChanged.bindAsEventListener(this);
+		this.listChangedHandler  = this.listChanged.bindAsEventListener(this);
 		
 		// toggle panes:
 		this.toggleShowTypesChanged();
