@@ -1,6 +1,7 @@
 #!/bin/sh                                                                                       
 
-PID="org.webosinternals.ipkgservice"
+PID="org.webosinternals.preware"
+SID="org.webosinternals.ipkgservice"
 
 # Handle execution as pmPostInstall.script
 if [ -z "$IPKG_OFFLINE_ROOT" ]; then
@@ -13,31 +14,31 @@ APPS=/media/cryptofs/apps
 [ -d $APPS ] || { echo "Requires webOS 1.3.5 or later" ; exit 1 ; }
 
 # Install the upstart script
-rm -f /etc/event.d/${PID} /var/palm/event.d/${PID}
+rm -f /etc/event.d/${SID} /var/palm/event.d/${SID}
 if [ -d /var/palm/event.d ] ; then
-  cp $APPS/usr/palm/applications/${PID}/upstart/${PID} /var/palm/event.d/${PID}
+  cp $APPS/usr/palm/applications/${PID}/upstart/${SID} /var/palm/event.d/${SID}
 else
-  cp $APPS/usr/palm/applications/${PID}/upstart/${PID} /etc/event.d/${PID}
+  cp $APPS/usr/palm/applications/${PID}/upstart/${SID} /etc/event.d/${SID}
 fi
 
 # Install the dbus service
-rm -f /usr/share/dbus-1/system-services/${PID}.service /var/palm/system-services/${PID}.service
+rm -f /usr/share/dbus-1/system-services/${SID}.service /var/palm/system-services/${SID}.service
 if [ -d /var/palm/system-services ] ; then
-  cp $APPS/usr/palm/applications/${PID}/dbus/${PID}.service /var/palm/system-services/${PID}.service
+  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /var/palm/system-services/${SID}.service
 else
-  cp $APPS/usr/palm/applications/${PID}/dbus/${PID}.service /usr/share/dbus-1/system-services/${PID}.service
+  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /usr/share/dbus-1/system-services/${SID}.service
 fi
 
 # Stop any existing service
-/sbin/stop ${PID} || true
+/sbin/stop ${SID} || true
 
 # Install the ipkgservice executable
 mkdir -p /var/usr/sbin/
-rm -f /var/usr/sbin/${PID}
-install -m 755 $APPS/usr/palm/applications/${PID}/bin/${PID} /var/usr/sbin/${PID}
+rm -f /var/usr/sbin/${SID}
+install -m 755 $APPS/usr/palm/applications/${PID}/bin/${SID} /var/usr/sbin/${SID}
 
 # Start the service
-/sbin/start ${PID}
+/sbin/start ${SID}
 
 # Remove all list database cache files
 rm -f $APPS/usr/lib/ipkg/lists/*
@@ -78,9 +79,9 @@ if [ "`ls $APPS/etc/ipkg/*.disabled`" ] ; then
 fi
 
 # Check the upstart script is installed
-[ -f /var/palm/event.d/${PID} ] || [ -f /etc/event.d/${PID} ] || exit 1
+[ -f /var/palm/event.d/${SID} ] || [ -f /etc/event.d/${SID} ] || exit 1
 
 # Check the dbus service is installed
-[ -f /var/palm/system-services/${PID}.service ] || [ -f /usr/share/dbus-1/system-services/${PID}.service ] || exit 1
+[ -f /var/palm/system-services/${SID}.service ] || [ -f /usr/share/dbus-1/system-services/${SID}.service ] || exit 1
 
 exit 0
