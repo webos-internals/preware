@@ -9,7 +9,7 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
-			version: '0.9.32',
+			version: '0.9.33',
 			log:
 			[
 				'Restricted input character set for new custom feed names',
