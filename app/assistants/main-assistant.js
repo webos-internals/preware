@@ -53,6 +53,7 @@ MainAssistant.prototype.setup = function()
 	this.controller.get('subTitle').innerHTML = $L('The Open Source Installer');	
 
 	// get elements
+	this.titleElement =	this.controller.get('main-title');
 	this.versionElement =	this.controller.get('version');
 	this.subTitleElement =	this.controller.get('subTitle');
 	this.listElement =		this.controller.get('mainList');
@@ -61,6 +62,7 @@ MainAssistant.prototype.setup = function()
 	this.listTapHandler =		this.listTap.bindAsEventListener(this);
 	
 	// set version string random subtitle
+	this.titleElement.innerHTML = Mojo.Controller.appInfo.title;
 	this.versionElement.innerHTML = "v" + Mojo.Controller.appInfo.version;
 	this.subTitleElement.innerHTML = this.getRandomSubTitle();
 	

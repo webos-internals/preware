@@ -307,7 +307,7 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
     int len = 0;
 
     // Read and store characters up to the next LF or NL.
-    char c;
+    int c;
     while ((len < MAXLINLEN) && ((c = fgetc(fp)) != EOF)) { 
       if ((c == '\r') || (c == '\n')) {
 	line[len] = '\0';
