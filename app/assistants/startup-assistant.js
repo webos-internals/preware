@@ -9,6 +9,14 @@ function StartupAssistant()
 	this.newMessages =
 	[
 		{
+			version: '0.9.32',
+			log:
+			[
+				'Restricted input character set for new custom feed names',
+				'Fixed javascript timeout problem with large feeds'
+			]
+		},
+		{
 			version: '0.9.31',
 			log:
 			[
