@@ -21,7 +21,7 @@ LunaAssistant.prototype.setup = function()
 			},
 			this.model =
 			{
-				buttonLabel: 'Rescan',
+				buttonLabel: $L('Rescan'),
 				buttonClass: 'palm-button',
 				disabled: false
 			}
@@ -35,7 +35,7 @@ LunaAssistant.prototype.setup = function()
 			},
 			this.model =
 			{
-				buttonLabel: 'Restart Luna',
+				buttonLabel: $L('Restart Luna'),
 				buttonClass: 'palm-button',
 				disabled: false
 			}
@@ -49,7 +49,7 @@ LunaAssistant.prototype.setup = function()
 			},
 			this.model =
 			{
-				buttonLabel: 'Restart Java',
+				buttonLabel: $L('Restart Java'),
 				buttonClass: 'palm-button',
 				disabled: false
 			}
