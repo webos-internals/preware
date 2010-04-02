@@ -1241,6 +1241,8 @@ bool do_install(LSHandle* lshandle, LSMessage *message, char *installCommand, su
 
   if (!stat(postinst, &info)) {
 
+    (void)system("/bin/mount -o remount,rw /");
+
     snprintf(command, MAXLINLEN,
 	     "IPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", postinst);
       
@@ -1331,6 +1333,8 @@ bool do_remove(LSHandle* lshandle, LSMessage *message, bool *removed) {
   sprintf(prerm, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.prerm", package);
 
   if (!stat(prerm, &info)) {
+
+    (void)system("/bin/mount -o remount,rw /");
 
     snprintf(command, MAXLINLEN,
 	     "IPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", prerm);
