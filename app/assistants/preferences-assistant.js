@@ -25,7 +25,9 @@ function PreferencesAssistant()
 
 PreferencesAssistant.prototype.setup = function()
 {
-		this.controller.get('headerButtonPrefs').innerHTML = $L('Feeds');
+	try
+	{
+		this.controller.get('headerButton').innerHTML = $L('Feeds');
 		this.controller.get('preferences-title').innerHTML = $L('Preferences');
 		this.controller.get('preferences-global').innerHTML = $L('Global');
 		this.controller.get('preferences-startup').innerHTML = $L('Startup');
@@ -47,9 +49,6 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('secret-stuff').innerHTML = $L('Secret Stuff');
 		this.controller.get('secret-options').innerHTML = $L('This version has no secret options.');
 
-
-	try
-	{
 		// setup menu
 		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 		
