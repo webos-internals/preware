@@ -49,7 +49,8 @@ ConfigsAssistant.prototype.setup = function()
 			focus: false,
 			multiline: false,
 			enterSubmits: false,
-			charsAllow: this.validChars
+			charsAllow: this.validChars,
+			textCase: Mojo.Widget.steModeLowerCase
 		},
 		{
 			value: ''
@@ -200,7 +201,7 @@ ConfigsAssistant.prototype.doneLoading = function()
 			for (var f = 0; f < this.feeds.length; f++) 
 			{
 				
-				var fancyName = this.feeds[f].name.substr(0, 1).toUpperCase() + this.feeds[f].name.substr(1);
+				var fancyName = this.feeds[f].name;
 				var urls = '';
 				for (var u = 0; u < this.feeds[f].urls.length; u++)
 				{
@@ -233,7 +234,7 @@ ConfigsAssistant.prototype.doneLoading = function()
 
 ConfigsAssistant.prototype.validChars = function(test)
 {
-	if (String.fromCharCode(test).match(/^[-a-zA-Z0-9]*$/))
+	if (String.fromCharCode(test).match(/^[-a-z0-9]*$/))
 	{
 		return true;
 	}
