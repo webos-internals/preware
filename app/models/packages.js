@@ -15,6 +15,8 @@ function packagesModel()
 	this.urls = [];
 	this.types = [];
 	this.unknown = [];
+
+	this.savedDB = false;
 	
 	// stores if there are packages with prices or not
 	this.hasPrices = false;
@@ -95,7 +97,7 @@ function packagesModel()
 		// unknown (used by actual unknown type, and any other type without values)
 		'Unknown': {}
 	}
-}
+};
 
 packagesModel.prototype.loadFeeds = function(feeds, urls, updateAssistant)
 {
@@ -122,7 +124,7 @@ packagesModel.prototype.loadFeeds = function(feeds, urls, updateAssistant)
 	{
 		Mojo.Log.logException(e, 'packagesModel#loadFeeds');
 	}
-}
+};
 packagesModel.prototype.infoStatusRequest = function()
 {
 	// update display
@@ -132,7 +134,7 @@ packagesModel.prototype.infoStatusRequest = function()
 	// request the rawdata
 	//IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, 'status'));
 	IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, -1));
-}
+};
 packagesModel.prototype.infoListRequest = function(num)
 {
 	// cancel the last subscription, this may not be needed
@@ -148,7 +150,7 @@ packagesModel.prototype.infoListRequest = function(num)
 	
 	// subscribe to new feed
 	this.subscription = IPKGService.rawlist(this.infoResponse.bindAsEventListener(this, num), this.feeds[num]);
-}
+};
 packagesModel.prototype.infoResponse = function(payload, num)
 {
 	var doneLoading = false;
@@ -252,11 +254,11 @@ packagesModel.prototype.infoResponse = function(payload, num)
 			}
 			else
 			{
-				this.doneLoading();
+				this.loadSaved();
 			}
 		}
 	}
-}
+};
 packagesModel.prototype.parsePackages = function(rawData, url)
 {
 	try 
@@ -319,7 +321,7 @@ packagesModel.prototype.parsePackages = function(rawData, url)
 	{
 		Mojo.Log.logException(e, 'packagesModel#parsePackages');
 	}
-}
+};
 packagesModel.prototype.loadPackage = function(packageObj, url)
 {
 	// Skip packages that are in the status file, but are not actually installed
@@ -351,6 +353,8 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 		
 		// save to temp reverse lookup list
 		this.packagesReversed.set(newPkg.pkg, this.packages.length);
+
+		return newPkg;
 	}
 	else 
 	{
@@ -360,9 +364,13 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 		{
 			// if the new package is to replace the old one, do it
 			this.packages[pkgNum] = pkgUpd;
+			return pkgUpd;
+		}
+		else {
+			return newPkg;
 		}
 	}
-}
+};
 packagesModel.prototype.fixUnknown = function()
 {
 	// cancel the last subscription, this may not be needed
@@ -394,14 +402,14 @@ packagesModel.prototype.fixUnknown = function()
 		}
 		else
 		{
-			this.doneLoading();
+			this.loadSaved();
 		}
 	}
 	else
 	{
-		this.doneLoading();
+		this.loadSaved();
 	}
-}
+};
 packagesModel.prototype.fixUnknownDone = function()
 {
 	this.unknownFixed++;
@@ -412,14 +420,101 @@ packagesModel.prototype.fixUnknownDone = function()
 	{
 		this.updateAssistant.displayAction($L("<strong>Complete!</strong>"));
 		this.updateAssistant.hideProgress();
-		this.doneLoading();
+		this.loadSaved();
 	}
 	else
 	{
 		this.updateAssistant.displayAction($L("<strong>Scanning Unknown Packages</strong><br />") + this.packages[this.unknown[this.unknownFixed]].pkg.substr(-32));
 		this.packages[this.unknown[this.unknownFixed]].loadAppinfoFile(this.fixUnknownDone.bind(this));
 	}
-}
+};
+packagesModel.prototype.loadSaved = function()
+{
+	alert('Opening packageDB');
+	this.savedDB = new Mojo.Depot
+	({
+		name:			"packageDB",
+		version:		1,
+		estimatedSize:	1048576,
+		replace:		false
+	},
+		this.loadSavedOpenOK.bind(this),
+		this.loadSavedError.bind(this));
+	return;
+};
+packagesModel.prototype.loadSavedOpenOK = function()
+{
+	alert('Loading savedPackageList');
+	this.savedDB.get("savedPackageList",
+					 this.loadSavedGetOK.bind(this),
+					 this.doneLoading(this));
+	return;
+};
+packagesModel.prototype.loadSavedGetOK = function(savedPackageList)
+{
+	if (savedPackageList) {
+		alert('Got savedPackageList');
+		for (var p = 0; p < savedPackageList.length; p++) {
+			alert('Loaded ' + savedPackageList[p].Package);
+			var savedPkg = this.loadPackage(savedPackageList[p]);
+			var pkgNum = this.packageInList(savedPkg.pkg);
+			this.packages[pkgNum].isInSavedList = true;
+		}
+		this.doneLoading();
+	}
+	else {
+		alert('No savedPackageList');
+		this.loadSavedDefault(this.doneLoading.bind(this));
+	}
+};
+packagesModel.prototype.loadSavedDefault = function(callback)
+{
+	for (var p = 0; p < this.packages.length; p++) {
+		if (this.packages[p].isInstalled && !this.packages[p].appCatalog) {
+			alert('Default ' + this.packages[p].pkg);
+			this.packages[p].isInSavedList = true;
+		}
+		else {
+			this.packages[p].isInSavedList = false;
+		}
+	}
+	this.savePackageList(callback);
+};
+packagesModel.prototype.loadSavedError = function(result)
+{
+	this.updateAssistant.errorMessage('Preware', $L("Unable to open saved packages database: ") + result,
+									  this.updateAssistant.doneUpdating);
+	return;
+};
+packagesModel.prototype.savePackageList = function(callback)
+{
+	var savedPackageList = [];
+
+	for (var p = 0; p < this.packages.length; p++) {
+		if (this.packages[p].isInSavedList) {
+			alert('Save ' + this.packages[p].pkg);
+			savedPackageList.push(this.packages[p].infoSave());
+		}
+	}
+			
+	alert('Saving savedPackageList');
+	this.savedDB.add("savedPackageList", savedPackageList,
+					 function() {
+						 Mojo.Controller.getAppController().showBanner({
+								 messageText:$L("Preware: Wrote Saved Package List"),
+								 icon:'miniicon.png'
+							 } , {source:'saveNotification'});
+						 if (callback) callback();
+					 },
+					 function() {
+						 Mojo.Controller.getAppController().showBanner({
+								 messageText:$L("Preware: Error writing Saved Package List"),
+								 icon:'miniicon.png'
+							 } , {source:'saveNotification'});
+						 if (callback) callback();
+					 });
+	return;
+};
 packagesModel.prototype.doneLoading = function()
 {
 	try
@@ -552,10 +647,13 @@ packagesModel.prototype.doneLoading = function()
 	
 	// tell the main scene we're done updating
 	this.updateAssistant.doneUpdating();
-}
+};
 
 packagesModel.prototype.versionNewer = function(one, two)
 {
+	if (!one) return true;
+	if (!two) return false;
+
 	// if one >= two returns false
 	// if one < two returns true
 	var e1 = one.split(':');
@@ -604,7 +702,7 @@ packagesModel.prototype.versionNewer = function(one, two)
 			}
 		}
 	return false;
-}
+};
 
 packagesModel.prototype.can = function(type, condition)
 {
@@ -618,7 +716,7 @@ packagesModel.prototype.can = function(type, condition)
 		if (this.typeConditions['Unknown'][condition]) return true;
 		else return false;
 	}
-}
+};
 
 packagesModel.prototype.packageInList = function(pkg)
 {
@@ -631,7 +729,7 @@ packagesModel.prototype.packageInList = function(pkg)
 	{
 		return false;
 	}
-}
+};
 
 packagesModel.prototype.getGroups = function(item)
 {
@@ -764,7 +862,7 @@ packagesModel.prototype.getGroups = function(item)
 	}
 	
 	return returnArray;
-}
+};
 
 packagesModel.prototype.getPackages = function(item)
 {
@@ -791,7 +889,7 @@ packagesModel.prototype.getPackages = function(item)
 	}
 	
 	return returnArray;
-}
+};
 
 
 /* ------- below are for multiple package actions -------- */
@@ -815,7 +913,7 @@ packagesModel.prototype.startMultiInstall = function(pkg, pkgs, assistant)
 	{
 		Mojo.Log.logException(e, 'packagesModel#startMultiInstall');
 	}
-}
+};
 
 packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 {
@@ -844,7 +942,7 @@ packagesModel.prototype.checkMultiInstall = function(pkg, pkgs, assistant)
 	{
 		Mojo.Log.logException(e, 'packagesModel#checkMultiInstall');
 	}
-}
+};
 packagesModel.prototype.checkMultiListInstall = function(pkgs, assistant)
 {
 	try 
@@ -872,7 +970,7 @@ packagesModel.prototype.checkMultiListInstall = function(pkgs, assistant)
 	{
 		Mojo.Log.logException(e, 'packagesModel#checkMultiListInstall');
 	}
-}
+};
 packagesModel.prototype.checkMultiRemove = function(pkg, pkgs, assistant)
 {
 	try 
@@ -903,7 +1001,7 @@ packagesModel.prototype.checkMultiRemove = function(pkg, pkgs, assistant)
 	{
 		Mojo.Log.logException(e, 'packagesModel#checkMultiRemove');
 	}
-}
+};
 
 packagesModel.prototype.testMultiInstall = function(value)
 {
@@ -923,7 +1021,7 @@ packagesModel.prototype.testMultiInstall = function(value)
 			break;
 	}
 	return;
-}
+};
 packagesModel.prototype.testMultiRemove = function(value)
 {
 	switch(value)
@@ -943,7 +1041,7 @@ packagesModel.prototype.testMultiRemove = function(value)
 			break;
 	}
 	return;
-}
+};
 
 packagesModel.prototype.doMultiInstall = function(number)
 {
@@ -1029,7 +1127,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 	{
 		Mojo.Log.logException(e, 'packagesModel#doMultiInstall');
 	}
-}
+};
 
 packagesModel.prototype.getMultiFlags = function()
 {
@@ -1065,7 +1163,7 @@ packagesModel.prototype.getMultiFlags = function()
 		Mojo.Log.logException(e, 'packagesModel#getMultiFlags');
 	}
 		
-}
+};
 packagesModel.prototype.multiActionFunction = function(value, flags)
 {
 	try 
@@ -1089,7 +1187,7 @@ packagesModel.prototype.multiActionFunction = function(value, flags)
 	{
 		Mojo.Log.logException(e, 'packagesModel#multiActionFunction');
 	}
-}
+};
 packagesModel.prototype.multiActionMessage = function(flags)
 {
 	try 
@@ -1113,7 +1211,7 @@ packagesModel.prototype.multiActionMessage = function(flags)
 	{
 		Mojo.Log.logException(e, 'packagesModel#multiActionMessage');
 	}
-}
+};
 packagesModel.prototype.multiRunFlags = function(flags)
 {
 	try
@@ -1137,7 +1235,7 @@ packagesModel.prototype.multiRunFlags = function(flags)
 	{
 		Mojo.Log.logException(e, 'packagesModel#multiRunFlags');
 	}
-}
+};
 
 // Local Variables:
 // tab-width: 4

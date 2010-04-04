@@ -309,11 +309,6 @@ packageModel.prototype.infoLoad = function(info)
 		    this.appCatalog = true;
 		}
 		
-		// %%% Remove this when we are reading from the Depot %%%
-		if (this.feedString == "WebOS Internals") {
-			this.isInSavedList = true;
-		}
-
 	}
 	catch (e)
 	{
@@ -343,6 +338,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.hasUpdate)				this.hasUpdate =		pkg.hasUpdate;
 		if (!this.dateInstalled)			this.dateInstalled =	pkg.dateInstalled;
 		if (!this.sizeInstalled)			this.sizeInstalled =	pkg.sizeInstalled;
+		if (!this.isInSavedList)			this.isInSavedList =	pkg.isInSavedList;
 		if (!this.icon) 
 		{
 			this.icon =				pkg.icon;
@@ -458,6 +454,48 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 	{
 		Mojo.Log.logException(e, 'packageModel#infoLoadFromPkg');
 	}
+}
+
+packageModel.prototype.infoSave = function()
+{
+	var info = {};
+
+	try
+	{
+		// load data
+		info.Package = this.pkg;
+		// info.Version = this.version;
+		// info.Size = this.size;
+		// info.Filename = this.filename;
+		// info.Description = this.title;
+		
+		// %%% Missing information below: %%%
+		// this.screenshots = sourceJson.Screenshots;
+		// this.countries = sourceJson.Countries;
+		// this.countryString = sourceJson.Countries.join(", ");
+		// this.maintainer = info.Maintainer.split(',');
+		// this.appCatalog = true;
+
+		/*
+		info.Source = '{ '+
+			'"Type": "' + this.type + '", ' +
+			'"Category": "' + this.category + '", ' +
+			'"Title": "' + this.title + '", ' +
+			'"Icon": "' + this.icon + '", ' +
+			'"LastUpdated": "' + this.date + '", ' +
+			'"Homepage": "' + this.homepage + '", ' +
+			'"License": "' + this.license + '", ' +
+			'"FullDescription": "' + this.description + '", ' +
+			'"ChangeLog": "' + this.changeLog + '", ' +
+			'} ';
+		*/
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packageModel#infoSave');
+	}
+
+	return info;
 }
 
 packageModel.prototype.loadAppinfoFile = function(callback)
@@ -995,7 +1033,7 @@ packageModel.prototype.matchItem = function(item)
 	}
 	else if (item.pkgList == 'updates' && this.hasUpdate) matchIt = true;
 	else if (item.pkgList == 'installed' && this.isInstalled) matchIt = true;
-	else if (item.pkgList == 'saved' && this.isInSavedList) matchIt = true;
+	else if (item.pkgList == 'saved' && this.isInSavedList && !this.appCatalog) matchIt = true;
 	
 	
 	// check type and dont push if not right

@@ -537,7 +537,7 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 
 	    // if saved, push the install all buttons
 	    if (this.item.pkgList == 'saved') {
-		this.cmdMenuModel.items.push({label: $L('Install All'), command: 'do-installAll'});
+		this.cmdMenuModel.items.push({label: $L('Install All'), command: 'do-installSaved'});
 	    }
 	
 	    // if updates, lets push the update all button
@@ -648,6 +648,35 @@ PkgListAssistant.prototype.handleCommand = function(event)
 						packages.startMultiInstall(false, allList, this);
 					}
 				}
+				break;
+				
+			case 'do-installSaved':
+				var allList = [];
+				for (var p = 0; p < this.packages.length; p++) {
+				    var gblPkg = packages.packages[this.packages[p].pkgNum];
+				    if (!gblPkg.isInstalled) {
+					if (!gblPkg.appCatalog) {
+					    var deps = gblPkg.getDependenciesRecursive(true);
+					    if (deps.length > 0) {
+						for (var d = 0; d < deps.length; d++) {
+						    if (allList.indexOf(deps[d]) === -1) {
+							allList.push(deps[d]);
+						    }
+						}
+					    }
+					    if (allList.indexOf(this.packages[p].pkgNum) === -1) {
+						allList.push(this.packages[p].pkgNum);
+					    }
+					}
+				    }
+				}
+				if (allList.length > 0) {
+				    packages.startMultiInstall(false, allList, this);
+				}
+				break;
+				
+			case 'do-updateList':
+				packages.loadSavedDefault();
 				break;
 				
 			case 'do-prefs':
