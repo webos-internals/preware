@@ -46,6 +46,7 @@ function packageModel(info)
 		this.dateInstalled =	false;
 		this.sizeInstalled =	false;
 		this.appCatalog =		false;
+		this.isInSavedList =	false;
 		
 		// load the info
 		this.infoLoad(info);
@@ -308,6 +309,11 @@ packageModel.prototype.infoLoad = function(info)
 		    this.appCatalog = true;
 		}
 		
+		// %%% Remove this when we are reading from the Depot %%%
+		if (this.feedString == "WebOS Internals") {
+			this.isInSavedList = true;
+		}
+
 	}
 	catch (e)
 	{
@@ -989,6 +995,7 @@ packageModel.prototype.matchItem = function(item)
 	}
 	else if (item.pkgList == 'updates' && this.hasUpdate) matchIt = true;
 	else if (item.pkgList == 'installed' && this.isInstalled) matchIt = true;
+	else if (item.pkgList == 'saved' && this.isInSavedList) matchIt = true;
 	
 	
 	// check type and dont push if not right

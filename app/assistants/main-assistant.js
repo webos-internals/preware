@@ -220,11 +220,22 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 			pkgCat:   'all',
 		});
 		
+		this.mainModel.items.push(
+		{
+			name:     $L('Saved Package List'),
+			style:    'disabled',
+			scene:    'pkg-list',
+			pkgList:  'saved',
+			pkgType:  'all',
+			pkgFeed:  'all',
+			pkgCat:   'all',
+		});
+		
 		// if we have packages we need to get out list counts
 		if (packages.packages.length > 0)
 		{
-			// '-1' so we don't add a count to the everything list
-			for (var i = 0; i < (this.mainModel.items.length-1); i++)
+			// '-2' so we don't add a count to the everything list or saved package list
+			for (var i = 0; i < (this.mainModel.items.length-2); i++)
 			{
 				var count = packages.getPackages(this.mainModel.items[i]).length;
 				if (count > 0) 
@@ -235,6 +246,9 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 			}
 			
 			// enable everything list
+			this.mainModel.items[(this.mainModel.items.length-2)].style = false;
+
+			// enable saved packages list
 			this.mainModel.items[(this.mainModel.items.length-1)].style = false;
 		}
 		

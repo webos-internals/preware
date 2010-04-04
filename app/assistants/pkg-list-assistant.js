@@ -53,16 +53,16 @@ function PkgListAssistant(item, searchText, currentSort)
 		}
 		else // listSort is empty or 'default'
 		{
-			if (this.item.pkgList == 'installed') 
-			{
-				this.currentSort = 'alpha';
-			}
-			else if (this.item.pkgCat == 'all' ||
-					 (this.item.pkgFeed != 'all' && this.item.pkgFeed != ''))
-			{
-				this.currentSort = 'date';
-			}
-			else this.currentSort = 'alpha';
+		    if ((this.item.pkgList == 'installed')  || (this.item.pkgList == 'saved')) {
+			this.currentSort = 'alpha';
+		    }
+		    else if ((this.item.pkgCat == 'all') ||
+			     ((this.item.pkgFeed != 'all') && (this.item.pkgFeed != ''))) {
+			this.currentSort = 'date';
+		    }
+		    else {
+			this.currentSort = 'alpha';
+		    }
 		}
 	}
 	
@@ -269,7 +269,7 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 	this.packages = packages.getPackages(this.item);
 	
 	// if there are no pkgs to list, pop the scene (later, we may replace this with a "nothing to list" message)
-	if (this.packages.length < 1)
+	if ((this.packages.length < 1) && (this.item.pkgList != 'saved'))
 	{
 		this.controller.stageController.popScene();
 	}
@@ -533,22 +533,32 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// this is to put space around the icons
 	this.cmdMenuModel.items.push({});
 	
-	// if updates, lets push the update all button
-	if (this.item.pkgList == 'updates' && this.listModel.items.length > 1) 
-	{
-		this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
-	}
+	if (this.listModel.items.length > 1) {
+
+	    // if saved, push the install all buttons
+	    if (this.item.pkgList == 'saved') {
+		this.cmdMenuModel.items.push({label: $L('Install All'), command: 'do-installAll'});
+	    }
 	
-	// push the sort selector
-	if (packages.hasPrices)
-	{
+	    // if updates, lets push the update all button
+	    if (this.item.pkgList == 'updates' && this.listModel.items.length > 1) {
+		this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
+	    }
+	
+	    // push the sort selector
+	    if (packages.hasPrices && (this.item.pkgList != 'saved')) {
 		// with prices if the packages have any
 		this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}, {icon: "icon-filter-price",  command: 'price'}], toggleCmd: this.currentSort});
-	}
-	else
-	{
+	    }
+	    else {
 		// and without if there are no prices
 		this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}], toggleCmd: this.currentSort});
+	    }
+	}
+
+	// if saved, push the refresh button
+	if (this.item.pkgList == 'saved') {
+	    this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-updateList'});
 	}
 	
 	// this is to put space around the icons
