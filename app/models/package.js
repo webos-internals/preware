@@ -61,12 +61,6 @@ function packageModel(info)
 			this.type = 'Unknown';
 		}
 		
-		// load appinfo if the data seems broken
-		//if (this.title == 'This is a webOS application.' || this.type == 'Unknown')
-		//{
-		//	this.loadAppinfoFile();
-		//}
-		
 	}
 	catch (e)
 	{
@@ -213,7 +207,13 @@ packageModel.prototype.infoLoad = function(info)
 			}
 
 			// check if the object has data we can load or overwrite the defaults with
-			if ((!this.type || this.type == 'Unknown') && sourceJson.Type) this.type =	sourceJson.Type;
+			if ((!this.type || this.type == 'Unknown') && sourceJson.Type) this.type = sourceJson.Type;
+			// override the type
+			if (sourceJson.Type == "AppCatalog") {
+				this.type = "Application";
+				this.appCatalog = true;
+			}
+		
 			if (!this.category &&		sourceJson.Category)		this.category =		sourceJson.Category;
 			if (!this.title &&			sourceJson.Title)			this.title =		sourceJson.Title;
 			if (!this.icon &&			sourceJson.Icon)			this.icon =			sourceJson.Icon;
@@ -303,12 +303,6 @@ packageModel.prototype.infoLoad = function(info)
 			}
 		}
 
-		// override the type
-		if (this.type == "AppCatalog") {
-		    this.type = "Application";
-		    this.appCatalog = true;
-		}
-		
 	}
 	catch (e)
 	{
@@ -319,8 +313,14 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 {
 	try
 	{
+		if ((!this.type || this.type == 'Unknown') && pkg.type) this.type = pkg.type;
+		// override the type
+		if (pkg.appCatalog || (pkg.type == "AppCatalog")) {
+		    this.type = "Application";
+		    this.appCatalog = true;
+		}
+		
 		if (!this.title || this.title == 'This is a webOS application.')	this.title = pkg.title;
-		if (this.type == 'Unknown')			this.type =				pkg.type;
 		if (this.category == 'Unsorted')	this.category =			pkg.category;
 		if (!this.maintainer || this.maintainer.length == 0
 			|| (this.maintainer.length == 1 && this.maintainer[0].name == 'N/A')) this.maintainer = pkg.maintainer;
@@ -464,31 +464,40 @@ packageModel.prototype.infoSave = function()
 	{
 		// load data
 		info.Package = this.pkg;
-		// info.Version = this.version;
-		// info.Size = this.size;
-		// info.Filename = this.filename;
-		// info.Description = this.title;
+		//alert('info.Package: ' + info.Package);
+		if (this.version) info.Version = this.version;
+		//alert('info.Version: ' + info.Version);
+		if (this.size) info.Size = this.size;
+		//alert('info.Size: ' + info.Size);
+		if (this.filename) info.Filename = this.filename;
+		//alert('info.Filename: ' + info.Filename);
+		if (this.title) info.Description = this.title;
+		//alert('info.Description: ' + info.Description);
 		
 		// %%% Missing information below: %%%
 		// this.screenshots = sourceJson.Screenshots;
 		// this.countries = sourceJson.Countries;
 		// this.countryString = sourceJson.Countries.join(", ");
 		// this.maintainer = info.Maintainer.split(',');
-		// this.appCatalog = true;
 
-		/*
-		info.Source = '{ '+
-			'"Type": "' + this.type + '", ' +
-			'"Category": "' + this.category + '", ' +
-			'"Title": "' + this.title + '", ' +
-			'"Icon": "' + this.icon + '", ' +
-			'"LastUpdated": "' + this.date + '", ' +
-			'"Homepage": "' + this.homepage + '", ' +
-			'"License": "' + this.license + '", ' +
-			'"FullDescription": "' + this.description + '", ' +
-			'"ChangeLog": "' + this.changeLog + '", ' +
-			'} ';
-		*/
+		var fields = [];
+		if (this.appCatalog) {
+			fields.push('"Type": "AppCatalog"');
+		}
+		else {
+			fields.push('"Type": "' + this.type + '"');
+		}
+		if (this.category) fields.push('"Category": "' + this.category + '"');
+		if (this.title) fields.push('"Title": "' + this.title + '"');
+		if (this.icon) fields.push('"Icon": "' + this.icon + '"');
+		if (this.date) fields.push('"LastUpdated": "' + this.date + '"');
+		if (this.homepage) fields.push('"Homepage": "' + this.homepage + '"');
+		if (this.license) fields.push('"License": "' + this.license + '"');
+		if (this.description) fields.push('"FullDescription": "' + this.description + '"');
+		if (this.changelog) fields.push('"ChangeLog": "' + this.changeLog + '"');
+		info.Source = '{ ' + fields.join(", ") + ' }';
+		//alert('info.Source: ' + info.Source);
+
 	}
 	catch (e)
 	{
@@ -680,10 +689,10 @@ packageModel.prototype.getForList = function(item)
 	
 	try
 	{
+		listObj.pkg = this.pkg;
 		listObj.title = this.title;
 		listObj.date = this.date;
 		listObj.price = this.price;
-		listObj.pkg = this.pkg;
 		
 		listObj.pkgNum = packages.packageInList(this.pkg);
 		

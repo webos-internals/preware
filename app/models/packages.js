@@ -430,7 +430,6 @@ packagesModel.prototype.fixUnknownDone = function()
 };
 packagesModel.prototype.loadSaved = function()
 {
-	alert('Opening packageDB');
 	this.savedDB = new Mojo.Depot
 	({
 		name:			"packageDB",
@@ -444,7 +443,6 @@ packagesModel.prototype.loadSaved = function()
 };
 packagesModel.prototype.loadSavedOpenOK = function()
 {
-	alert('Loading savedPackageList');
 	this.savedDB.get("savedPackageList",
 					 this.loadSavedGetOK.bind(this),
 					 this.doneLoading(this));
@@ -453,12 +451,23 @@ packagesModel.prototype.loadSavedOpenOK = function()
 packagesModel.prototype.loadSavedGetOK = function(savedPackageList)
 {
 	if (savedPackageList) {
-		alert('Got savedPackageList');
 		for (var p = 0; p < savedPackageList.length; p++) {
+			info = savedPackageList[p];
 			alert('Loaded ' + savedPackageList[p].Package);
+			//alert('info.Package: ' + info.Package);
+			//alert('info.Version: ' + info.Version);
+			//alert('info.Size: ' + info.Size);
+			//alert('info.Filename: ' + info.Filename);
+			//alert('info.Description: ' + info.Description);
+			alert('info.Source: ' + info.Source);
 			var savedPkg = this.loadPackage(savedPackageList[p]);
 			var pkgNum = this.packageInList(savedPkg.pkg);
-			this.packages[pkgNum].isInSavedList = true;
+			var gblPkg = this.packages[pkgNum];
+			alert("isInstalled: " + gblPkg.isInstalled);
+			alert("appCatalog: " + gblPkg.appCatalog);
+			if (!gblPkg.appCatalog) {
+				gblPkg.isInSavedList = true;
+			}
 		}
 		this.doneLoading();
 	}
@@ -472,6 +481,8 @@ packagesModel.prototype.loadSavedDefault = function(callback)
 	for (var p = 0; p < this.packages.length; p++) {
 		if (this.packages[p].isInstalled && !this.packages[p].appCatalog) {
 			alert('Default ' + this.packages[p].pkg);
+			alert("isInstalled: " + this.packages[p].isInstalled);
+			alert("appCatalog: " + this.packages[p].appCatalog);
 			this.packages[p].isInSavedList = true;
 		}
 		else {
@@ -492,12 +503,18 @@ packagesModel.prototype.savePackageList = function(callback)
 
 	for (var p = 0; p < this.packages.length; p++) {
 		if (this.packages[p].isInSavedList) {
+			var info = this.packages[p].infoSave();
 			alert('Save ' + this.packages[p].pkg);
-			savedPackageList.push(this.packages[p].infoSave());
+			//alert('info.Package: ' + info.Package);
+			//alert('info.Version: ' + info.Version);
+			//alert('info.Size: ' + info.Size);
+			//alert('info.Filename: ' + info.Filename);
+			//alert('info.Description: ' + info.Description);
+			alert('info.Source: ' + info.Source);
+			savedPackageList.push(info);
 		}
 	}
 			
-	alert('Saving savedPackageList');
 	this.savedDB.add("savedPackageList", savedPackageList,
 					 function() {
 						 Mojo.Controller.getAppController().showBanner({
