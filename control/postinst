@@ -13,6 +13,14 @@ APPS=/media/cryptofs/apps
 
 [ -d $APPS ] || { echo "Requires webOS 1.3.5 or later" ; exit 1 ; }
 
+VERSION=`grep PRODUCT_VERSION_STRING /etc/palm-build-info | sed -e 's/.*=Palm webOS \([0-9.]*\).*/\1/'`
+
+# Remove the obsolete Package Manager Service
+if [ -f $APPS/usr/lib/ipkg/info/org.webosinternals.ipkgservice.prerm ] ; then
+  IPKG_OFFLINE_ROOT=$APPS sh $APPS/usr/lib/ipkg/info/org.webosinternals.ipkgservice.prerm || true
+fi
+/usr/bin/ipkg -o $APPS -force-depends remove org.webosinternals.ipkgservice || true
+
 # Install the upstart script
 rm -f /etc/event.d/${SID} /var/palm/event.d/${SID}
 if [ -d /var/palm/event.d ] ; then
@@ -40,6 +48,9 @@ install -m 755 $APPS/usr/palm/applications/${PID}/bin/${SID} /var/usr/sbin/${SID
 # Start the service
 /sbin/start ${SID}
 
+# Create the ipkg config and database areas
+mkdir -p $APPS/etc/ipkg $APPS/usr/lib/ipkg
+
 # Remove all list database cache files
 rm -f $APPS/usr/lib/ipkg/lists/*
 
@@ -47,26 +58,35 @@ rm -f $APPS/usr/lib/ipkg/lists/*
 rm -f $APPS/etc/ipkg/arch.conf
 cp /etc/ipkg/arch.conf $APPS/etc/ipkg/arch.conf
 
-# Install webosinternals feeds
-echo "src/gz webosinternals http://ipkg.preware.org/feeds/webos-internals/all" > $APPS/etc/ipkg/webos-internals.conf
-echo "src/gz webosinternals-`/bin/uname -m` http://ipkg.preware.org/feeds/webos-internals/`/bin/uname -m`" >> $APPS/etc/ipkg/webos-internals.conf
-sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/webos-internals.conf
-sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/webos-internals.conf
-
 # Install optware feeds
 echo "src/gz optware http://ipkg.preware.org/feeds/optware/all" > $APPS/etc/ipkg/optware.conf
 echo "src/gz optware-`/bin/uname -m` http://ipkg.preware.org/feeds/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/optware.conf
 sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/optware.conf
 sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/optware.conf
 
-# Configure the webos-patches feed
-VERSION=`grep PRODUCT_VERSION_STRING /etc/palm-build-info | sed -e 's/.*=Palm webOS \([0-9.]*\).*/\1/'`
-if [ -f $APPS/etc/ipkg/webos-patches.conf ] ; then
-  sed -i -e "s^/\(all\|[0-9.]*\)\$^/$VERSION^g" $APPS/etc/ipkg/webos-patches.conf
-fi
-if [ -f $APPS/etc/ipkg/webos-patches.conf.disabled ] ; then
-  sed -i -e "s^/\(all\|[0-9.]*\)\$^/$VERSION^g" $APPS/etc/ipkg/webos-patches.conf.disabled
-fi  
+# Install palm-* feeds
+echo "src/gz palm-beta http://ipkg.preware.org/feeds/palm-beta" > $APPS/etc/ipkg/palm-beta.conf
+echo "src/gz palm-beta-updates http://ipkg.preware.org/feeds/palm-beta-updates" > $APPS/etc/ipkg/palm-beta-updates.conf
+echo "src/gz palm-catalog http://ipkg.preware.org/feeds/palm-catalog" > $APPS/etc/ipkg/palm-catalog.conf
+echo "src/gz palm-catalog-updates http://ipkg.preware.org/feeds/palm-catalog-updates" > $APPS/etc/ipkg/palm-catalog-updates.conf
+echo "src/gz palm-web http://ipkg.preware.org/feeds/palm-web" > $APPS/etc/ipkg/palm-web.conf
+echo "src/gz palm-web-updates http://ipkg.preware.org/feeds/palm-web-updates" > $APPS/etc/ipkg/palm-web-updates.conf
+
+# Install precentral feeds
+echo "src/gz precentral http://ipkg.preware.org/feeds/precentral" > $APPS/etc/ipkg/precentral.conf
+echo "src/gz precentral-themes http://ipkg.preware.org/feeds/precentral-themes" > $APPS/etc/ipkg/precentral-themes.conf
+
+# Install prethemer feed
+echo "src/gz prethemer http://www.prethemer.com/feeds/preware/themes" > $APPS/etc/ipkg/prethemer.conf
+
+# Install webosinternals feeds
+echo "src/gz webosinternals http://ipkg.preware.org/feeds/webos-internals/all" > $APPS/etc/ipkg/webos-internals.conf
+echo "src/gz webosinternals-`/bin/uname -m` http://ipkg.preware.org/feeds/webos-internals/`/bin/uname -m`" >> $APPS/etc/ipkg/webos-internals.conf
+sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/webos-internals.conf
+sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/webos-internals.conf
+
+# Install webos-patches feed
+echo "src/gz webos-patches http://ipkg.preware.org/feeds/webos-patches/$VERSION" > $APPS/etc/ipkg/webos-patches.conf
 
 # Retain disabled status of feeds
 if [ "`ls $APPS/etc/ipkg/*.disabled`" ] ; then
