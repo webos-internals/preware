@@ -12,6 +12,7 @@ function StartupAssistant()
 	     version: '0.9.34',
 	     log:
 	     [
+	      'Added Saved Package List functionality for saving and restoring your list of installed packages',
 	      'Updated German translations, courtesy of Markus Leutwyler (swisstomcat)',
 	      'Restrict new feed names to lower case characters for consistency'
 	      ]
