@@ -30,8 +30,6 @@ bool register_methods(LSPalmService *serviceHandle, LSError lserror);
 #define CHUNKSIZE 4096
 // Max size of any text line in a config file and elsewhere.
 #define MAXLINLEN 1024
-// Max size of the name of something.
-#define MAXNAMLEN  128
 // Max size of a version number or size string.
 #define MAXNUMLEN   32
 

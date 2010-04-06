@@ -21,6 +21,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <dirent.h>
 
 #include "luna_service.h"
 #include "luna_methods.h"
@@ -688,14 +689,29 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     // Even if there is an error, continue to move the files below
   }
  
-  // Move package feed lists files over to the cache
-  strcpy(command, "/bin/mv /media/cryptofs/apps/usr/lib/ipkg/lists/* /media/cryptofs/apps/usr/lib/ipkg/cache/ 2>&1");
-  strcpy(run_command_buffer, "[");
-  if (!run_command(command, lshandle, message, passthrough)) {
-    strcat(run_command_buffer, "]");
-    if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
-    error = true;
-    // At this point, we're done anyway
+  // Determine if any feeds were updated
+  bool anyfeeds = false;
+  DIR *dp = opendir ("/media/cryptofs/apps/usr/lib/ipkg/lists/");
+  if (dp) {
+    struct dirent *ep;
+    while (ep = readdir (dp)) {
+      if (strcmp(ep->d_name, ".") && strcmp(ep->d_name, "..")) {
+	anyfeeds = true;
+      }
+    }
+    (void)closedir(dp);
+  }
+
+  if (anyfeeds) {
+    // Move package feed lists files over to the cache
+    strcpy(command, "/bin/mv /media/cryptofs/apps/usr/lib/ipkg/lists/* /media/cryptofs/apps/usr/lib/ipkg/cache/ 2>&1");
+    strcpy(run_command_buffer, "[");
+    if (!run_command(command, lshandle, message, passthrough)) {
+      strcat(run_command_buffer, "]");
+      if (!report_command_failure(lshandle, message, command, run_command_buffer, NULL)) goto end;
+      error = true;
+      // At this point, we're done anyway
+    }
   }
  
   // Report the error status of the initial update command
@@ -714,12 +730,24 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
-static bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool subscribed) {
+static bool read_file(LSHandle* lshandle, LSMessage *message, char *filename, bool subscribed) {
   LSError lserror;
   LSErrorInit(&lserror);
 
+  FILE * file = fopen(filename, "r");
+  if (!file) {
+    sprintf(read_file_buffer,
+	    "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot open %s\"}",
+	    filename);
+    
+    if (!LSMessageReply(lshandle, message, read_file_buffer, &lserror)) goto error;
+    return true;
+  }
+  
   char chunk[CHUNKSIZE];
   int chunksize = CHUNKSIZE;
+
+  fprintf(stderr, "Reading file %s\n", filename);
 
   fseek(file, 0, SEEK_END);
   int filesize = ftell(file);
@@ -734,7 +762,7 @@ static bool read_file(LSHandle* lshandle, LSMessage *message, FILE *file, bool s
 
     }
   }
-  else {
+  else if (filesize < chunksize) {
     chunksize = filesize;
   }
 
@@ -782,7 +810,7 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  char command[MAXLINLEN];
+  char filename[MAXLINLEN];
 
   // Extract the feed argument from the message
   json_t *object = LSMessageGetPayloadJSON(message);
@@ -794,21 +822,11 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     return true;
   }
 
-  strcpy(command, "/media/cryptofs/apps/usr/lib/ipkg/cache/");
-  strcat(command, id->child->text);
+  strcpy(filename, "/media/cryptofs/apps/usr/lib/ipkg/cache/");
+  strcat(filename, id->child->text);
 
-  FILE * listfile = fopen(command, "r");
-  
-  if (listfile) {
-    return read_file(lshandle, message, listfile, true);
-  }
-  else {
-    if (!LSMessageReply(lshandle, message,
-			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find feed\"}",
-			&lserror)) goto error;
-  }
+  return read_file(lshandle, message, filename, true);
 
-  return true;
  error:
   LSErrorPrint(&lserror, stderr);
   LSErrorFree(&lserror);
@@ -820,7 +838,7 @@ bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   LSError lserror;
   LSErrorInit(&lserror);
 
-  char command[MAXLINLEN];
+  char filename[MAXLINLEN];
 
   // Extract the feed argument from the message
   json_t *object = LSMessageGetPayloadJSON(message);
@@ -831,22 +849,12 @@ bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
 			&lserror)) goto error;
   }
 
-  strcpy(command, "/media/cryptofs/apps/usr/lib/ipkg/info/");
-  strcat(command, id->child->text);
-  strcat(command, ".control");
+  strcpy(filename, "/media/cryptofs/apps/usr/lib/ipkg/info/");
+  strcat(filename, id->child->text);
+  strcat(filename, ".control");
 
-  FILE * controlfile = fopen(command, "r");
-  
-  if (controlfile) {
-    return read_file(lshandle, message, controlfile, false);
-  }
-  else {
-    if (!LSMessageReply(lshandle, message,
-			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find package\"}",
-			&lserror)) goto error;
-  }
+  return read_file(lshandle, message, filename, false);
 
-  return true;
  error:
   LSErrorPrint(&lserror, stderr);
   LSErrorFree(&lserror);
@@ -858,18 +866,8 @@ bool get_status_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  FILE * statusfile = fopen("/media/cryptofs/apps/usr/lib/ipkg/status", "r");
-  
-  if (statusfile) {
-    return read_file(lshandle, message, statusfile, true);
-  }
-  else {
-    if (!LSMessageReply(lshandle, message,
-			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find status file\"}",
-			&lserror)) goto error;
-  }
+  return read_file(lshandle, message, "/media/cryptofs/apps/usr/lib/ipkg/status", true);
 
-  return true;
  error:
   LSErrorPrint(&lserror, stderr);
   LSErrorFree(&lserror);
@@ -881,7 +879,7 @@ bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   LSError lserror;
   LSErrorInit(&lserror);
 
-  char command[MAXLINLEN];
+  char filename[MAXLINLEN];
 
   // Extract the feed argument from the message
   json_t *object = LSMessageGetPayloadJSON(message);
@@ -893,22 +891,12 @@ bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
     return true;
   }
 
-  strcpy(command, "/media/cryptofs/apps/usr/palm/applications/");
-  strcat(command, id->child->text);
-  strcat(command, "/appinfo.json");
+  strcpy(filename, "/media/cryptofs/apps/usr/palm/applications/");
+  strcat(filename, id->child->text);
+  strcat(filename, "/appinfo.json");
 
-  FILE * appinfofile = fopen(command, "r");
-  
-  if (appinfofile) {
-    return read_file(lshandle, message, appinfofile, false);
-  }
-  else {
-    if (!LSMessageReply(lshandle, message,
-			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot find package\"}",
-			&lserror)) goto error;
-  }
+  return read_file(lshandle, message, filename, false);
 
-  return true;
  error:
   LSErrorPrint(&lserror, stderr);
   LSErrorFree(&lserror);
