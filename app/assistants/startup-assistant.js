@@ -9,7 +9,7 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
-	     version: '0.9.34',
+	     version: '0.9.35',
 	     log:
 	     [
 	      'Added Saved Package List functionality for saving and restoring your list of installed packages',
