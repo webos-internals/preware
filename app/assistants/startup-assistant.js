@@ -9,6 +9,15 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '0.9.36',
+	     log:
+	     [
+	      'Added additional Second Line preference values',
+	      'Added additional keywords for global search',
+	      'Search from the main screen'
+	      ]
+	 },
+	 {
 	     version: '0.9.35',
 	     log:
 	     [
