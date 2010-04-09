@@ -247,6 +247,8 @@ PreferencesAssistant.prototype.setup = function()
 					{label:$L('Version & ID'),			value:'version,id'},
 					{label:$L('Version & Maint.'),		value:'version,maint'},
 					{label:$L('Version & Date'),		value:'version,date'},
+					{label:$L('Version, Date & Feed'),	value:'version,date,feed'},
+					{label:$L('Version, Date & Lic.'),	value:'version,date,license'},
 					{label:$L('Price & Feed'),			value:'price,feed'},
 					{label:$L('Price & Country'),		value:'price,country'},
 					{label:$L('Price & License'),		value:'price,license'},
