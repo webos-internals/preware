@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '0.9.36',
+	     log:
+	     [
+	      'Added Searching from the main scene, just start typing'
+	      ]
+	 },
+	 {
 	     version: '0.9.35',
 	     log:
 	     [
@@ -317,18 +324,18 @@ StartupAssistant.prototype.setup = function()
     // set this scene's default transition
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 }
-    StartupAssistant.prototype.activate = function(event)
+
+StartupAssistant.prototype.activate = function(event)
 {
     // start continue button timer
     this.timer = this.controller.window.setTimeout(this.showContinue.bind(this), 5 * 1000);
 }
-
-	StartupAssistant.prototype.showContinue = function()
+StartupAssistant.prototype.showContinue = function()
 {
     // show the command menu
     this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 }
-	    StartupAssistant.prototype.handleCommand = function(event)
+StartupAssistant.prototype.handleCommand = function(event)
 {
     if (event.type == Mojo.Event.command)
 	{

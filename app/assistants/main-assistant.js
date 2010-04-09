@@ -10,7 +10,8 @@ function MainAssistant()
 		{weight: 15, text: $L('Accessing All Open Standard Feeds')},
 		{weight:  2, text: $L('Random Taglines Are Awesome')},
 		{weight:  2, text: $L('We Know Palm Loves Preware')},
-		{weight:  2, text: $L('Now With More Cowbell')}
+		{weight:  2, text: $L('Now With More Cowbell')},
+		{weight:  2, text: $L('We will get to v1.0... Eventually')}
 	];
 	
 	// setup list model
