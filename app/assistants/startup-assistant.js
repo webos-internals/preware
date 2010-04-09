@@ -15,6 +15,7 @@ function StartupAssistant()
 	      'Added additional Second Line preference values',
 	      'Added additional keywords for global search',
 	      'Search from the main screen',
+		  'Fixed "..." bug.',
 		  'Fixed compression toggle in feed management so it actually works',
 		  'Added warning message to new feed additions',
 		  'Now forces user to fill in all fields to add a new feed',
