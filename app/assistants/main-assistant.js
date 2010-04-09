@@ -447,4 +447,8 @@ MainAssistant.prototype.handleCommand = function(event)
 MainAssistant.prototype.cleanup = function(event)
 {
 	this.controller.stopListening(this.listElement, Mojo.Event.listTap, this.listTapHandler);
+	this.controller.stopListening(this.searchWidget, Mojo.Event.propertyChange, this.searchKeyHandler);
+	this.controller.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.generalKeyHandler);
+	this.controller.stopListening(this.controller.sceneElement, Mojo.Event.keyup, this.generalKeyHandler);
+	if (this.searchElement) this.controller.stopListening(this.searchElement, 'blur', this.searchElementLoseFocus);
 }
