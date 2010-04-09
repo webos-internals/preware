@@ -21,6 +21,9 @@ function packagesModel()
 	// stores if there are packages with prices or not
 	this.hasPrices = false;
 	
+	// holds flag for when feeds are changed
+	this.dirtyFeeds = false;
+	
 	// we'll need these for the subscription based rawlist
 	this.subscription = false;
 	this.rawData = '';

@@ -61,6 +61,7 @@ ConfigsAssistant.prototype.setup = function()
 		'newUrl',
 		{
 			autoFocus: false,
+			focus: false,
 			multiline: false,
 			enterSubmits: false
 		},
@@ -68,6 +69,10 @@ ConfigsAssistant.prototype.setup = function()
 			value: 'http://'
 		}
 	);
+	this.newCompressed =
+	{
+		value: true
+	}
 	this.controller.setupWidget
 	(
 		'newCompressed',
@@ -76,9 +81,7 @@ ConfigsAssistant.prototype.setup = function()
  			falseLabel: 'No',
   			fieldName:  'newCompressed'
 		},
-		{
-			value: true
-		}
+		this.newCompressed
 	);
 	this.controller.setupWidget
 	(
@@ -244,9 +247,12 @@ ConfigsAssistant.prototype.validChars = function(test)
 	}
 }
 
-ConfigsAssistant.prototype.test = function(payload)
+ConfigsAssistant.prototype.dirtyFeed = function(payload)
 {
-	for (var p in payload) alert(p + ': ' + payload[p]);
+	//for (var p in payload) alert(p + ': ' + payload[p]);
+	
+	// tell pacakges the feeds are "dirty"
+	packages.dirtyFeeds = true;
 }
 
 ConfigsAssistant.prototype.confToggled = function(event)
@@ -255,39 +261,65 @@ ConfigsAssistant.prototype.confToggled = function(event)
 	if (event.property == 'value' && event.target.id.include('_toggle')) 
 	{
 		//alert(event.target.id.replace(/_toggle/, '') + ' - ' + event.value);
-		this.subscription = IPKGService.setConfigState(this.test.bindAsEventListener(this), this.feeds[event.target.id.replace(/_toggle/, '')].config, event.value);
+		this.subscription = IPKGService.setConfigState(this.dirtyFeed.bindAsEventListener(this), this.feeds[event.target.id.replace(/_toggle/, '')].config, event.value);
 	}
 }
 ConfigsAssistant.prototype.confDeleted = function(event)
 {
-	this.subscription = IPKGService.deleteConfig(this.test.bindAsEventListener(this),
+	this.subscription = IPKGService.deleteConfig(this.dirtyFeed.bindAsEventListener(this),
 		this.feeds[event.item.toggleName].config,
 		this.feeds[event.item.toggleName].name);
 }
 
 ConfigsAssistant.prototype.newConfButton = function()
 {
-	this.controller.showAlertDialog(
+	if (this.controller.get('newName').mojo.getValue() != '' &&
+		this.controller.get('newUrl').mojo.getValue() != '' &&
+		this.controller.get('newUrl').mojo.getValue() != 'http://')
 	{
-	    title:				$L('Custom Feed'),
-		allowHTMLMessage:	true,
-	    message:			'By adding a custom feed, you take full responsibility for any and all potential outcomes that may occur as a result of doing so, including (but not limited to): loss of warranty, loss of all data, loss of all privacy, security vulnerabilities and device damage.',
-	    choices:			[{label:$L('Ok'), value:''}],
-		onChoose:			this.newConfCall.bindAsEventListener(this)
-    });
+		this.controller.showAlertDialog(
+		{
+		    title:				$L('Custom Feed'),
+			allowHTMLMessage:	true,
+		    message:			'By adding a custom feed, you take full responsibility for any and all potential outcomes that may occur as a result of doing so, including (but not limited to): loss of warranty, loss of all data, loss of all privacy, security vulnerabilities and device damage.',
+		    choices:			[{label:$L('Ok'), value:'ok'}, {label:$L('Cancel'), value:'cancel'}],
+			onChoose:			this.newConfCall.bindAsEventListener(this)
+	    });
+	}
+	else
+	{
+		this.controller.showAlertDialog(
+		{
+		    title:				$L('Custom Feed'),
+			allowHTMLMessage:	true,
+		    message:			'You need to fill in all fields for a new feed.',
+		    choices:			[{label:$L('Ok'), value:'ok'}],
+			onChoose:			function(v){ this.controller.get('newButton').mojo.deactivate(); }
+	    });
+	}
 }
-ConfigsAssistant.prototype.newConfCall = function(e)
+ConfigsAssistant.prototype.newConfCall = function(value)
 {
-	this.subscription = IPKGService.addConfig(this.newConfResponse.bindAsEventListener(this),
-		this.controller.get('newName').mojo.getValue() + ".conf",
-		this.controller.get('newName').mojo.getValue(),
-		this.controller.get('newUrl').mojo.getValue(),
-		true);
+	if (value == "ok")
+	{
+		this.subscription = IPKGService.addConfig(this.newConfResponse.bindAsEventListener(this),
+			this.controller.get('newName').mojo.getValue() + ".conf",
+			this.controller.get('newName').mojo.getValue(),
+			this.controller.get('newUrl').mojo.getValue(),
+			this.newCompressed.value);
+	}
+	else
+	{
+		this.controller.get('newButton').mojo.deactivate();
+	}
 }
 ConfigsAssistant.prototype.newConfResponse = function(payload)
 {
 	if (payload.stage == 'completed')
 	{
+		// tell pacakges the feeds are "dirty"
+		packages.dirtyFeeds = true;
+		
 		this.controller.get('newName').mojo.setValue('');
 		this.controller.get('newUrl').mojo.setValue('http://');
 		

@@ -112,13 +112,35 @@ MainAssistant.prototype.activate = function(event)
 {
 	if (this.firstActivate)
 	{
-		this.updateList();
+		if (packages.dirtyFeeds)
+		{
+			this.controller.showAlertDialog(
+			{
+			    title:				$L('Preware'),
+				allowHTMLMessage:	true,
+			    message:			'You have recently changed the feeds. You should update the package list.',
+			    choices:			[{label:$L('Do It Now'), value:'ok'}, {label:$L('Later'), value:'skip'}],
+				onChoose:			this.dirtyFeedsResponse.bindAsEventListener(this)
+		    });
+		}
+		this.updateList();		
 	}
 	else
 	{
 		this.searchElement = this.searchWidget.querySelector('[name=searchElement]');
 	}
 	this.firstActivate = true;
+}
+MainAssistant.prototype.dirtyFeedsResponse = function(value)
+{
+	if (value == "ok")
+	{
+		this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'main', true);
+	}
+	else
+	{
+		packages.dirtyFeeds = false;
+	}
 }
 
 MainAssistant.prototype.generalKey = function(event)
