@@ -140,11 +140,22 @@ body.palm-dark .update .progress .progress-bar
 /*
  * Main Scene Styles
  */
+.main .filter-field-wrapper
+{
+	height: 73px; 
+}
 .main .palm-page-header-wrapper .icon
 {
 	width: 76px;
 	height: 75px;
+	background: url(../icon-search.png) center center no-repeat;
 	background: url(../icon.png) center center no-repeat;
+}
+.main .filter-field-wrapper .icon
+{
+	width: 76px;
+	height: 75px;
+	background: url(../icon-search.png) center center no-repeat;
 }
 .main .palm-page-header-wrapper .title
 {
@@ -152,6 +163,21 @@ body.palm-dark .update .progress .progress-bar
 }
 .main .palm-page-header-wrapper .title.main
 {
+	font-size: 30px;
+	padding-top: 5px;
+	padding-bottom: 0px;
+}
+.main .filter-field-wrapper #searchWidget
+{
+	padding-left: 69px;
+	margin-top: -30px;
+	font-size: 30px;
+	padding-top: 5px;
+	padding-bottom: 0px;
+}
+.main .filter-field-wrapper #searchWidget input
+{
+	margin-top: -30px;
 	font-size: 30px;
 	padding-top: 5px;
 	padding-bottom: 0px;
@@ -167,6 +193,13 @@ body.palm-dark .update .progress .progress-bar
 	font-size: 14px;
 	padding-top: 0px;
 	margin-top: 0px;
+}
+.main .filter-field-wrapper .title.sub
+{
+	font-size: 14px;
+	padding-top: 0px;
+	margin-top: -55px;
+	margin-left: 22px;
 }
 .main .palm-row-wrapper
 {

@@ -1,9 +1,18 @@
 <div class="main">
 	
 	<div class="scene-fade-top" x-mojo-scroll-fade="top"></div>
-	
+
 	<div class="palm-page-header multi-line">
-		<div class="palm-page-header-wrapper">
+		<div id="searchContainer" style="display: none;" class="filter-field-wrapper">
+			<div class="icon"></div>
+			<div class="palm-row-wrapper textfield-group">
+				<div class="title">
+					<div id="searchWidget" x-mojo-element="TextField"></div>
+				</div>
+			</div>
+			<div class="title sub" id="subSearch">Press Enter To Search</div>
+		</div>
+		<div id="headerContainer" class="palm-page-header-wrapper">
 			<div class="icon"></div>
 			<div class="title main">
 				<span id="main-title">Preware</span>

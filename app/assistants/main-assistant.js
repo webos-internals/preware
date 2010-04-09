@@ -16,6 +16,10 @@ function MainAssistant()
 	// setup list model
 	this.mainModel = {items:[]};
 	
+	// setup search model
+	this.searchModel = { value: '' };
+	this.searchText = '';
+	
 	// setup menu
 	this.menuModel =
 	{
@@ -50,16 +54,23 @@ MainAssistant.prototype.setup = function()
 {	
 	this.controller.get('main-title').innerHTML = $L('Preware');
 	this.controller.get('version').innerHTML = $L('v0.0.0');
-	this.controller.get('subTitle').innerHTML = $L('The Open Source Installer');	
+	this.controller.get('subTitle').innerHTML = $L('The Open Source Installer');
+	this.controller.get('subSearch').innerHTML = $L('Press Enter To Search');
 
 	// get elements
-	this.titleElement =	this.controller.get('main-title');
+	this.searchContainer =	this.controller.get('searchContainer');
+	this.searchWidget =		this.controller.get('searchWidget');
+	this.headerContainer =	this.controller.get('headerContainer');
+	this.titleElement =		this.controller.get('main-title');
 	this.versionElement =	this.controller.get('version');
 	this.subTitleElement =	this.controller.get('subTitle');
 	this.listElement =		this.controller.get('mainList');
 	
 	// handlers
-	this.listTapHandler =		this.listTap.bindAsEventListener(this);
+	this.searchKeyHandler =			this.searchKey.bindAsEventListener(this);
+	this.generalKeyHandler =		this.generalKey.bindAsEventListener(this);
+	this.listTapHandler =			this.listTap.bindAsEventListener(this);
+	this.searchElementLoseFocus	=	this.searchFocus.bind(this);
 	
 	// set version string random subtitle
 	this.titleElement.innerHTML = Mojo.Controller.appInfo.title;
@@ -68,6 +79,26 @@ MainAssistant.prototype.setup = function()
 	
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
+	
+	// setup search widget
+    this.controller.setupWidget
+	(
+		'searchWidget', 
+		{
+			modelProperty: 'value',
+			inputName: 'searchElement',
+			focus: false,
+			autoFocus: false,
+			multiline: false,
+			enterSubmits: true,
+			changeOnKeyPress: true,
+			modifierState: Mojo.Widget.sentenceCase,
+			focusMode: Mojo.Widget.focusInsertMode
+		}, 
+		this.searchModel
+	);
+	this.controller.listen(this.searchWidget, Mojo.Event.propertyChange, this.searchKeyHandler);
+	this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.generalKeyHandler);
 	
 	// update list
 	this.updateList(true);
@@ -82,7 +113,68 @@ MainAssistant.prototype.activate = function(event)
 	{
 		this.updateList();
 	}
+	else
+	{
+		this.searchElement = this.searchWidget.querySelector('[name=searchElement]');
+	}
 	this.firstActivate = true;
+}
+
+MainAssistant.prototype.generalKey = function(event)
+{
+	// if its a valid character
+	if (Mojo.Char.isValidWrittenChar(event.originalEvent.charCode)) 
+	{
+		// display and focus search field
+		this.controller.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.generalKeyHandler);
+		this.headerContainer.style.display = 'none';
+		this.searchContainer.style.display = '';
+		this.controller.sceneScroller.mojo.revealTop(this.searchContainer);
+		this.controller.listen(this.searchElement, 'blur', this.searchElementLoseFocus);
+		this.searchWidget.mojo.focus();
+	}
+}
+MainAssistant.prototype.searchKey = function(event)
+{
+	// set search text
+	this.searchText = event.value;
+	
+	// check for enter to push scene
+	if (event.originalEvent && Mojo.Char.isEnterKey(event.originalEvent.keyCode) &&
+		event.value != '') 
+	{
+		this.controller.stageController.pushScene
+		(
+			'pkg-list', 
+			{
+				name:     $L('List of Everything'),
+				pkgList:  'all',
+				pkgType:  'all',
+				pkgFeed:  'all',
+				pkgCat:   'all',
+			},
+			this.searchText
+		);
+		this.searchText = '';
+	}
+	
+	// if there isn't search text
+	if (this.searchText == '')
+	{
+		// reidsplay the title text
+		this.searchWidget.mojo.blur();
+		this.searchContainer.style.display = 'none';
+		this.headerContainer.style.display = '';
+		this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.generalKeyHandler);
+		this.controller.stopListening(this.searchElement, 'blur', this.searchElementLoseFocus);
+	}
+}
+MainAssistant.prototype.searchFocus = function(event)
+{
+	if (this.searchElement)
+	{
+		this.searchWidget.mojo.setValue('');
+	}
 }
 
 MainAssistant.prototype.listTap = function(event)
