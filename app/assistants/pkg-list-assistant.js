@@ -120,6 +120,7 @@ PkgListAssistant.prototype.setup = function()
 		
 		// handlers
 		this.listTapHandler =		this.listTap.bindAsEventListener(this);
+		this.listSwipeHandler =		this.listSwipe.bindAsEventListener(this)
 		this.menuTapHandler =		this.menuTap.bindAsEventListener(this);
 		this.filterDelayHandler =	this.filterDelay.bindAsEventListener(this);
 		this.keyHandler =			this.keyTest.bindAsEventListener(this);
@@ -162,6 +163,9 @@ PkgListAssistant.prototype.setup = function()
 		
 		// listen for list tap
 		this.controller.listen(this.listElement, Mojo.Event.listTap, this.listTapHandler);
+		
+		// listen for delete
+		this.controller.listen(this.listElement, Mojo.Event.listDelete, this.listSwipeHandler);
 		
 		// Set up a command menu
 		this.updateCommandMenu(true);
@@ -229,13 +233,21 @@ PkgListAssistant.prototype.listTap = function(event)
 	// push pkg view scene with this items info
 	this.controller.stageController.pushScene('pkg-view', event.item, this);
 }
+PkgListAssistant.prototype.listSwipe = function(event)
+{
+	// put code here to handle list item deletion.
+	// event.item is the data that row is created with
+	
+	//alert('delete: ');
+	//for (x in event.item) alert(x+': '+event.item[x]);
+}
 PkgListAssistant.prototype.setupList = function()
 {
 	// setup list attributes
 	this.listAttributes = 
 	{
 		itemTemplate: "pkg-list/rowTemplate",
-		swipeToDelete: false,
+		swipeToDelete: false, //true,
 		reorderable: false,
 		onItemRendered: this.itemRendered.bind(this)
 	};
@@ -829,5 +841,6 @@ PkgListAssistant.prototype.cleanup = function(event)
 	this.controller.stopListening(this.controller.sceneElement,	Mojo.Event.keypress,		this.keyHandler);
 	this.controller.stopListening(this.searchElement,			Mojo.Event.propertyChange,	this.filterDelayHandler);
 	this.controller.stopListening(this.listElement,				Mojo.Event.listTap,			this.listTapHandler);
+	this.controller.stopListening(this.listElement,				Mojo.Event.listDelete, 		this.listSwipeHandler);
 	this.controller.stopListening(this.groupSourceElement,		Mojo.Event.tap,				this.menuTapHandler);
 }
