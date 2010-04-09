@@ -87,11 +87,10 @@ MainAssistant.prototype.setup = function()
 		{
 			modelProperty: 'value',
 			inputName: 'searchElement',
-			focus: false,
 			autoFocus: false,
 			multiline: false,
 			enterSubmits: true,
-			changeOnKeyPress: true,
+			requiresEnterKey: true,
 			modifierState: Mojo.Widget.sentenceCase,
 			focusMode: Mojo.Widget.focusInsertMode
 		}, 
@@ -99,6 +98,7 @@ MainAssistant.prototype.setup = function()
 	);
 	this.controller.listen(this.searchWidget, Mojo.Event.propertyChange, this.searchKeyHandler);
 	this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.generalKeyHandler);
+	this.controller.listen(this.controller.sceneElement, Mojo.Event.keyup, this.generalKeyHandler);
 	
 	// update list
 	this.updateList(true);
@@ -122,23 +122,31 @@ MainAssistant.prototype.activate = function(event)
 
 MainAssistant.prototype.generalKey = function(event)
 {
+	this.searchText = this.searchWidget.mojo.getValue();
+	
 	// if its a valid character
-	if (Mojo.Char.isValidWrittenChar(event.originalEvent.charCode)) 
+	if (event.originalEvent && this.searchText == '' &&
+		((event.originalEvent.charCode && Mojo.Char.isValidWrittenChar(event.originalEvent.charCode)) ||
+		(event.originalEvent.keyCode && Mojo.Char.isValidWrittenChar(event.originalEvent.keyCode)))) 
 	{
 		// display and focus search field
-		this.controller.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.generalKeyHandler);
 		this.headerContainer.style.display = 'none';
 		this.searchContainer.style.display = '';
 		this.controller.sceneScroller.mojo.revealTop(this.searchContainer);
 		this.controller.listen(this.searchElement, 'blur', this.searchElementLoseFocus);
 		this.searchWidget.mojo.focus();
 	}
+	else if (this.searchText == '')
+	{
+		// reidsplay the title text
+		this.searchWidget.mojo.blur();
+		this.searchContainer.style.display = 'none';
+		this.headerContainer.style.display = '';
+		this.controller.stopListening(this.searchElement, 'blur', this.searchElementLoseFocus);
+	}
 }
 MainAssistant.prototype.searchKey = function(event)
 {
-	// set search text
-	this.searchText = event.value;
-	
 	// check for enter to push scene
 	if (event.originalEvent && Mojo.Char.isEnterKey(event.originalEvent.keyCode) &&
 		event.value != '') 
@@ -156,17 +164,7 @@ MainAssistant.prototype.searchKey = function(event)
 			this.searchText
 		);
 		this.searchText = '';
-	}
-	
-	// if there isn't search text
-	if (this.searchText == '')
-	{
-		// reidsplay the title text
-		this.searchWidget.mojo.blur();
-		this.searchContainer.style.display = 'none';
-		this.headerContainer.style.display = '';
-		this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.generalKeyHandler);
-		this.controller.stopListening(this.searchElement, 'blur', this.searchElementLoseFocus);
+		this.generalKey({});
 	}
 }
 MainAssistant.prototype.searchFocus = function(event)
@@ -174,6 +172,7 @@ MainAssistant.prototype.searchFocus = function(event)
 	if (this.searchElement)
 	{
 		this.searchWidget.mojo.setValue('');
+		this.generalKey({});
 	}
 }
 

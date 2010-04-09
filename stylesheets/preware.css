@@ -167,6 +167,10 @@ body.palm-dark .update .progress .progress-bar
 	padding-top: 5px;
 	padding-bottom: 0px;
 }
+.main .filter-field-wrapper .title.main
+{
+	text-transform: none;
+}
 .main .filter-field-wrapper #searchWidget
 {
 	padding-left: 69px;
