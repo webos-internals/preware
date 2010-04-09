@@ -1039,6 +1039,10 @@ packageModel.prototype.matchItem = function(item)
 				matchIt = true;
 			}
 		}
+		// if it is not installed, but is in the saved list and not in a feed, then dont push it
+		if (!this.isInstalled && this.isInSavedList && (this.feeds[0] == 'Unknown')) {
+			matchIt = false;
+		}
 	}
 	else if (item.pkgList == 'updates' && this.hasUpdate) matchIt = true;
 	else if (item.pkgList == 'installed' && this.isInstalled) matchIt = true;
