@@ -115,6 +115,8 @@ PkgListAssistant.prototype.setup = function()
 		this.searchElement =		this.controller.get('searchText');
 		this.groupTitleElement =	this.controller.get('groupTitle');
 		this.groupSourceElement =	this.controller.get('groupSource');
+		this.searchCountElement =	this.controller.get('searchCountElement');
+		this.searchCount =			this.controller.get('searchCount');
 		
 		// handlers
 		this.listTapHandler =		this.listTap.bindAsEventListener(this);
@@ -200,6 +202,7 @@ PkgListAssistant.prototype.setup = function()
 		{
 			this.headerElement.style.display = 'none';
 			this.searchElement.style.display = 'inline';
+			this.searchCountElement.style.display = 'inline';
 			//this.searchElement.mojo.setValue(this.searchText);
 		}
 		
@@ -334,6 +337,7 @@ PkgListAssistant.prototype.keyTest = function(event)
 		this.controller.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
 		this.headerElement.style.display = 'none';
 		this.searchElement.style.display = 'inline';
+		this.searchCountElement.style.display = 'inline';
 		this.searchElement.mojo.focus();
 	}
 }
@@ -355,6 +359,7 @@ PkgListAssistant.prototype.filterDelay = function(event)
 		// reidsplay the title text
 		this.searchElement.mojo.blur();
 		this.searchElement.style.display = 'none';
+		this.searchCountElement.style.display = 'none';
 		this.headerElement.style.display = 'inline';
 		this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
 		this.searchFunction();
@@ -364,6 +369,7 @@ PkgListAssistant.prototype.filterDelay = function(event)
 		// start spinner
 		this.spinnerModel.spinning = true;
 		this.controller.modelChanged(this.spinnerModel);
+		this.searchCountElement.style.display = 'none';
 		
 		// set so the list update will reaveal top
 		this.searching = true;
@@ -407,16 +413,25 @@ PkgListAssistant.prototype.filter = function(skipUpdate)
 		}
 	}
 	
+	// update count
+	this.searchCount.update(this.listModel.items.length);
+	
 	// update list widget if skipUpdate isn't set to true (meaning, its called in the setup function and not activate)
 	if (!skipUpdate) 
 	{
 		// reload list
 		this.listElement.mojo.noticeUpdatedItems(0, this.listModel.items);
 	 	this.listElement.mojo.setLength(this.listModel.items.length);
-		if (this.searching) 
+		if (this.searching)
 		{
 			this.listElement.mojo.revealItem(0, true);
 			this.searching = false;
+		}
+		
+		// show count
+		if (this.searchText != '')
+		{
+			this.searchCountElement.style.display = 'inline';
 		}
 		
 		// stop spinner

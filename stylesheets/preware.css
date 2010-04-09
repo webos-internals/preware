@@ -356,6 +356,28 @@ body.palm-dark .pkg-list #searchText
 	border: 0px;
 	padding: 0px;
 }
+.pkg-list .countContainer
+{
+	display: none;
+	position: fixed;
+	float: right;
+	top: 15px;
+	right: 16px;
+    line-height: 8px;
+    height: 20px;
+    min-width: 19px;
+	vertical-align: middle;
+    -webkit-border-image: url(../images/palm-default/search-count.png) 5 5 5 5 stretch stretch;
+    -webkit-box-sizing: border-box;
+    border-width: 5px 5px 5px 5px;
+	font-size: 14px;
+	z-index: 20001;
+}
+/*body.palm-dark .pkg-list */
+.pkg-list .countContainer .count
+{
+	color: #fff;
+}
 .pkg-list #spinner
 {
 	position: fixed;
