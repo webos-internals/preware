@@ -12,7 +12,9 @@ function StartupAssistant()
 	     version: '0.9.36',
 	     log:
 	     [
-	      'Added Searching from the main scene, just start typing'
+	      'Added additional Second Line preference values',
+	      'Added additional keywords for global search',
+	      'Search from the main screen'
 	      ]
 	 },
 	 {
