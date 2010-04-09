@@ -456,18 +456,18 @@ packagesModel.prototype.loadSavedGetOK = function(savedPackageList)
 	if (savedPackageList) {
 		for (var p = 0; p < savedPackageList.length; p++) {
 			info = savedPackageList[p];
-			alert('Loaded ' + savedPackageList[p].Package);
+			//alert('Loaded ' + savedPackageList[p].Package);
 			//alert('info.Package: ' + info.Package);
 			//alert('info.Version: ' + info.Version);
 			//alert('info.Size: ' + info.Size);
 			//alert('info.Filename: ' + info.Filename);
 			//alert('info.Description: ' + info.Description);
-			alert('info.Source: ' + info.Source);
+			//alert('info.Source: ' + info.Source);
 			var savedPkg = this.loadPackage(savedPackageList[p]);
 			var pkgNum = this.packageInList(savedPkg.pkg);
 			var gblPkg = this.packages[pkgNum];
-			alert("isInstalled: " + gblPkg.isInstalled);
-			alert("appCatalog: " + gblPkg.appCatalog);
+			//alert("isInstalled: " + gblPkg.isInstalled);
+			//alert("appCatalog: " + gblPkg.appCatalog);
 			if (!gblPkg.appCatalog) {
 				gblPkg.isInSavedList = true;
 			}
