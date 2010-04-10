@@ -310,7 +310,7 @@ StartupAssistant.prototype.setup = function()
 	    for (var m = 0; m < this.newMessages.length; m++)
 		{
 		    html += Mojo.View.render({object: {title: 'v' + this.newMessages[m].version}, template: 'startup/changeLog'});
-		    html += '<ul>';
+		    html += '<ul class="changelog">';
 		    for (var l = 0; l < this.newMessages[m].log.length; l++)
 			{
 			    html += '<li>' + this.newMessages[m].log[l] + '</li>';

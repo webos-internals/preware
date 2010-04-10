@@ -81,6 +81,10 @@ body.palm-dark .palm-row-wrapper .pkgCount .count
 	padding-right: 15px;
 	padding-bottom: 10px;
 }
+.startup #data ul.changelog
+{
+	font-size: 15px;
+}
 
 
 /*
