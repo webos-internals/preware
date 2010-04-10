@@ -553,6 +553,9 @@ packagesModel.prototype.doneLoading = function()
 			this.subscription.cancel();
 		}
 		
+		// feeds are no longer dirty
+		this.dirtyFeeds = false;
+
 		// clear out our current data (incase this is a re-update)
 		this.packagesReversed = $H(); // reset this again so we can rebuild it in alphabetical order
 		this.categories = [];
