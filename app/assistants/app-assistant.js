@@ -34,7 +34,7 @@ AppAssistant.prototype.handleLaunch = function(params)
 	{
 		Mojo.Log.logException(e, "AppAssistant#handleLaunch");
 	}
-}
+};
 
 AppAssistant.prototype.launchFirstScene = function(controller)
 {
@@ -47,6 +47,10 @@ AppAssistant.prototype.launchFirstScene = function(controller)
 	{
 		controller.pushScene('update', 'main', false);
 	}
-}
+};
 
-AppAssistant.prototype.cleanup = function() {}
+AppAssistant.prototype.cleanup = function() {};
+
+// Local Variables:
+// tab-width: 4
+// End:

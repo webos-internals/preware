@@ -100,7 +100,7 @@ function PkgListAssistant(item, searchText, currentSort)
 	
 	// load stayawake class
 	this.stayAwake = new stayAwake();
-}
+};
 
 PkgListAssistant.prototype.setup = function()
 {
@@ -225,7 +225,7 @@ PkgListAssistant.prototype.setup = function()
 		Mojo.Log.logException(e, 'pkg-list#setup');
 		this.alertMessage('pkg-list Exception: ' + e);
 	}
-}
+};
 PkgListAssistant.prototype.activate = function(event)
 {
 	if (this.firstActivate)
@@ -245,13 +245,13 @@ PkgListAssistant.prototype.activate = function(event)
 			}
 		}
 	}
-}
+};
 
 PkgListAssistant.prototype.listTap = function(event)
 {
 	// push pkg view scene with this items info
 	this.controller.stageController.pushScene('pkg-view', event.item, this);
-}
+};
 PkgListAssistant.prototype.listSwipe = function(event)
 {
 	// put code here to handle list item deletion.
@@ -259,7 +259,7 @@ PkgListAssistant.prototype.listSwipe = function(event)
 	
 	//alert('delete: ');
 	//for (x in event.item) alert(x+': '+event.item[x]);
-}
+};
 PkgListAssistant.prototype.setupList = function()
 {
 	// setup list attributes
@@ -293,7 +293,7 @@ PkgListAssistant.prototype.setupList = function()
 	
 	// setup list widget
 	this.controller.setupWidget('pkgList', this.listAttributes, this.listModel);
-}
+};
 PkgListAssistant.prototype.updateList = function(skipUpdate)
 {
 	// clear the current list
@@ -356,7 +356,7 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 	
 	// call filter function to update list 
 	this.filter(skipUpdate);
-}
+};
 
 PkgListAssistant.prototype.pkgChecked = function(event)
 {
@@ -365,7 +365,7 @@ PkgListAssistant.prototype.pkgChecked = function(event)
 	{
 		//alert(event.target.id);
 	}
-}
+};
 
 PkgListAssistant.prototype.keyTest = function(event)
 {
@@ -379,7 +379,7 @@ PkgListAssistant.prototype.keyTest = function(event)
 		this.searchCountElement.style.display = 'inline';
 		this.searchElement.mojo.focus();
 	}
-}
+};
 PkgListAssistant.prototype.filterDelay = function(event)
 {
 	// clear timer (incase one already exists)
@@ -416,7 +416,7 @@ PkgListAssistant.prototype.filterDelay = function(event)
 		// start delay timer to one second
 		this.searchTimer = setTimeout(this.searchFunction, 1000);
 	}
-}
+};
 PkgListAssistant.prototype.filter = function(skipUpdate)
 {
 	this.listModel.items = [];
@@ -478,7 +478,7 @@ PkgListAssistant.prototype.filter = function(skipUpdate)
 		this.controller.modelChanged(this.spinnerModel);
 	}
 	
-}
+};
 
 PkgListAssistant.prototype.getDivider = function(item)
 {
@@ -536,11 +536,11 @@ PkgListAssistant.prototype.getDivider = function(item)
 			return firstChar.toUpperCase();
 		}
 	} 
-}
+};
 PkgListAssistant.prototype.itemRendered = function(listWidget, itemModel, itemNode)
 {
 	packages.packages[itemModel.pkgNum].iconFill(this.controller.get('icon-' + itemModel.pkgNum));
-}
+};
 
 PkgListAssistant.prototype.menuTap = function(event)
 {
@@ -576,7 +576,7 @@ PkgListAssistant.prototype.menuTap = function(event)
 		placeNear: event.target,
 		items: this.groupMenu
 	});
-}
+};
 
 PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 {
@@ -803,7 +803,7 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
-}
+};
 
 PkgListAssistant.prototype.alertMessage = function(message)
 {
@@ -815,7 +815,7 @@ PkgListAssistant.prototype.alertMessage = function(message)
 	    choices:			[{label:$L('Ok'), value:''}],
 		onChoose:			function(value){}
     });
-}
+};
 
 /* 
  * this functions are called by the package model when doing stuff
@@ -842,11 +842,11 @@ PkgListAssistant.prototype.startAction = function()
 	
 	// and make sure the scene scroller is at the top
 	this.controller.sceneScroller.mojo.scrollTo(0, 0);
-}
+};
 PkgListAssistant.prototype.displayAction = function(msg)
 {
 	this.controller.get('spinnerStatus').innerHTML = msg;
-}
+};
 PkgListAssistant.prototype.endAction = function()
 {
 	// we're done loading so let the phone sleep if it needs to
@@ -868,7 +868,7 @@ PkgListAssistant.prototype.endAction = function()
 	
 	// and to show this menu again
 	this.updateCommandMenu();
-}
+};
 PkgListAssistant.prototype.simpleMessage = function(message)
 {
 	this.simpleMessageUp = true;
@@ -881,7 +881,7 @@ PkgListAssistant.prototype.simpleMessage = function(message)
 	    choices:			[{label:$L('Ok'), value:'ok'}],
 		onChoose:			this.simpleMessageOK.bindAsEventListener(this)
     });
-}
+};
 PkgListAssistant.prototype.simpleMessageOK = function(value)
 {
 	if (value == 'ok')
@@ -889,7 +889,7 @@ PkgListAssistant.prototype.simpleMessageOK = function(value)
 		this.updateList();
 	}
 	this.simpleMessageUp = false;
-}
+};
 PkgListAssistant.prototype.actionMessage = function(message, choices, actions)
 {
 	this.controller.showAlertDialog(
@@ -901,7 +901,7 @@ PkgListAssistant.prototype.actionMessage = function(message, choices, actions)
 	    choices:			choices,
 	    onChoose:			actions
     });
-}
+};
 /* end functions called by the package model */
 
 
@@ -913,4 +913,8 @@ PkgListAssistant.prototype.cleanup = function(event)
 	this.controller.stopListening(this.listElement,				Mojo.Event.listDelete, 		this.listSwipeHandler);
 	this.controller.stopListening(this.listElement,				Mojo.Event.propertyChanged, this.pkgCheckedHandler);
 	this.controller.stopListening(this.groupSourceElement,		Mojo.Event.tap,				this.menuTapHandler);
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

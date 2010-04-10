@@ -4,7 +4,7 @@ function IPKGService()
 {
 	this.log = '';
 	this.logNum = 1;
-}
+};
 
 IPKGService.version = function(callback)
 {
@@ -15,7 +15,7 @@ IPKGService.version = function(callback)
 		onFailure: callback
 	});
 	return request;
-}
+};
 
 IPKGService.list_configs = function(callback)
 {
@@ -26,7 +26,7 @@ IPKGService.list_configs = function(callback)
 		onFailure: callback
 	});
 	return request;
-}
+};
 IPKGService.setConfigState = function(callback, config, enabled)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -40,7 +40,7 @@ IPKGService.setConfigState = function(callback, config, enabled)
 		onFailure: callback
 	});
 	return request;
-}
+};
 
 IPKGService.update = function(callback)
 {
@@ -54,7 +54,7 @@ IPKGService.update = function(callback)
 		onFailure: callback
 	});
 	return request;
-}
+};
 
 IPKGService.rawlist = function(callback, feed)
 {
@@ -69,7 +69,7 @@ IPKGService.rawlist = function(callback, feed)
 		onFailure: callback
 	});
 	return request;
-}
+};
 IPKGService.rawstatus = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -82,7 +82,7 @@ IPKGService.rawstatus = function(callback)
 		onFailure: callback
 	});
 	return request;
-}
+};
 
 IPKGService.install = function(callback, pkg, title, filename, url)
 {
@@ -94,7 +94,7 @@ IPKGService.install = function(callback, pkg, title, filename, url)
 		onFailure: callback
 	});
 	return request;
-}
+};
 IPKGService.replace = function(callback, pkg, title, filename, url)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -105,7 +105,7 @@ IPKGService.replace = function(callback, pkg, title, filename, url)
 		onFailure: callback
 	});
 	return request;
-}
+};
 IPKGService.remove = function(callback, pkg, title)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -116,7 +116,7 @@ IPKGService.remove = function(callback, pkg, title)
 		onFailure: callback
 	});
 	return request;
-}
+};
 
 IPKGService.rescan = function(callback)
 {
@@ -127,7 +127,7 @@ IPKGService.rescan = function(callback)
 		onFailure: callback
 	});
 	return request;
-}
+};
 IPKGService.restartluna = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -137,7 +137,7 @@ IPKGService.restartluna = function(callback)
 		onFailure: callback
 	});
 	return request;
-}
+};
 IPKGService.restartjava = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -147,7 +147,7 @@ IPKGService.restartjava = function(callback)
 		onFailure: callback
 	});
 	return request;
-}
+};
 IPKGService.restartdevice = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -157,7 +157,7 @@ IPKGService.restartdevice = function(callback)
 		onFailure: callback
 	});
 	return request;
-}
+};
 
 IPKGService.getAppinfoFile = function(callback, pkg)
 {
@@ -169,7 +169,7 @@ IPKGService.getAppinfoFile = function(callback, pkg)
 		onFailure: callback
 	});
 	return request;
-}
+};
 IPKGService.getControlFile = function(callback, pkg)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -180,7 +180,7 @@ IPKGService.getControlFile = function(callback, pkg)
 		onFailure: callback
 	});
 	return request;
-}
+};
 
 IPKGService.addConfig = function(callback, config, name, url, gzip)
 {
@@ -199,7 +199,7 @@ IPKGService.addConfig = function(callback, config, name, url, gzip)
 		onFailure: callback
 	});
 	return request;
-}
+};
 IPKGService.deleteConfig = function(callback, config, name)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -215,13 +215,13 @@ IPKGService.deleteConfig = function(callback, config, name)
 		onFailure: callback
 	});
 	return request;
-}
+};
 
 IPKGService.logClear = function()
 {
 	this.log = '';
 	this.logNum = 1;
-}
+};
 IPKGService.logPayload = function(payload, stage)
 {
 	if ((payload.stage && (payload.stage != "status")) || stage)
@@ -284,4 +284,8 @@ IPKGService.logPayload = function(payload, stage)
 		alert(p + ': ' + payload[p]);
 	}
 	*/
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

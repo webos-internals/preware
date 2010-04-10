@@ -1,7 +1,7 @@
 function HelpAssistant()
 {
 	
-}
+};
 
 HelpAssistant.prototype.setup = function()
 {
@@ -44,7 +44,7 @@ HelpAssistant.prototype.setup = function()
 	
 	this.controller.listen('supportList', Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
 	
-}
+};
 HelpAssistant.prototype.listTapHandler = function(event)
 {
 	switch (event.item.type)
@@ -79,11 +79,15 @@ HelpAssistant.prototype.listTapHandler = function(event)
 			this.controller.stageController.pushScene(event.item.detail);
 			break;
 	}
-}
+};
 
-HelpAssistant.prototype.activate = function(event) {}
-HelpAssistant.prototype.deactivate = function(event) {}
+HelpAssistant.prototype.activate = function(event) {};
+HelpAssistant.prototype.deactivate = function(event) {};
 HelpAssistant.prototype.cleanup = function(event)
 {
 	this.controller.stopListening('supportList', Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

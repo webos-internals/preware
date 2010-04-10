@@ -1,7 +1,7 @@
 function LunaAssistant() {
 	// we'll need this for the subscription based services
 	this.subscription = false;
-}
+};
 
 LunaAssistant.prototype.setup = function()
 {
@@ -65,7 +65,7 @@ LunaAssistant.prototype.setup = function()
 		Mojo.Log.logException(e, 'luna#setup');
 		this.alertMessage('luna#setup Error', e);
 	}
-}
+};
 
 LunaAssistant.prototype.callbackFunction = function(payload, item)
 {
@@ -97,7 +97,7 @@ LunaAssistant.prototype.callbackFunction = function(payload, item)
 	}
 	
 	this.controller.get(item).mojo.deactivate();
-}
+};
 
 LunaAssistant.prototype.doRescan = function()
 {
@@ -111,7 +111,7 @@ LunaAssistant.prototype.doRescan = function()
 		Mojo.Log.logException(e, 'luna#doRescan');
 		this.alertMessage('luna#doRescan Error', e);
 	}
-}
+};
 LunaAssistant.prototype.doRestartLuna = function()
 {
 	try
@@ -124,7 +124,7 @@ LunaAssistant.prototype.doRestartLuna = function()
 		Mojo.Log.logException(e, 'luna#doRestartLuna');
 		this.alertMessage('luna#doRestartLuna Error', e);
 	}
-}
+};
 LunaAssistant.prototype.doRestartJava = function()
 {
 	try
@@ -137,7 +137,7 @@ LunaAssistant.prototype.doRestartJava = function()
 		Mojo.Log.logException(e, 'luna#doRestartJava');
 		this.alertMessage('luna#doRestartJava Error', e);
 	}
-}
+};
 
 
 LunaAssistant.prototype.alertMessage = function(title, message)
@@ -150,14 +150,18 @@ LunaAssistant.prototype.alertMessage = function(title, message)
 	    message: message,
 	    choices:[{label:$L('Ok'), value:""}]
     });
-}
+};
 
-LunaAssistant.prototype.activate = function(event) {}
-LunaAssistant.prototype.deactivate = function(event) {}
+LunaAssistant.prototype.activate = function(event) {};
+LunaAssistant.prototype.deactivate = function(event) {};
 
 LunaAssistant.prototype.cleanup = function(event)
 {
 	this.controller.stopListening('Rescan',			Mojo.Event.tap, this.doRescan.bindAsEventListener(this));
 	this.controller.stopListening('RestartLuna',	Mojo.Event.tap, this.doRestartLuna.bindAsEventListener(this));
 	this.controller.stopListening('RestartJava',	Mojo.Event.tap, this.doRestartJava.bindAsEventListener(this));
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

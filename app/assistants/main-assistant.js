@@ -49,7 +49,7 @@ function MainAssistant()
 			}
 		]
 	};
-}
+};
 
 MainAssistant.prototype.setup = function()
 {	
@@ -107,7 +107,7 @@ MainAssistant.prototype.setup = function()
 	// setup widget
 	this.controller.setupWidget('mainList', { itemTemplate: "main/rowTemplate", swipeToDelete: false, reorderable: false }, this.mainModel);
 	this.controller.listen(this.listElement, Mojo.Event.listTap, this.listTapHandler);
-}
+};
 MainAssistant.prototype.activate = function(event)
 {
 	if (this.firstActivate)
@@ -130,7 +130,7 @@ MainAssistant.prototype.activate = function(event)
 		this.searchElement = this.searchWidget.querySelector('[name=searchElement]');
 	}
 	this.firstActivate = true;
-}
+};
 MainAssistant.prototype.dirtyFeedsResponse = function(value)
 {
 	if (value == "ok")
@@ -141,7 +141,7 @@ MainAssistant.prototype.dirtyFeedsResponse = function(value)
 	{
 		packages.dirtyFeeds = false;
 	}
-}
+};
 
 MainAssistant.prototype.generalKey = function(event)
 {
@@ -167,7 +167,7 @@ MainAssistant.prototype.generalKey = function(event)
 		this.headerContainer.style.display = '';
 		this.controller.stopListening(this.searchElement, 'blur', this.searchElementLoseFocus);
 	}
-}
+};
 MainAssistant.prototype.searchKey = function(event)
 {
 	// check for enter to push scene
@@ -189,7 +189,7 @@ MainAssistant.prototype.searchKey = function(event)
 		this.searchText = '';
 		this.generalKey({});
 	}
-}
+};
 MainAssistant.prototype.searchFocus = function(event)
 {
 	if (this.searchElement)
@@ -197,7 +197,7 @@ MainAssistant.prototype.searchFocus = function(event)
 		this.searchWidget.mojo.setValue('');
 		this.generalKey({});
 	}
-}
+};
 
 MainAssistant.prototype.listTap = function(event)
 {
@@ -210,7 +210,7 @@ MainAssistant.prototype.listTap = function(event)
 		// push the scene
 		this.controller.stageController.pushScene(event.item.scene, event.item);
 	}
-}
+};
 MainAssistant.prototype.updateList = function(skipUpdate)
 {
 	try 
@@ -379,7 +379,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 		Mojo.Log.logException(e, 'main#updateList');
 		this.alertMessage('updateList Error', e);
 	}
-}
+};
 
 MainAssistant.prototype.getRandomSubTitle = function()
 {
@@ -409,7 +409,7 @@ MainAssistant.prototype.getRandomSubTitle = function()
 	
 	// if no random title was found (for whatever reason, wtf?) return first and best subtitle
 	return this.randomSub[0].text;
-}
+};
 
 MainAssistant.prototype.handleCommand = function(event)
 {
@@ -442,7 +442,7 @@ MainAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
-}
+};
 
 MainAssistant.prototype.cleanup = function(event)
 {
@@ -451,4 +451,8 @@ MainAssistant.prototype.cleanup = function(event)
 	this.controller.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.generalKeyHandler);
 	this.controller.stopListening(this.controller.sceneElement, Mojo.Event.keyup, this.generalKeyHandler);
 	if (this.searchElement) this.controller.stopListening(this.searchElement, 'blur', this.searchElementLoseFocus);
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

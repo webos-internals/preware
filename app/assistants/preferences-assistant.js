@@ -21,7 +21,7 @@ function PreferencesAssistant()
 		]
 	}
 
-}
+};
 
 PreferencesAssistant.prototype.setup = function()
 {
@@ -366,25 +366,25 @@ PreferencesAssistant.prototype.setup = function()
 		Mojo.Log.logException(e, 'preferences#setup');
 	}
 
-}
+};
 
 PreferencesAssistant.prototype.listChanged = function(event)
 {
 	this.cookie.put(this.prefs);
-}
+};
 
 PreferencesAssistant.prototype.themeChanged = function(event)
 {
 	// set the theme right away with the body class
 	this.controller.document.body.className = event.value;
 	this.cookie.put(this.prefs);
-}
+};
 
 PreferencesAssistant.prototype.toggleChanged = function(event)
 {
 	this.prefs[event.target.id] = event.value;
 	this.cookie.put(this.prefs);
-}
+};
 
 PreferencesAssistant.prototype.toggleShowTypesChanged = function(event)
 {
@@ -402,12 +402,12 @@ PreferencesAssistant.prototype.toggleShowTypesChanged = function(event)
 		this.controller.get('showAvailableTypesContainer').className = 'palm-row single';
 		this.controller.get('availableTypes').style.display = 'none';
 	}
-}
+};
 
 PreferencesAssistant.prototype.headerButton = function(event)
 {
 	this.controller.stageController.swapScene({name: 'configs', transition: Mojo.Transition.crossFade});
-}
+};
 
 PreferencesAssistant.prototype.handleCommand = function(event)
 {
@@ -420,7 +420,7 @@ PreferencesAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
-}
+};
 
 PreferencesAssistant.prototype.keyPress = function(event)
 {
@@ -444,7 +444,7 @@ PreferencesAssistant.prototype.keyPress = function(event)
 	{
 		this.secretString = '';
 	}
-}
+};
 
 PreferencesAssistant.prototype.alertMessage = function(title, message)
 {
@@ -455,14 +455,18 @@ PreferencesAssistant.prototype.alertMessage = function(title, message)
 	    message: message,
 	    choices:[{label:$L('Ok'), value:""}]
     });
-}
+};
 
-PreferencesAssistant.prototype.activate = function(event) {}
+PreferencesAssistant.prototype.activate = function(event) {};
 
 PreferencesAssistant.prototype.deactivate = function(event)
 {
 	// reload global storage of preferences when we get rid of this stage
 	var tmp = prefs.get(true);
-}
+};
 
-PreferencesAssistant.prototype.cleanup = function(event) {}
+PreferencesAssistant.prototype.cleanup = function(event) {};
+
+// Local Variables:
+// tab-width: 4
+// End:

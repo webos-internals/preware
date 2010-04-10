@@ -16,7 +16,7 @@ function IpkgLogAssistant()
 			}
 		]
 	};
-}
+};
 
 IpkgLogAssistant.prototype.setup = function()
 {
@@ -45,12 +45,12 @@ IpkgLogAssistant.prototype.setup = function()
 	
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
-}
+};
 
 IpkgLogAssistant.prototype.handleWindowResize = function(event)
 {
 	this.controller.get('logScroller').style.height = this.controller.stageController.window.innerHeight + 'px';
-}
+};
 IpkgLogAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
@@ -69,7 +69,7 @@ IpkgLogAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
-}
+};
 IpkgLogAssistant.prototype.emailLog = function()
 {
 	var style = '<style>'+
@@ -94,11 +94,15 @@ IpkgLogAssistant.prototype.emailLog = function()
 	        }
 	    }
 	); 
-}
+};
 
-IpkgLogAssistant.prototype.activate = function(event) {}
-IpkgLogAssistant.prototype.deactivate = function(event) {}
+IpkgLogAssistant.prototype.activate = function(event) {};
+IpkgLogAssistant.prototype.deactivate = function(event) {};
 IpkgLogAssistant.prototype.cleanup = function(event)
 {
 	this.controller.stopListening(this.controller.stageController.window, 'resize', this.windowResizeHandler);
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

@@ -3,7 +3,7 @@ function preferenceCookie()
 	this.cookie = false;
 	this.prefs = false;
 	this.load();
-}
+};
 preferenceCookie.prototype.get = function(reload)
 {
 	try 
@@ -84,7 +84,7 @@ preferenceCookie.prototype.get = function(reload)
 	{
 		Mojo.Log.logException(e, 'preferenceCookie#get');
 	}
-}
+};
 preferenceCookie.prototype.put = function(obj, value)
 {
 	try
@@ -104,7 +104,7 @@ preferenceCookie.prototype.put = function(obj, value)
 	{
 		Mojo.Log.logException(e, 'preferenceCookie#put');
 	}
-}
+};
 preferenceCookie.prototype.load = function()
 {
 	try
@@ -118,7 +118,7 @@ preferenceCookie.prototype.load = function()
 	{
 		Mojo.Log.logException(e, 'preferenceCookie#load');
 	}
-}
+};
 
 function versionCookie()
 {
@@ -126,7 +126,7 @@ function versionCookie()
 	this.isFirst = false;
 	this.isNew = false;
 	//this.init();
-}
+};
 versionCookie.prototype.init = function()
 {
 	try
@@ -167,15 +167,19 @@ versionCookie.prototype.init = function()
 	{
 		Mojo.Log.logException(e, 'versionCookie#init');
 	}
-}
+};
 versionCookie.prototype.put = function()
 {
 	this.cookie.put({version: Mojo.appInfo.version});
 	// uncomment to set lower version for testing
 	//this.cookie.put({version: '0.0.1'});
-}
+};
 versionCookie.prototype.showStartupScene = function()
 {
 	if (this.isNew || this.isFirst) return true;
 	else return false;
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

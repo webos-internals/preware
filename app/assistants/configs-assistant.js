@@ -17,7 +17,7 @@ function ConfigsAssistant()
 			}
 		]
 	}
-}
+};
 
 ConfigsAssistant.prototype.setup = function()
 {
@@ -112,7 +112,7 @@ ConfigsAssistant.prototype.setup = function()
 	this.controller.listen('confList', Mojo.Event.propertyChanged, this.confToggled.bindAsEventListener(this));
 	this.controller.listen('confList', Mojo.Event.listDelete, this.confDeleted.bindAsEventListener(this));
 	
-}
+};
 
 ConfigsAssistant.prototype.onFeeds = function(payload)
 {
@@ -192,7 +192,7 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 		Mojo.Log.logException(e, 'configs#onFeeds');
 		this.alertMessage('onFeeds Error', e);
 	}
-}
+};
 ConfigsAssistant.prototype.doneLoading = function()
 {
 	try 
@@ -233,7 +233,7 @@ ConfigsAssistant.prototype.doneLoading = function()
 		Mojo.Log.logException(e, 'configs#doneLoading');
 		this.alertMessage('doneLoading Error', e);
 	}
-}
+};
 
 ConfigsAssistant.prototype.validChars = function(test)
 {
@@ -245,7 +245,7 @@ ConfigsAssistant.prototype.validChars = function(test)
 	{
 		return false;
 	}
-}
+};
 
 ConfigsAssistant.prototype.dirtyFeed = function(payload)
 {
@@ -253,7 +253,7 @@ ConfigsAssistant.prototype.dirtyFeed = function(payload)
 	
 	// tell pacakges the feeds are "dirty"
 	packages.dirtyFeeds = true;
-}
+};
 
 ConfigsAssistant.prototype.confToggled = function(event)
 {
@@ -263,13 +263,13 @@ ConfigsAssistant.prototype.confToggled = function(event)
 		//alert(event.target.id.replace(/_toggle/, '') + ' - ' + event.value);
 		this.subscription = IPKGService.setConfigState(this.dirtyFeed.bindAsEventListener(this), this.feeds[event.target.id.replace(/_toggle/, '')].config, event.value);
 	}
-}
+};
 ConfigsAssistant.prototype.confDeleted = function(event)
 {
 	this.subscription = IPKGService.deleteConfig(this.dirtyFeed.bindAsEventListener(this),
 		this.feeds[event.item.toggleName].config,
 		this.feeds[event.item.toggleName].name);
-}
+};
 
 ConfigsAssistant.prototype.newConfButton = function()
 {
@@ -297,7 +297,7 @@ ConfigsAssistant.prototype.newConfButton = function()
 			onChoose:			function(v){ this.controller.get('newButton').mojo.deactivate(); }
 	    });
 	}
-}
+};
 ConfigsAssistant.prototype.newConfCall = function(value)
 {
 	if (value == "ok")
@@ -312,7 +312,7 @@ ConfigsAssistant.prototype.newConfCall = function(value)
 	{
 		this.controller.get('newButton').mojo.deactivate();
 	}
-}
+};
 ConfigsAssistant.prototype.newConfResponse = function(payload)
 {
 	if (payload.stage == 'completed')
@@ -328,12 +328,12 @@ ConfigsAssistant.prototype.newConfResponse = function(payload)
 		// init feed loading
 		this.subscription = IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
 	}
-}
+};
 
 ConfigsAssistant.prototype.headerButton = function(event)
 {
 	this.controller.stageController.swapScene({name: 'preferences', transition: Mojo.Transition.crossFade});
-}
+};
 
 ConfigsAssistant.prototype.alertMessage = function(title, message)
 {
@@ -344,7 +344,7 @@ ConfigsAssistant.prototype.alertMessage = function(title, message)
 	    message: message,
 	    choices:[{label:$L("Ok"), value:""}]
     });
-}
+};
 
 ConfigsAssistant.prototype.handleCommand = function(event)
 {
@@ -357,15 +357,18 @@ ConfigsAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
-}
+};
 
-ConfigsAssistant.prototype.activate = function(event) {}
-ConfigsAssistant.prototype.deactivate = function(event) {}
+ConfigsAssistant.prototype.activate = function(event) {};
+ConfigsAssistant.prototype.deactivate = function(event) {};
 ConfigsAssistant.prototype.cleanup = function(event) {
 	// cancel the last subscription, this may not be needed
 	if (this.subscription)
 	{
 		this.subscription.cancel();
 	}
-}
+};
 
+// Local Variables:
+// tab-width: 4
+// End:

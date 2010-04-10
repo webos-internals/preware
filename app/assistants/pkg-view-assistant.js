@@ -33,7 +33,7 @@ function PkgViewAssistant(item, listAssistant)
 	
 	// load stayawake class
 	this.stayAwake = new stayAwake();
-}
+};
 
 PkgViewAssistant.prototype.setup = function()
 {
@@ -66,7 +66,7 @@ PkgViewAssistant.prototype.setup = function()
 	// lastly... build screens data
 	this.setupImages();
 	this.setupData();
-}
+};
 
 PkgViewAssistant.prototype.setupImages = function()
 {
@@ -132,7 +132,7 @@ PkgViewAssistant.prototype.setupImages = function()
 	{
 		Mojo.Log.logException(e, 'pkg-view#setupImages');
 	}
-}
+};
 PkgViewAssistant.prototype.setupData = function()
 {
 	try
@@ -257,20 +257,20 @@ PkgViewAssistant.prototype.setupData = function()
 	{
 		Mojo.Log.logException(e, 'pkg-view#setupData');
 	}
-}
+};
 
 PkgViewAssistant.prototype.screenshotTapHandler = function(event)
 {
 	ssNum = event.srcElement.id.replace(/ss_/, '');
 	// push the screenshots scene
 	this.controller.stageController.pushScene('screenshots', this.item.screenshots, ssNum);
-}
+};
 PkgViewAssistant.prototype.appTapHandler = function(event)
 {
 	appNum = event.srcElement.id.replace(/app_/, '');
 	// push the pkg view scene
 	this.controller.stageController.pushScene('pkg-view', packages.packages[appNum].getForList(), this.listAssistant);
-}
+};
 
 PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 {
@@ -331,7 +331,7 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		// show the menu
 		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 	}
-}
+};
 PkgViewAssistant.prototype.handleCommand = function(event)
 {
 	if(event.type == Mojo.Event.back)
@@ -384,7 +384,7 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
-}
+};
 
 
 PkgViewAssistant.prototype.doGetAppCatInstallStatus = function(operation)
@@ -395,7 +395,7 @@ PkgViewAssistant.prototype.doGetAppCatInstallStatus = function(operation)
 	    onSuccess: this.doCheckAppCatInstalls.bindAsEventListener(this, operation),
 	    onFailure: this.doCheckAppCatInstalls.bindAsEventListener(this, operation)
 	});
-}
+};
 
 PkgViewAssistant.prototype.doCheckAppCatInstalls = function(response, operation)
 {
@@ -426,7 +426,7 @@ PkgViewAssistant.prototype.doCheckAppCatInstalls = function(response, operation)
     else {
 	Mojo.Controller.errorDialog("An App Catalog background operation is in progress, please try again later.", this.controller.window);
     }
-}
+};
 
 /* 
  * this functions are called by the package model when doing stuff
@@ -452,11 +452,11 @@ PkgViewAssistant.prototype.startAction = function()
 	
 	// and make sure the scene scroller is at the top
 	this.controller.sceneScroller.mojo.scrollTo(0, 0);
-}
+};
 PkgViewAssistant.prototype.displayAction = function(msg)
 {
 	this.controller.get('spinnerStatus').innerHTML = msg;
-}
+};
 PkgViewAssistant.prototype.endAction = function()
 {
 	// we're done loading so let the phone sleep if it needs to
@@ -477,7 +477,7 @@ PkgViewAssistant.prototype.endAction = function()
 	
 	// and to show this menu again
 	this.updateCommandMenu();
-}
+};
 PkgViewAssistant.prototype.simpleMessage = function(message)
 {
 	this.controller.showAlertDialog(
@@ -488,7 +488,7 @@ PkgViewAssistant.prototype.simpleMessage = function(message)
 	    choices:			[{label:$L('Ok'), value:''}],
 		onChoose:			function(value){}
     });
-}
+};
 PkgViewAssistant.prototype.actionMessage = function(message, choices, actions)
 {
 	this.controller.showAlertDialog(
@@ -500,7 +500,7 @@ PkgViewAssistant.prototype.actionMessage = function(message, choices, actions)
 	    choices:			choices,
 	    onChoose:			actions
     });
-}
+};
 /* end functions called by the package model */
 
 PkgViewAssistant.prototype.cleanup = function(event)
@@ -530,6 +530,10 @@ PkgViewAssistant.prototype.cleanup = function(event)
 	{
 		Mojo.Log.logException(e, 'pkg-view#cleanup');
 	}
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:
 
 

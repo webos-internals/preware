@@ -922,7 +922,7 @@ packagesModel.prototype.getPackages = function(item)
 packagesModel.prototype.stagePackage = function(pkg)
 {
 	
-}
+};
 
 /* ------- below are for multiple package actions -------- */
 

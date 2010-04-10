@@ -66,7 +66,7 @@ function packageModel(info)
 	{
 		Mojo.Log.logException(e, 'packageModel#initialize');
 	}
-}
+};
 
 packageModel.prototype.infoUpdate = function(newPackage)
 {
@@ -149,7 +149,7 @@ packageModel.prototype.infoUpdate = function(newPackage)
 		Mojo.Log.logException(e, 'packageModel#infoUpdate');
 		return false;
 	}
-}
+};
 
 packageModel.prototype.infoLoad = function(info)
 {
@@ -307,7 +307,7 @@ packageModel.prototype.infoLoad = function(info)
 	{
 		Mojo.Log.logException(e, 'packageModel#infoLoad');
 	}
-}
+};
 packageModel.prototype.infoLoadFromPkg = function(pkg)
 {
 	try
@@ -453,7 +453,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 	{
 		Mojo.Log.logException(e, 'packageModel#infoLoadFromPkg');
 	}
-}
+};
 
 packageModel.prototype.infoSave = function()
 {
@@ -504,16 +504,16 @@ packageModel.prototype.infoSave = function()
 	}
 
 	return info;
-}
+};
 
 packageModel.prototype.loadAppinfoFile = function(callback)
 {
 	IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bindAsEventListener(this, callback), this.pkg);
-}
+};
 packageModel.prototype.loadControlFile = function(callback)
 {
 	IPKGService.getControlFile(this.loadControlFileResponse.bindAsEventListener(this, callback), this.pkg);
-}
+};
 packageModel.prototype.loadAppinfoFileResponse = function(payload, callback)
 {
 	if (payload.contents) 
@@ -560,7 +560,7 @@ packageModel.prototype.loadAppinfoFileResponse = function(payload, callback)
 	
 	// hit control file
 	this.loadControlFile(callback);
-}
+};
 packageModel.prototype.loadControlFileResponse = function(payload, callback)
 {
 	if (payload.contents) 
@@ -603,7 +603,7 @@ packageModel.prototype.loadControlFileResponse = function(payload, callback)
 	{
 		callback();
 	}
-}
+};
 
 packageModel.prototype.iconFill = function(target)
 {
@@ -629,7 +629,7 @@ packageModel.prototype.iconFill = function(target)
 			this.iconInit();
 		}
 	}
-}
+};
 packageModel.prototype.iconInit = function()
 {
 	if (this.icon) 
@@ -642,7 +642,7 @@ packageModel.prototype.iconInit = function()
 		this.iconImg.object.src = this.icon;
 	}
 	
-}
+};
 packageModel.prototype.iconOnLoad = function()
 {
 	this.iconImg.object.onload = undefined; // remove the listener
@@ -653,7 +653,7 @@ packageModel.prototype.iconOnLoad = function()
 		this.iconImg.target.style.backgroundImage = 'url(' + this.icon + ')';
 	}
 	this.iconImg.target = false;
-}
+};
 
 // checks if this package is in the feed
 packageModel.prototype.inFeed = function(feed)
@@ -666,7 +666,7 @@ packageModel.prototype.inFeed = function(feed)
 		}
 	}
 	return false;
-}
+};
 
 // checks if this package is in the country
 packageModel.prototype.inCountry = function(country)
@@ -679,7 +679,7 @@ packageModel.prototype.inCountry = function(country)
 		}
 	}
 	return false;
-}
+};
 
 // this function will return an object ready for inclusion in the list widget
 packageModel.prototype.getForList = function(item)
@@ -828,7 +828,7 @@ packageModel.prototype.getForList = function(item)
 	}
 	
 	return listObj;
-}
+};
 
 packageModel.prototype.getDependencies = function(justNeeded)
 {
@@ -877,7 +877,7 @@ packageModel.prototype.getDependencies = function(justNeeded)
 	}
 	
 	return returnArray;
-}
+};
 packageModel.prototype.getDependenciesRecursive = function(justNeeded)
 {
 	// setup our return array
@@ -916,7 +916,7 @@ packageModel.prototype.getDependenciesRecursive = function(justNeeded)
 	}
 	
 	return deps;
-}
+};
 packageModel.prototype.getDependenciesRecursiveFunction = function(justNeeded, depth)
 {
 	if (!depth && depth != 0) depth = 0;
@@ -941,7 +941,7 @@ packageModel.prototype.getDependenciesRecursiveFunction = function(justNeeded, d
 	}
 	
 	return returnArray;
-}
+};
 
 packageModel.prototype.getDependent = function(justInstalled, installedFirst)
 {
@@ -1015,7 +1015,7 @@ packageModel.prototype.getDependent = function(justInstalled, installedFirst)
 	}
 	
 	return returnArray;
-}
+};
 
 packageModel.prototype.matchItem = function(item)
 {
@@ -1058,7 +1058,7 @@ packageModel.prototype.matchItem = function(item)
 	if (item.pkgCat != 'all' && item.pkgCat != '' && item.pkgCat != this.category) matchIt = false;
 	
 	return matchIt;
-}
+};
 
 
 /* ------- below are for package actions -------- */
@@ -1076,7 +1076,7 @@ packageModel.prototype.launch = function()
 			}
 		});
 	}
-}
+};
 
 packageModel.prototype.doRedirect = function()
 {
@@ -1088,7 +1088,7 @@ packageModel.prototype.doRedirect = function()
 			target: this.homepage
 		}
 	});
-}
+};
 
 packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 {
@@ -1131,7 +1131,7 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 	{
 		Mojo.Log.logException(e, 'packageModel#doInstall');
 	}
-}
+};
 packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 {
 	try 
@@ -1187,7 +1187,7 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 	{
 		Mojo.Log.logException(e, 'packageModel#doUpdate');
 	}
-}
+};
 packageModel.prototype.doRemove = function(assistant, skipDeps)
 {
 	try 
@@ -1218,7 +1218,7 @@ packageModel.prototype.doRemove = function(assistant, skipDeps)
 	{
 		Mojo.Log.logException(e, 'packageModel#doRemove');
 	}
-}
+};
 
 packageModel.prototype.onInstall = function(payload, multi)
 {
@@ -1328,7 +1328,7 @@ packageModel.prototype.onInstall = function(payload, multi)
 	{
 		Mojo.Log.logException(e, 'packageModel#onInstall');
 	}
-}
+};
 packageModel.prototype.onUpdate = function(payload, multi)
 {
 	try 
@@ -1436,7 +1436,7 @@ packageModel.prototype.onUpdate = function(payload, multi)
 	{
 		Mojo.Log.logException(e, 'packageModel#onUpdate');
 	}
-}
+};
 packageModel.prototype.onRemove = function(payload)
 {
 	try 
@@ -1531,7 +1531,7 @@ packageModel.prototype.onRemove = function(payload)
 	{
 		Mojo.Log.logException(e, 'packageModel#onRemove');
 	}
-}
+};
 
 packageModel.prototype.errorLogFunction = function(value)
 {
@@ -1540,7 +1540,7 @@ packageModel.prototype.errorLogFunction = function(value)
 		this.assistant.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
 	}
 	return;
-}
+};
 packageModel.prototype.actionFunction = function(value, type)
 {
 	if (value == 'ok') 
@@ -1554,7 +1554,7 @@ packageModel.prototype.actionFunction = function(value, type)
 	}
 	this.assistant.endAction();
 	return;
-}
+};
 packageModel.prototype.actionMessage = function(type)
 {
 	var msg = '';
@@ -1571,7 +1571,7 @@ packageModel.prototype.actionMessage = function(type)
 		msg = $L("<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the package that you just installed.</i><br />");
 	}
 	return msg;
-}
+};
 packageModel.prototype.hasFlags = function(type)
 {
 	if (this.flags[type].RestartLuna || this.flags[type].RestartJava || this.flags[type].RestartDevice) 
@@ -1579,7 +1579,7 @@ packageModel.prototype.hasFlags = function(type)
 		return true;
 	}
 	return false;
-}
+};
 packageModel.prototype.runFlags = function(type)
 {
 	try 
@@ -1603,7 +1603,7 @@ packageModel.prototype.runFlags = function(type)
 	{
 		Mojo.Log.logException(e, 'packageModel#runFlags');
 	}
-}
+};
 
 // Local Variables:
 // tab-width: 4

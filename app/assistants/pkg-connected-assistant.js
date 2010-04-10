@@ -36,7 +36,7 @@ function PkgConnectedAssistant(type, pkg, pkgs)
 	
 	// load stayawake class
 	this.stayAwake = new stayAwake();
-}
+};
 
 PkgConnectedAssistant.prototype.setup = function()
 {
@@ -83,7 +83,7 @@ PkgConnectedAssistant.prototype.setup = function()
 	// build command menu widget
 	this.updateCommandMenu(true);
 	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
-}
+};
 
 PkgConnectedAssistant.prototype.activate = function(event)
 {
@@ -92,7 +92,7 @@ PkgConnectedAssistant.prototype.activate = function(event)
 		this.updateScene();
 	}
 	this.firstActivate = true;
-}
+};
 
 PkgConnectedAssistant.prototype.updateScene = function()
 {
@@ -116,7 +116,7 @@ PkgConnectedAssistant.prototype.updateScene = function()
 	{
 		Mojo.Log.logException(e, 'pkg-connected#updateScene');
 	}
-}
+};
 
 PkgConnectedAssistant.prototype.loadSingle = function()
 {
@@ -131,7 +131,7 @@ PkgConnectedAssistant.prototype.loadSingle = function()
 		this.controller.get('pkgSpacer').style.height = '113px';
 		this.controller.get('topFade').style.top = '110px';
 	}
-}
+};
 PkgConnectedAssistant.prototype.loadList = function(skipUpdate)
 {
 	this.listModel.items = [];
@@ -157,17 +157,17 @@ PkgConnectedAssistant.prototype.loadList = function(skipUpdate)
 		this.controller.get('pkgList').mojo.noticeUpdatedItems(0, this.listModel.items);
 	 	this.controller.get('pkgList').mojo.setLength(this.listModel.items.length);
 	}
-}
+};
 
 PkgConnectedAssistant.prototype.listTapHandler = function(event)
 {
 	// push pkg view scene with this items info
 	this.controller.stageController.pushScene('pkg-view', event.item, this);
-}
+};
 PkgConnectedAssistant.prototype.itemRendered = function(listWidget, itemModel, itemNode)
 {
 	packages.packages[itemModel.pkgNum].iconFill(this.controller.get('icon-' + itemModel.pkgNum));
-}
+};
 
 PkgConnectedAssistant.prototype.updateCommandMenu = function(skipUpdate)
 {
@@ -195,7 +195,7 @@ PkgConnectedAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		// show the menu
 		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 	}
-}
+};
 PkgConnectedAssistant.prototype.handleCommand = function(event)
 {
 	if(event.type == Mojo.Event.back)
@@ -227,7 +227,7 @@ PkgConnectedAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
-}
+};
 
 /* 
  * this functions are called by the package model when doing stuff
@@ -256,11 +256,11 @@ PkgConnectedAssistant.prototype.startAction = function()
 	
 	// and make sure the scene scroller is at the top
 	this.controller.sceneScroller.mojo.scrollTo(0, 0);
-}
+};
 PkgConnectedAssistant.prototype.displayAction = function(msg)
 {
 	this.controller.get('spinnerStatus').innerHTML = msg;
-}
+};
 PkgConnectedAssistant.prototype.endAction = function()
 {
 	// we're done loading so let the phone sleep if it needs to
@@ -284,7 +284,7 @@ PkgConnectedAssistant.prototype.endAction = function()
 	
 	// and to show this menu again
 	this.updateCommandMenu();
-}
+};
 PkgConnectedAssistant.prototype.simpleMessage = function(message)
 {
 	this.simpleMessageUp = true;
@@ -297,7 +297,7 @@ PkgConnectedAssistant.prototype.simpleMessage = function(message)
 	    choices:			[{label:$L('Ok'), value:'ok'}],
 		onChoose:			this.simpleMessageOK.bindAsEventListener(this)
     });
-}
+};
 PkgConnectedAssistant.prototype.simpleMessageOK = function(value)
 {
 	if (value == 'ok')
@@ -305,7 +305,7 @@ PkgConnectedAssistant.prototype.simpleMessageOK = function(value)
 		this.updateScene();
 	}
 	this.simpleMessageUp = false;
-}
+};
 PkgConnectedAssistant.prototype.actionMessage = function(message, choices, actions)
 {
 	this.controller.showAlertDialog(
@@ -317,8 +317,12 @@ PkgConnectedAssistant.prototype.actionMessage = function(message, choices, actio
 	    choices:			choices,
 	    onChoose:			actions
     });
-}
+};
 /* end functions called by the package model */
 
-PkgConnectedAssistant.prototype.deactivate = function(event) {}
-PkgConnectedAssistant.prototype.cleanup = function(event) {}
+PkgConnectedAssistant.prototype.deactivate = function(event) {};
+PkgConnectedAssistant.prototype.cleanup = function(event) {};
+
+// Local Variables:
+// tab-width: 4
+// End:

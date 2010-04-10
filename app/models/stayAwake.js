@@ -21,7 +21,7 @@ function stayAwake()
 	{
 		Mojo.Log.logException(e, 'stayAwake#initialize');
 	}
-}
+};
 
 stayAwake.prototype.start = function()
 {
@@ -49,7 +49,7 @@ stayAwake.prototype.start = function()
 		Mojo.Log.logException(e, 'stayAwake#start');
 	}
 	return false;
-}
+};
 
 stayAwake.prototype.startHandler = function(response)
 {
@@ -67,7 +67,7 @@ stayAwake.prototype.startHandler = function(response)
 	{
 		Mojo.Log.logException(e, 'stayAwake#startHandler');
 	}
-}
+};
 
 stayAwake.prototype.end = function()
 {
@@ -94,7 +94,7 @@ stayAwake.prototype.end = function()
 		Mojo.Log.logException(e, 'stayAwake#end');
 	}
 	return false;
-}
+};
 
 stayAwake.prototype.endHandler = function(response)
 {
@@ -112,4 +112,8 @@ stayAwake.prototype.endHandler = function(response)
 	{
 		Mojo.Log.logException(e, 'stayAwake#endHandler');
 	}
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

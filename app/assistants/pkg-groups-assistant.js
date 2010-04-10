@@ -49,7 +49,7 @@ function PkgGroupsAssistant(item)
 			}
 		]
 	};
-}
+};
 
 PkgGroupsAssistant.prototype.setup = function()
 {
@@ -81,7 +81,7 @@ PkgGroupsAssistant.prototype.setup = function()
 	
 	// set this scene's default transition
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
-}
+};
 PkgGroupsAssistant.prototype.activate = function(event)
 {
 	
@@ -91,7 +91,7 @@ PkgGroupsAssistant.prototype.activate = function(event)
 	}
 	this.firstActivate = true;
 	
-}
+};
 
 PkgGroupsAssistant.prototype.listTap = function(event, swap)
 {
@@ -187,7 +187,7 @@ PkgGroupsAssistant.prototype.listTap = function(event, swap)
 		Mojo.Log.logException(e, 'pkg-groups#listTap');
 		this.alertMessage('pkg-groups Exception: ' + e);
 	}
-}
+};
 PkgGroupsAssistant.prototype.buildList = function(skipUpdate)
 {
 	this.listModel.items = [];
@@ -213,7 +213,7 @@ PkgGroupsAssistant.prototype.buildList = function(skipUpdate)
 		this.listElement.mojo.noticeUpdatedItems(0, this.listModel.items);
 		this.listElement.mojo.setLength(this.listModel.items.length);
 	}
-}
+};
 
 PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 {
@@ -269,7 +269,7 @@ PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		// show the menu
 		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 	}
-}
+};
 PkgGroupsAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
@@ -322,7 +322,7 @@ PkgGroupsAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
-}
+};
 
 PkgGroupsAssistant.prototype.alertMessage = function(message)
 {
@@ -334,9 +334,13 @@ PkgGroupsAssistant.prototype.alertMessage = function(message)
 	    choices:			[{label:$L('Ok'), value:''}],
 		onChoose:			function(value){}
     });
-}
+};
 
 PkgGroupsAssistant.prototype.cleanup = function(event)
 {
 	this.controller.stopListening(this.listElement, Mojo.Event.listTap, this.listTapHandler);
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

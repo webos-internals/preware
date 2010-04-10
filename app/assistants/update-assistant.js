@@ -51,7 +51,7 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 			}
 		]
 	};
-}
+};
 
 UpdateAssistant.prototype.setup = function()
 {
@@ -131,7 +131,7 @@ UpdateAssistant.prototype.setup = function()
 		// this really shouldn't happen, but if it does, lets update
 		this.updateFeeds();
 	}
-}
+};
 
 UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 {
@@ -161,7 +161,7 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	    onSuccess: this.onConnection.bindAsEventListener(this, onlyLoad),
 	    onFailure: this.onConnection.bindAsEventListener(this, onlyLoad)
 	});
-}
+};
 UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 {
 	var hasNet = false;
@@ -174,7 +174,7 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	this.displayAction($L("<strong>Checking Package Manager Version</strong>"), $L("This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and not launch Preware until you have a stable network connection available."));
 	this.showActionHelpTimer(2);
 	IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
-}
+};
 UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 {
 	try 
@@ -237,7 +237,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 		Mojo.Log.logException(e, 'main#onVersionCheck');
 		this.errorMessage('onVersionCheck Error', e, this.doneUpdating);
 	}
-}
+};
 UpdateAssistant.prototype.onUpdate = function(payload)
 {
 	try 
@@ -286,7 +286,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 		Mojo.Log.logException(e, 'main#onUpdate');
 		this.errorMessage('onUpdate Error', e, this.doneUpdating);
 	}
-}
+};
 UpdateAssistant.prototype.continueFeeds = function(value)
 {
 	// cancel the last subscription, this may not be needed
@@ -298,7 +298,7 @@ UpdateAssistant.prototype.continueFeeds = function(value)
 	// lets call the function to update the global list of pkgs
 	this.displayAction($L("<strong>Loading Package Information</strong>"));
 	this.subscription = IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
-}
+};
 UpdateAssistant.prototype.onFeeds = function(payload)
 {
 	try 
@@ -365,7 +365,7 @@ UpdateAssistant.prototype.onFeeds = function(payload)
 		Mojo.Log.logException(e, 'main#onFeeds');
 		this.errorMessage('onFeeds Error', e, this.doneUpdating);
 	}
-}
+};
 
 UpdateAssistant.prototype.displayAction = function(msg, msgHelp)
 {
@@ -376,19 +376,19 @@ UpdateAssistant.prototype.displayAction = function(msg, msgHelp)
 		statusText += '<div class="text" id="spinnerStatusHelp" style="display:none;">' + msgHelp + '</div>';
 	}
 	this.spinnerStatusElement.innerHTML = statusText;
-}
+};
 UpdateAssistant.prototype.showActionHelpTimer = function(time)
 {
 	this.showActionHelpTimerClear();
 	this.currentHelpTimer = this.controller.window.setTimeout(this.showActionHelp.bind(this), time * 1000);
-}
+};
 UpdateAssistant.prototype.showActionHelpTimerClear = function()
 {
 	if (this.currentHelpTimer)
 	{
 		this.controller.window.clearTimeout(this.currentHelpTimer);
 	}
-}
+};
 UpdateAssistant.prototype.showActionHelp = function()
 {
 	this.spinnerStatusHelpElement = this.controller.get('spinnerStatusHelp');
@@ -400,21 +400,21 @@ UpdateAssistant.prototype.showActionHelp = function()
 			this.spinnerStatusHelpElement.style.display = '';
 		}
 	}
-}
+};
 UpdateAssistant.prototype.showProgress = function()
 {
 	this.progressBarElement.style.width = '0%';
 	this.progressElement.style.display = "";
-}
+};
 UpdateAssistant.prototype.hideProgress = function()
 {
 	this.progressElement.style.display = "none";
 	this.progressBarElement.style.width = '0%';
-}
+};
 UpdateAssistant.prototype.setProgress = function(percent)
 {
 	this.progressBarElement.style.width = percent + '%';
-}
+};
 UpdateAssistant.prototype.doneUpdating = function()
 {
 	// stop and hide the spinner
@@ -450,7 +450,7 @@ UpdateAssistant.prototype.doneUpdating = function()
 			Mojo.Controller.getAppController().showBanner({messageText:$L("Preware: Done Updating Feeds"), icon:'miniicon.png'}, {source:'updateNotification'});
 		}
 	}
-}
+};
 
 UpdateAssistant.prototype.handleCommand = function(event)
 {
@@ -483,7 +483,7 @@ UpdateAssistant.prototype.handleCommand = function(event)
 				break;
 		}
 	}
-}
+};
 UpdateAssistant.prototype.errorMessage = function(title, message, okFunction)
 {
 	this.displayAction($L("<strong>ERROR!</strong>"));
@@ -498,7 +498,7 @@ UpdateAssistant.prototype.errorMessage = function(title, message, okFunction)
 	    choices:			[{label:$L("Ok"), value:'ok'}],
 	    onChoose:			okFunction.bindAsEventListener(this)
     });
-}
+};
 
 UpdateAssistant.prototype.visibleWindow = function(event)
 {
@@ -506,11 +506,11 @@ UpdateAssistant.prototype.visibleWindow = function(event)
 	{
 		this.isVisible = true;
 	}
-}
+};
 UpdateAssistant.prototype.invisibleWindow = function(event)
 {
 	this.isVisible = false;
-}
+};
 UpdateAssistant.prototype.activate = function(event)
 {
 	// if we're done loading, but the scene was just activated, swap the scene 
@@ -519,11 +519,11 @@ UpdateAssistant.prototype.activate = function(event)
 		this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
 	}
 	this.isActive = true;
-}
+};
 UpdateAssistant.prototype.deactivate = function(event)
 {
 	this.isActive = false;
-}
+};
 UpdateAssistant.prototype.cleanup = function(event)
 {
 	// cancel the last subscription, this may not be needed
@@ -538,4 +538,8 @@ UpdateAssistant.prototype.cleanup = function(event)
 	// stop monitoring scene visibility
 	this.controller.stopListening(this.documentElement, Mojo.Event.stageActivate,   this.visibleWindowHandler);
 	this.controller.stopListening(this.documentElement, Mojo.Event.stageDeactivate, this.invisibleWindowHandler);
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

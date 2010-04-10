@@ -25,7 +25,7 @@ formatDate = function(date)
 	}
 	
 	return toReturn;
-}
+};
 
 // condences bytes to a better rate
 formatSize = function(size)
@@ -47,7 +47,7 @@ formatSize = function(size)
 	
 	// return formatted size
 	return toReturn;
-}
+};
 
 // formats a url to something that can be a link
 getDomain = function(url)
@@ -60,13 +60,13 @@ getDomain = function(url)
 		return stripped;
 	}
 	return 'Link';
-}
+};
 
 // trim function
 trim = function(str)
 {
 	return str.replace(/^\s*/, "").replace(/\s*$/, "");
-}
+};
 
 // function to get the webos version
 getWebOSVersion = function()
@@ -101,4 +101,8 @@ getWebOSVersion = function()
 	}
 	
 	return returnVersion; 
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

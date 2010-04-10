@@ -276,7 +276,7 @@ function StartupAssistant()
     {}
 	     ]
 	};
-}
+};
 
 StartupAssistant.prototype.setup = function()
 {
@@ -331,18 +331,18 @@ StartupAssistant.prototype.setup = function()
 	
     // set this scene's default transition
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
-}
+};
 
 StartupAssistant.prototype.activate = function(event)
 {
     // start continue button timer
     this.timer = this.controller.window.setTimeout(this.showContinue.bind(this), 5 * 1000);
-}
+};
 StartupAssistant.prototype.showContinue = function()
 {
     // show the command menu
     this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
-}
+};
 StartupAssistant.prototype.handleCommand = function(event)
 {
     if (event.type == Mojo.Event.command)
@@ -370,4 +370,8 @@ StartupAssistant.prototype.handleCommand = function(event)
 		break;
 		}
 	}
-}
+};
+
+// Local Variables:
+// tab-width: 4
+// End:

@@ -2,7 +2,7 @@ function ScreenshotsAssistant(screenshots, current)
 {
 	this.screenshots = screenshots;
 	this.current = parseInt(current);
-}
+};
 
 ScreenshotsAssistant.prototype.setup = function()
 {
@@ -25,7 +25,7 @@ ScreenshotsAssistant.prototype.setup = function()
 	{
 		Mojo.Log.logException(e, 'screenshots#setup');
 	}
-}
+};
 
 ScreenshotsAssistant.prototype.wentLeft = function()
 {
@@ -52,7 +52,7 @@ ScreenshotsAssistant.prototype.wentLeft = function()
 	{
 		Mojo.Log.logException(e, 'screenshots#wentLeft');
 	}
-}
+};
 ScreenshotsAssistant.prototype.wentRight = function()
 {
 	try
@@ -78,7 +78,7 @@ ScreenshotsAssistant.prototype.wentRight = function()
 	{
 		Mojo.Log.logException(e, 'screenshots#wentRight');
 	}
-}
+};
 
 /*// for whatever reason i cant get this to work
 ScreenshotsAssistant.prototype.orientationChanged = function(orientation)
@@ -95,7 +95,7 @@ ScreenshotsAssistant.prototype.orientationChanged = function(orientation)
 			this.controller.get('screenshotView').className = '';
 			break;
 	}
-}
+};
 */
 
 ScreenshotsAssistant.prototype.activate = function(event)
@@ -129,7 +129,7 @@ ScreenshotsAssistant.prototype.activate = function(event)
 	{
 		Mojo.Log.logException(e, 'screenshots#activate');
 	}
-}
+};
 
 ScreenshotsAssistant.prototype.deactivate = function(event)
 {
@@ -144,6 +144,11 @@ ScreenshotsAssistant.prototype.deactivate = function(event)
 	{
 		Mojo.Log.logException(e, 'screenshots#deactivate');
 	}
-}
+};
 
-ScreenshotsAssistant.prototype.cleanup = function(event) {}
+ScreenshotsAssistant.prototype.cleanup = function(event) {};
+
+// Local Variables:
+// tab-width: 4
+// End:
+
