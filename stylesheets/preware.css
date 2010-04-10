@@ -537,6 +537,10 @@ body.palm-dark .pkg-list .group-source
 {
 	background:url(../images/icon_price.png) top center no-repeat;
 }
+.icon-filter-multi
+{
+	background:url(../images/icon_multi.png) top center no-repeat;
+}
 
 
 

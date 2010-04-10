@@ -24,6 +24,9 @@ function packagesModel()
 	// holds flag for when feeds are changed
 	this.dirtyFeeds = false;
 	
+	// stores packages staged by a multi-install option
+	this.stagedPkgs = false;
+	
 	// we'll need these for the subscription based rawlist
 	this.subscription = false;
 	this.rawData = '';
@@ -128,6 +131,7 @@ packagesModel.prototype.loadFeeds = function(feeds, urls, updateAssistant)
 		Mojo.Log.logException(e, 'packagesModel#loadFeeds');
 	}
 };
+
 packagesModel.prototype.infoStatusRequest = function()
 {
 	// update display
@@ -262,6 +266,7 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		}
 	}
 };
+
 packagesModel.prototype.parsePackages = function(rawData, url)
 {
 	try 
@@ -374,6 +379,7 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 		}
 	}
 };
+
 packagesModel.prototype.fixUnknown = function()
 {
 	// cancel the last subscription, this may not be needed
@@ -431,6 +437,7 @@ packagesModel.prototype.fixUnknownDone = function()
 		this.packages[this.unknown[this.unknownFixed]].loadAppinfoFile(this.fixUnknownDone.bind(this));
 	}
 };
+
 packagesModel.prototype.loadSaved = function()
 {
 	this.savedDB = new Mojo.Depot
@@ -535,6 +542,7 @@ packagesModel.prototype.savePackageList = function(callback)
 					 });
 	return;
 };
+
 packagesModel.prototype.doneLoading = function()
 {
 	try
@@ -883,7 +891,6 @@ packagesModel.prototype.getGroups = function(item)
 	
 	return returnArray;
 };
-
 packagesModel.prototype.getPackages = function(item)
 {
 	var returnArray = [];
@@ -911,6 +918,11 @@ packagesModel.prototype.getPackages = function(item)
 	return returnArray;
 };
 
+
+packagesModel.prototype.stagePackage = function(pkg)
+{
+	
+}
 
 /* ------- below are for multiple package actions -------- */
 

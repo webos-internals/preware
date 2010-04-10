@@ -66,6 +66,9 @@ function PkgListAssistant(item, searchText, currentSort)
 		}
 	}
 	
+	// initial multibutton option
+	this.multiButton = (packages.stagedPkgs === false ? '' : 'multi');
+	
 	// setup menu
 	this.menuModel =
 	{
@@ -120,7 +123,8 @@ PkgListAssistant.prototype.setup = function()
 		
 		// handlers
 		this.listTapHandler =		this.listTap.bindAsEventListener(this);
-		this.listSwipeHandler =		this.listSwipe.bindAsEventListener(this)
+		this.listSwipeHandler =		this.listSwipe.bindAsEventListener(this);
+		this.pkgCheckedHandler =	this.pkgChecked.bindAsEventListener(this);
 		this.menuTapHandler =		this.menuTap.bindAsEventListener(this);
 		this.filterDelayHandler =	this.filterDelay.bindAsEventListener(this);
 		this.keyHandler =			this.keyTest.bindAsEventListener(this);
@@ -166,6 +170,9 @@ PkgListAssistant.prototype.setup = function()
 		
 		// listen for delete
 		this.controller.listen(this.listElement, Mojo.Event.listDelete, this.listSwipeHandler);
+		
+		// listen for checkbox action
+		this.controller.listen(this.listElement, Mojo.Event.propertyChanged, this.pkgCheckedHandler);
 		
 		// Set up a command menu
 		this.updateCommandMenu(true);
@@ -226,6 +233,18 @@ PkgListAssistant.prototype.activate = function(event)
 		this.updateList();
 	}
 	this.firstActivate = true;
+	
+	// hide checkboxes if we don't need to see them
+	if (this.multiButton == '')
+	{
+		for (var p = 0; p < this.packages.length; p++)
+		{
+			if (this.controller.get(this.packages[p].pkgNum+'_checkbox'))
+			{
+				this.controller.get(this.packages[p].pkgNum+'_checkbox').style.display = 'none';
+			}
+		}
+	}
 }
 
 PkgListAssistant.prototype.listTap = function(event)
@@ -335,9 +354,17 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 		});
 	}
 	
-	
 	// call filter function to update list 
 	this.filter(skipUpdate);
+}
+
+PkgListAssistant.prototype.pkgChecked = function(event)
+{
+	// make sure this is a checkbox (this event will also get garbage from a package-swipe)
+	if (event.property == 'value' && event.target.id.include('_checkbox')) 
+	{
+		//alert(event.target.id);
+	}
 }
 
 PkgListAssistant.prototype.keyTest = function(event)
@@ -556,35 +583,49 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	
 	// clear current model list
 	this.cmdMenuModel.items = [];
-	
+		
 	// this is to put space around the icons
 	this.cmdMenuModel.items.push({});
 	
-	if (this.listModel.items.length > 1) {
+	if (this.listModel.items.length > 1)
+	{
 
 	    // if saved, push the install all buttons
-	    if (this.item.pkgList == 'saved') {
-		this.cmdMenuModel.items.push({label: $L('Install All'), command: 'do-installSaved'});
+	    if (this.item.pkgList == 'saved')
+		{
+			this.cmdMenuModel.items.push({label: $L('Install All'), command: 'do-installSaved'});
 	    }
 	
 	    // if updates, lets push the update all button
-	    if (this.item.pkgList == 'updates' && this.listModel.items.length > 1) {
-		this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
+	    if (this.item.pkgList == 'updates')
+		{
+			this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
 	    }
+		
+		// push multi install button, when not in a "special" list
+		if (this.item.pkgList != 'saved' &&
+			this.item.pkgList != 'updates' &&
+			this.item.pkgList != 'installed')
+		{
+			//this.cmdMenuModel.items.push({items: [{icon: "icon-filter-multi", command: 'multi'}], toggleCmd: this.multiButton});
+		}
 	
 	    // push the sort selector
-	    if (packages.hasPrices && (this.item.pkgList != 'saved')) {
-		// with prices if the packages have any
-		this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}, {icon: "icon-filter-price",  command: 'price'}], toggleCmd: this.currentSort});
+	    if (packages.hasPrices && (this.item.pkgList != 'saved'))
+		{
+			// with prices if the packages have any
+			this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}, {icon: "icon-filter-price",  command: 'price'}], toggleCmd: this.currentSort});
 	    }
-	    else {
-		// and without if there are no prices
-		this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}], toggleCmd: this.currentSort});
+	    else
+		{
+			// and without if there are no prices
+			this.cmdMenuModel.items.push({items: [{icon: "icon-filter-alpha", command: 'alpha'}, {icon: "icon-filter-date",  command: 'date'}], toggleCmd: this.currentSort});
 	    }
 	}
 
 	// if saved, push the refresh button
-	if (this.item.pkgList == 'saved') {
+	if (this.item.pkgList == 'saved')
+	{
 	    this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-updateList'});
 	}
 	
@@ -615,6 +656,34 @@ PkgListAssistant.prototype.handleCommand = function(event)
 					this.currentSort = event.command;
 					//this.controller.stageController.swapScene('pkg-list', this.item, this.searchText, this.currentSort);
 					this.controller.stageController.swapScene({name: 'pkg-list', transition: Mojo.Transition.crossFade}, this.item, this.searchText, this.currentSort);
+				}
+				break;
+				
+			case 'multi':
+				// show toggles & start multi
+				if (this.multiButton == '')
+				{
+					this.multiButton = 'multi';
+					for (var p = 0; p < this.packages.length; p++)
+					{
+						if (this.controller.get(this.packages[p].pkgNum+'_checkbox'))
+						{
+							this.controller.get(this.packages[p].pkgNum+'_checkbox').style.display = '';
+						}
+					}
+				}
+				// stop toggling, pop multi-install alert
+				else
+				{
+					this.multiButton = '';
+					for (var p = 0; p < this.packages.length; p++)
+					{
+						if (this.controller.get(this.packages[p].pkgNum+'_checkbox'))
+						{
+							this.controller.get(this.packages[p].pkgNum+'_checkbox').style.display = 'none';
+						}
+					}
+					
 				}
 				break;
 				
@@ -842,5 +911,6 @@ PkgListAssistant.prototype.cleanup = function(event)
 	this.controller.stopListening(this.searchElement,			Mojo.Event.propertyChange,	this.filterDelayHandler);
 	this.controller.stopListening(this.listElement,				Mojo.Event.listTap,			this.listTapHandler);
 	this.controller.stopListening(this.listElement,				Mojo.Event.listDelete, 		this.listSwipeHandler);
+	this.controller.stopListening(this.listElement,				Mojo.Event.propertyChanged, this.pkgCheckedHandler);
 	this.controller.stopListening(this.groupSourceElement,		Mojo.Event.tap,				this.menuTapHandler);
 }

@@ -195,7 +195,6 @@ packageModel.prototype.infoLoad = function(info)
 		if (info.Source && info.Source.include('{')) 
 		{
 			// parse json to object
-
 			try
 			{
 				var sourceJson = JSON.parse(info.Source);
