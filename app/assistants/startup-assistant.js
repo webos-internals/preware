@@ -21,6 +21,7 @@ function StartupAssistant()
 		  'Added warning message to new feed additions',
 		  'Now forces user to fill in all fields to add a new feed',
 		  'Added "dirty feeds" notification when returning to the main scene after adding or removing feeds'
+		  'Added support for kernel packages'
 	      ]
 	 },
 	 {

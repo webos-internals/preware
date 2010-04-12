@@ -60,6 +60,11 @@ function packagesModel()
 			update: true,
 			showDependents: true
 		},
+		Kernel:
+		{
+			update: true,
+			showDependents: true
+		},
 		Patch:
 		{
 			update: true,
