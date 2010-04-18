@@ -144,8 +144,7 @@ packagesModel.prototype.infoStatusRequest = function()
 	this.updateAssistant.setProgress(Math.round((1/(this.feeds.length+1)) * 100));
 	
 	// request the rawdata
-	//IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, 'status'));
-	IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, -1));
+	this.subscription = IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, -1));
 };
 packagesModel.prototype.infoListRequest = function(num)
 {
@@ -1215,7 +1214,7 @@ packagesModel.prototype.multiActionFunction = function(value, flags)
 		else
 		{
 			// we should still rescan...
-			IPKGService.rescan(function(){});
+			this.subscription = IPKGService.rescan(function(){});
 		}
 		this.assistant.endAction();
 		this.multiPkg	= false;
@@ -1258,18 +1257,18 @@ packagesModel.prototype.multiRunFlags = function(flags)
 	{
 		if ((flags.RestartLuna && flags.RestartJava) || flags.RestartDevice) 
 		{
-			IPKGService.restartdevice(function(){});
+			this.subscription = IPKGService.restartdevice(function(){});
 		}
 		if (flags.RestartJava && !flags.RestartLuna) 
 		{
-			IPKGService.restartjava(function(){});
+			this.subscription = IPKGService.restartjava(function(){});
 		}
 		if (flags.RestartLuna && !flags.RestartJava) 
 		{
-			IPKGService.restartluna(function(){});
+			this.subscription = IPKGService.restartluna(function(){});
 		}
 		// this is always ran...
-		IPKGService.rescan(function(){});
+		this.subscription = IPKGService.rescan(function(){});
 	}
 	catch (e) 
 	{

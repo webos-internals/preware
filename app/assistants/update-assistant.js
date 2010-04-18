@@ -173,7 +173,7 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	// run version check
 	this.displayAction($L("<strong>Checking Package Manager Version</strong>"), $L("This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and not launch Preware until you have a stable network connection available."));
 	this.showActionHelpTimer(2);
-	IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
+	this.subscription = IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
 };
 UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 {

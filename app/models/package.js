@@ -508,11 +508,11 @@ packageModel.prototype.infoSave = function()
 
 packageModel.prototype.loadAppinfoFile = function(callback)
 {
-	IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bindAsEventListener(this, callback), this.pkg);
+	this.subscription = IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bindAsEventListener(this, callback), this.pkg);
 };
 packageModel.prototype.loadControlFile = function(callback)
 {
-	IPKGService.getControlFile(this.loadControlFileResponse.bindAsEventListener(this, callback), this.pkg);
+	this.subscription = IPKGService.getControlFile(this.loadControlFileResponse.bindAsEventListener(this, callback), this.pkg);
 };
 packageModel.prototype.loadAppinfoFileResponse = function(payload, callback)
 {
@@ -1550,7 +1550,7 @@ packageModel.prototype.actionFunction = function(value, type)
 	else
 	{
 		// we should still rescan...
-		IPKGService.rescan(function(){});
+		this.subscription = IPKGService.rescan(function(){});
 	}
 	this.assistant.endAction();
 	return;
@@ -1586,18 +1586,18 @@ packageModel.prototype.runFlags = function(type)
 	{
 		if ((this.flags[type].RestartJava && this.flags[type].RestartLuna) || this.flags[type].RestartDevice) 
 		{
-			IPKGService.restartdevice(function(){});
+			this.subscription = IPKGService.restartdevice(function(){});
 		}
 		if (this.flags[type].RestartJava) 
 		{
-			IPKGService.restartjava(function(){});
+			this.subscription = IPKGService.restartjava(function(){});
 		}
 		if (this.flags[type].RestartLuna) 
 		{
-			IPKGService.restartluna(function(){});
+			this.subscription = IPKGService.restartluna(function(){});
 		}
 		// this is always ran...
-		IPKGService.rescan(function(){});
+		this.subscription = IPKGService.rescan(function(){});
 	}
 	catch (e) 
 	{
