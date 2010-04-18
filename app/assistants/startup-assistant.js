@@ -12,7 +12,8 @@ function StartupAssistant()
 	     version: '0.9.37',
 	     log:
 	     [
-	      'Robustify the scanning of unknown packages, with the hope of preventing the hangs'
+	      'Robustified the scanning of unknown packages, with the hope of preventing the hangs',
+	      'Added the ability to swipe delete items from the Saved Package List'
 	      ]
 	 },
 	 {

@@ -256,9 +256,12 @@ PkgListAssistant.prototype.listSwipe = function(event)
 {
 	// put code here to handle list item deletion.
 	// event.item is the data that row is created with
-	
-	//alert('delete: ');
-	//for (x in event.item) alert(x+': '+event.item[x]);
+
+	// Delete an item from the Saved Package List
+	if (this.item.pkgList == 'saved') {
+		packages.packages[event.item.pkgNum].isInSavedList = false;
+		packages.savePackageList();
+	}
 };
 PkgListAssistant.prototype.setupList = function()
 {
@@ -271,6 +274,11 @@ PkgListAssistant.prototype.setupList = function()
 		onItemRendered: this.itemRendered.bind(this)
 	};
 	
+	// swipe to delete from saved package list
+	if (this.item.pkgList == 'saved') {
+		this.listAttributes.swipeToDelete = true;
+	}
+
 	// setp dividers templates
 	if (this.currentSort == 'date') 
 	{
@@ -773,6 +781,7 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				
 			case 'do-updateList':
 				packages.loadSavedDefault();
+				this.updateList();
 				break;
 				
 			case 'do-prefs':

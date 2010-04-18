@@ -518,13 +518,13 @@ packagesModel.prototype.savePackageList = function(callback)
 	for (var p = 0; p < this.packages.length; p++) {
 		if (this.packages[p].isInSavedList) {
 			var info = this.packages[p].infoSave();
-			alert('Save ' + this.packages[p].pkg);
+			//alert('Save ' + this.packages[p].pkg);
 			//alert('info.Package: ' + info.Package);
 			//alert('info.Version: ' + info.Version);
 			//alert('info.Size: ' + info.Size);
 			//alert('info.Filename: ' + info.Filename);
 			//alert('info.Description: ' + info.Description);
-			alert('info.Source: ' + info.Source);
+			//alert('info.Source: ' + info.Source);
 			savedPackageList.push(info);
 		}
 	}
