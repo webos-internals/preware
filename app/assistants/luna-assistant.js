@@ -5,9 +5,9 @@ function LunaAssistant() {
 
 LunaAssistant.prototype.setup = function()
 {
-		this.controller.get('luna-title').innerHTML = $L('Luna Manager');	
-		this.controller.get('restart-luna-text').innerHTML = $L('This will close all the applications you have open when it restarts.');
-		this.controller.get('restart-java-text').innerHTML = $L('This will cause your phone to lose network connections and be pretty slow until it\'s done restarting.');
+		this.controller.get('luna-title').innerHTML = $L("Luna Manager");	
+		this.controller.get('restart-luna-text').innerHTML = $L("This will close all the applications you have open when it restarts.");
+		this.controller.get('restart-java-text').innerHTML = $L("This will cause your phone to lose network connections and be pretty slow until it's done restarting.");
 	try
 	{
 		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
@@ -21,7 +21,7 @@ LunaAssistant.prototype.setup = function()
 			},
 			this.model =
 			{
-				buttonLabel: $L('Rescan'),
+				buttonLabel: $L("Rescan"),
 				buttonClass: 'palm-button',
 				disabled: false
 			}
@@ -35,7 +35,7 @@ LunaAssistant.prototype.setup = function()
 			},
 			this.model =
 			{
-				buttonLabel: $L('Restart Luna'),
+				buttonLabel: $L("Restart Luna"),
 				buttonClass: 'palm-button',
 				disabled: false
 			}
@@ -49,7 +49,7 @@ LunaAssistant.prototype.setup = function()
 			},
 			this.model =
 			{
-				buttonLabel: $L('Restart Java'),
+				buttonLabel: $L("Restart Java"),
 				buttonClass: 'palm-button',
 				disabled: false
 			}
@@ -71,28 +71,24 @@ LunaAssistant.prototype.callbackFunction = function(payload, item)
 {
 	if (!payload) 
 	{
-		this.alertMessage('Luna Manager', 'This Error shouldn\'t happen...');
+		this.alertMessage('Luna Manager', $L("Cannot access the service. First try restarting Preware, or reboot your phone and try again."));
 	}
 	else if (payload.errorCode == -1 && item != 'RestartJava') 
 	{
 		if (payload.errorText == "org.webosinternals.ipkgservice is not running.") 
 		{
-			this.alertMessage('Luna Manager', 'The Package Manager Service is not running. Did you remember to install it? If you did, perhaps you should try rebooting your phone.');
+			this.alertMessage('Luna Manager', $L("The service is not running. First try restarting Preware, or reboot your phone and try again."));
 		}
 		else 
 		{
 			this.alertMessage('Luna Manager', payload.errorText);
 		}
 	}
-	else if (payload.errorCode == "ErrorGenericUnknownMethod") 
-	{
-		this.alertMessage('Luna Manager', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [1]');
-	}
 	else 
 	{
 		if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) 
 		{
-			this.alertMessage('Luna Manager', 'The Package Manger Service you\'re running isn\'t compatible with this version of Preware. Please update it with WebOS Quick Install. [2]');
+			this.alertMessage('Luna Manager', $L("The service version is too old. First try rebooting your phone, or reinstall Preware and try again."));
 		}
 	}
 	
@@ -148,7 +144,7 @@ LunaAssistant.prototype.alertMessage = function(title, message)
 		allowHTMLMessage: true,
 	    title: title,
 	    message: message,
-	    choices:[{label:$L('Ok'), value:""}]
+	    choices:[{label:$L("Ok"), value:""}]
     });
 };
 

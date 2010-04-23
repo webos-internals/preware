@@ -55,7 +55,7 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 
 UpdateAssistant.prototype.setup = function()
 {
-	this.controller.get('spinnerStatus').innerHTML = $L('Starting');
+	this.controller.get('spinnerStatus').innerHTML = $L("Starting");
 
 	// set theme because this can be the first scene pushed
 	this.controller.document.body.className = prefs.get().theme;
