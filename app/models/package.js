@@ -1296,7 +1296,7 @@ packageModel.prototype.onInstall = function(payload, multi)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + $L(" probably installed");
+				var msg = this.type + $L(" installed");
 				var msgError = true;
 				
 				if (multi != undefined) 
@@ -1405,7 +1405,7 @@ packageModel.prototype.onUpdate = function(payload, multi)
 				this.subscription.cancel();
 				
 				// message
-				var msg = this.type + $L(" probably updated");
+				var msg = this.type + $L(" updated");
 				var msgError = true;
 				
 				if (multi != undefined) 
