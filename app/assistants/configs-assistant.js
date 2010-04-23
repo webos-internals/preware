@@ -121,7 +121,7 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
-			this.alertMessage('Preware', $L("Update Error. The service probably isn't running."));
+			this.alertMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your phone and try again."));
 			this.doneLoading();
 		}
 		else if (payload.errorCode != undefined) 
@@ -130,7 +130,7 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.alertMessage('Preware', $L("The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and waiting longer before starting Preware."));
+				this.alertMessage('Preware', $L("The service is not running. First try restarting Preware, or reboot your phone and try again."));
 				this.doneLoading();
 			}
 			else
