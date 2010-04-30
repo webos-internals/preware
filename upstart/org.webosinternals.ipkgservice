@@ -19,13 +19,13 @@ pre-start script
       echo "src/gz webos-patches http://ipkg.preware.org/feeds/webos-patches/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-patches.conf.disabled
    fi  
 
-   # Configure the hardware-patches feed
+   # Configure the webos-kernels feed
    VERSION=`grep PRODUCT_VERSION_STRING /etc/palm-build-info | sed -e 's/.*=Palm webOS \([0-9.]*\).*/\1/'`
-   if [ -f $APPS/etc/ipkg/hardware-patches.conf ] ; then
-      echo "src/gz hardware-patches http://ipkg.preware.org/feeds/hardware-patches/${VERSION:-unknown}" > $APPS/etc/ipkg/hardware-patches.conf
+   if [ -f $APPS/etc/ipkg/webos-kernels.conf ] ; then
+      echo "src/gz webos-kernels http://ipkg.preware.org/feeds/webos-kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-kernels.conf
    fi  
-   if [ -f $APPS/etc/ipkg/hardware-patches.conf.disabled ] ; then
-      echo "src/gz hardware-patches http://ipkg.preware.org/feeds/hardware-patches/${VERSION:-unknown}" > $APPS/etc/ipkg/hardware-patches.conf.disabled
+   if [ -f $APPS/etc/ipkg/webos-kernels.conf.disabled ] ; then
+      echo "src/gz webos-kernels http://ipkg.preware.org/feeds/webos-kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-kernels.conf.disabled
    fi  
 
 end script

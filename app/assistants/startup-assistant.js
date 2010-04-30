@@ -13,7 +13,10 @@ function StartupAssistant()
 	     log:
 	     [
 	      'Robustified the scanning of unknown packages, with the hope of preventing hangs',
-	      'Added the ability to swipe delete items from the Saved Package List'
+	      'Added the ability to swipe delete items from the Saved Package List',
+	      'Disabled the app catalog and themes feeds on first installation, but kept palm update feeds enabled',
+	      'Added prerm conditionals to assist an easy transition from Preware Alpha back to Preware 1.0',
+	      'Added support for the webos-kernels feed'
 	      ]
 	 },
 	 {
