@@ -63,6 +63,7 @@ function packagesModel()
 		Kernel:
 		{
 			update: true,
+			updateAsReplace: true,
 			showDependents: true
 		},
 		Patch:

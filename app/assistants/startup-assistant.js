@@ -9,7 +9,7 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
-	     version: '0.9.37',
+	     version: '0.9.38',
 	     log:
 	     [
 	      'Robustified the scanning of unknown packages, with the hope of preventing hangs',
