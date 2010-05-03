@@ -1289,7 +1289,7 @@ bool do_install(LSHandle* lshandle, LSMessage *message, char *installCommand, su
   return false;
 }
 
-bool do_remove(LSHandle* lshandle, LSMessage *message, bool *removed) {
+bool do_remove(LSHandle* lshandle, LSMessage *message, bool replace, bool *removed) {
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1382,7 +1382,12 @@ bool do_remove(LSHandle* lshandle, LSMessage *message, bool *removed) {
     if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"delete\"")) goto end;
   }
 
-  if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
+  if (replace) {
+    if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"removed\"}", &lserror)) goto error;
+  }
+  else {
+    if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
+  }
 
   return true;
  error:
@@ -1408,7 +1413,7 @@ bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
 bool remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   bool removed;
-  return do_remove(lshandle, message, &removed);
+  return do_remove(lshandle, message, false, &removed);
 }
 
 bool replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -1416,7 +1421,7 @@ bool replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSErrorInit(&lserror);
 
   bool removed = false;
-  if (!do_remove(lshandle, message, &removed)) goto end;
+  if (!do_remove(lshandle, message, true, &removed)) goto end;
   if (removed) {
     if (!ipkg_install_method(lshandle, message, ctx)) goto end;
   }
