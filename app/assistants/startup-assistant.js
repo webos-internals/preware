@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '0.9.99',
+	     log:
+	     [
+	      'Release candidate for Preware 1.0'
+	      ]
+	 },
+	 {
 	     version: '0.9.38',
 	     log:
 	     [
