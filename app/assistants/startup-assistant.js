@@ -1,18 +1,19 @@
 function StartupAssistant()
 {
     // on first start, this message is displayed, along with the current version message from below
-    this.firstMessage = $L('Here are some tips for first-timers:<ul><li>Preware will take some time to download the data for all your enabled package feeds</li><li>Select the "Preferences" menu item to change how often the feeds are updated</li><li>Customize the main screen using the "Show Available Types" preference options</li><li>Select the "Manage Feeds" menu item to enable just your desired package feeds</li><li>To search, just start typing in the "List of Everything"</li></ul>');
+    this.firstMessage = $L('Here are some tips for first-timers:<ul><li>Preware will take some time to download the data for all your enabled package feeds</li><li>Select the "Preferences" menu item to change how often the feeds are updated</li><li>Customize the main screen using the "Show Available Types" preference options</li><li>Select the "Manage Feeds" menu item to enable just your desired package feeds</li><li>To search, just start typing</li></ul>');
 	
-    this.secondMessage = $L('We hope you enjoy all of the many Applications, Themes and Patches that Preware makes available.<br>Please consider making a <a href=http://www.webos-internals.org/wiki/WebOS_Internals:Site_support>donation</a> if you wish to show your appreciation.');
+    this.secondMessage = $L('We hope you enjoy all of the many Applications, Themes and Patches that Preware makes available.<br>Please consider making a <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DCSMTCCGMH5NA">donation</a> if you wish to show your appreciation.');
 	
     // on new version start
     this.newMessages =
 	[
 	 {
-	     version: '0.9.99',
+	     version: '1.0.0',
 	     log:
 	     [
-	      'Release candidate for Preware 1.0'
+	      'The Package Manager Service has been rewritten in C and incorporated into this single Preware package',
+		  'Installing Preware 1.0.0 will remove the Package Manager Service as the last step of the upgrade process'
 	      ]
 	 },
 	 {
