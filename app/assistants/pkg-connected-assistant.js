@@ -40,7 +40,7 @@ function PkgConnectedAssistant(type, pkg, pkgs)
 
 PkgConnectedAssistant.prototype.setup = function()
 {
-	this.controller.get('listTitle').innerHTML = $L('Connected Packages');
+	this.controller.get('listTitle').innerHTML = $L("Connected Packages");
 	
 	// clear log so it only shows stuff from this scene
 	IPKGService.logClear();
@@ -52,8 +52,8 @@ PkgConnectedAssistant.prototype.setup = function()
 	this.controller.get('pkgSingle').style.display = 'none';
 	
 	// set title
-	if (this.type == 'install')	this.controller.get('listTitle').innerHTML = $L('Packages To Be Installed / Updated');
-	else if (this.type == 'remove') this.controller.get('listTitle').innerHTML = $L('Packages That Depend On This');
+	if (this.type == 'install')	this.controller.get('listTitle').innerHTML = $L("Packages To Be Installed / Updated");
+	else if (this.type == 'remove') this.controller.get('listTitle').innerHTML = $L("Packages That Depend On This");
 	
 	// load single
 	this.loadSingle();
@@ -180,7 +180,7 @@ PkgConnectedAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// if type is for multi-install push install button 
 	if (this.type == 'install')
 	{
-		this.cmdMenuModel.items.push({label: $L('Install / Update All'), command: 'do-install'});
+		this.cmdMenuModel.items.push({label: $L("Install / Update All"), command: 'do-install'});
 	}
 	
 	// this is to put space around the icons
@@ -290,11 +290,11 @@ PkgConnectedAssistant.prototype.simpleMessage = function(message)
 	this.simpleMessageUp = true;
 	this.controller.showAlertDialog(
 	{
-	    title:				$L('Connected Packages'),
+	    title:				$L("Connected Packages"),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
 	    message:			message,
-	    choices:			[{label:$L('Ok'), value:'ok'}],
+	    choices:			[{label:$L("Ok"), value:'ok'}],
 		onChoose:			this.simpleMessageOK.bindAsEventListener(this)
     });
 };
@@ -310,7 +310,7 @@ PkgConnectedAssistant.prototype.actionMessage = function(message, choices, actio
 {
 	this.controller.showAlertDialog(
 	{
-	    title:				$L('Connected Packages'),
+	    title:				$L("Connected Packages"),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
 	    message:			message,

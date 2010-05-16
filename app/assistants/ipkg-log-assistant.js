@@ -20,11 +20,11 @@ function IpkgLogAssistant()
 
 IpkgLogAssistant.prototype.setup = function()
 {
-	this.controller.get('log-title').innerHTML = $L('IPKG Log');
+	this.controller.get('log-title').innerHTML = $L("IPKG Log");
 
 	if (IPKGService.log == '') 
 	{
-		this.controller.get('logData').innerHTML = $L('<div class="noData">The log is empty.</div>');
+		this.controller.get('logData').innerHTML = $L("<div class=\"noData\">The log is empty.</div>");
 	}
 	else 
 	{

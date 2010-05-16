@@ -27,27 +27,27 @@ PreferencesAssistant.prototype.setup = function()
 {
 	try
 	{
-		this.controller.get('headerButton').innerHTML = $L('Feeds');
-		this.controller.get('preferences-title').innerHTML = $L('Preferences');
-		this.controller.get('preferences-global').innerHTML = $L('Global');
-		this.controller.get('preferences-startup').innerHTML = $L('Startup');
-		this.controller.get('last-update-title').innerHTML = $L('Last Update');
-		this.controller.get('lastUpdate').innerHTML = $L('Never');
-		this.controller.get('scan-unknown-packages').innerHTML = $L('Scan Unknown Packages');
-		this.controller.get('main-scene-title').innerHTML = $L('Main Scene');
-		this.controller.get('show-available-types').innerHTML = $L('Show Available Types');
-		this.controller.get('show-applications').innerHTML = $L('Show Applications');
-		this.controller.get('show-themes').innerHTML = $L('Show Themes');
-		this.controller.get('show-patches').innerHTML = $L('Show Patches');
-		this.controller.get('show-other-types').innerHTML = $L('Show Other Types');
-		this.controller.get('list-scene').innerHTML = $L('List Scene');
-		this.controller.get('search-descriptions').innerHTML = $L('Search Descriptions');
-		this.controller.get('installed-is-available').innerHTML = $L('Installed is Available');
-		this.controller.get('only-show-free-apps').innerHTML = $L('Only Show Free Apps');
-		this.controller.get('background').innerHTML = $L('Background');
-		this.controller.get('automatically-install').innerHTML = $L('Automatically Install');
-		this.controller.get('secret-stuff').innerHTML = $L('Secret Stuff');
-		this.controller.get('secret-options').innerHTML = $L('This version has no secret options.');
+		this.controller.get('headerButton').innerHTML = $L("Feeds");
+		this.controller.get('preferences-title').innerHTML = $L("Preferences");
+		this.controller.get('preferences-global').innerHTML = $L("Global");
+		this.controller.get('preferences-startup').innerHTML = $L("Startup");
+		this.controller.get('last-update-title').innerHTML = $L("Last Update");
+		this.controller.get('lastUpdate').innerHTML = $L("Never");
+		this.controller.get('scan-unknown-packages').innerHTML = $L("Scan Unknown Packages");
+		this.controller.get('main-scene-title').innerHTML = $L("Main Scene");
+		this.controller.get('show-available-types').innerHTML = $L("Show Available Types");
+		this.controller.get('show-applications').innerHTML = $L("Show Applications");
+		this.controller.get('show-themes').innerHTML = $L("Show Themes");
+		this.controller.get('show-patches').innerHTML = $L("Show Patches");
+		this.controller.get('show-other-types').innerHTML = $L("Show Other Types");
+		this.controller.get('list-scene').innerHTML = $L("List Scene");
+		this.controller.get('search-descriptions').innerHTML = $L("Search Descriptions");
+		this.controller.get('installed-is-available').innerHTML = $L("Installed is Available");
+		this.controller.get('only-show-free-apps').innerHTML = $L("Only Show Free Apps");
+		this.controller.get('background').innerHTML = $L("Background");
+		this.controller.get('automatically-install').innerHTML = $L("Automatically Install");
+		this.controller.get('secret-stuff').innerHTML = $L("Secret Stuff");
+		this.controller.get('secret-options').innerHTML = $L("This version has no secret options.");
 
 		// setup menu
 		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
@@ -70,11 +70,11 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'theme',
 			{
-				label: $L('Theme'),
+				label: $L("Theme"),
 				choices:
 				[
-					{label:$L('Palm Default'),	value:'palm-default'},
-					{label:$L('Palm Dark'),		value:'palm-dark'}
+					{label:$L("Palm Default"),	value:'palm-default'},
+					{label:$L("Palm Dark"),		value:'palm-dark'}
 				],
 				modelProperty: 'theme'
 			},
@@ -90,12 +90,12 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'updateInterval',
 			{
-				label: $L('Update Feeds'),
+				label: $L("Update Feeds"),
 				choices:
 				[
-					{label:$L('Every Launch'),	value:'launch'},
-					{label:$L('Once Daily'),	value:'daily'},
-					{label:$L('Manually Only'),	value:'manual'}
+					{label:$L("Every Launch"),	value:'launch'},
+					{label:$L("Once Daily"),	value:'daily'},
+					{label:$L("Manually Only"),	value:'manual'}
 				],
 				modelProperty: 'updateInterval'
 			},
@@ -109,8 +109,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'fixUnknown',
 			{
-	  			trueLabel:  $L('Yes'),
-	 			falseLabel: $L('No'),
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
 	  			fieldName:  'fixUnknown'
 			},
 			{
@@ -129,8 +129,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'showAvailableTypes',
 			{
-	  			trueLabel:  $L('Yes'),
-	 			falseLabel: $L('No'),
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
 	  			fieldName:  'showAvailableTypes'
 			},
 			{
@@ -142,8 +142,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'showTypeApplication',
 			{
-	  			trueLabel:  $L('Yes'),
-	 			falseLabel: $L('No'),
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
 	  			fieldName:  'showTypeApplication'
 			},
 			{
@@ -155,8 +155,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'showTypeTheme',
 			{
-	  			trueLabel:  $L('Yes'),
-	 			falseLabel: $L('No'),
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
 	  			fieldName:  'showTypeTheme'
 			},
 			{
@@ -168,8 +168,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'showTypePatch',
 			{
-	  			trueLabel:  $L('Yes'),
-	 			falseLabel: $L('No'),
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
 	  			fieldName:  'showTypePatch'
 			},
 			{
@@ -181,8 +181,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'showTypeOther',
 			{
-	  			trueLabel:  $L('Yes'),
-	 			falseLabel: $L('No'),
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
 	  			fieldName:  'showTypeOther'
 			},
 			{
@@ -204,8 +204,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'searchDesc',
 			{
-	  			trueLabel:  $L('Yes'),
-	 			falseLabel: $L('No'),
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
 	  			fieldName:  'searchDesc'
 			},
 			{
@@ -217,13 +217,13 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'listSort',
 			{
-				label: $L('Default Sort'),
+				label: $L("Default Sort"),
 				choices:
 				[
-					{label:$L('Category Default'),	value:'default'},
-					{label:$L('Alphabetically'),	value:'alpha'},
-					{label:$L('Last Updated'),		value:'date'},
-					{label:$L('Price'),			value:'price'}
+					{label:$L("Category Default"),	value:'default'},
+					{label:$L("Alphabetically"),	value:'alpha'},
+					{label:$L("Last Updated"),		value:'date'},
+					{label:$L("Price"),			value:'price'}
 				],
 				modelProperty: 'listSort'
 			},
@@ -233,28 +233,28 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'secondRow',
 			{
-				label: $L('Second Line'),
+				label: $L("Second Line"),
 				choices:
 				[
-					{label:$L('Package ID'),			value:'id'},
-					{label:$L('Version'),				value:'version'},
-					{label:$L('Maintainer'),			value:'maint'},
-					{label:$L('Modified Date'),			value:'date'},
-					{label:$L('Price'),					value:'price'},
-					{label:$L('Feed'),					value:'feed'},
-					{label:$L('Country'),				value:'country'},
-					{label:$L('License'),				value:'license'},
-					{label:$L('Version & ID'),			value:'version,id'},
-					{label:$L('Version & Maint.'),		value:'version,maint'},
-					{label:$L('Version & Date'),		value:'version,date'},
-					{label:$L('Version, Date & Feed'),	value:'version,date,feed'},
-					{label:$L('Version, Date & Lic.'),	value:'version,date,license'},
-					{label:$L('Price & Feed'),			value:'price,feed'},
-					{label:$L('Price & Country'),		value:'price,country'},
-					{label:$L('Price & License'),		value:'price,license'},
-					{label:$L('Price, Vers. & Maint.'),	value:'price,version,maint'},
-					{label:$L('Price, Vers. & Date'),	value:'price,version,date'},
-					{label:$L('Price, Vers. & Feed'),	value:'price,version,feed'},
+					{label:$L("Package ID"),			value:'id'},
+					{label:$L("Version"),				value:'version'},
+					{label:$L("Maintainer"),			value:'maint'},
+					{label:$L("Modified Date"),			value:'date'},
+					{label:$L("Price"),					value:'price'},
+					{label:$L("Feed"),					value:'feed'},
+					{label:$L("Country"),				value:'country'},
+					{label:$L("License"),				value:'license'},
+					{label:$L("Version & ID"),			value:'version,id'},
+					{label:$L("Version & Maint."),		value:'version,maint'},
+					{label:$L("Version & Date"),		value:'version,date'},
+					{label:$L("Version, Date & Feed"),	value:'version,date,feed'},
+					{label:$L("Version, Date & Lic."),	value:'version,date,license'},
+					{label:$L("Price & Feed"),			value:'price,feed'},
+					{label:$L("Price & Country"),		value:'price,country'},
+					{label:$L("Price & License"),		value:'price,license'},
+					{label:$L("Price, Vers. & Maint."),	value:'price,version,maint'},
+					{label:$L("Price, Vers. & Date"),	value:'price,version,date'},
+					{label:$L("Price, Vers. & Feed"),	value:'price,version,feed'},
 				],
 				modelProperty: 'secondRow'
 			},
@@ -264,8 +264,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'listInstalled',
 			{
-	  			trueLabel:  $L('Yes'),
-	 			falseLabel: $L('No'),
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
 	  			fieldName:  'listInstalled'
 			},
 			{
@@ -277,8 +277,8 @@ PreferencesAssistant.prototype.setup = function()
 		(
 			'onlyShowFree',
 			{
-	  			trueLabel:  $L('Yes'),
-	 			falseLabel: $L('No'),
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
 	  			fieldName:  'onlyShowFree'
 			},
 			{
@@ -453,7 +453,7 @@ PreferencesAssistant.prototype.alertMessage = function(title, message)
 		allowHTMLMessage: true,
 	    title: title,
 	    message: message,
-	    choices:[{label:$L('Ok'), value:""}]
+	    choices:[{label:$L("Ok"), value:""}]
     });
 };
 

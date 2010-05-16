@@ -3,15 +3,15 @@ function MainAssistant()
 	// subtitle random list
 	this.randomSub = 
 	[
-		{weight: 30, text: $L('The Advanced Homebrew Installer')},
-		{weight: 20, text: $L('Applications, Themes and Patches')},
-		{weight: 15, text: $L('The Open Standard Installer')},
-		{weight: 15, text: $L('The Universal Application Installer')},
-		{weight: 15, text: $L('Accessing All Open Standard Feeds')},
-		{weight:  2, text: $L('Random Taglines Are Awesome')},
-		{weight:  2, text: $L('We Know Palm Loves Preware')},
-		{weight:  2, text: $L('Now With More Cowbell')},
-		{weight:  2, text: $L('We will get to v1.0... Eventually')}
+		{weight: 30, text: $L("The Advanced Homebrew Installer")},
+		{weight: 20, text: $L("Applications, Themes and Patches")},
+		{weight: 15, text: $L("The Open Standard Installer")},
+		{weight: 15, text: $L("The Universal Application Installer")},
+		{weight: 15, text: $L("Accessing All Open Standard Feeds")},
+		{weight:  2, text: $L("Random Taglines Are Awesome")},
+		{weight:  2, text: $L("We Know Palm Loves Preware")},
+		{weight:  2, text: $L("Now With More Cowbell")},
+		{weight:  2, text: $L("We will get to v1.0... Eventually")}
 	];
 	
 	// setup list model
@@ -53,10 +53,10 @@ function MainAssistant()
 
 MainAssistant.prototype.setup = function()
 {	
-	this.controller.get('main-title').innerHTML = $L('Preware');
-	this.controller.get('version').innerHTML = $L('v0.0.0');
-	this.controller.get('subTitle').innerHTML = $L('The Open Source Installer');
-	this.controller.get('subSearch').innerHTML = $L('Press Enter To Search');
+	this.controller.get('main-title').innerHTML = $L("Preware");
+	this.controller.get('version').innerHTML = $L("v0.0.0");
+	this.controller.get('subTitle').innerHTML = $L("The Open Source Installer");
+	this.controller.get('subSearch').innerHTML = $L("Press Enter To Search");
 
 	// get elements
 	this.searchContainer =	this.controller.get('searchContainer');
@@ -116,10 +116,10 @@ MainAssistant.prototype.activate = function(event)
 		{
 			this.controller.showAlertDialog(
 			{
-			    title:				$L('Preware'),
+			    title:				$L("Preware"),
 				allowHTMLMessage:	true,
 			    message:			'You have recently changed the feeds. You should update the package list.',
-			    choices:			[{label:$L('Do It Now'), value:'ok'}, {label:$L('Later'), value:'skip'}],
+			    choices:			[{label:$L("Do It Now"), value:'ok'}, {label:$L("Later"), value:'skip'}],
 				onChoose:			this.dirtyFeedsResponse.bindAsEventListener(this)
 		    });
 		}
@@ -178,7 +178,7 @@ MainAssistant.prototype.searchKey = function(event)
 		(
 			'pkg-list', 
 			{
-				name:     $L('List of Everything'),
+				name:     $L("List of Everything"),
 				pkgList:  'all',
 				pkgType:  'all',
 				pkgFeed:  'all',
@@ -220,7 +220,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 		
 		this.mainModel.items.push(
 		{
-			name:     $L('Package Updates'),	// displays in list
+			name:     $L("Package Updates"),	// displays in list
 			style:    'disabled',				// class for use in the list display
 			scene:    'pkg-list',				// scene that will be pushed on tap 
 			pkgList:  'updates',				// 
@@ -237,7 +237,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 			{
 				this.mainModel.items.push(
 				{
-					name:     $L('Available Applications'),
+					name:     $L("Available Applications"),
 					style:    'disabled',
 					scene:    'pkg-groups',
 					pkgGroup: ['categories','feeds'],
@@ -252,7 +252,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 			{
 				this.mainModel.items.push(
 				{
-					name:     $L('Available Themes'),
+					name:     $L("Available Themes"),
 					style:    'disabled',
 					scene:    'pkg-groups',
 					pkgGroup: ['categories','feeds'],
@@ -267,7 +267,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 			{
 				this.mainModel.items.push(
 				{
-					name:     $L('Available Patches'),
+					name:     $L("Available Patches"),
 					style:    'disabled',
 					scene:    'pkg-groups',
 					pkgGroup: ['categories'],
@@ -282,7 +282,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 			{
 				this.mainModel.items.push(
 				{
-					name: $L('Available Other'),
+					name: $L("Available Other"),
 					style: 'disabled',
 					scene: 'pkg-groups',
 					pkgGroup: ['types', 'feeds'],
@@ -298,7 +298,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 		{
 			this.mainModel.items.push(
 			{
-				name:     $L('Available Packages'),
+				name:     $L("Available Packages"),
 				style:    'disabled',
 				scene:    'pkg-groups',
 				pkgGroup: ['types','feeds'],
@@ -312,7 +312,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 		
 		this.mainModel.items.push(
 		{
-			name:     $L('Installed Packages'),
+			name:     $L("Installed Packages"),
 			style:    'disabled',
 			scene:    'pkg-groups',
 			pkgGroup: ['types'],
@@ -325,7 +325,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 		
 		this.mainModel.items.push(
 		{
-			name:     $L('List of Everything'),
+			name:     $L("List of Everything"),
 			style:    'disabled',
 			scene:    'pkg-list',
 			pkgList:  'all',
@@ -336,7 +336,7 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 		
 		this.mainModel.items.push(
 		{
-			name:     $L('Saved Package List'),
+			name:     $L("Saved Package List"),
 			style:    'disabled',
 			scene:    'pkg-list',
 			pkgList:  'saved',

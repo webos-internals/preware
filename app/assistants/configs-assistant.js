@@ -21,12 +21,12 @@ function ConfigsAssistant()
 
 ConfigsAssistant.prototype.setup = function()
 {
-	this.controller.get('headerButton').innerHTML = $L('Preferences');
-	this.controller.get('headerTitle').innerHTML = $L('Feeds');		
-	this.controller.get('installed-feeds-title').innerHTML = $L('Installed');	
-	this.controller.get('new-feed-title').innerHTML = $L('New Feed');	
-	this.controller.get('new-feed-url').innerHTML = $L('URL');	
-	this.controller.get('new-feed-is-compressed').innerHTML = $L('Is Compressed');	
+	this.controller.get('headerButton').innerHTML = $L("Preferences");
+	this.controller.get('headerTitle').innerHTML = $L("Feeds");		
+	this.controller.get('installed-feeds-title').innerHTML = $L("Installed");	
+	this.controller.get('new-feed-title').innerHTML = $L("New Feed");	
+	this.controller.get('new-feed-url').innerHTML = $L("URL");	
+	this.controller.get('new-feed-is-compressed').innerHTML = $L("Is Compressed");	
 	
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
@@ -77,8 +77,8 @@ ConfigsAssistant.prototype.setup = function()
 	(
 		'newCompressed',
 		{
-  			trueLabel:  'Yes',
- 			falseLabel: 'No',
+  			trueLabel:  $L("Yes"),
+ 			falseLabel: $L("No"),
   			fieldName:  'newCompressed'
 		},
 		this.newCompressed
@@ -90,7 +90,7 @@ ConfigsAssistant.prototype.setup = function()
 			type: Mojo.Widget.activityButton
 		},
 		{
-			buttonLabel: 'Add Feed',
+			buttonLabel: $L("Add Feed"),
 			buttonClass: 'palm-button'
 		}
 	);
@@ -279,10 +279,10 @@ ConfigsAssistant.prototype.newConfButton = function()
 	{
 		this.controller.showAlertDialog(
 		{
-		    title:				$L('Custom Feed'),
+		    title:				$L("Custom Feed"),
 			allowHTMLMessage:	true,
 		    message:			'By adding a custom feed, you take full responsibility for any and all potential outcomes that may occur as a result of doing so, including (but not limited to): loss of warranty, loss of all data, loss of all privacy, security vulnerabilities and device damage.',
-		    choices:			[{label:$L('Ok'), value:'ok'}, {label:$L('Cancel'), value:'cancel'}],
+		    choices:			[{label:$L("Ok"), value:'ok'}, {label:$L("Cancel"), value:'cancel'}],
 			onChoose:			this.newConfCall.bindAsEventListener(this)
 	    });
 	}
@@ -290,10 +290,10 @@ ConfigsAssistant.prototype.newConfButton = function()
 	{
 		this.controller.showAlertDialog(
 		{
-		    title:				$L('Custom Feed'),
+		    title:				$L("Custom Feed"),
 			allowHTMLMessage:	true,
 		    message:			'You need to fill in all fields for a new feed.',
-		    choices:			[{label:$L('Ok'), value:'ok'}],
+		    choices:			[{label:$L("Ok"), value:'ok'}],
 			onChoose:			function(v){ this.controller.get('newButton').mojo.deactivate(); }
 	    });
 	}

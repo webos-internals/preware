@@ -104,7 +104,7 @@ function PkgListAssistant(item, searchText, currentSort)
 
 PkgListAssistant.prototype.setup = function()
 {
-	this.controller.get('groupTitle').innerHTML = $L('None');
+	this.controller.get('groupTitle').innerHTML = $L("None");
 	
 	try 
 	{
@@ -601,13 +601,13 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	    // if saved, push the install all buttons
 	    if (this.item.pkgList == 'saved')
 		{
-			this.cmdMenuModel.items.push({label: $L('Install All'), command: 'do-installSaved'});
+			this.cmdMenuModel.items.push({label: $L("Install All"), command: 'do-installSaved'});
 	    }
 	
 	    // if updates, lets push the update all button
 	    if (this.item.pkgList == 'updates')
 		{
-			this.cmdMenuModel.items.push({label: $L('Update All'), command: 'do-updateAll'});
+			this.cmdMenuModel.items.push({label: $L("Update All"), command: 'do-updateAll'});
 	    }
 		
 		// push multi install button, when not in a "special" list
@@ -634,7 +634,7 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// if saved, push the refresh button
 	if (this.item.pkgList == 'saved')
 	{
-	    this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-updateList'});
+	    this.cmdMenuModel.items.push({label: $L("Update"), command: 'do-updateList'});
 	}
 	
 	// this is to put space around the icons
@@ -821,7 +821,7 @@ PkgListAssistant.prototype.alertMessage = function(message)
 	    title:				'Preware',
 		allowHTMLMessage:	true,
 	    message:			message,
-	    choices:			[{label:$L('Ok'), value:''}],
+	    choices:			[{label:$L("Ok"), value:''}],
 		onChoose:			function(value){}
     });
 };
@@ -883,11 +883,11 @@ PkgListAssistant.prototype.simpleMessage = function(message)
 	this.simpleMessageUp = true;
 	this.controller.showAlertDialog(
 	{
-	    title:				$L('Packages'),
+	    title:				$L("Packages"),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
 	    message:			message,
-	    choices:			[{label:$L('Ok'), value:'ok'}],
+	    choices:			[{label:$L("Ok"), value:'ok'}],
 		onChoose:			this.simpleMessageOK.bindAsEventListener(this)
     });
 };
@@ -903,7 +903,7 @@ PkgListAssistant.prototype.actionMessage = function(message, choices, actions)
 {
 	this.controller.showAlertDialog(
 	{
-	    title:				$L('Packages'),
+	    title:				$L("Packages"),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
 	    message:			message,

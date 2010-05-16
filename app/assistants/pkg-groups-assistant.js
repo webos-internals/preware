@@ -331,7 +331,7 @@ PkgGroupsAssistant.prototype.alertMessage = function(message)
 	    title:				'Preware',
 		allowHTMLMessage:	true,
 	    message:			message,
-	    choices:			[{label:$L('Ok'), value:''}],
+	    choices:			[{label:$L("Ok"), value:''}],
 		onChoose:			function(value){}
     });
 };
