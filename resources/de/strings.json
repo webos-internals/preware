@@ -165,7 +165,7 @@
 "Luna Manager": "Luna Manager",
 "This will close all the applications you have open when it restarts." : "Bei einem Luna-Neustart werden alle offenen Applikationen geschlossen.",
 "This will cause your phone to lose network connections and be pretty slow until it's done restarting." : "Bei einem Java-Neustart wird das Telefon alle Netzwerkverbindungen verlieren und langsam reagieren bis der Java-Neustart abgeschlossen ist.",
-"Rescan" : "Aktualisieren"
+"Rescan" : "Aktualisieren",
 "Restart Luna" : "Luna neu starten",
 "Restart Java" : "Java neu starten",
 "The service version is too old. First try rebooting your phone, or reinstall Preware and try again.": "The service version is too old. First try rebooting your phone, or reinstall Preware and try again.",
