@@ -156,6 +156,7 @@
 "Support": "Support",
 "Email IPKG Log": "Envoi par courriel log IPKG",
 "Luna Manager": "Gestionnaire Luna",
+"This will close and stop notifications from the phone, email and messaging applications when it rescans.": "This will close and stop notifications from the phone, email and messaging applications when it rescans.",
 "This will close all the applications you have open when it restarts.": "Celà fermera toutes les applications que vous avez ouvertes lorqu'il redémarrera.",
 "This will cause your phone to lose network connections and be pretty slow until it's done restarting.": "Celà provoquera la perte des connexions réseau de votre téléphone et sera assez lent jusqu'à ce qu'il est redémarré.",
 "Rescan": "Actualiser",

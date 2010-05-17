@@ -13,6 +13,7 @@ function StartupAssistant()
 	     log:
 	     [
 	      'Added preference to disable rescan',
+		  'Updated German and French translations'
 	      ]
 	 },
 	 {

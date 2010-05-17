@@ -163,6 +163,7 @@
 "Support": "Support",
 "Email IPKG Log": "Email IPKG Log",
 "Luna Manager": "Luna Manager",
+"This will close and stop notifications from the phone, email and messaging applications when it rescans.": "This will close and stop notifications from the phone, email and messaging applications when it rescans.",
 "This will close all the applications you have open when it restarts." : "Bei einem Luna-Neustart werden alle offenen Applikationen geschlossen.",
 "This will cause your phone to lose network connections and be pretty slow until it's done restarting." : "Bei einem Java-Neustart wird das Telefon alle Netzwerkverbindungen verlieren und langsam reagieren bis der Java-Neustart abgeschlossen ist.",
 "Rescan" : "Aktualisieren",
