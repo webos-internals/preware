@@ -31,9 +31,11 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('preferences-title').innerHTML = $L("Preferences");
 		this.controller.get('preferences-global').innerHTML = $L("Global");
 		this.controller.get('preferences-startup').innerHTML = $L("Startup");
+		this.controller.get('preferences-actions').innerHTML = $L("Actions");
 		this.controller.get('last-update-title').innerHTML = $L("Last Update");
 		this.controller.get('lastUpdate').innerHTML = $L("Never");
 		this.controller.get('scan-unknown-packages').innerHTML = $L("Scan Unknown Packages");
+		this.controller.get('rescan-launcher').innerHTML = $L("Rescan Launcher");
 		this.controller.get('main-scene-title').innerHTML = $L("Main Scene");
 		this.controller.get('show-available-types').innerHTML = $L("Show Available Types");
 		this.controller.get('show-applications').innerHTML = $L("Show Applications");
@@ -121,6 +123,25 @@ PreferencesAssistant.prototype.setup = function()
 
 		this.controller.listen('updateInterval', Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('fixUnknown',     Mojo.Event.propertyChange, this.toggleChangeHandler);
+		
+		
+		
+		// Actions Group
+		this.controller.setupWidget
+		(
+			'rescanLauncher',
+			{
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
+	  			fieldName:  'rescanLauncher'
+			},
+			{
+				value : this.prefs.rescanLauncher,
+	 			disabled: false
+			}
+		);
+
+		this.controller.listen('rescanLauncher',     Mojo.Event.propertyChange, this.toggleChangeHandler);
 
 
 		
@@ -372,20 +393,17 @@ PreferencesAssistant.prototype.listChanged = function(event)
 {
 	this.cookie.put(this.prefs);
 };
-
 PreferencesAssistant.prototype.themeChanged = function(event)
 {
 	// set the theme right away with the body class
 	this.controller.document.body.className = event.value;
 	this.cookie.put(this.prefs);
 };
-
 PreferencesAssistant.prototype.toggleChanged = function(event)
 {
 	this.prefs[event.target.id] = event.value;
 	this.cookie.put(this.prefs);
 };
-
 PreferencesAssistant.prototype.toggleShowTypesChanged = function(event)
 {
 	if (event) 
@@ -458,7 +476,6 @@ PreferencesAssistant.prototype.alertMessage = function(title, message)
 };
 
 PreferencesAssistant.prototype.activate = function(event) {};
-
 PreferencesAssistant.prototype.deactivate = function(event)
 {
 	// reload global storage of preferences when we get rid of this stage

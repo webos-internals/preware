@@ -21,6 +21,9 @@ preferenceCookie.prototype.get = function(reload)
 				lastUpdate: 0, // will be updated every time update is successful
 				fixUnknown: true,
 				
+				// Actions Group
+				rescanLauncher: true,
+				
 				// Main Scene Group
 				showAvailableTypes: false,
 				showTypeApplication: true,

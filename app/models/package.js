@@ -1550,7 +1550,10 @@ packageModel.prototype.actionFunction = function(value, type)
 	else
 	{
 		// we should still rescan...
-		this.subscription = IPKGService.rescan(function(){});
+		if (prefs.get().rescanLauncher) 
+		{
+			this.subscription = IPKGService.rescan(function(){});
+		}
 	}
 	this.assistant.endAction();
 	return;
@@ -1597,7 +1600,10 @@ packageModel.prototype.runFlags = function(type)
 			this.subscription = IPKGService.restartluna(function(){});
 		}
 		// this is always ran...
-		this.subscription = IPKGService.rescan(function(){});
+		if (prefs.get().rescanLauncher) 
+		{
+			this.subscription = IPKGService.rescan(function(){});
+		}
 	}
 	catch (e) 
 	{

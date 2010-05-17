@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.0.1',
+	     log:
+	     [
+	      'Added preference to disable rescan',
+	      ]
+	 },
+	 {
 	     version: '1.0.0',
 	     log:
 	     [
