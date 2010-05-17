@@ -205,4 +205,6 @@
 "This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and try again.": "This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and try again.",
 "Default Sort": "Default Sort",
 "Add Feed": "Add Feed",
+"Actions": "Actions",
+"Rescan Launcher": "Rescan Launcher",
 }
