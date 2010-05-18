@@ -35,7 +35,8 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('last-update-title').innerHTML = $L("Last Update");
 		this.controller.get('lastUpdate').innerHTML = $L("Never");
 		this.controller.get('scan-unknown-packages').innerHTML = $L("Scan Unknown Packages");
-		this.controller.get('rescan-launcher').innerHTML = $L("Rescan Launcher");
+		this.controller.get('avoid-bugs').innerHTML = $L("Avoid Bugs");
+		this.controller.get('avoid-bugs-note').innerHTML = $L("* May not work in future webOS versions.");
 		this.controller.get('main-scene-title').innerHTML = $L("Main Scene");
 		this.controller.get('show-available-types').innerHTML = $L("Show Available Types");
 		this.controller.get('show-applications').innerHTML = $L("Show Applications");
@@ -129,19 +130,19 @@ PreferencesAssistant.prototype.setup = function()
 		// Actions Group
 		this.controller.setupWidget
 		(
-			'rescanLauncher',
+			'avoidBugs',
 			{
 	  			trueLabel:  $L("Yes"),
 	 			falseLabel: $L("No"),
-	  			fieldName:  'rescanLauncher'
+	  			fieldName:  'avoidBugs'
 			},
 			{
-				value : this.prefs.rescanLauncher,
+				value : this.prefs.avoidBugs,
 	 			disabled: false
 			}
 		);
 
-		this.controller.listen('rescanLauncher',     Mojo.Event.propertyChange, this.toggleChangeHandler);
+		this.controller.listen('avoidBugs',     Mojo.Event.propertyChange, this.toggleChangeHandler);
 
 
 		

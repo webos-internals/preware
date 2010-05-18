@@ -236,6 +236,12 @@ body.palm-dark .update .progress .progress-bar
 /*
  * Preference Scene Styles
  */
+.prefs .palm-row-wrapper .note
+{
+	clear: both;
+	padding-left: 10px;
+	font-style: italic;
+}
 .prefs .palm-row-wrapper .label.left
 {
 	padding-left: 6px;
