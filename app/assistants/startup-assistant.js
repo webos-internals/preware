@@ -12,7 +12,7 @@ function StartupAssistant()
 	     version: '1.0.2',
 	     log:
 	     [
-	      'Alternate install method',
+	      'Alternate install method to avoid webOS bugs',
 		  'No more rescan on remove',
 		  'Fixed relaunch blank screen bug'
 	      ]
