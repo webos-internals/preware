@@ -1550,7 +1550,7 @@ packageModel.prototype.actionFunction = function(value, type)
 	else
 	{
 		// we should still rescan...
-		if (!prefs.get().avoidBugs) 
+		if (!prefs.get().avoidBugs && type != 'remove') 
 		{
 			this.subscription = IPKGService.rescan(function(){});
 		}
@@ -1600,7 +1600,7 @@ packageModel.prototype.runFlags = function(type)
 			this.subscription = IPKGService.restartluna(function(){});
 		}
 		// this is always ran...
-		if (!prefs.get().avoidBugs) 
+		if (!prefs.get().avoidBugs && type != 'remove')
 		{
 			this.subscription = IPKGService.rescan(function(){});
 		}
