@@ -1416,7 +1416,7 @@ bool remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return do_remove(lshandle, message, false, &removed);
 }
 
-bool replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+bool ipkg_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1424,6 +1424,24 @@ bool replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   if (!do_remove(lshandle, message, true, &removed)) goto end;
   if (removed) {
     if (!ipkg_install_method(lshandle, message, ctx)) goto end;
+  }
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
+bool appinstaller_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  bool removed = false;
+  if (!do_remove(lshandle, message, true, &removed)) goto end;
+  if (removed) {
+    if (!appinstaller_install_method(lshandle, message, ctx)) goto end;
   }
 
   return true;
@@ -1456,10 +1474,14 @@ LSMethod luna_methods[] = {
   { "addConfig",	add_config_method },
   { "deleteConfig",	delete_config_method },
 
-//{ "install",		appinstaller_install_method },
   { "install",		ipkg_install_method },
+  { "installSvc",	appinstaller_install_method },
+  { "installCli",	ipkg_install_method },
 
-  { "replace",		replace_method },
+  { "replace",		ipkg_replace_method },
+  { "replaceSvc",	appinstaller_replace_method },
+  { "replaceCli",	ipkg_replace_method },
+
   { "remove",		remove_method },
 
   { 0, 0 }
