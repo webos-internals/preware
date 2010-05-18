@@ -1215,7 +1215,7 @@ packagesModel.prototype.multiActionFunction = function(value, flags)
 		else
 		{
 			// we should still rescan...
-			if (prefs.get().rescanLauncher) 
+			if (!prefs.get().avoidBugs)
 			{
 				this.subscription = IPKGService.rescan(function(){});
 			}
@@ -1272,7 +1272,7 @@ packagesModel.prototype.multiRunFlags = function(flags)
 			this.subscription = IPKGService.restartluna(function(){});
 		}
 		// this is always ran...
-		if (prefs.get().rescanLauncher) 
+		if (!prefs.get().avoidBugs) 
 		{
 			this.subscription = IPKGService.rescan(function(){});
 		}

@@ -88,7 +88,7 @@ IPKGService.install = function(callback, pkg, title, filename, url)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
-		method: 'install',
+		method: (prefs.get().avoidBugs ? 'installSvc' : 'installCli'),
 		parameters: {"package":pkg, "title":title, "filename":filename, "url":url, "subscribe":true},
 		onSuccess: callback,
 		onFailure: callback
@@ -99,7 +99,7 @@ IPKGService.replace = function(callback, pkg, title, filename, url)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
-		method: 'replace',
+		method: (prefs.get().avoidBugs ? 'replaceSvc' : 'replaceCli'),
 		parameters: {"package":pkg, "title":title, "filename":filename, "url":url, "subscribe":true},
 		onSuccess: callback,
 		onFailure: callback

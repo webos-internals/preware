@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.0.2',
+	     log:
+	     [
+	      'Alternate install method'
+	      ]
+	 },
+	 {
 	     version: '1.0.1',
 	     log:
 	     [
