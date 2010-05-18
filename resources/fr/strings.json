@@ -156,7 +156,7 @@
 "Support": "Support",
 "Email IPKG Log": "Envoi par courriel log IPKG",
 "Luna Manager": "Gestionnaire Luna",
-"This will close and stop notifications from the phone, email and messaging applications when it rescans.": "This will close and stop notifications from the phone, email and messaging applications when it rescans.",
+"This will close and stop notifications from the phone, email and messaging applications when it rescans.": "Celà fermera et arrêtera toutes les notifications des applications du téléphone, courriels et messages quand il actualisera.",
 "This will close all the applications you have open when it restarts.": "Celà fermera toutes les applications que vous avez ouvertes lorqu'il redémarrera.",
 "This will cause your phone to lose network connections and be pretty slow until it's done restarting.": "Celà provoquera la perte des connexions réseau de votre téléphone et sera assez lent jusqu'à ce qu'il est redémarré.",
 "Rescan": "Actualiser",
@@ -204,4 +204,6 @@
 "This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and try again.": "Cette action doit être immédiate. Si elle prend plus de temps que celà, c'est probablement dû à une interruption de mise à jour ou d'un téléchargement. Vous devriez redémarrer votre téléphone et essayez à nouveau.",
 "Default Sort": "Tri par défaut",
 "Add Feed": "Ajouter flux",
+"Actions": "Actions",
+"Rescan Launcher": "Actualiser lanceur",
 }
