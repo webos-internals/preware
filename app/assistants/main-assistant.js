@@ -118,7 +118,7 @@ MainAssistant.prototype.activate = function(event)
 			{
 			    title:				$L("Preware"),
 				allowHTMLMessage:	true,
-			    message:			'You have recently changed the feeds. You should update the package list.',
+			    message:			$L("You have recently changed the feeds. You should update the package list."),
 			    choices:			[{label:$L("Do It Now"), value:'ok'}, {label:$L("Later"), value:'skip'}],
 				onChoose:			this.dirtyFeedsResponse.bindAsEventListener(this)
 		    });
