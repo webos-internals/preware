@@ -19,9 +19,14 @@ AppAssistant.prototype.handleLaunch = function(params)
 	{
 		if (!params) 
 		{
-	        if (mainStageController) 
+	        if (mainStageController)
 			{
-				mainStageController.popScenesTo('main');
+				var scenes = mainStageController.getScenes();
+				if (scenes[0].sceneName == 'main')
+				{
+					mainStageController.popScenesTo('main');
+				}
+				
 				mainStageController.activate();
 			}
 			else
