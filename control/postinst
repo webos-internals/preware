@@ -114,6 +114,10 @@ if [ "`ls $APPS/etc/ipkg/*.new`" ] ; then
   done
 fi
 
+# Install the resource handler
+/usr/bin/luna-send -n 1 luna://com.palm.applicationManager/addResourceHandler \
+    '{"appId":"org.webosinternals.preware", "extension":"ipk", "mimeType":"application/vnd.preware.ipk"}'
+
 # Check the upstart script is installed
 [ -f /var/palm/event.d/${SID} ] || [ -f /etc/event.d/${SID} ] || exit 1
 

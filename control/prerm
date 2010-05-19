@@ -33,6 +33,10 @@ if [ ! -f ${APPS}/usr/palm/applications/org.webosinternals.preware/appinfo.json 
   rm -f $APPS/usr/lib/ipkg/lists/*
   rm -f $APPS/usr/lib/ipkg/cache/*
 
+  # Remove the resource handler
+  /usr/bin/luna-send -n 1 luna://com.palm.applicationManager/removeHandlersForAppId \
+    '{"appId":"org.webosinternals.preware"}'
+
 fi
 
 exit 0
