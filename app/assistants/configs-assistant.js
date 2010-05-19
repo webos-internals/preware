@@ -112,6 +112,9 @@ ConfigsAssistant.prototype.setup = function()
 	this.controller.listen('confList', Mojo.Event.propertyChanged, this.confToggled.bindAsEventListener(this));
 	this.controller.listen('confList', Mojo.Event.listDelete, this.confDeleted.bindAsEventListener(this));
 	
+	
+	// make it so nothing is selected by default
+	this.controller.setInitialFocusedElement(null);
 };
 
 ConfigsAssistant.prototype.onFeeds = function(payload)
@@ -281,7 +284,7 @@ ConfigsAssistant.prototype.newConfButton = function()
 		{
 		    title:				$L("Custom Feed"),
 			allowHTMLMessage:	true,
-		    message:			'By adding a custom feed, you take full responsibility for any and all potential outcomes that may occur as a result of doing so, including (but not limited to): loss of warranty, loss of all data, loss of all privacy, security vulnerabilities and device damage.',
+		    message:			$L("By adding a custom feed, you take full responsibility for any and all potential outcomes that may occur as a result of doing so, including (but not limited to): loss of warranty, loss of all data, loss of all privacy, security vulnerabilities and device damage."),
 		    choices:			[{label:$L("Ok"), value:'ok'}, {label:$L("Cancel"), value:'cancel'}],
 			onChoose:			this.newConfCall.bindAsEventListener(this)
 	    });
@@ -292,7 +295,7 @@ ConfigsAssistant.prototype.newConfButton = function()
 		{
 		    title:				$L("Custom Feed"),
 			allowHTMLMessage:	true,
-		    message:			'You need to fill in all fields for a new feed.',
+		    message:			$L("You need to fill in all fields for a new feed."),
 		    choices:			[{label:$L("Ok"), value:'ok'}],
 			onChoose:			function(v){ this.controller.get('newButton').mojo.deactivate(); }
 	    });
