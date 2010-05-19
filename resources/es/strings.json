@@ -207,4 +207,9 @@
 "Add Feed": "Add Feed",
 "Actions": "Actions",
 "Rescan Launcher": "Rescan Launcher",
+"Avoid webOS Bugs": "Avoid webOS Bugs",
+"* May not work in future webOS versions.": "* May not work in future webOS versions.",
+"By adding a custom feed, you take full responsibility for any and all potential outcomes that may occur as a result of doing so, including (but not limited to): loss of warranty, loss of all data, loss of all privacy, security vulnerabilities and device damage.": "By adding a custom feed, you take full responsibility for any and all potential outcomes that may occur as a result of doing so, including (but not limited to): loss of warranty, loss of all data, loss of all privacy, security vulnerabilities and device damage.",
+"You need to fill in all fields for a new feed.": "You need to fill in all fields for a new feed.",
+"You have recently changed the feeds. You should update the package list.": "You have recently changed the feeds. You should update the package list.",
 }
