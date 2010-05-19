@@ -9,9 +9,10 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
-	     version: '1.0.3',
+	     version: '1.0.4',
 	     log:
 	     [
+	      'Fixed deletion of disabled feed configs',
 	      'Fixed double execution of the post-install script',
 	      'Alternate install method to avoid webOS bugs',
 		  'No more rescan on remove',
