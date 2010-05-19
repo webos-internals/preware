@@ -1085,7 +1085,8 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
   char command[MAXLINLEN];
   snprintf(command, MAXLINLEN,
-	   "/bin/rm /media/cryptofs/apps/etc/ipkg/%s 2>&1", config);
+	   "/bin/rm -f /media/cryptofs/apps/etc/ipkg/%s /media/cryptofs/apps/etc/ipkg/%s.disabled 2>&1",
+	   config, config);
 
   strcpy(run_command_buffer, "{\"stdOut\": [");
   if (run_command(command, NULL, NULL, NULL)) {
