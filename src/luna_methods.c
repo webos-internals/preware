@@ -1105,11 +1105,24 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
-bool do_install(LSHandle* lshandle, LSMessage *message, char *installCommand, subscribefun installFilter, bool *installed) {
+bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *installed) {
   LSError lserror;
   LSErrorInit(&lserror);
 
   struct stat info;
+  char command[MAXLINLEN];
+
+  char *installCommand;
+  subscribefun installFilter;
+  
+  if (useSvc) {
+    installCommand = "/usr/bin/luna-send -n 6 luna://com.palm.appinstaller/installNoVerify '{\"subscribe\":true, \"target\": \"/media/internal/.developer/%s\", \"uncompressedSize\": 0}' 2>&1";
+    installFilter = appinstaller;
+  }
+  else {
+    installCommand = "/usr/bin/ipkg -o /media/cryptofs/apps -force-overwrite install /media/internal/.developer/%s 2>&1";
+    installFilter = passthrough;
+  }
 
   json_t *object = LSMessageGetPayloadJSON(message);
   json_t *id;
@@ -1157,7 +1170,7 @@ bool do_install(LSHandle* lshandle, LSMessage *message, char *installCommand, su
   char url[MAXLINLEN];
   strcpy(url, id->child->text);
 
-  char command[MAXLINLEN];
+  /* Download the package */
 
   snprintf(command, MAXLINLEN,
 	   "/usr/bin/curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
@@ -1173,8 +1186,9 @@ bool do_install(LSHandle* lshandle, LSMessage *message, char *installCommand, su
     return true;
   }
 
-  snprintf(command, MAXLINLEN, installCommand, filename);
+  /* Install the package */
 
+  snprintf(command, MAXLINLEN, installCommand, filename);
   strcpy(run_command_buffer, "{\"stdOut\": [");
   if (run_command(command, lshandle, message, installFilter)) {
     strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"install\"}");
@@ -1188,70 +1202,83 @@ bool do_install(LSHandle* lshandle, LSMessage *message, char *installCommand, su
     return true;
   }
 
-  // Check for an ipkg prerm script, and install it
+  /* Check for an ipkg prerm script, and install it */
+
   char prerm[MAXLINLEN];
-  sprintf(prerm, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.prerm", package);
+  sprintf(prerm, "/media/cryptofs/apps/.scripts/%s/pmPreRemove.script", package);
 
-  if (!stat(prerm, &info)) {
+  // Does the package already have a pmPreRemove script?
+  if (!(!stat(prerm, &info) && info.st_size)) {
 
-    snprintf(command, MAXLINLEN,
-	     "/bin/mkdir -p /media/cryptofs/apps/.scripts/%s 2>&1", package);
+    // If not, then copy any ipkg prerm script into that spot
+    sprintf(prerm, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.prerm", package);
+    if (!stat(prerm, &info)) {
+
+      snprintf(command, MAXLINLEN,
+	       "/bin/mkdir -p /media/cryptofs/apps/.scripts/%s 2>&1", package);
       
-    strcpy(run_command_buffer, "{\"stdOut\": [");
-    if (run_command(command, lshandle, message, passthrough)) {
-      strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"mkdir-prerm\"}");
-      if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-    }
-    else {
-      strcat(run_command_buffer, "]");
-      if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"mkdir-prerm\"")) goto end;
-      // Ignore any error here.
-    }
+      strcpy(run_command_buffer, "{\"stdOut\": [");
+      if (run_command(command, lshandle, message, passthrough)) {
+	strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"mkdir-prerm\"}");
+	if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+      }
+      else {
+	strcat(run_command_buffer, "]");
+	if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"mkdir-prerm\"")) goto end;
+	// Ignore any error here.
+      }
 
-    snprintf(command, MAXLINLEN,
-	     "/usr/bin/install -m 755 %s /media/cryptofs/apps/.scripts/%s/pmPreRemove.script 2>&1", prerm, package);
+      snprintf(command, MAXLINLEN,
+	       "/usr/bin/install -m 755 %s /media/cryptofs/apps/.scripts/%s/pmPreRemove.script 2>&1", prerm, package);
       
-    strcpy(run_command_buffer, "{\"stdOut\": [");
-    if (run_command(command, lshandle, message, passthrough)) {
-      strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"install-prerm\"}");
-      if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-    }
-    else {
-      strcat(run_command_buffer, "]");
-      if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"install-prerm\"")) goto end;
-      // Ignore any error here.
+      strcpy(run_command_buffer, "{\"stdOut\": [");
+      if (run_command(command, lshandle, message, passthrough)) {
+	strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"install-prerm\"}");
+	if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+      }
+      else {
+	strcat(run_command_buffer, "]");
+	if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"install-prerm\"")) goto end;
+	// Ignore any error here.
+      }
     }
   }
  
-  // Check for an ipkg postinst script, and run it
+  /* Check for an ipkg postinst script, and run it */
+
   char postinst[MAXLINLEN];
-  sprintf(postinst, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.postinst", package);
+  sprintf(postinst, "/media/cryptofs/apps/.scripts/%s/pmPostInstall.script", package);
 
-  if (!stat(postinst, &info)) {
+  // Has the service already executed a postinst script?
+  if (!useSvc || stat(postinst, &info) || !info.st_size) {
 
-    (void)system("/bin/mount -o remount,rw /");
+    // If not, then execute the ipkg postinst script
+    sprintf(postinst, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.postinst", package);
+    if (!stat(postinst, &info)) {
 
-    snprintf(command, MAXLINLEN,
-	     "IPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", postinst);
+      (void)system("/bin/mount -o remount,rw /");
+
+      snprintf(command, MAXLINLEN,
+	       "IPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", postinst);
       
-    strcpy(run_command_buffer, "{\"stdOut\": [");
-    if (run_command(command, lshandle, message, passthrough)) {
-      strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"postinst\"}");
-      *installed = true;
-      if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
-    }
-    else {
-      strcat(run_command_buffer, "]");
-      *installed = false;
-      if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"postinst\"")) goto end;
-      // Ignore any error here.
+      strcpy(run_command_buffer, "{\"stdOut\": [");
+      if (run_command(command, lshandle, message, passthrough)) {
+	strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"postinst\"}");
+	*installed = true;
+	if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+      }
+      else {
+	strcat(run_command_buffer, "]");
+	*installed = false;
+	if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"postinst\"")) goto end;
+	// Ignore any error here.
+      }
     }
   }
 
-  if (*installed) {
-    if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
-  }
-  else {
+  /* Revert any failed installation */
+
+  if (!*installed) {
     snprintf(command, MAXLINLEN,
 	     "/usr/bin/ipkg -o /media/cryptofs/apps remove %s 2>&1", package);
     
@@ -1277,7 +1304,14 @@ bool do_install(LSHandle* lshandle, LSMessage *message, char *installCommand, su
       strcat(run_command_buffer, "]");
       if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"delete\"")) goto end;
     }
+  }
 
+  /* Report the success or failure of the operation */
+
+  if (*installed) {
+    if (!LSMessageReply(lshandle, message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
+  }
+  else {
     if (!LSMessageReply(lshandle, message, "{\"returnValue\": false, \"stage\": \"failed\"}", &lserror)) goto error;
   }
 
@@ -1399,16 +1433,12 @@ bool do_remove(LSHandle* lshandle, LSMessage *message, bool replace, bool *remov
 
 bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   bool installed;
-  return do_install(lshandle, message,
-		    "/usr/bin/luna-send -n 6 luna://com.palm.appinstaller/installNoVerify '{\"subscribe\":true, \"target\": \"/media/internal/.developer/%s\", \"uncompressedSize\": 0}' 2>&1",
-		    appinstaller, &installed);
+  return do_install(lshandle, message, true, &installed);
 }
 
 bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   bool installed;
-  return do_install(lshandle, message,
-		    "/usr/bin/ipkg -o /media/cryptofs/apps -force-overwrite install /media/internal/.developer/%s 2>&1",
-		    passthrough, &installed);
+  return do_install(lshandle, message, false, &installed);
 }
 
 bool remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -1421,9 +1451,10 @@ bool ipkg_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSErrorInit(&lserror);
 
   bool removed = false;
+  bool installed = false;
   if (!do_remove(lshandle, message, true, &removed)) goto end;
   if (removed) {
-    if (!ipkg_install_method(lshandle, message, ctx)) goto end;
+    if (!do_install(lshandle, message, false, &installed)) goto end;
   }
 
   return true;
@@ -1439,9 +1470,10 @@ bool appinstaller_replace_method(LSHandle* lshandle, LSMessage *message, void *c
   LSErrorInit(&lserror);
 
   bool removed = false;
+  bool installed = false;
   if (!do_remove(lshandle, message, true, &removed)) goto end;
   if (removed) {
-    if (!appinstaller_install_method(lshandle, message, ctx)) goto end;
+    if (!do_install(lshandle, message, true, &installed)) goto end;
   }
 
   return true;

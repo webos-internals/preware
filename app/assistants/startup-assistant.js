@@ -9,19 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
-	     version: '1.0.2',
+	     version: '1.0.3',
 	     log:
 	     [
+	      'Fixed double execution of the post-install script',
 	      'Alternate install method to avoid webOS bugs',
 		  'No more rescan on remove',
-		  'Fixed relaunch blank screen bug'
-	      ]
-	 },
-	 {
-	     version: '1.0.1',
-	     log:
-	     [
-	      'Added preference to disable rescan',
+		  'Fixed relaunch blank screen bug',
 		  'Updated German and French translations'
 	      ]
 	 },
