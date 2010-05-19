@@ -112,6 +112,9 @@ ConfigsAssistant.prototype.setup = function()
 	this.controller.listen('confList', Mojo.Event.propertyChanged, this.confToggled.bindAsEventListener(this));
 	this.controller.listen('confList', Mojo.Event.listDelete, this.confDeleted.bindAsEventListener(this));
 	
+	
+	// make it so nothing is selected by default
+	this.controller.setInitialFocusedElement(null);
 };
 
 ConfigsAssistant.prototype.onFeeds = function(payload)
