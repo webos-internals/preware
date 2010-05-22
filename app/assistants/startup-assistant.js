@@ -9,7 +9,7 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
-	     version: '1.0.4',
+	     version: '1.0.5',
 	     log:
 	     [
 	      'Fixed deletion of disabled feed configs',
