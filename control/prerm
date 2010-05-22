@@ -25,7 +25,7 @@ if [ ! -f ${APPS}/usr/palm/applications/org.webosinternals.preware/appinfo.json 
 
   # Don't stop the service, because it is needed to remove the package
   # /sbin/stop ${SID} || true
-  # /usr/bin/killall -9 ${PID} || true
+  # /usr/bin/killall -9 ${SID} || true
 
   # Remove the upstart script
   rm -f /etc/event.d/${SID} /var/palm/event.d/${SID}
