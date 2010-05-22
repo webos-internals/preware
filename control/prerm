@@ -23,9 +23,9 @@ if [ ! -f ${APPS}/usr/palm/applications/org.webosinternals.preware/appinfo.json 
   # Remove the dbus service
   rm -f /usr/share/dbus-1/system-services/${SID}.service /var/palm/system-services/${SID}.service
 
-  # Stop the service if running
-  /sbin/stop ${SID} || true
-  /usr/bin/killall -9 ${PID} || true
+  # Don't stop the service, because it is needed to remove the package
+  # /sbin/stop ${SID} || true
+  # /usr/bin/killall -9 ${PID} || true
 
   # Remove the upstart script
   rm -f /etc/event.d/${SID} /var/palm/event.d/${SID}
