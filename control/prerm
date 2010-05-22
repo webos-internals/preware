@@ -17,17 +17,18 @@ APPS=/media/cryptofs/apps
 if [ ! -f ${APPS}/usr/palm/applications/org.webosinternals.preware/appinfo.json -o \
      ! -f ${APPS}/usr/palm/applications/org.webosinternals.preware-alpha/appinfo.json ] ; then
 
-  # Stop the service if running
-  /sbin/stop ${SID} || true
+  # Remove the ipkgservice executable
+  rm -f /var/usr/sbin/${SID}
 
   # Remove the dbus service
   rm -f /usr/share/dbus-1/system-services/${SID}.service /var/palm/system-services/${SID}.service
 
+  # Stop the service if running
+  /sbin/stop ${SID} || true
+  /usr/bin/killall -9 ${PID} || true
+
   # Remove the upstart script
   rm -f /etc/event.d/${SID} /var/palm/event.d/${SID}
-
-  # Remove the ipkgservice executable
-  rm -f /var/usr/sbin/${SID}
 
   # Remove all list database cache files
   rm -f $APPS/usr/lib/ipkg/lists/*

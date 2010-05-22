@@ -21,6 +21,30 @@ if [ -f $APPS/usr/lib/ipkg/info/org.webosinternals.ipkgservice.prerm ] ; then
 fi
 /usr/bin/ipkg -o $APPS -force-depends remove org.webosinternals.ipkgservice || true
 
+# Remove the ipkgservice executable
+rm -f /var/usr/sbin/${SID}
+
+# Remove the dbus service
+rm -f /usr/share/dbus-1/system-services/${SID}.service /var/palm/system-services/${SID}.service
+
+# Stop the service if running
+/sbin/stop ${SID} || true
+/usr/bin/killall -9 ${PID} || true
+
+# Remove the upstart script
+rm -f /etc/event.d/${SID} /var/palm/event.d/${SID}
+
+# Install the ipkgservice executable
+mkdir -p /var/usr/sbin/
+install -m 755 $APPS/usr/palm/applications/${PID}/bin/${SID} /var/usr/sbin/${SID}
+
+# Install the dbus service
+if [ -d /var/palm/system-services ] ; then
+  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /var/palm/system-services/${SID}.service
+else
+  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /usr/share/dbus-1/system-services/${SID}.service
+fi
+
 # Install the upstart script
 rm -f /etc/event.d/${SID} /var/palm/event.d/${SID}
 if [ -d /var/palm/event.d ] ; then
@@ -28,22 +52,6 @@ if [ -d /var/palm/event.d ] ; then
 else
   cp $APPS/usr/palm/applications/${PID}/upstart/${SID} /etc/event.d/${SID}
 fi
-
-# Install the dbus service
-rm -f /usr/share/dbus-1/system-services/${SID}.service /var/palm/system-services/${SID}.service
-if [ -d /var/palm/system-services ] ; then
-  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /var/palm/system-services/${SID}.service
-else
-  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /usr/share/dbus-1/system-services/${SID}.service
-fi
-
-# Stop any existing service
-/sbin/stop ${SID} || true
-
-# Install the ipkgservice executable
-mkdir -p /var/usr/sbin/
-rm -f /var/usr/sbin/${SID}
-install -m 755 $APPS/usr/palm/applications/${PID}/bin/${SID} /var/usr/sbin/${SID}
 
 # Start the service
 /sbin/start ${SID}
