@@ -9,6 +9,14 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.1.1',
+	     log:
+	     [
+	      'Added languages field in package descriptions',
+	      'Added preference to show only show packages with English descriptions'
+	      ]
+	 },
+	 {
 	     version: '1.1.0',
 	     log:
 	     [

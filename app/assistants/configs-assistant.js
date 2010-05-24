@@ -254,7 +254,7 @@ ConfigsAssistant.prototype.dirtyFeed = function(payload)
 {
 	//for (var p in payload) alert(p + ': ' + payload[p]);
 	
-	// tell pacakges the feeds are "dirty"
+	// tell packages the feeds are "dirty"
 	packages.dirtyFeeds = true;
 };
 
@@ -320,7 +320,7 @@ ConfigsAssistant.prototype.newConfResponse = function(payload)
 {
 	if (payload.stage == 'completed')
 	{
-		// tell pacakges the feeds are "dirty"
+		// tell packages the feeds are "dirty"
 		packages.dirtyFeeds = true;
 		
 		this.controller.get('newName').mojo.setValue('');

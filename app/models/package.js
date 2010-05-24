@@ -33,6 +33,8 @@ function packageModel(info)
 		this.feedString =		'Unknown';
 		this.countries =		[];
 		this.countryString =	false;
+		this.languages =		[];
+		this.languageString =	false;
 		this.homepage =			false;
 		this.license =			false;
 		this.description =		false;
@@ -243,6 +245,12 @@ packageModel.prototype.infoLoad = function(info)
 				this.countryString = sourceJson.Countries.join(", ");
 			}
 			
+			if (sourceJson.Languages) 
+			{
+				this.languages = sourceJson.Languages;
+				this.languageString = sourceJson.Languages.join(", ");
+			}
+			
 			if (sourceJson.PostInstallFlags) 
 			{
 				if (sourceJson.PostInstallFlags.include('RestartLuna'))		this.flags.install.RestartLuna		= true;
@@ -384,6 +392,26 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		}
 		*/
 		
+		// join languages
+		if (this.languages.length == 0) 
+		{
+			this.languages = pkg.languages;
+			this.languageString = pkg.languageString;
+		}
+		/*
+		else if (pkg.languages.length != 0)
+		{
+			for (var f = 0; f < pkg.languages.length; f++) 
+			{
+				if (!this.inLanguage(pkg.languages[f])) 
+				{
+					this.languages.push(pkg.languages[f]);
+					this.languageString += ', ' + pkg.languages[f];
+				}
+			}
+		}
+		*/
+		
 		// join deps
 		if (this.depends.length == 0 && pkg.depends.length > 0) 
 		{
@@ -477,6 +505,8 @@ packageModel.prototype.infoSave = function()
 		// this.screenshots = sourceJson.Screenshots;
 		// this.countries = sourceJson.Countries;
 		// this.countryString = sourceJson.Countries.join(", ");
+		// this.languages = sourceJson.Languages;
+		// this.languageString = sourceJson.Languages.join(", ");
 		// this.maintainer = info.Maintainer.split(',');
 
 		var fields = [];
@@ -681,6 +711,19 @@ packageModel.prototype.inCountry = function(country)
 	return false;
 };
 
+// checks if this package is in the language
+packageModel.prototype.inLanguage = function(language)
+{
+	for (var f = 0; f < this.languages.length; f++)
+	{
+		if (this.languages[f] == language)
+		{
+			return true;
+		}
+	}
+	return false;
+};
+
 // this function will return an object ready for inclusion in the list widget
 packageModel.prototype.getForList = function(item)
 {
@@ -774,6 +817,15 @@ packageModel.prototype.getForList = function(item)
 					}
 					else {
 						listObj.sub += "<i>All Countries</i>";
+					}
+					break;
+					
+				case 'language':
+					if (this.languageString) {
+					    listObj.sub += this.languageString;
+					}
+					else {
+						listObj.sub += "<i>All Languages</i>";
 					}
 					break;
 					

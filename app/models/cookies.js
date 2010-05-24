@@ -37,6 +37,7 @@ preferenceCookie.prototype.get = function(reload)
 				secondRow: 'version,maint',
 				listInstalled: false,
 				onlyShowFree: false,
+				onlyShowEnglish: false,
 				searchDesc: false,
 				
 				// Background Group

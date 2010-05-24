@@ -244,6 +244,12 @@ PkgViewAssistant.prototype.setupData = function()
 		    data += Mojo.View.render({object: {title: (this.item.countries.length>1?$L('Countries'):$L('Country')), data: this.item.countryString}, template: dataTemplate});
 		}
 		
+		// add package language
+		if (this.item.languages.length) 
+		{
+		    data += Mojo.View.render({object: {title: (this.item.languages.length>1?$L('Languages'):$L('Language')), data: this.item.languageString}, template: dataTemplate});
+		}
+		
 		
 		// add package feed
 		data += Mojo.View.render({object: {title: (this.item.feeds.length>1?$L('Feeds'):$L('Feed')), data: this.item.feedString, rowStyle: 'last'}, template: dataTemplate});

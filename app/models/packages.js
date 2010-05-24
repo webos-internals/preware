@@ -352,6 +352,13 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 		return;
 	}
 
+	// Filter out non-english apps if desired
+	if ((prefs.get().onlyShowEnglish) &&
+		newPkg.languages && newPkg.languages.length &&
+		!newPkg.inLanguage("en")) {
+		return;
+	}
+
 	// default location is none is set
 	if (!newPkg.location && newPkg.filename && url) {
 		newPkg.location = url + '/' + newPkg.filename;
