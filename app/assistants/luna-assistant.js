@@ -6,7 +6,7 @@ function LunaAssistant() {
 LunaAssistant.prototype.setup = function()
 {
 		this.controller.get('luna-title').innerHTML = $L("Luna Manager");	
-		this.controller.get('rescan-text').innerHTML = $L("This will close and stop notifications from the phone, email and messaging applications when it rescans.");
+		this.controller.get('rescan-text').innerHTML = $L("Due to a webOS bug, this will close and stop notifications from the phone, email and messaging applications when it rescans.");
 		this.controller.get('restart-luna-text').innerHTML = $L("This will close all the applications you have open when it restarts.");
 		this.controller.get('restart-java-text').innerHTML = $L("This will cause your phone to lose network connections and be pretty slow until it's done restarting.");
 	try
