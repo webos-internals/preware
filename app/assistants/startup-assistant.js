@@ -13,7 +13,7 @@ function StartupAssistant()
 	     log:
 	     [
 	      'Added languages field in package descriptions',
-	      'Added preference to show only show packages with English descriptions'
+	      'Added preference to only show packages with English descriptions'
 	      ]
 	 },
 	 {
