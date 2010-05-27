@@ -894,11 +894,9 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
           "{\"returnValue\": true, \"size\": 0, \"contents\": \"\"}", &lserror)) {
       goto error;
     }
-
-    return true;
   }
 
-  while (datasize < strlen(package)) {
+  while (package && datasize < strlen(package)) {
     size = MIN(strlen(&package[datasize]) + strlen("Package: "), chunksize);
     bcopy(&package[datasize], chunk, size);
     sprintf(read_file_buffer, "{\"returnValue\": true, \"size\": %d, \"contents\": \"", size);
