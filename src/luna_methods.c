@@ -841,7 +841,7 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
   GDir *dir;
   const gchar *name = NULL;
   gchar *contents;
-  gchar **packages;
+  gchar **packages = NULL;
   gsize length;
   gboolean ret;
   char *filename;
@@ -917,6 +917,7 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
   LSErrorPrint(&lserror, stderr);
   LSErrorFree(&lserror);
  end:
+  g_strfreev(packages);
   return false;
 }
 
