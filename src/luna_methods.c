@@ -30,6 +30,7 @@
 
 #define API_VERSION "12"
 
+#define MIN(a,b) (a < b ? a : b)
 
 //
 // We use static buffers instead of continually allocating and deallocating stuff,
@@ -834,6 +835,83 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
+bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+  GDir *dir;
+  const gchar *name = NULL;
+  gchar *contents;
+  gchar **packages;
+  gsize length;
+  gboolean ret;
+  char *filename;
+  gchar *package = NULL;
+  char chunk[CHUNKSIZE];
+  int chunksize = CHUNKSIZE;
+  int size;
+  int datasize = 0;
+
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id = json_find_first_label(object, "package");               
+
+  if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing package\"}",
+			&lserror)) goto error;
+  }
+
+  dir = g_dir_open("/media/cryptofs/apps/usr/lib/ipkg/cache", 0, NULL);
+
+  if (!dir) {
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Error opening cache dir\"}",
+			&lserror)) goto error;
+  }
+
+  while (name = g_dir_read_name(dir)) {
+    int i = 0;
+    asprintf(&filename, "/media/cryptofs/apps/usr/lib/ipkg/cache/%s", name);
+    ret = g_file_get_contents(filename, &contents, &length, NULL);
+
+    packages = g_strsplit(contents, "Package: ", -1);
+    while (packages[i]) {
+      int len = strlen(id->child->text);
+      if (!bcmp(id->child->text, packages[i], len) &&
+          (packages[i][len] == '\n')) {
+        package = packages[i];
+      }
+      i++;
+    }
+
+    g_free(contents);
+  }
+
+  free(filename);
+  g_dir_close(dir);
+
+  while (datasize < strlen(package)) {
+    size = MIN(strlen(&package[datasize]) + strlen("Package: "), chunksize);
+    bcopy(&package[datasize], chunk, size);
+    sprintf(read_file_buffer, "{\"returnValue\": true, \"size\": %d, \"contents\": \"", size);
+    if (!datasize)
+      strcat(read_file_buffer, "Package: ");
+    strcat(read_file_buffer, json_escape_str(chunk));
+    strcat(read_file_buffer, "\"");
+    strcat(read_file_buffer, "}");
+
+    datasize += size;
+    if (!LSMessageReply(lshandle, message, read_file_buffer, &lserror)) goto error;
+  }
+
+  return true;
+
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
 bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
@@ -1502,6 +1580,7 @@ LSMethod luna_methods[] = {
   { "getControlFile",	get_control_file_method },
   { "getStatusFile",	get_status_file_method },
   { "getAppinfoFile",	get_appinfo_file_method },
+  { "getPackageInfo",	get_package_info_method },
 
   { "setConfigState",	set_config_state_method },
   { "addConfig",	add_config_method },
