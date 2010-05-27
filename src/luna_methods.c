@@ -871,11 +871,12 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
     asprintf(&filename, "/media/cryptofs/apps/usr/lib/ipkg/cache/%s", name);
     ret = g_file_get_contents(filename, &contents, &length, NULL);
 
-    packages = g_strsplit(contents, "Package: ", -1);
+    packages = g_strsplit(contents, "\nPackage: ", -1);
     while (packages[i]) {
       int len = strlen(id->child->text);
-      if (!bcmp(id->child->text, packages[i], len) &&
-          (packages[i][len] == '\n')) {
+      int offset = (i == 0) ? strlen("Package: ") : 0;
+      if (!bcmp(id->child->text, &packages[i][offset], len) &&
+          (packages[i][offset + len] == '\n')) {
         package = packages[i];
       }
       i++;
@@ -896,7 +897,7 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
   }
 
   while (package && datasize < strlen(package)) {
-    size = MIN(strlen(&package[datasize]) + strlen("Package: "), chunksize);
+    size = MIN(strlen(&package[datasize]) + strlen("\nPackage: "), chunksize);
     bcopy(&package[datasize], chunk, size);
     sprintf(read_file_buffer, "{\"returnValue\": true, \"size\": %d, \"contents\": \"", size);
     if (!datasize)
