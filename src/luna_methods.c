@@ -28,7 +28,7 @@
 
 #define ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-+_"
 
-#define API_VERSION "12"
+#define API_VERSION "13"
 
 //
 // We use static buffers instead of continually allocating and deallocating stuff,
