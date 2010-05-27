@@ -912,6 +912,7 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
     if (!LSMessageReply(lshandle, message, read_file_buffer, &lserror)) goto error;
   }
 
+  g_strfreev(packages);
   return true;
 
  error:
