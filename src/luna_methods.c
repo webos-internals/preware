@@ -30,8 +30,6 @@
 
 #define API_VERSION "12"
 
-#define MIN(a,b) (a < b ? a : b)
-
 //
 // We use static buffers instead of continually allocating and deallocating stuff,
 // since we're a long-running service, and do not want to leak anything.
@@ -839,13 +837,13 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
   LSError lserror;
   LSErrorInit(&lserror);
   GDir *dir;
+  char *filename = NULL;
   const gchar *name = NULL;
-  gchar *contents;
   gchar **packages = NULL;
+  gchar *package = NULL;
+  gchar *contents = NULL;
   gsize length;
   gboolean ret;
-  char *filename;
-  gchar *package = NULL;
   char chunk[CHUNKSIZE];
   int chunksize = CHUNKSIZE;
   int size;
@@ -886,7 +884,8 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
     g_free(contents);
   }
 
-  free(filename);
+  g_free(filename);
+
   g_dir_close(dir);
 
   if (!package) {
