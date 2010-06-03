@@ -9,6 +9,15 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.1.2',
+	     log:
+	     [
+	      'Added support for the ENABLE_TESTING_FEEDS Meta-Doctor feature',
+	      'Removed the tag line about eventually reaching 1.0',
+		  'Minor French translation updates, courtesy of Yannick LE NY'
+	      ]
+	 },
+	 {
 	     version: '1.1.1',
 	     log:
 	     [
@@ -25,7 +34,7 @@ function StartupAssistant()
 	      'Alternate install method to avoid webOS bugs',
 		  'No more rescan on remove',
 		  'Fixed relaunch blank screen bug',
-		  'Updated German and French translations',
+		  'Updated German and French translations, courtesy of Markus Leutwyler and Yannick LE NY',
 	      'Added the version number to the underlying service and bumped the API version',
 		  'Robustified the service upgrade process'
 	      ]
