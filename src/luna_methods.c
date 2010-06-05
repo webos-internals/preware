@@ -1224,7 +1224,8 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
     if (!LSMessageReply(lshandle, message,
 			"{\"returnValue\": false, \"errorCode\": -1, "
-			"\"errorText\": \"Invalid or missing package parameter\"}",
+			"\"errorText\": \"Invalid or missing package parameter\", "
+			"\"stage\": \"failed\"}",
 			&lserror)) goto error;
     return true;
   }
@@ -1238,7 +1239,8 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
       (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
     if (!LSMessageReply(lshandle, message,
 			"{\"returnValue\": false, \"errorCode\": -1, "
-			"\"errorText\": \"Invalid or missing filename parameter\"}",
+			"\"errorText\": \"Invalid or missing filename parameter\", "
+			"\"stage\": \"failed\"}",
 			&lserror)) goto error;
     return true;
   }
@@ -1251,7 +1253,8 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
       (strlen(id->child->text) >= MAXLINLEN)) {
     if (!LSMessageReply(lshandle, message,
 			"{\"returnValue\": false, \"errorCode\": -1, "
-			"\"errorText\": \"Invalid or missing url parameter\"}",
+			"\"errorText\": \"Invalid or missing url parameter\", "
+			"\"stage\": \"failed\"}",
 			&lserror)) goto error;
     return true;
   }
@@ -1270,7 +1273,7 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
   }
   else {
     strcat(run_command_buffer, "]");
-    if (!report_command_failure(lshandle, message, command, run_command_buffer+11, NULL)) goto end;
+    if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
     return true;
   }
 
@@ -1378,6 +1381,7 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
     else {
       strcat(run_command_buffer, "]");
       if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"remove\"")) goto end;
+      // Ignore any error here.
     }
 
     snprintf(command, MAXLINLEN,
@@ -1391,6 +1395,7 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
     else {
       strcat(run_command_buffer, "]");
       if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"delete\"")) goto end;
+      // Ignore any error here.
     }
   }
 

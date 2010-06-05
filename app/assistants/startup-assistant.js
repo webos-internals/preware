@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.1.3',
+	     log:
+	     [
+	      'Fixed hang on package download failures'
+	      ]
+	 },
+	 {
 	     version: '1.1.2',
 	     log:
 	     [
