@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.1.5',
+	     log:
+	     [
+	      'Use a gentler reboot procedure to allow open files to be flushed to disk'
+	      ]
+	 },
+	 {
 	     version: '1.1.4',
 	     log:
 	     [

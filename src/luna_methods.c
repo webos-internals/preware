@@ -503,7 +503,7 @@ bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 // Restart the device, and return the output to webOS.
 //
 bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-  return simple_command(lshandle, message, "/sbin/tellbootie 2>&1");
+  return simple_command(lshandle, message, "/sbin/reboot 2>&1");
 }
 
 //
