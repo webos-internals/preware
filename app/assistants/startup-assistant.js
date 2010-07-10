@@ -9,7 +9,7 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
-	     version: '1.1.5',
+	     version: '1.1.7',
 	     log:
 	     [
 	      'Added support for Kernel Modules'
