@@ -12,6 +12,13 @@ function StartupAssistant()
 	     version: '1.1.5',
 	     log:
 	     [
+	      'Added support for Kernel Modules'
+	      ]
+	 },
+	 {
+	     version: '1.1.5',
+	     log:
+	     [
 	      'Use a gentler reboot procedure to allow open files to be flushed to disk'
 	      ]
 	 },

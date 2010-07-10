@@ -66,6 +66,12 @@ function packagesModel()
 			updateAsReplace: true,
 			showDependents: true
 		},
+		"Kernel Module":
+		{
+			update: true,
+			updateAsReplace: true,
+			showDependents: true
+		},
 		Patch:
 		{
 			update: true,
