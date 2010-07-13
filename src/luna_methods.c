@@ -991,6 +991,97 @@ bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   return false;
 }
 
+//
+// Get the listing of a directory, and return it's contents.
+//
+bool get_dir_listing_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  // Local buffer to build a command to read the directory listing
+  char command[MAXLINLEN];
+
+  // Local buffer to hold each line of output from ls
+  char line[MAXLINLEN];
+
+  // Is this the first line of output?
+  bool first = true;
+
+  // Was there an error in accessing any of the files?
+  bool error = false;
+
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id = json_find_first_label(object, "directory");
+
+  if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS"/") != strlen(id->child->text))) {
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing directory\"}",
+			&lserror)) goto error;
+  }
+
+  // Initialise the command to read the directory contents
+  sprintf(command, "/bin/ls -la %s 2>&1", id->child->text);
+
+  // Start execution of the command to list the directory contents
+  FILE *fp = popen(command, "r");
+
+  // If the command cannot be started
+  if (!fp) {
+
+    // then report the error to webOS.
+    if (!report_command_failure(lshandle, message, command, NULL, NULL)) goto end;
+
+    // The error report has been sent, so return to webOS.
+    return true;
+  }
+
+  // Initialise the output message.
+  strcpy(buffer, "{");
+
+  // Loop through the list of files in the config directory.
+  while ( fgets( line, sizeof line, fp)) {
+
+    // Chomp the newline
+    char *nl = strchr(line,'\n'); if (nl) *nl = 0;
+
+    // Start or continue the JSON array
+    if (first) {
+      strcat(buffer, "\"contents\": [");
+      first = false;
+    }
+    else {
+      strcat(buffer, ", ");
+    }
+
+    strcat(buffer, "\"");
+    strcat(buffer, json_escape_str(line));
+    strcat(buffer, "\"");
+  }
+
+  // Terminate the JSON array
+  if (!first) {
+    strcat(buffer, "], ");
+  }
+
+  // Check the close status of the process, and return the combined error status
+  if (pclose(fp) || error) {
+    strcat(buffer, "\"returnValue\": false}");
+  }
+  else {
+    strcat(buffer, "\"returnValue\": true}");
+  }
+
+  // Return the results to webOS.
+  if (!LSMessageReply(lshandle, message, buffer, &lserror)) goto error;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
 bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
@@ -1595,6 +1686,8 @@ LSMethod luna_methods[] = {
   { "getStatusFile",	get_status_file_method },
   { "getAppinfoFile",	get_appinfo_file_method },
   { "getPackageInfo",	get_package_info_method },
+
+  { "getDirListing",	get_dir_listing_method },
 
   { "setConfigState",	set_config_state_method },
   { "addConfig",	add_config_method },
