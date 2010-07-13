@@ -998,8 +998,7 @@ bool get_dir_listing_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  // Local buffer to build a command to read the directory listing
-  char command[MAXLINLEN];
+  struct dirent *ep;
 
   // Local buffer to hold each line of output from ls
   char line[MAXLINLEN];
@@ -1019,17 +1018,14 @@ bool get_dir_listing_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 			&lserror)) goto error;
   }
 
-  // Initialise the command to read the directory contents
-  sprintf(command, "/bin/ls -la %s 2>&1", id->child->text);
-
   // Start execution of the command to list the directory contents
-  FILE *fp = popen(command, "r");
+  DIR *dp = opendir(id->child->text);
 
   // If the command cannot be started
-  if (!fp) {
-
-    // then report the error to webOS.
-    if (!report_command_failure(lshandle, message, command, NULL, NULL)) goto end;
+  if (!dp) {
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Unable to open directory\"}",
+			&lserror)) goto error;
 
     // The error report has been sent, so return to webOS.
     return true;
@@ -1038,11 +1034,8 @@ bool get_dir_listing_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   // Initialise the output message.
   strcpy(buffer, "{");
 
-  // Loop through the list of files in the config directory.
-  while ( fgets( line, sizeof line, fp)) {
-
-    // Chomp the newline
-    char *nl = strchr(line,'\n'); if (nl) *nl = 0;
+  // Loop through the list of directory entries.
+  while (ep = readdir(dp)) {
 
     // Start or continue the JSON array
     if (first) {
@@ -1053,9 +1046,24 @@ bool get_dir_listing_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
       strcat(buffer, ", ");
     }
 
-    strcat(buffer, "\"");
-    strcat(buffer, json_escape_str(line));
-    strcat(buffer, "\"");
+    strcat(buffer, "{\"name\":\"");
+    strcat(buffer, json_escape_str(ep->d_name));
+    strcat(buffer, "\", ");
+
+    strcat(buffer, "\"type\":\"");
+    if (ep->d_type == DT_DIR) {
+      strcat(buffer, "directory");
+    }
+    else if (ep->d_type == DT_REG) {
+      strcat(buffer, "file");
+    }
+    else if (ep->d_type == DT_LNK) {
+      strcat(buffer, "symlink");
+    }
+    else {
+      strcat(buffer, "other");
+    }
+    strcat(buffer, "\"}");
   }
 
   // Terminate the JSON array
@@ -1064,7 +1072,7 @@ bool get_dir_listing_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   }
 
   // Check the close status of the process, and return the combined error status
-  if (pclose(fp) || error) {
+  if (closedir(dp) || error) {
     strcat(buffer, "\"returnValue\": false}");
   }
   else {
