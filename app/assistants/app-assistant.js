@@ -36,8 +36,10 @@ AppAssistant.prototype.handleLaunch = function(params)
 				this.controller.createStageWithCallback({name: mainStageName, lightweight: true}, this.launchFirstScene.bind(this));
 			}
 		}
-		if (params.type == 'install' && params.file)
+		if ((params.type == 'install' && params.file) || params.target)
 		{
+			if (params.target) params.file = params.target;
+			
 			var installStageController = this.controller.getStageController(installStageName);
 	        if (installStageController)
 			{
