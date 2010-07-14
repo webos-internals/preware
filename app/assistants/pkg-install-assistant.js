@@ -47,6 +47,7 @@ PkgInstallAssistant.prototype.setup = function()
 	this.browseButtonElement =	this.controller.get('browseButton');
 	this.installButtonElement =	this.controller.get('installButton');
 	
+	this.textChanged =			this.textChanged.bindAsEventListener(this);
 	this.browseButtonPressed =	this.browseButtonPressed.bindAsEventListener(this);
 	this.installButtonPressed =	this.installButtonPressed.bindAsEventListener(this);
 	
@@ -55,9 +56,10 @@ PkgInstallAssistant.prototype.setup = function()
 	(
 		'file',
 		{
-			hintText: $L('http:// or file://'),
+			hintText: $L('http:// or file:// or ftp://'),
 			multiline: true,
 			enterSubmits: false,
+			changeOnKeyPress: true,
 			textCase: Mojo.Widget.steModeLowerCase,
 			focusMode: Mojo.Widget.focusSelectMode
 		},
@@ -83,16 +85,31 @@ PkgInstallAssistant.prototype.setup = function()
 		{
 			type: Mojo.Widget.activityButton
 		},
-		{
-			buttonLabel: 'Install'
+		this.buttonModel = {
+			buttonLabel: 'Install',
+			disabled: (this.launchFile ? false : true)
 		}
 	);
 	
+	Mojo.Event.listen(this.fileElement, Mojo.Event.propertyChange, this.textChanged);
 	Mojo.Event.listen(this.browseButtonElement, Mojo.Event.tap, this.browseButtonPressed);
 	Mojo.Event.listen(this.installButtonElement, Mojo.Event.tap, this.installButtonPressed);
 	
 };
 
+PkgInstallAssistant.prototype.textChanged = function(event)
+{
+	if (event.value != '')
+	{
+		this.buttonModel.disabled = false;
+		this.controller.modelChanged(this.buttonModel);
+	}
+	else
+	{
+		this.buttonModel.disabled = true;
+		this.controller.modelChanged(this.buttonModel);
+	}
+}
 PkgInstallAssistant.prototype.updateText = function(value)
 {
 	this.fileElement.mojo.setValue(value);
