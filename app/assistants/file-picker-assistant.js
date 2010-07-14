@@ -99,12 +99,15 @@ FilePickerAssistant.prototype.addFolder = function(folder, parent, initial)
 	parent.insert({bottom: html});
 	this.folderTree.push(folder);
 	
-	var data = this.picker.getDirectory(folder);
+	this.picker.getDirectory(folder, this.addFolderPart2.bindAsEventListener(this, folderId, initial));
+}
+FilePickerAssistant.prototype.addFolderPart2 = function(data, folderId, initial)
+{
 	if (data.length > 0)
 	{
 		for (var d = 0; d < data.length; d++)
 		{
-			this.addRow({name: data[d].name, location: data[d].location, isFolder: (data[d].st_size == 32768 ? true : false), rowClass: (d == data.length-1?'last':'')}, this.controller.get('list' + folderId));
+			this.addRow({name: data[d].name, location: data[d].location, isFolder: (data[d].type == 'directory' ? true : false), rowClass: (d == data.length-1?'last':'')}, this.controller.get('list' + folderId));
 		}
 	}
 	

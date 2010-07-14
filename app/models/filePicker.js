@@ -36,7 +36,7 @@ function filePicker(params)
 
 	this.pop =					(params.pop ? params.pop : false);
 	
-	this.folder =				(params.folder ? params.folder : false);
+	this.folder =				(params.folder ? params.folder : this.topLevel);
 		
 	this.sceneTitle =			(params.sceneTitle ? params.sceneTitle : false);
 	
@@ -49,36 +49,24 @@ function filePicker(params)
 	this.openFilePicker();
 }
 
-filePicker.prototype.listDirectory = function(dir)
+filePicker.prototype.getDirectory = function(dir, callback)
 {
-	var json = JSON.parse(plugin.list_directory(dir));
-	if (json && json.dir)
-		return json.dir;
-	else
-		return [];
+	IPKGService.getDirListing(this.parseDirectory.bindAsEventListener(this, dir, callback), dir);
 }
-filePicker.prototype.statFile = function(file)
+filePicker.prototype.parseDirectory = function(payload, dir, callback)
 {
-	return JSON.parse(plugin.stat_file(file));
-}
-filePicker.prototype.getDirectory = function(dir)
-{
-	// this function takes how the plugin works and makes it sane
 	var returnArray = [];
-	var d = this.listDirectory(dir);
-	if (d.length > 0)
+	if (payload.contents.length > 0)
 	{
-		for (var f = 0; f < d.length; f++)
+		for (var c = 0; c < payload.contents.length; c++)
 		{
-			if (!d[f].match(filePicker.folderRegExp))
+			if (!payload.contents[c].name.match(filePicker.folderRegExp))
 			{
-				var file = this.statFile(dir + d[f]);
-				if (file && file.st_size)
-				{
-					file.name = d[f];
-					file.location = dir + d[f];
-					returnArray.push(file);
-				}
+				returnArray.push({
+					name: payload.contents[c].name,
+					type: payload.contents[c].type,
+					location: dir + payload.contents[c].name
+				});
 			}
 		}
 	}
@@ -98,22 +86,12 @@ filePicker.prototype.getDirectory = function(dir)
 			}
 		});
 	}
-	return returnArray;
+	callback(returnArray);
 }
 filePicker.prototype.getDirectories = function(dir)
 {
+	// this for folderpicker...
 	var returnArray = [];
-	var d = this.getDirectory(dir);
-	if (d.length > 0)
-	{
-		for (var f = 0; f < d.length; f++)
-		{
-			if (!d[f].name.match(filePicker.folderRegExp) && d[f].st_size == 32768)
-			{
-				returnArray.push(d[f]);
-			}
-		}
-	}
 	return returnArray;
 }
 

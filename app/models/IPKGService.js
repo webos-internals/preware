@@ -56,6 +56,18 @@ IPKGService.update = function(callback)
 	return request;
 };
 
+IPKGService.getDirListing = function(callback, dir)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'getDirListing',
+		parameters: {"directory": dir},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+};
+
 IPKGService.rawlist = function(callback, feed)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,

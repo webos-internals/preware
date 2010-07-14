@@ -106,6 +106,12 @@ MainAssistant.prototype.setup = function()
 	// setup widget
 	this.controller.setupWidget('mainList', { itemTemplate: "main/rowTemplate", swipeToDelete: false, reorderable: false }, this.mainModel);
 	this.controller.listen(this.listElement, Mojo.Event.listTap, this.listTapHandler);
+	
+	var f = new filePicker({
+		type: 'file',
+		onSelect: function(foo){alert('============== '+foo);},
+		pop: false
+	});
 };
 MainAssistant.prototype.activate = function(event)
 {
