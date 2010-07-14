@@ -954,3 +954,177 @@ body.palm-dark .ipkglog #logScroller #logData .stdErr div
 	padding: 0px 0px 0px 5px;
 	float:left;
 }
+
+
+
+
+/*
+ * File/Folder Picker Styles
+ */
+.folder-picker #list .drawer
+{
+	border-left: 30px solid #bfbfbd;
+	background: url(../images/palm-default/list-separator-light.png) top left repeat-x
+}
+body.palm-dark .folder-picker #list .drawer
+{
+	border-left: 30px solid #1b1e20;
+	background: url(../images/palm-dark/list-separator-dark.png) top left repeat-x
+}
+.folder-picker #list .palm-row > .palm-row-wrapper > .icon
+{
+	float: left;
+	width: 25px;
+	height: 48px;
+	margin-top: 2px;
+	margin-right: -4px;
+	margin-left: 4px;
+	background: url(../images/palm-default/folder.png) center center no-repeat;
+}
+.folder-picker #list .palm-row.selected > .palm-row-wrapper > .icon,
+body.palm-dark .folder-picker #list .palm-row > .palm-row-wrapper > .icon
+{
+	background: url(../images/palm-dark/folder.png) center center no-repeat;
+}
+.folder-picker #list .palm-row.open > .palm-row-wrapper > .icon
+{
+	margin-left: 6px;
+	margin-right: -6px;
+	background: url(../images/palm-default/folder-open.png) center center no-repeat;
+}
+.folder-picker #list .palm-row.selected.open > .palm-row-wrapper > .icon,
+body.palm-dark .folder-picker #list .palm-row.open > .palm-row-wrapper > .icon
+{
+	background: url(../images/palm-dark/folder-open.png) center center no-repeat;
+}
+.folder-picker #list .palm-row > .palm-row-wrapper > .check
+{
+	display: none;
+}
+.folder-picker #list .palm-row.check > .palm-row-wrapper > .check
+{
+	display: block;
+	float: right;
+	width: 32px;
+	height: 48px;
+	margin-top: 2px;
+	margin-right: 8px;
+	margin-left: -10px;
+	background: url(../images/checkmark-green.png) center center no-repeat;
+}
+.folder-picker #list .palm-row .palm-row-wrapper .title
+{
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.file-picker #folderHolder .folder
+{
+	position: absolute;
+	top: 0px;
+	width: 321px;
+	height: 100%;
+	border-width: 38px 26px 13px 25px;
+	-webkit-border-image: url(../images/file-picker-background.png) 38 26 13 25;
+	-webkit-box-sizing: border-box;
+}
+.file-picker .folder .palm-page-header
+{
+	position: absolute;
+	top: -38px;
+	left: -25px;
+	width: 320px;
+	padding-top: 42px;
+	padding-bottom: 0px;
+	z-index: 2;
+}
+.file-picker .folder .palm-page-header .palm-page-header-wrapper
+{
+	padding-bottom: 0px;
+	margin-bottom: -18px;
+}
+.file-picker .folder .palm-page-header .palm-page-header-wrapper .headerFolderIcon
+{
+	float: left;
+	width: 25px;
+	height: 48px;
+	margin-top: 2px;
+	margin-left: 8px;
+	margin-right: 6px;
+	background: url(../images/palm-default/folder-open-head.png) center center no-repeat;
+}
+body.palm-dark .file-picker .folder .palm-page-header .palm-page-header-wrapper .headerFolderIcon
+{
+	background: url(../images/palm-dark/folder-open-head.png) center center no-repeat;
+}
+.file-picker .folder .palm-page-header .palm-page-header-wrapper .title
+{
+	font-weight: bold;
+	text-transform: none !important;
+	padding-left: 0px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+.file-picker #folderHolder .folder .palm-list
+{
+	width: 320px;
+	margin-left: -25px;
+	margin-top: -38px;
+	padding-top: 90px;
+	z-index: 1;
+}
+.file-picker #folderHolder .folder .palm-list .file-list
+{
+	margin-bottom: 90px;
+}
+.file-picker #folderHolder .palm-row > .palm-row-wrapper > .check
+{
+	display: none;
+}
+.file-picker #folderHolder .palm-row.check > .palm-row-wrapper > .check
+{
+	display: block;
+	float: right;
+	width: 32px;
+	height: 48px;
+	margin-top: 2px;
+	margin-right: 8px;
+	margin-left: -10px;
+	background: url(../images/checkmark-green.png) center center no-repeat;
+}
+.file-picker #folderHolder .fileIcon,
+.file-picker #folderHolder .folderIcon
+{
+	float: left;
+	width: 25px;
+	height: 48px;
+	margin-top: 2px;
+	margin-right: -6px;
+	margin-left: 6px;
+}
+.file-picker #folderHolder .palm-row .fileIcon
+{
+	background: url(../images/palm-default/file.png) center center no-repeat;
+}
+.file-picker #folderHolder .palm-row.selected .fileIcon,
+body.palm-dark .file-picker #folderHolder .palm-row .fileIcon
+{
+	background: url(../images/palm-dark/file.png) center center no-repeat;
+}
+.file-picker #folderHolder .palm-row .folderIcon
+{
+	background: url(../images/palm-default/folder.png) center center no-repeat;
+}
+.file-picker #folderHolder .palm-row.selected .folderIcon,
+body.palm-dark .file-picker #folderHolder .palm-row .folderIcon
+{
+	background: url(../images/palm-dark/folder.png) center center no-repeat;
+}
+.file-picker #folderHolder .palm-row .palm-row-wrapper .title
+{
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}

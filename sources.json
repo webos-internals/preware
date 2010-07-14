@@ -5,6 +5,7 @@
     {"source": "app/models/package.js"},
     {"source": "app/models/cookies.js"},
     {"source": "app/models/stayAwake.js"},
+    {"source": "app/models/filePicker.js"},
     {"source": "app/assistants/app-assistant.js"},
     {
         "scenes": "startup",
@@ -57,5 +58,13 @@
     {
         "scenes": "screenshots",
         "source": "app/assistants/screenshots-assistant.js"
+    },
+    {
+        "scenes": "file-picker",
+        "source": "app/assistants/file-picker-assistant.js"
+    },
+    {
+        "scenes": "folder-picker",
+        "source": "app/assistants/folder-picker-assistant.js"
     }
 ]
