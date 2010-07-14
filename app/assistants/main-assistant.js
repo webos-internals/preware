@@ -109,6 +109,7 @@ MainAssistant.prototype.setup = function()
 	
 	var f = new filePicker({
 		type: 'file',
+		extensions: ['ipk'],
 		onSelect: function(foo){alert('============== '+foo);},
 		pop: false
 	});

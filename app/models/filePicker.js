@@ -13,6 +13,10 @@
  * 
  * 		folder: '/media/internal/',	// initial folder location, notice the trailing slash!
  * 
+ * 		extensions: ['jpg','png'],	// (file type only) array of extensions to list (lowercase extensions only)
+ * 									// ['ext'] for single extension
+ * 									// [] for all extensions (DEFAULT)
+ * 
  * 		pop: false,					// make truthy if you want the filePicker to pop its own stage for selecting,
  * 									   but it will do it automatically if no card is currently active, defaults to false
  * 
@@ -35,9 +39,8 @@ function filePicker(params)
 	this.onSelect =				params.onSelect;
 
 	this.pop =					(params.pop ? params.pop : false);
-	
 	this.folder =				(params.folder ? params.folder : this.topLevel);
-		
+	this.extensions =			(params.extensions ? params.extensions : []);
 	this.sceneTitle =			(params.sceneTitle ? params.sceneTitle : false);
 	
 	this.stageName =			'filePicker-' + this.num;
@@ -60,7 +63,8 @@ filePicker.prototype.parseDirectory = function(payload, dir, callback)
 	{
 		for (var c = 0; c < payload.contents.length; c++)
 		{
-			if (!payload.contents[c].name.match(filePicker.folderRegExp))
+			if (!payload.contents[c].name.match(filePicker.folderRegExp)
+			&& ((this.validExtension(payload.contents[c].name) && payload.contents[c].type == 'file') || payload.contents[c].type != 'file'))
 			{
 				returnArray.push({
 					name: payload.contents[c].name,
@@ -102,6 +106,27 @@ filePicker.prototype.ok = function(value)
 filePicker.prototype.cancel = function()
 {
 	this.onSelect(false);
+}
+
+filePicker.prototype.validExtension = function(name)
+{
+	if (this.extensions.length > 0)
+	{
+		var match = filePicker.extensionRegExp.exec(name);
+		if (match && match.length > 1)
+		{
+			if (this.extensions.include(match[1].toLowerCase()))
+			{
+				return true;
+			}
+		}
+	}
+	else
+	{
+		return true;
+	}
+	// eh?
+	return false;
 }
 
 
@@ -175,3 +200,4 @@ filePicker.parseFileStringForId = function(p)
 	return p.toLowerCase().replace(/\//g, '-').replace(/ /g, '-').replace(/\./g, '-');
 }
 filePicker.folderRegExp = new RegExp(/^\./);
+filePicker.extensionRegExp = new RegExp(/\.([^\.]+)$/);
