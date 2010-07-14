@@ -199,5 +199,15 @@ filePicker.parseFileStringForId = function(p)
 {
 	return p.toLowerCase().replace(/\//g, '-').replace(/ /g, '-').replace(/\./g, '-');
 }
+filePicker.getFileName = function(p)
+{
+	var match = filePicker.fileRegExp.exec(p);
+	if (match && match.length > 1)
+	{
+		return match[2];
+	}
+	return p;
+}
 filePicker.folderRegExp = new RegExp(/^\./);
+filePicker.fileRegExp = new RegExp('^(.+)/([^/]+)$');
 filePicker.extensionRegExp = new RegExp(/\.([^\.]+)$/);

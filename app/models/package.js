@@ -4,7 +4,7 @@
  */
 
 // initialize function which loads all the data from the info object
-function packageModel(info)
+function packageModel(infoString, infoObj)
 {
 	try
 	{
@@ -15,15 +15,15 @@ function packageModel(info)
 		this.assistant = false;
 		
 		// load up some default items incase the package has no sourceObj (like installed applications not in any feeds)
-		this.pkg =				false;
+		this.pkg =				(infoObj && infoObj.pkg ? infoObj.pkg : false);
 		this.type =				'Unknown';
 		this.category =			false;
 		this.version =			false;
 		this.maintainer =		false;
-		this.title =			false;
+		this.title =			(infoObj && infoObj.title ? infoObj.title : false);
 		this.size =				false;
-		this.filename =			false;
-		this.location =			false;
+		this.filename =			(infoObj && infoObj.filename ? infoObj.location : false);
+		this.location =			(infoObj && infoObj.location ? infoObj.location : false);
 		this.hasUpdate =		false;
 		this.icon =				false;
 		this.iconImg =			{object: false, loading: false, loaded: false, target: false, local: false};
@@ -51,7 +51,7 @@ function packageModel(info)
 		this.isInSavedList =	false;
 		
 		// load the info
-		this.infoLoad(info);
+		this.infoLoad(infoString);
 		
 		// check up on what we've loaded to make sure stuff thats needed isn't blank
 		if (!this.category || this.category == 'misc')
