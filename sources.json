@@ -52,6 +52,10 @@
         "source": "app/assistants/pkg-view-assistant.js"
     },
     {
+        "scenes": "pkg-install",
+        "source": "app/assistants/pkg-install-assistant.js"
+    },
+    {
         "scenes": "pkg-connected",
         "source": "app/assistants/pkg-connected-assistant.js"
     },

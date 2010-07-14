@@ -665,6 +665,31 @@ body.palm-dark .pkg-connected .palm-page-header-wrapper .title.description
 
 
 /*
+ * Package Install Scene Styles
+ */
+.pkg-install #spinner
+{
+	margin-top: 85px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.pkg-install #spinner #spinnerStatus
+{
+	text-align: center;
+	padding-top: 122px;
+	width: 200px;
+	margin-left: -35px;
+	color: #666;
+	font-size: 16px;
+}
+body.palm-dark .pkg-install #spinner #spinnerStatus
+{
+	color: #999;
+}
+
+
+
+/*
  * Package View Scene Styles
  */
 .pkg-view #spinner
