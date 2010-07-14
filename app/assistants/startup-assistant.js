@@ -9,6 +9,14 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.2.0',
+	     log:
+	     [
+	      'Added Install Package functionality, allowing installation of packages from URLs and local files',
+	      'Moved Saved Package List from the main screen to the app menu'
+	      ]
+	 },
+	 {
 	     version: '1.1.7',
 	     log:
 	     [
