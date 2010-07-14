@@ -16,13 +16,13 @@ function packageModel(infoString, infoObj)
 		
 		// load up some default items incase the package has no sourceObj (like installed applications not in any feeds)
 		this.pkg =				(infoObj && infoObj.pkg ? infoObj.pkg : false);
-		this.type =				'Unknown';
+		this.type =				(infoObj && infoObj.type ? infoObj.type : false);
 		this.category =			false;
 		this.version =			false;
 		this.maintainer =		false;
 		this.title =			(infoObj && infoObj.title ? infoObj.title : false);
 		this.size =				false;
-		this.filename =			(infoObj && infoObj.filename ? infoObj.location : false);
+		this.filename =			(infoObj && infoObj.filename ? infoObj.filename : false);
 		this.location =			(infoObj && infoObj.location ? infoObj.location : false);
 		this.hasUpdate =		false;
 		this.icon =				false;

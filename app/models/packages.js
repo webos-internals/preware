@@ -113,7 +113,9 @@ function packagesModel()
 		},
 		
 		// unknown (used by actual unknown type, and any other type without values)
-		'Unknown': {}
+		'Unknown': {},
+		// package (used by manual single-file installer)
+		'Package': {}
 	}
 };
 

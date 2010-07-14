@@ -146,7 +146,7 @@ PkgInstallAssistant.prototype.doCheckAppCatInstalls = function(response)
     if (installing == false)
 	{
 		var textValue = this.fileElement.mojo.getValue();
-		var tmpPackage = new packageModel('', {pkg: 'PKG', title: 'TITLE', filename: filePicker.getFileName(textValue), location: textValue});
+		var tmpPackage = new packageModel('', {type: 'Package', pkg: 'PKG', title: 'TITLE', filename: filePicker.getFileName(textValue), location: textValue});
 		tmpPackage.doInstall(this);
     }
     else
