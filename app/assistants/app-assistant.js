@@ -7,18 +7,20 @@ var vers =  new versionCookie();
 
 // stage names
 var mainStageName = 'preware-main';
+var installStageName = 'preware-install-';
 var dashStageName = 'preware-dash';
 
 function AppAssistant() {}
 
 AppAssistant.prototype.handleLaunch = function(params)
 {
-	var mainStageController = this.controller.getStageController(mainStageName);
-	
 	try
 	{
+		//alert('-----LAUNCHPARAMS-----');
+		//for (var p in params) alert(p+': '+params[p]);
 		if (!params) 
 		{
+			var mainStageController = this.controller.getStageController(mainStageName);
 	        if (mainStageController)
 			{
 				var scenes = mainStageController.getScenes();
@@ -32,6 +34,20 @@ AppAssistant.prototype.handleLaunch = function(params)
 			else
 			{
 				this.controller.createStageWithCallback({name: mainStageName, lightweight: true}, this.launchFirstScene.bind(this));
+			}
+		}
+		if (params.type == 'install' && params.file)
+		{
+			var installStageController = this.controller.getStageController(installStageName);
+	        if (installStageController)
+			{
+				installStageController.popScenesTo('pkg-install');
+				installStageController.delegateToSceneAssistant('updateText', params.file);
+				installStageController.activate();
+			}
+			else
+			{
+				this.controller.createStageWithCallback({name: installStageName, lightweight: true}, this.launchInstallScene.bindAsEventListener(this, params.file));
 			}
 		}
 	}
@@ -52,6 +68,10 @@ AppAssistant.prototype.launchFirstScene = function(controller)
 	{
 		controller.pushScene('update', 'main', false);
 	}
+};
+AppAssistant.prototype.launchInstallScene = function(controller, file)
+{
+	controller.pushScene('pkg-install', file);
 };
 
 AppAssistant.prototype.cleanup = function() {};

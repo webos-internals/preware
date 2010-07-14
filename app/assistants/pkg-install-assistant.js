@@ -1,7 +1,9 @@
-function PkgInstallAssistant()
+function PkgInstallAssistant(file)
 {
 	// this is true when a package action is in progress
 	this.active = false;
+	
+	this.launchFile = file;
 	
 	// setup menu
 	this.menuModel =
@@ -27,6 +29,9 @@ function PkgInstallAssistant()
 
 PkgInstallAssistant.prototype.setup = function()
 {
+	// set theme because this can be the first scene pushed
+	this.controller.document.body.className = prefs.get().theme;
+	
 	// clear log so it only shows stuff from this scene
 	IPKGService.logClear();
 	
@@ -57,7 +62,7 @@ PkgInstallAssistant.prototype.setup = function()
 			focusMode: Mojo.Widget.focusSelectMode
 		},
 		{
-			value: ''
+			value: (this.launchFile ? this.launchFile : '')
 		}
 	);
 	
@@ -87,6 +92,11 @@ PkgInstallAssistant.prototype.setup = function()
 	Mojo.Event.listen(this.installButtonElement, Mojo.Event.tap, this.installButtonPressed);
 	
 };
+
+PkgInstallAssistant.prototype.updateText = function(value)
+{
+	this.fileElement.mojo.setValue(value);
+}
 
 PkgInstallAssistant.prototype.browseButtonPressed = function(event)
 {
