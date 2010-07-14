@@ -8,7 +8,6 @@ function FolderPickerAssistant(picker)
 		visible: true,
 		items:
 		[
-			Mojo.Menu.editItem,
 			{
 				label: "Preferences",
 				command: 'do-prefs'
