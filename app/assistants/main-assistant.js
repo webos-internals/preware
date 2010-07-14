@@ -39,6 +39,14 @@ function MainAssistant()
 				command: 'do-feeds'
 			},
 			{
+				label: $L("Install Package"),
+				command: 'do-install'
+			},
+			{
+				label: $L("Saved Package List"),
+				command: 'do-saved'
+			},
+			{
 				label: $L("Luna Manager"),
 				command: 'do-luna'
 			},
@@ -106,13 +114,6 @@ MainAssistant.prototype.setup = function()
 	// setup widget
 	this.controller.setupWidget('mainList', { itemTemplate: "main/rowTemplate", swipeToDelete: false, reorderable: false }, this.mainModel);
 	this.controller.listen(this.listElement, Mojo.Event.listTap, this.listTapHandler);
-	
-	var f = new filePicker({
-		type: 'file',
-		extensions: ['ipk'],
-		onSelect: function(foo){alert('============== '+foo);},
-		pop: false
-	});
 };
 MainAssistant.prototype.activate = function(event)
 {
@@ -340,17 +341,6 @@ MainAssistant.prototype.updateList = function(skipUpdate)
 			pkgCat:   'all',
 		});
 		
-		this.mainModel.items.push(
-		{
-			name:     $L("Saved Package List"),
-			style:    'disabled',
-			scene:    'pkg-list',
-			pkgList:  'saved',
-			pkgType:  'all',
-			pkgFeed:  'all',
-			pkgCat:   'all',
-		});
-		
 		// if we have packages we need to get out list counts
 		if (packages.packages.length > 0)
 		{
@@ -437,6 +427,23 @@ MainAssistant.prototype.handleCommand = function(event)
 	
 			case 'do-showLog':
 				this.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+				break;
+				
+			case 'do-install':
+				this.controller.stageController.pushScene('pkg-install');
+				break;
+				
+			case 'do-saved':
+				this.controller.stageController.pushScene('pkg-list',
+				{
+					name:     $L("Saved Package List"),
+					style:    'disabled',
+					scene:    'pkg-list',
+					pkgList:  'saved',
+					pkgType:  'all',
+					pkgFeed:  'all',
+					pkgCat:   'all',
+				});
 				break;
 				
 			case 'do-luna':
