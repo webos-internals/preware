@@ -273,7 +273,7 @@ FilePickerAssistant.prototype.handleCommand = function(event)
 				break;
 				
 			case 'do-prefs':
-				this.controller.stageController.pushScene('preferences-general');
+				this.controller.stageController.pushScene('preferences');
 				break;
 				
 			case 'ok':
