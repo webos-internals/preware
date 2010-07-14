@@ -64,6 +64,7 @@ MainAssistant.prototype.setup = function()
 	this.controller.get('version').innerHTML = $L("v0.0.0");
 	this.controller.get('subTitle').innerHTML = $L("The Open Source Installer");
 	this.controller.get('subSearch').innerHTML = $L("Press Enter To Search");
+	this.controller.get('subInstall').innerHTML = $L("Press Enter To Install");
 
 	// get elements
 	this.searchContainer =	this.controller.get('searchContainer');
@@ -99,12 +100,14 @@ MainAssistant.prototype.setup = function()
 			multiline: false,
 			enterSubmits: true,
 			requiresEnterKey: true,
+			changeOnKeyPress: true,
 			modifierState: Mojo.Widget.sentenceCase,
 			focusMode: Mojo.Widget.focusInsertMode
 		}, 
 		this.searchModel
 	);
 	this.controller.listen(this.searchWidget, Mojo.Event.propertyChange, this.searchKeyHandler);
+	this.controller.listen(this.searchWidget, "keydown", this.searchKeyHandler);
 	this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.generalKeyHandler);
 	this.controller.listen(this.controller.sceneElement, Mojo.Event.keyup, this.generalKeyHandler);
 	
@@ -177,22 +180,38 @@ MainAssistant.prototype.generalKey = function(event)
 };
 MainAssistant.prototype.searchKey = function(event)
 {
+	if (this.searchText.toLowerCase().match(new RegExp(/^(http|file|ftp):\/\//)))
+	{
+		this.searchContainer.className = 'filter-field-wrapper install';
+	}
+	else
+	{
+		this.searchContainer.className = 'filter-field-wrapper';
+	}
+	
 	// check for enter to push scene
-	if (event.originalEvent && Mojo.Char.isEnterKey(event.originalEvent.keyCode) &&
+	if (Mojo.Char.isEnterKey(event.keyCode) &&
 		event.value != '') 
 	{
-		this.controller.stageController.pushScene
-		(
-			'pkg-list', 
-			{
-				name:     $L("List of Everything"),
-				pkgList:  'all',
-				pkgType:  'all',
-				pkgFeed:  'all',
-				pkgCat:   'all',
-			},
-			this.searchText
-		);
+		if (this.searchText.toLowerCase().match(new RegExp(/^(http|file|ftp):\/\//)))
+		{
+			this.controller.stageController.pushScene('pkg-install', this.searchText); 
+		}
+		else
+		{
+			this.controller.stageController.pushScene
+			(
+				'pkg-list', 
+				{
+					name:     $L("List of Everything"),
+					pkgList:  'all',
+					pkgType:  'all',
+					pkgFeed:  'all',
+					pkgCat:   'all',
+				},
+				this.searchText
+			);
+		}
 		this.searchText = '';
 		this.generalKey({});
 	}

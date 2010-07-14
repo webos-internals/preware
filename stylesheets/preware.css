@@ -230,7 +230,30 @@ body.palm-dark .update .progress .progress-bar
 	display: inline;
 	margin-top: 14px;
 }
-
+.main #searchContainer .icon
+{
+	background: url(../icon-search.png) center center no-repeat;
+}
+.main #searchContainer #subSearch
+{
+	display: block;
+}
+.main #searchContainer #subInstall
+{
+	display: none;
+}
+.main #searchContainer.install .icon
+{
+	background: url(../icon-package.png) center center no-repeat;
+}
+.main #searchContainer.install #subSearch
+{
+	display: none;
+}
+.main #searchContainer.install #subInstall
+{
+	display: block;
+}
 
 
 /*
