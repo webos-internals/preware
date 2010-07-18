@@ -1037,11 +1037,11 @@ packagesModel.prototype.checkMultiRemove = function(pkg, pkgs, assistant)
 		this.multiPkgs	= pkgs;
 		this.multiFlags	= this.getMultiFlags();
 		
+		var localizedText=$L("This package has <b>#{num}</b> other installed #{package} that #{depend} on it. <br /><br />Removing this package may cause #{them} to no longer function.").interpolate({num: this.multiPkgs.length, package: (num=1 ? $L("Package") : $L("Packages")), depend: (num>1 ? $L("depend") : $L("depends")), them: (num>1 ? $L("them") : $L("it"))})
+
 		// see what they want to do:
 		this.assistant.actionMessage(
-			$L("This package has <b>") + this.multiPkgs.length + $L("</b> other installed package") + (this.multiPkgs.length>1?'s':'') +
-			$L(" that depend") + (this.multiPkgs.length>1?'':'s') + $L(" on it. <br\><br\>Removing this package may cause ") + (this.multiPkgs.length>1?$L("them"):$L("it")) +
-			$L(" to no longer function."),
+			localizedText,
 			[
 				// uncomment to allow removing of itself
 				//{label:$L('Remove Anyways'), value:'ok'},

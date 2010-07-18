@@ -39,12 +39,12 @@ FilePickerAssistant.prototype.setup = function()
 
 	this.picker.setAssistant(this);
 	
-    this.flickHandler = this.flickHandler.bindAsEventListener(this);
+    	this.flickHandler = this.flickHandler.bindAsEventListener(this);
 
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
 	if (this.picker.sceneTitle) this.controller.get('header').update(this.picker.sceneTitle);
-	else this.controller.get('header').update('Select A File');
+	else this.controller.get('header').update($L('Select A File'));
 	
 	this.folderHolder = this.controller.get('folderHolder');
 	
@@ -218,7 +218,7 @@ FilePickerAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	if (this.selectedFile)
 	{
 		this.cmdMenuModel.items.push({
-			label: 'Ok',
+			label: $L('Ok'),
 			command: 'ok',
 			width: 100
 		});
@@ -226,7 +226,7 @@ FilePickerAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	else
 	{
 		this.cmdMenuModel.items.push({
-			label: 'Ok',
+			label: $L('Ok'),
 			disabled: true,
 			command: 'ok',
 			width: 100
@@ -234,7 +234,7 @@ FilePickerAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	}
 	
 	this.cmdMenuModel.items.push({
-		label: 'Cancel',
+		label: $L('Cancel'),
 		command: 'cancel',
 		width: 100
 	});
