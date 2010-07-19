@@ -32,6 +32,12 @@ function PkgInstallAssistant(file)
 
 PkgInstallAssistant.prototype.setup = function()
 {
+
+	this.controller.get('install-title').innerHTML = $L("Install Package");
+	this.controller.get('group-title').innerHTML = $L("File");
+
+	this.controller.get('notice-text').innerHTML = $L("<b>Note:</b><br />If this package needs a luna restart or device restart after installation, you will need to manually perform it when the installation is complete.");
+
 	// set theme because this can be the first scene pushed
 	this.controller.document.body.className = prefs.get().theme;
 	
@@ -78,7 +84,7 @@ PkgInstallAssistant.prototype.setup = function()
 			type: Mojo.Widget.activityButton
 		},
 		{
-			buttonLabel: 'Browse'
+			buttonLabel: $L('Browse')
 		}
 	);
 	
@@ -89,7 +95,7 @@ PkgInstallAssistant.prototype.setup = function()
 			type: Mojo.Widget.activityButton
 		},
 		this.buttonModel = {
-			buttonLabel: 'Install',
+			buttonLabel: $L('Install'),
 			disabled: (this.launchFile ? false : true)
 		}
 	);
