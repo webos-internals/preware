@@ -5,6 +5,9 @@ function PkgInstallAssistant(file)
 	
 	this.launchFile = file;
 	
+	// Package currently being installed - required to stop garbage collection.
+	this.packageModel = false;
+	
 	// setup menu
 	this.menuModel =
 	{
@@ -173,8 +176,10 @@ PkgInstallAssistant.prototype.doCheckAppCatInstalls = function(response)
     if (installing == false)
 	{
 		var textValue = this.fileElement.mojo.getValue();
-		var tmpPackage = new packageModel('', {type: 'Package', pkg: 'PKG', title: 'TITLE', filename: filePicker.getFileName(textValue), location: textValue});
-		tmpPackage.doInstall(this);
+		var filename = filePicker.getFileName(textValue);
+		var packageId = filename.split("_", 1)[0];
+		this.packageModel = new packageModel('', {type: 'Package', pkg: packageId, title: packageId, filename: filename, location: textValue});
+		this.packageModel.doInstall(this);
     }
     else
 	{
@@ -242,6 +247,9 @@ PkgInstallAssistant.prototype.endAction = function()
 	// we're done loading so let the phone sleep if it needs to
 	this.stayAwake.end();
 	
+	// let garbage collection of the service call happen
+	this.packageModel = false;
+
 	// allow back gesture again
 	this.active = false;
 	

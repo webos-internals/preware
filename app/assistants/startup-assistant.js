@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.2.1',
+	     log:
+	     [
+		  'Robustified the Install Package feature - will now run post-install scripts for all correctly formatted filenames (packageid_version_arch.ipk)'
+	      ]
+	 },
+	 {
 	     version: '1.2.0',
 	     log:
 	     [
