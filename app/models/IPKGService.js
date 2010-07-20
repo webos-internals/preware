@@ -107,12 +107,12 @@ IPKGService.install = function(callback, filename, url)
 	});
 	return request;
 };
-IPKGService.replace = function(callback, filename, url)
+IPKGService.replace = function(callback, pkg, filename, url)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
 		method: (prefs.get().avoidBugs ? 'replaceSvc' : 'replaceCli'),
-		parameters: {"filename":filename, "url":url, "subscribe":true},
+		parameters: {"package":pkg, "filename":filename, "url":url, "subscribe":true},
 		onSuccess: callback,
 		onFailure: callback
 	});

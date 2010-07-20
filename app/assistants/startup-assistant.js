@@ -9,7 +9,7 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
-	     version: '1.2.2',
+	     version: '1.2.3',
 	     log:
 	     [
 		  'Enable the Install Package feature to also work for incorrectly formatted filenames'
