@@ -1167,7 +1167,7 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 			this.assistant.displayAction($L("Downloading / Installing<br />") + this.title);
 			
 			// call install service
-			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this, multi), this.pkg, this.title, this.filename, this.location.replace(/ /g, "%20"));
+			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this, multi), this.filename, this.location.replace(/ /g, "%20"));
 		}
 		else
 		{
@@ -1176,7 +1176,7 @@ packageModel.prototype.doInstall = function(assistant, multi, skipDeps)
 			this.assistant.startAction();
 			
 			// call install service
-			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.pkg, this.title, this.filename, this.location.replace(/ /g, "%20"));
+			this.subscription = IPKGService.install(this.onInstall.bindAsEventListener(this), this.filename, this.location.replace(/ /g, "%20"));
 		}
 	}
 	catch (e) 
@@ -1210,12 +1210,12 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 
 			if (packages.can(this.type, 'updateAsReplace'))
 			{
-				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title, this.filename, this.location.replace(/ /g, "%20"));
+				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this, multi), this.filename, this.location.replace(/ /g, "%20"));
 				this.assistant.displayAction('Downloading / Replacing<br />' + this.title);
 			}
 			else
 			{
-				this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this, multi), this.pkg, this.title, this.filename, this.location.replace(/ /g, "%20"));
+				this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this, multi), this.filename, this.location.replace(/ /g, "%20"));
 			}
 		}
 		else
@@ -1226,12 +1226,12 @@ packageModel.prototype.doUpdate = function(assistant, multi, skipDeps)
 		
 			if (packages.can(this.type, 'updateAsReplace'))
 			{
-				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this), this.pkg, this.title, this.filename, this.location.replace(/ /g, "%20"));
+				this.subscription = IPKGService.replace(this.onUpdate.bindAsEventListener(this), this.filename, this.location.replace(/ /g, "%20"));
 				this.assistant.displayAction($L("Downloading / Replacing"));
 			}
 			else
 			{
-				this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.pkg, this.title, this.filename, this.location.replace(/ /g, "%20"));
+				this.subscription = IPKGService.install(this.onUpdate.bindAsEventListener(this), this.filename, this.location.replace(/ /g, "%20"));
 			}
 		}
 	}
@@ -1264,7 +1264,7 @@ packageModel.prototype.doRemove = function(assistant, skipDeps)
 		this.assistant.startAction();
 		
 		// call remove service
-		this.subscription = IPKGService.remove(this.onRemove.bindAsEventListener(this), this.pkg, this.title);
+		this.subscription = IPKGService.remove(this.onRemove.bindAsEventListener(this), this.pkg);
 	}
 	catch (e) 
 	{

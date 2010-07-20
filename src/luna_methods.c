@@ -28,7 +28,7 @@
 
 #define ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-+_"
 
-#define API_VERSION "13"
+#define API_VERSION "14"
 
 //
 // We use static buffers instead of continually allocating and deallocating stuff,
@@ -1316,6 +1316,7 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
 
   *installed = false;
 
+#if 0
   // Extract the package argument from the message
   id = json_find_first_label(object, "package");
   if (!id || (id->child->type != JSON_STRING) ||
@@ -1330,6 +1331,7 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
   }
   char package[MAXNAMLEN];
   strcpy(package, id->child->text);
+#endif
 
   // Extract the filename argument from the message
   id = json_find_first_label(object, "filename");
@@ -1373,6 +1375,24 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
   else {
     strcat(run_command_buffer, "]");
     if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
+    return true;
+  }
+
+  /* Extract the package id */
+  char package[MAXNAMLEN];
+  snprintf(command, MAXLINLEN,
+	   "/usr/bin/arm-none-linux-gnueabi-ar p /media/internal/.developer/%s control.tar.gz | /bin/tar -O -z -x --no-anchored -f - control | /bin/sed -n -e 's/^Package: //p' 2>&1", filename);
+  strcpy(run_command_buffer, "");
+  if (run_command(command, NULL, NULL, NULL) && strlen(run_command_buffer)) {
+    strcpy(package, run_command_buffer);
+    fprintf(stderr, "Package is %s\n", package);
+    strcpy(buffer, "{\"stdOut\": [\"");
+    strcat(buffer, run_command_buffer);
+    strcat(buffer, "\"], \"returnValue\": true, \"stage\": \"identify\"}");
+    if (!LSMessageReply(lshandle, message, buffer, &lserror)) goto error;
+  }
+  else {
+    if (!report_command_failure(lshandle, message, command, run_command_buffer, "\"stage\": \"failed\"")) goto end;
     return true;
   }
 

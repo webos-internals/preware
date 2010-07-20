@@ -96,34 +96,34 @@ IPKGService.rawstatus = function(callback)
 	return request;
 };
 
-IPKGService.install = function(callback, pkg, title, filename, url)
+IPKGService.install = function(callback, filename, url)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
 		method: (prefs.get().avoidBugs ? 'installSvc' : 'installCli'),
-		parameters: {"package":pkg, "title":title, "filename":filename, "url":url, "subscribe":true},
+		parameters: {"filename":filename, "url":url, "subscribe":true},
 		onSuccess: callback,
 		onFailure: callback
 	});
 	return request;
 };
-IPKGService.replace = function(callback, pkg, title, filename, url)
+IPKGService.replace = function(callback, filename, url)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
 		method: (prefs.get().avoidBugs ? 'replaceSvc' : 'replaceCli'),
-		parameters: {"package":pkg, "title":title, "filename":filename, "url":url, "subscribe":true},
+		parameters: {"filename":filename, "url":url, "subscribe":true},
 		onSuccess: callback,
 		onFailure: callback
 	});
 	return request;
 };
-IPKGService.remove = function(callback, pkg, title)
+IPKGService.remove = function(callback, pkg)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
 		method: 'remove',
-		parameters: {"package":pkg, "title":title, "subscribe":true},
+		parameters: {"package":pkg, "subscribe":true},
 		onSuccess: callback,
 		onFailure: callback
 	});
