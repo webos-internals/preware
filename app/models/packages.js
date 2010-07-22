@@ -360,6 +360,12 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 		return;
 	}
 	
+	// Filter out apps with a specified device names that dont match the current
+	if (newPkg.deviceNames && newPkg.deviceNames.length > 0 &&
+		!newPkg.deviceNames.include(Mojo.Environment.DeviceInfo.modelNameAscii)) {
+		return;
+	}
+	
 	// Filter out paid apps if desired
 	if ((prefs.get().onlyShowFree) && (newPkg.price != undefined) &&
 	    (newPkg.price != "0") && (newPkg.price != "0.00")) {

@@ -51,6 +51,8 @@ function packageModel(infoString, infoObj)
 		this.isInSavedList =		false;
 		this.webOSVersions =		[];
 		this.webOSVersionString =	false;
+		this.deviceNames =			[];
+		this.deviceNameString =		false;
 		
 		// load the info
 		this.infoLoad(infoString);
@@ -239,6 +241,12 @@ packageModel.prototype.infoLoad = function(info)
 			{
 				this.webOSVersions = sourceJson.WebOSVersions;
 				this.webOSVersionString = sourceJson.WebOSVersions.join(", ");
+			}
+			
+			if (sourceJson.DeviceNames) 
+			{
+				this.deviceNames = sourceJson.DeviceNames;
+				this.deviceNameString = sourceJson.DeviceNames.join(", ");
 			}
 			
 			if (sourceJson.Feed) 
