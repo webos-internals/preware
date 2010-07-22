@@ -397,7 +397,21 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			
 			// remove
 			case 'do-remove':
-				this.doGetAppCatInstallStatus('remove');
+				if (this.item.preRemoveMessage)
+				{
+					this.controller.showAlertDialog(
+					{
+					    title:				this.item.title,
+						allowHTMLMessage:	true,
+					    message:			this.item.preRemoveMessage,
+					    choices:			[{label:$L('Ok'), value:'remove'}, {label:$L('Cancel'), value:'cancel'}],
+						onChoose:			this.doGetAppCatInstallStatus.bindAsEventListener(this)
+				    });
+				}
+				else
+				{
+					this.doGetAppCatInstallStatus('remove');
+				}
 				break;
 			
 			// install

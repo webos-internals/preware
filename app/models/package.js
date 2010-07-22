@@ -53,6 +53,7 @@ function packageModel(infoString, infoObj)
 		this.deviceCompatibility =	[];
 		this.preInstallMessage =	false;
 		this.preUpdateMessage =		false;
+		this.preRemoveMessage =		false;
 		
 		// load the info
 		this.infoLoad(infoString);
@@ -231,6 +232,7 @@ packageModel.prototype.infoLoad = function(info)
 			if (!this.changeLog &&			sourceJson.Changelog)			this.changeLog =			sourceJson.Changelog;
 			if (!this.preInstallMessage &&	sourceJson.PreInstallMessage)	this.preInstallMessage =	sourceJson.PreInstallMessage;
 			if (!this.preUpdateMessage &&	sourceJson.PreUpdateMessage)	this.preUpdateMessage =		sourceJson.PreUpdateMessage;
+			if (!this.preRemoveMessage &&	sourceJson.PreRemoveMessage)	this.preRemoveMessage =		sourceJson.PreRemoveMessage;
 			if (!this.screenshots || this.screenshots.length == 0 && sourceJson.Screenshots) this.screenshots =	sourceJson.Screenshots;
 			
 			if (!this.price && sourceJson.Price)
@@ -364,6 +366,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.isInSavedList)			this.isInSavedList =		pkg.isInSavedList;
 		if (!this.preInstallMessage)		this.preInstallMessage =	pkg.preInstallMessage;
 		if (!this.preUpdateMessage)			this.preUpdateMessage =		pkg.preUpdateMessage;
+		if (!this.preRemoveMessage)			this.preRemoveMessage =		pkg.preRemoveMessage;
 		if (!this.icon) 
 		{
 			this.icon =				pkg.icon;

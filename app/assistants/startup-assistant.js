@@ -12,9 +12,9 @@ function StartupAssistant()
 	     version: '1.2.4',
 	     log:
 	     [
-		  'Added support for "MinWebOSVersion" feed values',
-		  'Added support for "DeviceCompatibility" feed values',
-		  'Added support for "PreInstallMessage" feed values',
+		  'Added support for MinWebOSVersion feed value',
+		  'Added support for DeviceCompatibility feed value',
+		  'Added support for PreActionMessage feed values',
 		  'Some bugfixes and better logging'
 	      ]
 	 },
