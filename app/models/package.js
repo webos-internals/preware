@@ -240,7 +240,7 @@ packageModel.prototype.infoLoad = function(info)
 				this.minWebOSVersion = sourceJson.MinWebOSVersion;
 			}
 			
-			if (sourceJson.DeviceNames) 
+			if (sourceJson.DeviceCompatibility) 
 			{
 				this.deviceCompatibility = sourceJson.DeviceCompatibility;
 			}

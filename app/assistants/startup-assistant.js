@@ -12,8 +12,8 @@ function StartupAssistant()
 	     version: '1.2.4',
 	     log:
 	     [
-		  'Added support for "WebOSVersions" feed values',
-		  'Added support for "DeviceNames" feed values',
+		  'Added support for "MinWebOSVersion" feed values',
+		  'Added support for "DeviceCompatibility" feed values',
 		  'Some bugfixes and better logging'
 	      ]
 	 },
