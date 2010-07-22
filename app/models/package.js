@@ -207,7 +207,7 @@ packageModel.prototype.infoLoad = function(info)
 			}
 			catch (e) 
 			{
-				Mojo.Log.logException(e, 'infoLoad#parse');
+				Mojo.Log.logException(e, 'infoLoad#parse ('+this.pkg+')');
 				var sourceJson = {};
 			}
 
@@ -329,7 +329,7 @@ packageModel.prototype.infoLoad = function(info)
 	}
 	catch (e)
 	{
-		Mojo.Log.logException(e, 'packageModel#infoLoad');
+		Mojo.Log.logException(e, 'packageModel#infoLoad ('+this.pkg+')');
 	}
 };
 packageModel.prototype.infoLoadFromPkg = function(pkg)
@@ -495,7 +495,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 	}
 	catch (e)
 	{
-		Mojo.Log.logException(e, 'packageModel#infoLoadFromPkg');
+		Mojo.Log.logException(e, 'packageModel#infoLoadFromPkg ('+this.pkg+')');
 	}
 };
 
