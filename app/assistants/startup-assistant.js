@@ -9,6 +9,15 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.2.4',
+	     log:
+	     [
+		  'Added support for "WebOSVersions" feed values',
+		  'Added support for "DeviceNames" feed values',
+		  'Some bugfixes and better logging'
+	      ]
+	 },
+	 {
 	     version: '1.2.3',
 	     log:
 	     [
