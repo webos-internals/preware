@@ -378,7 +378,7 @@ UpdateAssistant.prototype.showActionHelpTimer = function(time)
 };
 UpdateAssistant.prototype.showActionHelpTimerClear = function()
 {
-	if (this.currentHelpTimer)
+	if (this.currentHelpTimer && this.controller)
 	{
 		this.controller.window.clearTimeout(this.currentHelpTimer);
 	}
