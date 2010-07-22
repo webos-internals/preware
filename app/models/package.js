@@ -49,10 +49,8 @@ function packageModel(infoString, infoObj)
 		this.sizeInstalled =		false;
 		this.appCatalog =			false;
 		this.isInSavedList =		false;
-		this.webOSVersions =		[];
-		this.webOSVersionString =	false;
-		this.deviceNames =			[];
-		this.deviceNameString =		false;
+		this.minWebOSVersion =		'1.0.0';
+		this.deviceCompatibility =	[];
 		
 		// load the info
 		this.infoLoad(infoString);
@@ -236,17 +234,15 @@ packageModel.prototype.infoLoad = function(info)
 				this.price = sourceJson.Price;
 				packages.hasPrices = true;
 			}
-			
-			if (sourceJson.WebOSVersions) 
+		
+			if (sourceJson.MinWebOSVersion)
 			{
-				this.webOSVersions = sourceJson.WebOSVersions;
-				this.webOSVersionString = sourceJson.WebOSVersions.join(", ");
+				this.minWebOSVersion = sourceJson.MinWebOSVersion;
 			}
 			
 			if (sourceJson.DeviceNames) 
 			{
-				this.deviceNames = sourceJson.DeviceNames;
-				this.deviceNameString = sourceJson.DeviceNames.join(", ");
+				this.deviceCompatibility = sourceJson.DeviceCompatibility;
 			}
 			
 			if (sourceJson.Feed) 

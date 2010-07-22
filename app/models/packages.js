@@ -354,15 +354,14 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 	// load the package from the info
 	var newPkg = new packageModel(packageObj);
 	
-	// Filter out apps with a specified webos versions that dont match the current
-	if (newPkg.webOSVersions && newPkg.webOSVersions.length > 0 &&
-		!newPkg.webOSVersions.include(Mojo.Environment.DeviceInfo.platformVersion)) {
+	// Filter out apps with a minimum webos version that is greater then current
+	if (this.versionNewer(Mojo.Environment.DeviceInfo.platformVersion, newPkg.minWebOSVersion)) {
 		return;
 	}
 	
-	// Filter out apps with a specified device names that dont match the current
-	if (newPkg.deviceNames && newPkg.deviceNames.length > 0 &&
-		!newPkg.deviceNames.include(Mojo.Environment.DeviceInfo.modelNameAscii)) {
+	// Filter out apps with a specified devices that dont match the current
+	if (newPkg.deviceCompatibility && newPkg.deviceCompatibility.length > 0 &&
+		!newPkg.deviceCompatibility.include(Mojo.Environment.DeviceInfo.modelNameAscii)) {
 		return;
 	}
 	
