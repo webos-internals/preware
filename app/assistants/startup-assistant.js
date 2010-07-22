@@ -14,6 +14,7 @@ function StartupAssistant()
 	     [
 		  'Added support for "MinWebOSVersion" feed values',
 		  'Added support for "DeviceCompatibility" feed values',
+		  'Added support for "PreInstallMessage" feed values',
 		  'Some bugfixes and better logging'
 	      ]
 	 },

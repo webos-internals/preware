@@ -51,6 +51,8 @@ function packageModel(infoString, infoObj)
 		this.isInSavedList =		false;
 		this.minWebOSVersion =		'1.0.0';
 		this.deviceCompatibility =	[];
+		this.preInstallMessage =	false;
+		this.preUpdateMessage =		false;
 		
 		// load the info
 		this.infoLoad(infoString);
@@ -217,16 +219,18 @@ packageModel.prototype.infoLoad = function(info)
 				this.appCatalog = true;
 			}
 		
-			if (!this.category &&		sourceJson.Category)		this.category =			sourceJson.Category;
-			if (!this.title &&			sourceJson.Title)			this.title =			sourceJson.Title;
-			if (!this.icon &&			sourceJson.Icon)			this.icon =				sourceJson.Icon;
-			if (!this.date &&			sourceJson.LastUpdated)		this.date =				sourceJson.LastUpdated;
-			if (!this.homepage &&		sourceJson.Homepage)		this.homepage =			sourceJson.Homepage;
-			if (!this.filename &&		sourceJson.Filename)		this.filename =			sourceJson.Filename;
-			if (!this.location &&		sourceJson.Location)		this.location =			sourceJson.Location;
-			if (!this.license &&		sourceJson.License)			this.license =			sourceJson.License;
-			if (!this.description &&	sourceJson.FullDescription)	this.description =		sourceJson.FullDescription;
-			if (!this.changeLog &&		sourceJson.Changelog)		this.changeLog =		sourceJson.Changelog;
+			if (!this.category &&			sourceJson.Category)			this.category =				sourceJson.Category;
+			if (!this.title &&				sourceJson.Title)				this.title =				sourceJson.Title;
+			if (!this.icon &&				sourceJson.Icon)				this.icon =					sourceJson.Icon;
+			if (!this.date &&				sourceJson.LastUpdated)			this.date =					sourceJson.LastUpdated;
+			if (!this.homepage &&			sourceJson.Homepage)			this.homepage =				sourceJson.Homepage;
+			if (!this.filename &&			sourceJson.Filename)			this.filename =				sourceJson.Filename;
+			if (!this.location &&			sourceJson.Location)			this.location =				sourceJson.Location;
+			if (!this.license &&			sourceJson.License)				this.license =				sourceJson.License;
+			if (!this.description &&		sourceJson.FullDescription)		this.description =			sourceJson.FullDescription;
+			if (!this.changeLog &&			sourceJson.Changelog)			this.changeLog =			sourceJson.Changelog;
+			if (!this.preInstallMessage &&	sourceJson.PreInstallMessage)	this.preInstallMessage =	sourceJson.PreInstallMessage;
+			if (!this.preUpdateMessage &&	sourceJson.PreUpdateMessage)	this.preUpdateMessage =		sourceJson.PreUpdateMessage;
 			if (!this.screenshots || this.screenshots.length == 0 && sourceJson.Screenshots) this.screenshots =	sourceJson.Screenshots;
 			
 			if (!this.price && sourceJson.Price)
@@ -343,21 +347,23 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (this.category == 'Unsorted')	this.category =			pkg.category;
 		if (!this.maintainer || this.maintainer.length == 0
 			|| (this.maintainer.length == 1 && this.maintainer[0].name == 'N/A')) this.maintainer = pkg.maintainer;
-		if (!this.maintUrl)					this.maintUrl =			pkg.maintUrl;
-		if (!this.size)						this.size =				pkg.size;
-		if (!this.filename)					this.filename =			pkg.filename;
-		if (!this.location)					this.location =			pkg.location;
-		if (!this.date)						this.date =				pkg.date;
-		if (!this.price)					this.price =			pkg.price;
-		if (!this.homepage)					this.homepage =			pkg.homepage;
-		if (!this.license)					this.license =			pkg.license;
-		if (!this.description)				this.description =		pkg.description;
-		if (!this.changeLog)				this.changeLog =		pkg.changeLog;
-		if (!this.isInstalled)				this.isInstalled =		pkg.isInstalled;
-		if (!this.hasUpdate)				this.hasUpdate =		pkg.hasUpdate;
-		if (!this.dateInstalled)			this.dateInstalled =	pkg.dateInstalled;
-		if (!this.sizeInstalled)			this.sizeInstalled =	pkg.sizeInstalled;
-		if (!this.isInSavedList)			this.isInSavedList =	pkg.isInSavedList;
+		if (!this.maintUrl)					this.maintUrl =				pkg.maintUrl;
+		if (!this.size)						this.size =					pkg.size;
+		if (!this.filename)					this.filename =				pkg.filename;
+		if (!this.location)					this.location =				pkg.location;
+		if (!this.date)						this.date =					pkg.date;
+		if (!this.price)					this.price =				pkg.price;
+		if (!this.homepage)					this.homepage =				pkg.homepage;
+		if (!this.license)					this.license =				pkg.license;
+		if (!this.description)				this.description =			pkg.description;
+		if (!this.changeLog)				this.changeLog =			pkg.changeLog;
+		if (!this.isInstalled)				this.isInstalled =			pkg.isInstalled;
+		if (!this.hasUpdate)				this.hasUpdate =			pkg.hasUpdate;
+		if (!this.dateInstalled)			this.dateInstalled =		pkg.dateInstalled;
+		if (!this.sizeInstalled)			this.sizeInstalled =		pkg.sizeInstalled;
+		if (!this.isInSavedList)			this.isInSavedList =		pkg.isInSavedList;
+		if (!this.preInstallMessage)		this.preInstallMessage =	pkg.preInstallMessage;
+		if (!this.preUpdateMessage)			this.preUpdateMessage =		pkg.preUpdateMessage;
 		if (!this.icon) 
 		{
 			this.icon =				pkg.icon;

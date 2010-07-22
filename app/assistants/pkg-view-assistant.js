@@ -359,12 +359,40 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			
 			// install
 			case 'do-install':
-				this.doGetAppCatInstallStatus('install');
+				if (this.item.preInstallMessage)
+				{
+					this.controller.showAlertDialog(
+					{
+					    title:				this.item.title,
+						allowHTMLMessage:	true,
+					    message:			this.item.preInstallMessage,
+					    choices:			[{label:$L('Ok'), value:'install'}, {label:$L('Cancel'), value:'cancel'}],
+						onChoose:			this.doGetAppCatInstallStatus.bindAsEventListener(this)
+				    });
+				}
+				else
+				{
+					this.doGetAppCatInstallStatus('install');
+				}
 				break;
 			
 			// update
 			case 'do-update':
-				this.doGetAppCatInstallStatus('update');
+				if (this.item.preUpdateMessage)
+				{
+					this.controller.showAlertDialog(
+					{
+					    title:				this.item.title,
+						allowHTMLMessage:	true,
+					    message:			this.item.preUpdateMessage,
+					    choices:			[{label:$L('Ok'), value:'update'}, {label:$L('Cancel'), value:'cancel'}],
+						onChoose:			this.doGetAppCatInstallStatus.bindAsEventListener(this)
+				    });
+				}
+				else
+				{
+					this.doGetAppCatInstallStatus('update');
+				}
 				break;
 			
 			// remove
@@ -392,15 +420,19 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 	}
 };
 
-
 PkgViewAssistant.prototype.doGetAppCatInstallStatus = function(operation)
 {
-    this.controller.serviceRequest("palm://com.palm.appInstallService", {
-	    method:"status",
-	    parameters:{},
-	    onSuccess: this.doCheckAppCatInstalls.bindAsEventListener(this, operation),
-	    onFailure: this.doCheckAppCatInstalls.bindAsEventListener(this, operation)
-	});
+	if (operation == 'install' ||
+		operation == 'update' ||
+		operation == 'remove')
+	{
+	    this.controller.serviceRequest("palm://com.palm.appInstallService", {
+		    method:"status",
+		    parameters:{},
+		    onSuccess: this.doCheckAppCatInstalls.bindAsEventListener(this, operation),
+		    onFailure: this.doCheckAppCatInstalls.bindAsEventListener(this, operation)
+		});
+	}
 };
 
 PkgViewAssistant.prototype.doCheckAppCatInstalls = function(response, operation)
