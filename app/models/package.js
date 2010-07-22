@@ -15,40 +15,42 @@ function packageModel(infoString, infoObj)
 		this.assistant = false;
 		
 		// load up some default items incase the package has no sourceObj (like installed applications not in any feeds)
-		this.pkg =				(infoObj && infoObj.pkg ? infoObj.pkg : false);
-		this.type =				(infoObj && infoObj.type ? infoObj.type : false);
-		this.category =			false;
-		this.version =			false;
-		this.maintainer =		false;
-		this.title =			(infoObj && infoObj.title ? infoObj.title : false);
-		this.size =				false;
-		this.filename =			(infoObj && infoObj.filename ? infoObj.filename : false);
-		this.location =			(infoObj && infoObj.location ? infoObj.location : false);
-		this.hasUpdate =		false;
-		this.icon =				false;
-		this.iconImg =			{object: false, loading: false, loaded: false, target: false, local: false};
-		this.date =				false;
-		this.price =			false;
-		this.feeds =			['Unknown'];
-		this.feedString =		'Unknown';
-		this.countries =		[];
-		this.countryString =	false;
-		this.languages =		[];
-		this.languageString =	false;
-		this.homepage =			false;
-		this.license =			false;
-		this.description =		false;
-		this.changeLog =		false;
-		this.screenshots =		[];
-		this.depends =			[];
-		this.flags =			{install:	{RestartLuna:false, RestartJava:false, RestartDevice:false},
-								 update:	{RestartLuna:false, RestartJava:false, RestartDevice:false},
-								 remove:	{RestartLuna:false, RestartJava:false, RestartDevice:false}};
-		this.isInstalled =		false;
-		this.dateInstalled =	false;
-		this.sizeInstalled =	false;
-		this.appCatalog =		false;
-		this.isInSavedList =	false;
+		this.pkg =					(infoObj && infoObj.pkg ? infoObj.pkg : false);
+		this.type =					(infoObj && infoObj.type ? infoObj.type : false);
+		this.category =				false;
+		this.version =				false;
+		this.maintainer =			false;
+		this.title =				(infoObj && infoObj.title ? infoObj.title : false);
+		this.size =					false;
+		this.filename =				(infoObj && infoObj.filename ? infoObj.filename : false);
+		this.location =				(infoObj && infoObj.location ? infoObj.location : false);
+		this.hasUpdate =			false;
+		this.icon =					false;
+		this.iconImg =				{object: false, loading: false, loaded: false, target: false, local: false};
+		this.date =					false;
+		this.price =				false;
+		this.feeds =				['Unknown'];
+		this.feedString =			'Unknown';
+		this.countries =			[];
+		this.countryString =		false;
+		this.languages =			[];
+		this.languageString =		false;
+		this.homepage =				false;
+		this.license =				false;
+		this.description =			false;
+		this.changeLog =			false;
+		this.screenshots =			[];
+		this.depends =				[];
+		this.flags =				{install:	{RestartLuna:false, RestartJava:false, RestartDevice:false},
+									 update:	{RestartLuna:false, RestartJava:false, RestartDevice:false},
+									 remove:	{RestartLuna:false, RestartJava:false, RestartDevice:false}};
+		this.isInstalled =			false;
+		this.dateInstalled =		false;
+		this.sizeInstalled =		false;
+		this.appCatalog =			false;
+		this.isInSavedList =		false;
+		this.webOSVersions =		[];
+		this.webOSVersionString =	false;
 		
 		// load the info
 		this.infoLoad(infoString);
@@ -215,22 +217,28 @@ packageModel.prototype.infoLoad = function(info)
 				this.appCatalog = true;
 			}
 		
-			if (!this.category &&		sourceJson.Category)		this.category =		sourceJson.Category;
-			if (!this.title &&			sourceJson.Title)			this.title =		sourceJson.Title;
-			if (!this.icon &&			sourceJson.Icon)			this.icon =			sourceJson.Icon;
-			if (!this.date &&			sourceJson.LastUpdated)		this.date =			sourceJson.LastUpdated;
-			if (!this.homepage &&		sourceJson.Homepage)		this.homepage =		sourceJson.Homepage;
-			if (!this.filename &&		sourceJson.Filename)		this.filename =		sourceJson.Filename;
-			if (!this.location &&		sourceJson.Location)		this.location =		sourceJson.Location;
-			if (!this.license &&		sourceJson.License)			this.license =		sourceJson.License;
-			if (!this.description &&	sourceJson.FullDescription)	this.description =	sourceJson.FullDescription;
-			if (!this.changeLog &&		sourceJson.Changelog)		this.changeLog =	sourceJson.Changelog;
+			if (!this.category &&		sourceJson.Category)		this.category =			sourceJson.Category;
+			if (!this.title &&			sourceJson.Title)			this.title =			sourceJson.Title;
+			if (!this.icon &&			sourceJson.Icon)			this.icon =				sourceJson.Icon;
+			if (!this.date &&			sourceJson.LastUpdated)		this.date =				sourceJson.LastUpdated;
+			if (!this.homepage &&		sourceJson.Homepage)		this.homepage =			sourceJson.Homepage;
+			if (!this.filename &&		sourceJson.Filename)		this.filename =			sourceJson.Filename;
+			if (!this.location &&		sourceJson.Location)		this.location =			sourceJson.Location;
+			if (!this.license &&		sourceJson.License)			this.license =			sourceJson.License;
+			if (!this.description &&	sourceJson.FullDescription)	this.description =		sourceJson.FullDescription;
+			if (!this.changeLog &&		sourceJson.Changelog)		this.changeLog =		sourceJson.Changelog;
 			if (!this.screenshots || this.screenshots.length == 0 && sourceJson.Screenshots) this.screenshots =	sourceJson.Screenshots;
 			
 			if (!this.price && sourceJson.Price)
 			{
 				this.price = sourceJson.Price;
 				packages.hasPrices = true;
+			}
+			
+			if (sourceJson.WebOSVersions) 
+			{
+				this.webOSVersions = sourceJson.WebOSVersions;
+				this.webOSVersionString = sourceJson.WebOSVersions.join(", ");
 			}
 			
 			if (sourceJson.Feed) 

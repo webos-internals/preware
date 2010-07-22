@@ -354,6 +354,12 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 	// load the package from the info
 	var newPkg = new packageModel(packageObj);
 	
+	// Filter out apps with a specified webos versions that dont match the current
+	if (newPkg.webOSVersions && newPkg.webOSVersions.length > 0 &&
+		!newPkg.webOSVersions.include(Mojo.Environment.DeviceInfo.platformVersion)) {
+		return;
+	}
+	
 	// Filter out paid apps if desired
 	if ((prefs.get().onlyShowFree) && (newPkg.price != undefined) &&
 	    (newPkg.price != "0") && (newPkg.price != "0.00")) {
