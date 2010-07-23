@@ -91,7 +91,7 @@ PreferencesBlacklistAssistant.prototype.setup = function()
 				{
 					buttonLabel: 'Save',
 					buttonClass: 'affirmative',
-					disabled: (this.params.search == '' && this.params.field == '')
+					disabled: (this.params.search == '' || this.params.field == '')
 				}
 			);
 			
