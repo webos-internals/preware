@@ -54,7 +54,22 @@ body.palm-dark .palm-row-wrapper .pkgCount .count
 {
 	color: #393e43;
 }
-
+.list-item-add-button
+{
+  height: 54px;
+}
+body.palm-dark .list-item-add-button
+{
+  background: url(../images/palm-dark/list-icon-add-item.png) center center no-repeat;
+}
+.add-item .title
+{
+  color: #555552;
+}
+body.palm-dark .add-item .title
+{
+  color: #777;
+}
 
 /*
  * Startup Scene Styles
