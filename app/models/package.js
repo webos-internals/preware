@@ -1136,27 +1136,30 @@ packageModel.prototype.matchItem = function(item)
 	{
 		for (var b = 0; b < prefs.get().blackList.length; b++)
 		{
-			if (prefs.get().blackList[b].field == 'title' && this.title && this.title.toLowerCase().include(blacklist[b].search.toLowerCase()))
+			if (matchIt)
 			{
-				matchIt = false;
-			}
-			else if (prefs.get().blackList[b].field == 'maintainer' && this.maintainer.length > 0)
-			{
-				for (var m = 0; m < this.maintainer.length; m++) 
+				if (prefs.get().blackList[b].field == 'title' && this.title && this.title.toLowerCase().include(blacklist[b].search.toLowerCase()))
 				{
-					if (this.maintainer[m].name.toLowerCase().include(blacklist[b].search.toLowerCase()))
+					matchIt = false;
+				}
+				else if (prefs.get().blackList[b].field == 'maintainer' && this.maintainer.length > 0)
+				{
+					for (var m = 0; m < this.maintainer.length; m++) 
 					{
-						matchIt = false;
+						if (this.maintainer[m].name.toLowerCase().include(blacklist[b].search.toLowerCase()))
+						{
+							matchIt = false;
+						}
 					}
 				}
-			}
-			else if (prefs.get().blackList[b].field == 'id' && this.pkg.toLowerCase().include(blacklist[b].search.toLowerCase()))
-			{
-				matchIt = false;
-			}
-			else if (prefs.get().blackList[b].field == 'desc' && this.description && this.description.toLowerCase().include(blacklist[b].search.toLowerCase()))
-			{
-				matchIt = false;
+				else if (prefs.get().blackList[b].field == 'id' && this.pkg.toLowerCase().include(blacklist[b].search.toLowerCase()))
+				{
+					matchIt = false;
+				}
+				else if (prefs.get().blackList[b].field == 'desc' && this.description && this.description.toLowerCase().include(blacklist[b].search.toLowerCase()))
+				{
+					matchIt = false;
+				}
 			}
 		}
 	}
