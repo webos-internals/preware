@@ -1132,7 +1132,7 @@ packageModel.prototype.matchItem = function(item)
 	
 	// check blacklist
 	var blacklist = prefs.get().blackList;
-	if (matchIt && blacklist.length > 0 && !this.isInstalled)
+	if (matchIt && blacklist.length > 0 && !this.isInstalled && !this.isInSavedList)
 	{
 		for (var b = 0; b < prefs.get().blackList.length; b++)
 		{
