@@ -40,6 +40,9 @@ PreferencesBlacklistAssistant.prototype.setup = function()
 		if (this.index === false) this.controller.get('header').update($L('Add Blacklist'));
 		else this.controller.get('header').update($L('Edit Blacklist'));
 		
+		this.controller.get('blacklist-group-search').innerHTML=$L('Search For');
+		this.controller.get('blacklist-group-field').innerHTML=$L('Field');
+
 		this.fieldElement =			this.controller.get('field');
 		this.searchElement =		this.controller.get('search');
 		this.saveButtonElement =	this.controller.get('saveButton');
@@ -89,7 +92,7 @@ PreferencesBlacklistAssistant.prototype.setup = function()
 				},
 				this.buttonModel =
 				{
-					buttonLabel: 'Save',
+					buttonLabel: $L('Save'),
 					buttonClass: 'affirmative',
 					disabled: (this.params.search == '' || this.params.field == '')
 				}

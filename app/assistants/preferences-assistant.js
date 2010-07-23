@@ -52,6 +52,8 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('automatically-install').innerHTML = $L("Automatically Install");
 		this.controller.get('secret-stuff').innerHTML = $L("Secret Stuff");
 		this.controller.get('secret-options').innerHTML = $L("This version has no secret options.");
+		this.controller.get('blacklist-title-right').innerHTML=$L('Search Field');
+		this.controller.get('blacklist-title').innerHTML=$L('Blacklist');
 
 		// setup menu
 		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
@@ -344,7 +346,7 @@ PreferencesAssistant.prototype.setup = function()
 			{
 				itemTemplate: "preferences/blacklist-row",
 				swipeToDelete: true,
-				addItemLabel: 'Add'
+				addItemLabel: $L('Add')
 			},
 			this.blackListModel
 		);
