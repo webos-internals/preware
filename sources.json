@@ -24,6 +24,10 @@
         "source": "app/assistants/preferences-assistant.js"
     },
     {
+        "scenes": "preferences-blacklist",
+        "source": "app/assistants/preferences-blacklist-assistant.js"
+    },
+    {
         "scenes": "help",
         "source": "app/assistants/help-assistant.js"
     },

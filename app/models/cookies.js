@@ -42,7 +42,11 @@ preferenceCookie.prototype.get = function(reload)
 				
 				// Background Group
 				backgroundUpdates: 'disabled',
-				autoInstallUpdates: false//,
+				autoInstallUpdates: false,
+				
+				// Blacklist Group
+				blackList: [],
+				blackAuto: 'none'
 				
 				// Hidden Advanced Group
 				//allowServiceUpdates: false

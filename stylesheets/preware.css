@@ -327,6 +327,39 @@ body.palm-dark .configs .headerButton.selected
 	-webkit-border-image: url(../images/palm-dark/selector-header-selected.png) 0 16 0 16 stretch stretch;
 }
 
+.prefs .palm-group .palm-group-title .right
+{
+	float: right;
+	margin-right: 12px;
+}
+.prefs .palm-group .palm-row-wrapper.blacklist .title
+{
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+.prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.search
+{
+	float: left;
+	color: #1f75bf;
+	max-width: 273px;
+	margin-bottom: -20px;
+}
+.prefs .palm-group .palm-row.selected .palm-row-wrapper.blacklist .title.search
+{
+	color: #fff;
+}
+body.palm-dark .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.search
+{
+	color: #aaa;
+	text-shadow: #222 0px -1px 0px;
+}
+.prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.field
+{
+	text-transform: capitalize;
+	float: right;
+	max-width: 273px;
+}
 
 /*
  * Config/Feed Scene Styles

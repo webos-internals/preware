@@ -333,6 +333,28 @@ PreferencesAssistant.prototype.setup = function()
 		
 		
 		
+		
+		
+		// Blacklist Group
+		this.blackListElement = this.controller.get('blackList');
+		this.buildBlackList(true);
+		this.controller.setupWidget
+		(
+			'blackList',
+			{
+				itemTemplate: "preferences/blacklist-row",
+				swipeToDelete: true,
+				addItemLabel: 'Add'
+			},
+			this.blackListModel
+		);
+		
+		this.controller.listen('blackList', Mojo.Event.listTap,		this.blackListTap.bindAsEventListener(this));
+		this.controller.listen('blackList', Mojo.Event.listAdd,		this.blackListAdd.bindAsEventListener(this));
+		this.controller.listen('blackList', Mojo.Event.listDelete,	this.blackListDelete.bindAsEventListener(this));
+		
+		
+		
 		/*
 		// Background Group
 		this.controller.setupWidget
@@ -444,6 +466,73 @@ PreferencesAssistant.prototype.toggleShowTypesChanged = function(event)
 	}
 };
 
+PreferencesAssistant.prototype.buildBlackList = function(initial)
+{
+	this.prefs.blackList = prefs.get().blackList;
+	this.blackListModel = {items:[]};
+	
+	if (this.prefs.blackList.length > 0)
+	{
+		for (var b = 0; b < this.prefs.blackList.length; b++)
+		{
+			this.blackListModel.items.push({index: b, search: this.prefs.blackList[b].search, field: this.prefs.blackList[b].field});
+		}
+	}
+	
+	if (!initial)
+	{
+		this.blackListElement.mojo.noticeUpdatedItems(0, this.blackListModel.items);
+	 	this.blackListElement.mojo.setLength(this.blackListModel.items.length);
+	}
+}
+PreferencesAssistant.prototype.blackListTap = function(event)
+{
+	this.controller.stageController.pushScene('preferences-blacklist', event.item);
+}
+PreferencesAssistant.prototype.blackListAdd = function(event)
+{
+	this.controller.stageController.pushScene('preferences-blacklist', false);
+}
+PreferencesAssistant.prototype.blackListDelete = function(event)
+{
+	var newData = [];
+	if (this.blackListModel.items.length > 0) 
+	{
+		for (var b = 0; b < this.blackListModel.items.length; b++) 
+		{
+			if (this.blackListModel.items[b].index == event.item.index) 
+			{
+				// ignore
+			}
+			else 
+			{
+				if (this.blackListModel.items[b].index > event.index) 
+				{
+					this.blackListModel.items[b].index--;
+				}
+				newData.push(this.blackListModel.items[b]);
+			}
+		}
+	}
+	this.blackListModel.items = newData;
+	this.blackListElement.mojo.noticeUpdatedItems(0, this.blackListModel.items);
+ 	this.blackListElement.mojo.setLength(this.blackListModel.items.length);
+	this.blackListSave();
+}
+PreferencesAssistant.prototype.blackListSave = function()
+{
+	var newData = [];
+	if (this.blackListModel.items.length > 0) 
+	{
+		for (var b = 0; b < this.blackListModel.items.length; b++) 
+		{
+			newData.push({search: this.blackListModel.items[b].search, field: this.blackListModel.items[b].field});
+		}
+	}
+	this.prefs.blackList = newData;
+	this.cookie.put(this.prefs);
+}
+
 PreferencesAssistant.prototype.headerButton = function(event)
 {
 	this.controller.stageController.swapScene({name: 'configs', transition: Mojo.Transition.crossFade});
@@ -497,7 +586,14 @@ PreferencesAssistant.prototype.alertMessage = function(title, message)
     });
 };
 
-PreferencesAssistant.prototype.activate = function(event) {};
+PreferencesAssistant.prototype.activate = function(event)
+{
+	if (this.hasBeenActivated)
+	{
+		this.buildBlackList();
+	}
+	this.hasBeenActivated = true;
+};
 PreferencesAssistant.prototype.deactivate = function(event)
 {
 	// reload global storage of preferences when we get rid of this stage

@@ -12,7 +12,8 @@ function StartupAssistant()
 	     version: '1.2.5',
 	     log:
 	     [
-		  'Added "Ask At Launch" option to update preference'
+		  'Added "Ask At Launch" option to update preference',
+		  'German Translation Updates'
 	      ]
 	 },
 	 {
