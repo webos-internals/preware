@@ -486,7 +486,7 @@ packagesModel.prototype.loadSavedOpenOK = function()
 {
 	this.savedDB.get("savedPackageList",
 					 this.loadSavedGetOK.bind(this),
-					 this.doneLoading(this));
+					 this.doneLoading.bind(this));
 	return;
 };
 packagesModel.prototype.loadSavedGetOK = function(savedPackageList)

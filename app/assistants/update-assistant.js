@@ -473,12 +473,6 @@ UpdateAssistant.prototype.doneUpdating = function()
 	
 	//alert(packages.packages.length);
 	
-	// swap to the scene passed when we were initialized:
-	if (this.isActive) 
-	{
-		this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
-	}
-	
 	if (!this.isActive || !this.isVisible)
 	{	// if we're not the active scene, let them know via banner:
 		if (this.onlyLoad) 
@@ -489,6 +483,12 @@ UpdateAssistant.prototype.doneUpdating = function()
 		{
 			Mojo.Controller.getAppController().showBanner({messageText:$L("Preware: Done Updating Feeds"), icon:'miniicon.png'}, {source:'updateNotification'});
 		}
+	}
+	
+	// swap to the scene passed when we were initialized:
+	if (this.isActive) 
+	{
+		this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
 	}
 };
 
