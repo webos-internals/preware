@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.2.5',
+	     log:
+	     [
+		  'Added "Ask At Launch" option to update preference'
+	      ]
+	 },
+	 {
 	     version: '1.2.4',
 	     log:
 	     [
