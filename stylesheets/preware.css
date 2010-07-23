@@ -923,7 +923,17 @@ body.palm-dark .pkg-view #scrollerContainer.palm-row.apps
 	margin-left: 38px;
 	background: url(../images/icon_updates.png) center center no-repeat;
 }
-
+.pkg-view #viewScroller #scrollItems div.app.text
+{
+	background: none;
+}
+.pkg-view #viewScroller #scrollItems div.app.text .sub
+{
+	margin-top: 10px;
+	font-size: 14px;
+	height: 40px;
+	width: 54px;
+}
 
 
 /*

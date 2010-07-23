@@ -105,9 +105,13 @@ PkgViewAssistant.prototype.setupImages = function()
 		{
 			this.controller.get('scrollerContainer').className = 'palm-row apps';
 			scrollItems += '<div class="appReset"></div>';
-			for (d = 0; d < this.dependents.length; d++) 
+			for (d = 0; d < this.dependents.length && d < 30; d++) 
 			{
 				scrollItems += '<div id="app_' + this.dependents[d] + '" class="app' + (packages.packages[this.dependents[d]].isInstalled?(packages.packages[this.dependents[d]].hasUpdate?' update':' installed'):'') + '"><div class="sub"></div></div>';
+			}
+			if (this.dependents.length > 30)
+			{
+				scrollItems += '<div class="app text"><div class="sub">'+(this.dependents.length-30)+'<br/>More</div></div>';
 			}
 			
 			// fill the screenshot div with data
@@ -117,7 +121,7 @@ PkgViewAssistant.prototype.setupImages = function()
 			this.appTap = this.appTapHandler.bindAsEventListener(this)
 			
 			// looping apps adding listeners and icon lazy-loader
-			for (d = 0; d < this.dependents.length; d++) 
+			for (d = 0; d < this.dependents.length && d < 30; d++) 
 			{
 				Mojo.Event.listen(this.controller.get('app_' + this.dependents[d]), Mojo.Event.tap, this.appTap);
 				packages.packages[this.dependents[d]].iconFill(this.controller.get('app_' + this.dependents[d]));
