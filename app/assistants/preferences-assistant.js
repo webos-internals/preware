@@ -99,7 +99,8 @@ PreferencesAssistant.prototype.setup = function()
 				[
 					{label:$L("Every Launch"),	value:'launch'},
 					{label:$L("Once Daily"),	value:'daily'},
-					{label:$L("Manually Only"),	value:'manual'}
+					{label:$L("Manually Only"),	value:'manual'},
+					{label:$L("Ask At Launch"),	value:'ask'}
 				],
 				modelProperty: 'updateInterval'
 			},

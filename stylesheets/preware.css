@@ -139,6 +139,16 @@ body.palm-dark .update .progress .progress-bar
 {
 	background: url(../images/palm-dark/progress-front.png) top left no-repeat;
 }
+.update #question
+{
+	margin-top: 120px;
+}
+.update .question
+{
+	font-weight: bold;
+	text-align: center;
+	margin-bottom: 20px;
+}
 
 
 /*

@@ -60,11 +60,17 @@ UpdateAssistant.prototype.setup = function()
 	// set theme because this can be the first scene pushed
 	this.controller.document.body.className = prefs.get().theme;
 	
+	this.controller.get('update-question').innerHTML = $L("Update Feeds?");
+	
 	// get elements
 	this.documentElement =			this.controller.stageController.document;
+	this.spinnerElement =			this.controller.get('spinner');
 	this.spinnerStatusElement =		this.controller.get('spinnerStatus');
 	this.progressBarElement =		this.controller.get('progress-bar');
 	this.progressElement =			this.controller.get('progress');
+	this.questionContainer =		this.controller.get('question');
+	this.yesButtonElement =			this.controller.get('yesButton');
+	this.noButtonElement =			this.controller.get('noButton');
 	
 	// handlers
 	this.visibleWindowHandler =		this.visibleWindow.bindAsEventListener(this);
@@ -126,6 +132,32 @@ UpdateAssistant.prototype.setup = function()
 			this.onlyLoad = true;
 		}
 	}
+	else if (prefs.get().updateInterval == 'ask')
+	{
+		this.spinnerModel.spinning = false;
+		this.controller.modelChanged(this.spinnerModel);
+		this.questionContainer.style.display = "";
+		this.controller.setupWidget
+		(
+			'yesButton',
+			{},
+			{
+				buttonLabel: $L("Yes"),
+				buttonClass: 'affirmative'
+			}
+		);
+		this.controller.setupWidget
+		(
+			'noButton',
+			{},
+			{
+				buttonLabel: $L("No"),
+				buttonClass: 'negative'
+			}
+		);
+		this.controller.listen(this.yesButtonElement, Mojo.Event.tap, this.yesTap.bindAsEventListener(this));
+		this.controller.listen(this.noButtonElement, Mojo.Event.tap, this.noTap.bindAsEventListener(this));
+	}
 	else
 	{
 		// this really shouldn't happen, but if it does, lets update
@@ -133,10 +165,24 @@ UpdateAssistant.prototype.setup = function()
 	}
 };
 
+UpdateAssistant.prototype.yesTap = function(event)
+{
+	// we should update then load
+	this.updateFeeds();
+};
+UpdateAssistant.prototype.noTap = function(event)
+{
+	// straight to loading
+	this.updateFeeds(true);
+	this.onlyLoad = true;
+};
+
 UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 {
 	// the onlyLoad specifies if we should go straight to loading or not
 	// even if there is an internet connection
+	this.spinnerElement.style.display = "";
+	this.questionContainer.style.display = "none";
 	
 	// clear some packages stuff (incase an update is already in progress)
 	packages.feeds = [];
