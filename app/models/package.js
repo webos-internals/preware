@@ -801,7 +801,7 @@ packageModel.prototype.getForList = function(item)
 					}
 					if (tempM == '')
 					{
-						tempM = '<i>Unknown Date</i>';
+						tempM = '<i>Unknown</i>';
 					}
 					listObj.sub += tempM;
 					break;
@@ -1130,6 +1130,38 @@ packageModel.prototype.matchItem = function(item)
 	// check category and dont push if not right
 	if (item.pkgCat != 'all' && item.pkgCat != '' && item.pkgCat != this.category) matchIt = false;
 	
+	// check blacklist
+	var blacklist = prefs.get().blackList;
+	if (matchIt && blacklist.length > 0 && !this.isInstalled)
+	{
+		for (var b = 0; b < prefs.get().blackList.length; b++)
+		{
+			if (prefs.get().blackList[b].field == 'title' && this.title && this.title.toLowerCase().include(blacklist[b].search.toLowerCase()))
+			{
+				matchIt = false;
+			}
+			else if (prefs.get().blackList[b].field == 'maintainer' && this.maintainer.length > 0)
+			{
+				for (var m = 0; m < this.maintainer.length; m++) 
+				{
+					if (this.maintainer[m].name.toLowerCase().include(blacklist[b].search.toLowerCase()))
+					{
+						matchIt = false;
+					}
+				}
+			}
+			else if (prefs.get().blackList[b].field == 'id' && this.pkg.toLowerCase().include(blacklist[b].search.toLowerCase()))
+			{
+				matchIt = false;
+			}
+			else if (prefs.get().blackList[b].field == 'desc' && this.description && this.description.toLowerCase().include(blacklist[b].search.toLowerCase()))
+			{
+				matchIt = false;
+			}
+		}
+	}
+	
+	// return if it matches!
 	return matchIt;
 };
 

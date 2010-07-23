@@ -13,6 +13,7 @@ function StartupAssistant()
 	     log:
 	     [
 		  'Added "Ask At Launch" option to update preference',
+		  'Added Blacklist',
 		  'German Translation Updates'
 	      ]
 	 },
