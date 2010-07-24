@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.2.6',
+	     log:
+	     [
+		  'Remove most of the curl download progress messages from the ipkg log (this fixes a buffer overrun crash)',
+	      ]
+	 },
+	 {
 	     version: '1.2.5',
 	     log:
 	     [

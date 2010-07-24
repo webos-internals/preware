@@ -276,17 +276,19 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
   char line[MAXLINLEN];
   char lastline[MAXLINLEN];
 
-  fprintf(stderr, "Running command %s\n", command);
-
   // run_command_buffer is assumed to be initialised, ready for strcat to append.
+  char *lastpos = run_command_buffer+strlen(run_command_buffer);
 
   // Is this the first line of output?
   bool first = true;
+  bool lastfirst = true;
 
   // Has an early termination error been detected?
   bool error = false;
 
   bool array = false;
+
+  fprintf(stderr, "Running command %s\n", command);
 
   // Start execution of the command, and read the output.
   FILE *fp = popen(command, "r");
@@ -309,6 +311,11 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
     // Read and store characters up to the next LF or NL.
     int c;
     while ((len < MAXLINLEN) && ((c = fgetc(fp)) != EOF)) { 
+      // Rewind the buffer for carriage returns without a linefeed.
+      if (c == '\r') {
+	*lastpos = '\0';
+	first = lastfirst;
+      }
       if ((c == '\r') || (c == '\n')) {
 	line[len] = '\0';
 	// Skip empty lines
@@ -321,12 +328,15 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
     // If we read something, then process it
     if (len) {
 
+      lastpos = run_command_buffer+strlen(run_command_buffer);
+
       // Add formatting breaks between lines
       if (first) {
 	if (run_command_buffer[strlen(run_command_buffer)-1] == '[') {
 	  array = true;
 	}
 	first = false;
+	lastfirst = true;
       }
       else {
 	if (array) {
@@ -335,6 +345,7 @@ static bool run_command(char *command, LSHandle* lshandle, LSMessage *message, s
 	else {
 	  strcat(run_command_buffer, "<br>");
 	}
+	lastfirst = false;
       }
 
       // Have status updates been requested?
