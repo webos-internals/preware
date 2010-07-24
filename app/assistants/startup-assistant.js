@@ -14,7 +14,9 @@ function StartupAssistant()
 	     [
 		  'Added "Ask At Launch" option to update preference',
 		  'Added Blacklist',
-		  'German Translation Updates'
+		  'German Translation Updates',
+		  'Fixed update banner problem',
+		  'Fixed package with too many dependent packages problem'
 	      ]
 	 },
 	 {
