@@ -1392,7 +1392,7 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
   /* Extract the package id */
   char package[MAXNAMLEN];
   snprintf(command, MAXLINLEN,
-	   "/usr/bin/arm-none-linux-gnueabi-ar p /media/internal/.developer/%s control.tar.gz | /bin/tar -O -z -x --no-anchored -f - control | /bin/sed -n -e 's/^Package: //p' 2>&1", filename);
+	   "/usr/bin/ar p /media/internal/.developer/%s control.tar.gz | /bin/tar -O -z -x --no-anchored -f - control | /bin/sed -n -e 's/^Package: //p' 2>&1", filename);
   strcpy(run_command_buffer, "");
   if (run_command(command, NULL, NULL, NULL) && strlen(run_command_buffer)) {
     strcpy(package, run_command_buffer);

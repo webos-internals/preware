@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.2.7',
+	     log:
+	     [
+		  'Fixed the Install Package problem when running on the emulator',
+	      ]
+	 },
+	 {
 	     version: '1.2.6',
 	     log:
 	     [
