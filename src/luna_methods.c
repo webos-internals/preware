@@ -1707,6 +1707,73 @@ bool appinstaller_replace_method(LSHandle* lshandle, LSMessage *message, void *c
   return false;
 }
 
+//
+// Handler for the listApps service.
+//
+bool listApps_handler(LSHandle* lshandle, LSMessage *reply, void *ctx) {
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+  LSMessage* message = (LSMessage*)ctx;
+  retVal = LSMessageRespond(message, LSMessageGetPayload(reply), &lserror);
+  LSMessageUnref(message);
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
+}
+
+//
+// Call the listApps service using liblunaservice and return the output to webOS.
+//
+bool listApps_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+  LSMessageRef(message);
+  retVal = LSCall(priv_serviceHandle, "palm://com.palm.applicationManager/listApps", "{}",
+		  listApps_handler, message, NULL, &lserror);
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
+}
+
+//
+// Handler for the installStatus service.
+//
+bool installStatus_handler(LSHandle* lshandle, LSMessage *reply, void *ctx) {
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+  LSMessage* message = (LSMessage*)ctx;
+  retVal = LSMessageRespond(message, LSMessageGetPayload(reply), &lserror);
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
+}
+
+//
+// Call the installStatus service using liblunaservice and return the output to webOS.
+//
+bool installStatus_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+  LSMessageRef(message);
+  retVal = LSCall(priv_serviceHandle, "palm://com.palm.appInstallService/status", "{\"subscribe\":true}",
+		  installStatus_handler, message, NULL, &lserror);
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
+}
+
 LSMethod luna_methods[] = {
   { "status",		dummy_method },
   { "version",		version_method },
@@ -1741,6 +1808,9 @@ LSMethod luna_methods[] = {
   { "replaceCli",	ipkg_replace_method },
 
   { "remove",		remove_method },
+
+  { "listApps",		listApps_method },
+  { "installStatus",	installStatus_method },
 
   { 0, 0 }
 };
