@@ -6,6 +6,7 @@ function packagesModel()
 	// for storing action information when we're in a multi-action
 	this.multiPkg = false;
 	this.multiPkgs = false;
+	this.doMyApps = false;
 	
 	// for storing all the package information
 	this.packages = [];
@@ -969,6 +970,8 @@ packagesModel.prototype.startMultiInstall = function(pkg, pkgs, assistant)
 		this.multiPkg	= pkg;
 		this.multiPkgs	= pkgs;
 		this.multiFlags	= this.getMultiFlags();
+
+		this.doMyApps = false;
 		
 		this.assistant.displayAction($L("Installing / Updating"));
 		this.assistant.startAction();
@@ -1117,9 +1120,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 		if (number < this.multiPkgs.length) 
 		{
 			if (this.packages[this.multiPkgs[number]].appCatalog) {
-				// skip app catalog updates
-				// we should probably message or something that this has been skipped
-				// or really, we should notify the user before we even get this far
+				this.doMyApps = true;
 				this.doMultiInstall(number+1);
 			}
 			else if (this.packages[this.multiPkgs[number]].isInstalled) 
@@ -1145,7 +1146,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 		else if (number == this.multiPkgs.length && this.multiPkg) 
 		{
 			if (this.multiPkg.appCatalog) {
-				// see note above about this skipping if the type can't be updated
+				this.doMyApps = true;
 				this.doMultiInstall(number+1);
 			}
 			else if (this.multiPkg.isInstalled) 
@@ -1168,6 +1169,18 @@ packagesModel.prototype.doMultiInstall = function(number)
 		// end actions!
 		else
 		{
+			if (this.doMyApps) {
+				this.dirtyFeeds = true;
+				var request = new Mojo.Service.Request('palm://com.palm.applicationManager', {
+						method: 'launch',
+						parameters: 
+						{
+							id: "com.palm.app.findapps",
+							params: { myapps: '' }
+						}
+					});
+			}
+
 			if (this.multiFlags.RestartLuna || this.multiFlags.RestartJava || this.multiFlags.RestartDevice) 
 			{
 				this.assistant.actionMessage(
@@ -1187,6 +1200,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 			this.multiPkg	= false;
 			this.multiPkgs	= false;
 			this.multiFlags	= false;
+			this.doMyApps   = false;
 		}
 	}
 	catch (e) 

@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.2.8',
+	     log:
+	     [
+		  'Open the My Applications app catalog screen when multiple app catalog applications need updating',
+	      ]
+	 },
+	 {
 	     version: '1.2.7',
 	     log:
 	     [
