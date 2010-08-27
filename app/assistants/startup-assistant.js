@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.2.9',
+	     log:
+	     [
+		  'Add Preware to the Default Applications list to allow for installing packages from email messages and the browser',
+	      ]
+	 },
+	 {
 	     version: '1.2.8',
 	     log:
 	     [
