@@ -86,13 +86,16 @@ resourceHandler.prototype.swapResourceResponse = function(payload)
 {
 	alert('=================');
 	for (var p in payload) alert(p+': '+payload[p]);
+	
 	if (payload.returnValue)
 	{
+		this.listMimeHandlers();
 	}
 }
 
 resourceHandler.prototype.listExtMap = function()
 {
+	this.extensionMap = false;
 	var request = new Mojo.Service.Request(resourceHandler.serviceIdentifier,
 	{
 		method: 'listExtensionMap',
@@ -119,6 +122,7 @@ resourceHandler.prototype.listExtMapResponse = function(payload)
 
 resourceHandler.prototype.listMimeHandlers = function()
 {
+	this.resourceHandlers = false;
 	var request = new Mojo.Service.Request(resourceHandler.serviceIdentifier,
 	{
 		method: 'listAllHandlersForMime',
