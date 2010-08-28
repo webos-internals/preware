@@ -59,7 +59,7 @@ function MainAssistant()
 };
 
 MainAssistant.prototype.setup = function()
-{	
+{
 	this.controller.get('main-title').innerHTML = $L("Preware");
 	this.controller.get('version').innerHTML = $L("v0.0.0");
 	this.controller.get('subTitle').innerHTML = $L("The Open Source Installer");
@@ -138,6 +138,7 @@ MainAssistant.prototype.activate = function(event)
 	else
 	{
 		this.searchElement = this.searchWidget.querySelector('[name=searchElement]');
+		//fh.doIt();
 	}
 	this.firstActivate = true;
 };
