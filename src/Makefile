@@ -18,6 +18,7 @@ install: ipkgservice
 #	scp ipkgservice root@${HOST}:/var/usr/sbin/org.webosinternals.ipkgservice.new
 #	ssh root@${HOST} mv /var/usr/sbin/org.webosinternals.ipkgservice.new /var/usr/sbin/org.webosinternals.ipkgservice
 	novacom put file://home/root/ipkgservice < ipkgservice
+	novacom put file://home/root/luna_methods.c < luna_methods.c
 
 clobber:
 	rm -rf *.o ipkgservice

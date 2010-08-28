@@ -1314,11 +1314,11 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
   subscribefun installFilter;
   
   if (useSvc) {
-    installCommand = "/usr/bin/luna-send -n 6 luna://com.palm.appinstaller/installNoVerify '{\"subscribe\":true, \"target\": \"/media/internal/.developer/%s\", \"uncompressedSize\": 0}' 2>&1";
+    installCommand = "/usr/bin/luna-send -n 6 luna://com.palm.appinstaller/installNoVerify '{\"subscribe\":true, \"target\": \"%s\", \"uncompressedSize\": 0}' 2>&1";
     installFilter = appinstaller;
   }
   else {
-    installCommand = "/usr/bin/ipkg -o /media/cryptofs/apps -force-overwrite install /media/internal/.developer/%s 2>&1";
+    installCommand = "/usr/bin/ipkg -o /media/cryptofs/apps -force-overwrite install %s 2>&1";
     installFilter = passthrough;
   }
 
@@ -1357,7 +1357,7 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
     return true;
   }
   char filename[MAXNAMLEN];
-  strcpy(filename, id->child->text);
+  sprintf(filename, "/media/internal/.developer/%s", id->child->text);
 
   // Extract the url argument from the message
   id = json_find_first_label(object, "url");               
@@ -1373,30 +1373,35 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
   char url[MAXLINLEN];
   strcpy(url, id->child->text);
 
-  /* Download the package */
-
-  snprintf(command, MAXLINLEN,
-	   "/usr/bin/curl --create-dirs --insecure --location --fail --show-error --output /media/internal/.developer/%s %s 2>&1", filename, url);
-
-  strcpy(run_command_buffer, "{\"stdOut\": [");
-  if (run_command(command, lshandle, message, downloadstats)) {
-    strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"download\"}");
-    if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+  if (!strncmp(url, "file:///media/internal/.developer/", 34)) {
+    strcpy(filename, url+7);
   }
   else {
-    strcat(run_command_buffer, "]");
-    if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
-    return true;
+
+    /* Download the package */
+
+    snprintf(command, MAXLINLEN,
+	     "/usr/bin/curl --create-dirs --insecure --location --fail --show-error --output %s %s 2>&1", filename, url);
+
+    strcpy(run_command_buffer, "{\"stdOut\": [");
+    if (run_command(command, lshandle, message, downloadstats)) {
+      strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"download\"}");
+      if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+    }
+    else {
+      strcat(run_command_buffer, "]");
+      if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
+      return true;
+    }
   }
 
   /* Extract the package id */
   char package[MAXNAMLEN];
   snprintf(command, MAXLINLEN,
-	   "/usr/bin/ar p /media/internal/.developer/%s control.tar.gz | /bin/tar -O -z -x --no-anchored -f - control | /bin/sed -n -e 's/^Package: //p' 2>&1", filename);
+	   "/usr/bin/ar p %s control.tar.gz | /bin/tar -O -z -x --no-anchored -f - control | /bin/sed -n -e 's/^Package: //p' 2>&1", filename);
   strcpy(run_command_buffer, "");
   if (run_command(command, NULL, NULL, NULL) && strlen(run_command_buffer)) {
     strcpy(package, run_command_buffer);
-    fprintf(stderr, "Package is %s\n", package);
     strcpy(buffer, "{\"stdOut\": [\"");
     strcat(buffer, run_command_buffer);
     strcat(buffer, "\"], \"returnValue\": true, \"stage\": \"identify\"}");
@@ -1707,6 +1712,94 @@ bool appinstaller_replace_method(LSHandle* lshandle, LSMessage *message, void *c
   return false;
 }
 
+bool extract_control_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  char command[MAXLINLEN];
+
+  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *id;
+
+  // Extract the filename argument from the message
+  id = json_find_first_label(object, "filename");
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing filename parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    return true;
+  }
+  char filename[MAXNAMLEN];
+  sprintf(filename, "/media/internal/.developer/%s", id->child->text);
+
+  // Extract the url argument from the message
+  id = json_find_first_label(object, "url");               
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXLINLEN)) {
+    if (!LSMessageReply(lshandle, message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing url parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    return true;
+  }
+  char url[MAXLINLEN];
+  strcpy(url, id->child->text);
+
+  if (!strncmp(url, "file:///media/internal/.developer/", 34)) {
+    strcpy(filename, url+7);
+  }
+  else {
+
+    /* Download the package */
+
+    snprintf(command, MAXLINLEN,
+	     "/usr/bin/curl --create-dirs --insecure --location --fail --show-error --output %s %s 2>&1", filename, url);
+
+    strcpy(run_command_buffer, "{\"stdOut\": [");
+    if (run_command(command, lshandle, message, downloadstats)) {
+      strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"download\"}");
+      if (!LSMessageReply(lshandle, message, run_command_buffer, &lserror)) goto error;
+    }
+    else {
+      strcat(run_command_buffer, "]");
+      if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
+      return true;
+    }
+  }
+
+  /* Extract the control file */
+  snprintf(command, MAXLINLEN,
+	   "/usr/bin/ar p %s control.tar.gz | /bin/tar -O -z -x --no-anchored -f - control 2>&1", filename);
+  // Initialise the output buffer
+  strcpy(run_command_buffer, "{\"stdOut\": [");
+  if (run_command(command, NULL, NULL, NULL)) {
+    sprintf(buffer, "{\"filename\":\"%s\", \"info\": ", filename);
+    strcat(buffer, run_command_buffer+11);
+    strcat(buffer, "], \"returnValue\": true, \"stage\": \"completed\"}");
+    if (!LSMessageReply(lshandle, message, buffer, &lserror)) goto error;
+  }
+  else {
+    // Finalise the command output ...
+    strcat(run_command_buffer, "]");
+
+    // and use it in a failure report message.
+    if (!report_command_failure(lshandle, message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
+    return true;
+  }
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
 //
 // Handler for the listApps service.
 //
@@ -1834,6 +1927,8 @@ LSMethod luna_methods[] = {
   { "setConfigState",	set_config_state_method },
   { "addConfig",	add_config_method },
   { "deleteConfig",	delete_config_method },
+
+  { "extractControl",	extract_control_method },
 
   { "install",		ipkg_install_method },
   { "installSvc",	appinstaller_install_method },
