@@ -261,6 +261,7 @@ PkgListAssistant.prototype.listSwipe = function(event)
 	if (this.item.pkgList == 'saved') {
 		packages.packages[event.item.pkgNum].isInSavedList = false;
 		packages.savePackageList();
+		this.updateList();
 	}
 };
 PkgListAssistant.prototype.setupList = function()

@@ -9,10 +9,17 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.3.0',
+	     log:
+	     [
+		  'Added Preware to the Default Applications list to allow for installing packages from email messages and the browser',
+	      ]
+	 },
+	 {
 	     version: '1.2.9',
 	     log:
 	     [
-		  'Add Preware to the Default Applications list to allow for installing packages from email messages and the browser',
+		  'Fixed the Saved Package List swipe to delete bug',
 	      ]
 	 },
 	 {
