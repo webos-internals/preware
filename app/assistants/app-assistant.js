@@ -15,7 +15,8 @@ var rh = new resourceHandler(
 
 // stage names
 var mainStageName = 'preware-main';
-var installStageName = 'preware-install-';
+var installStageName = 'preware-install';
+var viewStageName = 'preware-view-';
 var dashStageName = 'preware-dash';
 
 function AppAssistant() {}
@@ -60,6 +61,19 @@ AppAssistant.prototype.handleLaunch = function(params)
 				this.controller.createStageWithCallback({name: installStageName, lightweight: true}, this.launchInstallScene.bindAsEventListener(this, params.file));
 			}
 		}
+		if (params.type == 'view' && params.id)
+		{
+			var viewStageController = this.controller.getStageController(viewStageName + params.id);
+	        if (viewStageController)
+			{
+				viewStageController.popScenesTo('pkg-load');
+				viewStageController.activate();
+			}
+			else
+			{
+				this.controller.createStageWithCallback({name: viewStageName + params.id, lightweight: true}, this.launchViewScene.bindAsEventListener(this, params.id));
+			}
+		}
 	}
 	catch (e)
 	{
@@ -82,6 +96,10 @@ AppAssistant.prototype.launchFirstScene = function(controller)
 AppAssistant.prototype.launchInstallScene = function(controller, file)
 {
 	controller.pushScene('pkg-install', file);
+};
+AppAssistant.prototype.launchViewScene = function(controller, id)
+{
+	controller.pushScene('pkg-load', id);
 };
 
 AppAssistant.prototype.cleanup = function() {};
