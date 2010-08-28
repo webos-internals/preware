@@ -46,7 +46,10 @@ preferenceCookie.prototype.get = function(reload)
 				
 				// Blacklist Group
 				blackList: [],
-				blackAuto: 'none'
+				blackAuto: 'none',
+				
+				// For Resource Handler Object
+				resourceHandlerCheck: true
 				
 				// Hidden Advanced Group
 				//allowServiceUpdates: false

@@ -6,14 +6,19 @@ resourceHandler.serviceIdentifier = 'palm://com.palm.applicationManager';
 
 function resourceHandler(params)
 {
+	this.extension =		params.extension;
 	this.mime =				params.mime;
+	this.dialogMessage =	params.dialogMessage;
 
 	this.extensionMap =		false;
 	this.resourceHandlers =	false;
 	
-	this.log =				true;
+	this.log =				false;
 	
-	this.listMimeHandlers();
+	if (prefs.get().resourceHandlerCheck)
+	{
+		this.listMimeHandlers();
+	}
 }
 
 resourceHandler.prototype.doIt = function(assistant)
@@ -156,11 +161,15 @@ resourceHandlerDialog.prototype.setup = function(widget)
 {
 	this.widget = widget;
 	
-	this.dialogTitle =	this.sceneAssistant.controller.get('dialogTitle');
-	this.yesButton =	this.sceneAssistant.controller.get('yesButton');
-	this.noButton =		this.sceneAssistant.controller.get('noButton');
+	this.dialogTitle =		this.sceneAssistant.controller.get('dialogTitle');
+	this.dialogMessage =	this.sceneAssistant.controller.get('dialogMessage');
+	this.yesButton =		this.sceneAssistant.controller.get('yesButton');
+	this.noButton =			this.sceneAssistant.controller.get('noButton');
+	this.alwaysCheck =		this.sceneAssistant.controller.get('always-perform-check');
 	
-	this.dialogTitle.innerHTML = $L('File Association');
+	this.dialogTitle.innerHTML =	$L('FileType Association');
+	this.dialogMessage.innerHTML =	$L(this.resourceHandler.dialogMessage).interpolate({active: this.resourceHandler.getActive()});
+	this.alwaysCheck.innerHTML = 	$L('Always perform check');
 	
 	this.yesTapped =	this.yes.bindAsEventListener(this);
 	this.noTapped =		this.no.bindAsEventListener(this);
@@ -191,8 +200,9 @@ resourceHandlerDialog.prototype.setup = function(widget)
   			trueLabel:  $L("Yes"),
  			falseLabel: $L("No")
 		},
-		this.performCheckModel = {
-			value : true
+		this.performCheckModel =
+		{
+			value: prefs.get().resourceHandlerCheck
 		}
 	);
 	
@@ -202,18 +212,17 @@ resourceHandlerDialog.prototype.setup = function(widget)
 resourceHandlerDialog.prototype.yes = function(event)
 {
 	event.stop();
+	prefs.prefs.resourceHandlerCheck = this.performCheckModel.value;
+	prefs.put(prefs.prefs);
+	this.resourceHandler.makeActive();
 	this.widget.mojo.close();
 }
 resourceHandlerDialog.prototype.no = function(event)
 {
 	event.stop();
+	prefs.prefs.resourceHandlerCheck = this.performCheckModel.value;
+	prefs.put(prefs.prefs);
 	this.widget.mojo.close();
-}
-resourceHandlerDialog.prototype.activate = function(event)
-{
-}
-resourceHandlerDialog.prototype.deactivate = function(event)
-{
 }
 resourceHandlerDialog.prototype.cleanup = function(event)
 {

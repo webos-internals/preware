@@ -6,7 +6,12 @@ var prefs = new preferenceCookie();
 var vers =  new versionCookie();
 
 // resource handler object
-//var rh = new resourceHandler({mime: 'application/vnd.webos.ipk'});
+var rh = new resourceHandler(
+{
+	extension:		'ipk',
+	mime:			'application/vnd.webos.ipk',
+	dialogMessage:	'Preware is not currently the default application for handling .ipk files.<br>#{active} is.<br><br><b>Would you like to make Preware the default application?</b>',
+});
 
 // stage names
 var mainStageName = 'preware-main';

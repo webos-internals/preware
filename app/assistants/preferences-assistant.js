@@ -35,6 +35,7 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('last-update-title').innerHTML = $L("Last Update");
 		this.controller.get('lastUpdate').innerHTML = $L("Never");
 		this.controller.get('scan-unknown-packages').innerHTML = $L("Scan Unknown Packages");
+		this.controller.get('check-ipk-association').innerHTML = $L("Check .ipk Association");
 		this.controller.get('avoid-bugs').innerHTML = $L("Avoid webOS Bugs");
 		this.controller.get('avoid-bugs-note').innerHTML = $L("* May not work in future webOS versions.");
 		this.controller.get('main-scene-title').innerHTML = $L("Main Scene");
@@ -125,9 +126,23 @@ PreferencesAssistant.prototype.setup = function()
 	 			disabled: false
 			}
 		);
+		this.controller.setupWidget
+		(
+			'resourceHandlerCheck',
+			{
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
+	  			fieldName:  'resourceHandlerCheck'
+			},
+			{
+				value : this.prefs.resourceHandlerCheck,
+	 			disabled: false
+			}
+		);
 
 		this.controller.listen('updateInterval', Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('fixUnknown',     Mojo.Event.propertyChange, this.toggleChangeHandler);
+		this.controller.listen('resourceHandlerCheck',    Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		
 		

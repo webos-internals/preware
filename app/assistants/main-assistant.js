@@ -138,7 +138,10 @@ MainAssistant.prototype.activate = function(event)
 	else
 	{
 		this.searchElement = this.searchWidget.querySelector('[name=searchElement]');
-		//rh.doIt(this);
+		if (prefs.get().resourceHandlerCheck)
+		{
+			rh.doIt(this);
+		}
 	}
 	this.firstActivate = true;
 };
