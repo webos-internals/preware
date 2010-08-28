@@ -84,8 +84,8 @@ resourceHandler.prototype.makeActive = function()
 }
 resourceHandler.prototype.swapResourceResponse = function(payload)
 {
-	alert('=================');
-	for (var p in payload) alert(p+': '+payload[p]);
+	//alert('=================');
+	//for (var p in payload) alert(p+': '+payload[p]);
 	
 	if (payload.returnValue)
 	{
