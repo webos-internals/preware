@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.3.1',
+	     log:
+	     [
+		  'Check whether Preware is the default application for handling packages, and advise the user if it is not',
+	      ]
+	 },
+	 {
 	     version: '1.3.0',
 	     log:
 	     [
