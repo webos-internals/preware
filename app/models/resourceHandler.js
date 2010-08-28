@@ -67,9 +67,9 @@ resourceHandler.prototype.makeActive = function()
 		}
 		if (index > -1)
 		{
-			var request = new Mojo.Service.Request(resourceHandler.serviceIdentifier,
+			var request = new Mojo.Service.Request(IPKGService.identifier,
 			{
-				method: 'swapResourceHandler',
+				method: 'swapResource',
 				parameters:
 				{
 					mimeType: this.mime,
