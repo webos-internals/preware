@@ -245,4 +245,8 @@
 "Package Id": "Id Paquetage",
 "<strong>Scanning Unknown Packages</strong><br />": "<strong>Analyse/Recherche paquetages inconnus</strong><br />",
 "Name": "Nom",
+"FileType Association": "Association par type de fichiers",
+"Preware is not currently the default application for handling .ipk files.<br>Current Default: #{active}<br><br><b>Would you like to make Preware the default application?</b>": "Preware n\'est pas actuellement l\'application par défaut pour ouvrir/lancer les fichiers .ipk.<br>Paramétrage par défaut actuel: #{active}<br><br><b>Voulez-vous mettre Preware comme application par défaut ?</b>",
+"Always perform check": "Toujours effectuer la vérification",
+"Unknown": "Inconnu",
 }
