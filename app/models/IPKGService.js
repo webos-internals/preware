@@ -193,6 +193,17 @@ IPKGService.getControlFile = function(callback, pkg)
 	});
 	return request;
 };
+IPKGService.getPackageInfo = function(callback, pkg)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'getPackageInfo',
+		parameters: {"package":pkg},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+};
 
 IPKGService.addConfig = function(callback, config, name, url, gzip)
 {
