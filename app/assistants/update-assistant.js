@@ -42,6 +42,10 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 				command: 'do-feeds'
 			},
 			{
+				label: $L("Install Package"),
+				command: 'do-install'
+			},
+			{
 				label: $L("Luna Manager"),
 				command: 'do-luna'
 			},
@@ -508,6 +512,10 @@ UpdateAssistant.prototype.handleCommand = function(event)
 			
 			case 'do-feeds':
 				this.controller.stageController.pushScene('configs');
+				break;
+				
+			case 'do-install':
+				this.controller.stageController.pushScene('pkg-install');
 				break;
 	
 			case 'do-showLog':
