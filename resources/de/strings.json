@@ -246,4 +246,8 @@
 "Package Id" : "Package Id",
 "<strong>Fixing Unknown Packages</strong><br />" : "<strong>Fixing Unknown Packages</strong><br />",
 "Name": "Name",
+"FileType Association": "FileType Association",
+"Preware is not currently the default application for handling .ipk files.<br>Current Default: #{active}<br><br><b>Would you like to make Preware the default application?</b>": "Preware is not currently the default application for handling .ipk files.<br>Current Default: #{active}<br><br><b>Would you like to make Preware the default application?</b>",
+"Always perform check": "Always perform check",
+"Unknown": "Unknown",
 }
