@@ -71,6 +71,12 @@ body.palm-dark .add-item .title
   color: #777;
 }
 
+.palm-dialog-box .label {
+  color: #1f75bf !important;
+  text-shadow: #ffffff 0px 1px 0px !important;
+}
+
+
 /*
  * Startup Scene Styles
  */

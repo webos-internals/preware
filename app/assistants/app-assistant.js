@@ -5,8 +5,8 @@ var packages = new packagesModel();
 var prefs = new preferenceCookie();
 var vers =  new versionCookie();
 
-// file handler object
-//var fh = new fileHandler({mime: 'application/vnd.webos.ipk'});
+// resource handler object
+//var rh = new resourceHandler({mime: 'application/vnd.webos.ipk'});
 
 // stage names
 var mainStageName = 'preware-main';
