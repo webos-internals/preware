@@ -1868,6 +1868,42 @@ bool installStatus_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 //
+// Handler for the addResourceHandler service.
+//
+bool addResource_handler(LSHandle* lshandle, LSMessage *reply, void *ctx) {
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+  LSMessage* message = (LSMessage*)ctx;
+  retVal = LSMessageRespond(message, LSMessageGetPayload(reply), &lserror);
+  LSMessageUnref(message);
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
+}
+
+//
+// Call the addResourceHandler service using liblunaservice and return the output to webOS.
+//
+bool addResource_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+  LSMessageRef(message);
+  const char *payload;
+  payload = LSMessageGetPayload(message);
+  retVal = LSCall(priv_serviceHandle, "palm://com.palm.applicationManager/addResourceHandler",
+		  payload, addResource_handler, message, NULL, &lserror);
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
+}
+
+//
 // Handler for the swapResourceHandler service.
 //
 bool swapResource_handler(LSHandle* lshandle, LSMessage *reply, void *ctx) {
@@ -1943,6 +1979,7 @@ LSMethod luna_methods[] = {
   { "listApps",		listApps_method },
   { "installStatus",	installStatus_method },
 
+  { "addResource",	addResource_method },
   { "swapResource",	swapResource_method },
 
   { 0, 0 }
