@@ -220,8 +220,8 @@ resourceHandler.prototype.listMimeHandlers = function(callback)
 		{
 			mime: this.mime
 		},
-		onSuccess: this.listMimeHandlersResponse.bind(this, callback),
-		onFailure: this.listMimeHandlersResponse.bind(this, callback)
+		onSuccess: this.listMimeHandlersResponse.bindAsEventListener(this, callback),
+		onFailure: this.listMimeHandlersResponse.bindAsEventListener(this, callback)
 	});
 	return request;
 }
