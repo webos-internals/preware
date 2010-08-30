@@ -113,7 +113,7 @@ resourceHandler.prototype.addResourceResponse = function(payload, activate)
 		this.listExtMap();
 		if (activate)
 		{
-			this.listMimeHandlers(this.addActive.bind(this));
+			this.listMimeHandlers(this.addActivate.bind(this));
 		}
 		else
 		{
