@@ -9,7 +9,7 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
-	     version: '1.3.2',
+	     version: '1.3.3',
 	     log:
 	     [
 		  'Always ask the user before modifying the file association list',
