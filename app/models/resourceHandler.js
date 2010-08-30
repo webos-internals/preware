@@ -97,15 +97,16 @@ resourceHandler.prototype.add = function(activate)
 			mimeType:  this.mime,
 			appId:	   Mojo.Controller.appInfo.id
 		},
-		onSuccess: this.addResourceResponse.bind(this, activate),
-		onFailure: this.addResourceResponse.bind(this, activate)
+		onSuccess: this.addResourceResponse.bindAsEventListener(this, activate),
+		onFailure: this.addResourceResponse.bindAsEventListener(this, activate)
 	});
 	return request;
 }
 resourceHandler.prototype.addResourceResponse = function(payload, activate)
 {
-	//alert('=================');
-	//for (var p in payload) alert(p+': '+payload[p]);
+	alert('=================');
+	alert('ACTIVATE?: '+activate);
+	for (var p in payload) alert(p+': '+payload[p]);
 	
 	if (payload.returnValue)
 	{
@@ -122,8 +123,10 @@ resourceHandler.prototype.addResourceResponse = function(payload, activate)
 }
 resourceHandler.prototype.addActivate = function()
 {
+	alert('CHECKING ACTIVE');
 	if (!this.isActive())
 	{
+		alert('ACTIVATING!');
 		this.makeActive();
 	}
 }
