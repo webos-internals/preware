@@ -257,7 +257,7 @@ resourceHandlerDialog.prototype.setup = function(widget)
 	if (this.type == 'add')
 	{
 		this.dialogMessage.innerHTML =	$L(this.resourceHandler.addMessage);
-		this.alwaysCheck.innerHTML = 	$L('Make active handler');
+		this.toggleMessage.innerHTML = 	$L('Make active handler');
 		var toggleValue = true;
 	}
 	else if (this.type == 'active')
