@@ -110,11 +110,14 @@ resourceHandler.prototype.addResourceResponse = function(payload, activate)
 	if (payload.returnValue)
 	{
 		this.listExtMap();
-		this.listMimeHandlers();
-		if (activate && !this.isActive())
-		{
-			this.makeActive();
-		}
+		this.listMimeHandlers(this.addActive.bind(this));
+	}
+}
+resourceHandler.prototype.addActivate = function()
+{
+	if (!this.isActive())
+	{
+		this.makeActive();
 	}
 }
 
@@ -207,7 +210,7 @@ resourceHandler.prototype.listExtMapResponse = function(payload)
 	}
 }
 
-resourceHandler.prototype.listMimeHandlers = function()
+resourceHandler.prototype.listMimeHandlers = function(callback)
 {
 	this.resourceHandlers = false;
 	var request = new Mojo.Service.Request(resourceHandler.serviceIdentifier,
@@ -217,16 +220,17 @@ resourceHandler.prototype.listMimeHandlers = function()
 		{
 			mime: this.mime
 		},
-		onSuccess: this.listMimeHandlersResponse.bind(this),
-		onFailure: this.listMimeHandlersResponse.bind(this)
+		onSuccess: this.listMimeHandlersResponse.bind(this, callback),
+		onFailure: this.listMimeHandlersResponse.bind(this, callback)
 	});
 	return request;
 }
-resourceHandler.prototype.listMimeHandlersResponse = function(payload)
+resourceHandler.prototype.listMimeHandlersResponse = function(payload, callback)
 {
 	if (payload.returnValue)
 	{
 		this.resourceHandlers = payload.resourceHandlers;
+		if (typeof callback == 'function') callback();
 		if (this.log)
 		{
 			alert('=================');
