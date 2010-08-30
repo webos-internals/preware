@@ -104,9 +104,9 @@ resourceHandler.prototype.add = function(activate)
 }
 resourceHandler.prototype.addResourceResponse = function(payload, activate)
 {
-	alert('=================');
-	alert('ACTIVATE?: '+activate);
-	for (var p in payload) alert(p+': '+payload[p]);
+	//alert('=================');
+	//alert('ACTIVATE?: '+activate);
+	//for (var p in payload) alert(p+': '+payload[p]);
 	
 	if (payload.returnValue)
 	{
@@ -123,10 +123,10 @@ resourceHandler.prototype.addResourceResponse = function(payload, activate)
 }
 resourceHandler.prototype.addActivate = function()
 {
-	alert('CHECKING ACTIVE');
+	//alert('CHECKING ACTIVE');
 	if (!this.isActive())
 	{
-		alert('ACTIVATING!');
+		//alert('ACTIVATING!');
 		this.makeActive();
 	}
 }
