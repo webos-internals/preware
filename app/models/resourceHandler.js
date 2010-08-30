@@ -68,13 +68,16 @@ resourceHandler.prototype.isAdded = function()
 			if (this.isActive()) return true;
 			if (this.resourceHandlers)
 			{
-				if (this.resourceHandlers.alternates.length > 0)
+				if (this.resourceHandlers.alternates)
 				{
-					for (var a = 0; a < this.resourceHandlers.alternates.length; a++)
+					if (this.resourceHandlers.alternates.length > 0)
 					{
-						if (this.resourceHandlers.alternates[a].appId == Mojo.Controller.appInfo.id)
+						for (var a = 0; a < this.resourceHandlers.alternates.length; a++)
 						{
-							return true;
+							if (this.resourceHandlers.alternates[a].appId == Mojo.Controller.appInfo.id)
+							{
+								return true;
+							}
 						}
 					}
 				}
