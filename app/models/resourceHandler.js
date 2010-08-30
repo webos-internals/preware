@@ -14,7 +14,7 @@ function resourceHandler(params)
 	this.extensionMap =		false;
 	this.resourceHandlers =	false;
 	
-	this.log =				true;
+	this.log =				false;
 	
 	if (prefs.get().resourceHandlerCheck)
 	{
@@ -136,13 +136,16 @@ resourceHandler.prototype.makeActive = function()
 	var index = -1;
 	if (this.resourceHandlers)
 	{
-		if (this.resourceHandlers.alternates.length > 0)
+		if (this.resourceHandlers.alternates)
 		{
-			for (var a = 0; a < this.resourceHandlers.alternates.length; a++)
+			if (this.resourceHandlers.alternates.length > 0)
 			{
-				if (this.resourceHandlers.alternates[a].appId == Mojo.Controller.appInfo.id)
+				for (var a = 0; a < this.resourceHandlers.alternates.length; a++)
 				{
-					index = this.resourceHandlers.alternates[a].index;
+					if (this.resourceHandlers.alternates[a].appId == Mojo.Controller.appInfo.id)
+					{
+						index = this.resourceHandlers.alternates[a].index;
+					}
 				}
 			}
 		}
@@ -226,11 +229,18 @@ resourceHandler.prototype.listMimeHandlersResponse = function(payload)
 			alert('=================');
 			alert('active ---');
 			for (var c in payload.resourceHandlers.activeHandler) alert(c+': '+payload.resourceHandlers.activeHandler[c]);
-			alert('alternates: '+payload.resourceHandlers.alternates.length+' ---');
-			payload.resourceHandlers.alternates.each(function(l)
+			if (payload.resourceHandlers.alternates)
 			{
-				for (var c in l) alert(c+': '+l[c]);
-			}.bind(this));
+				alert('alternates: '+payload.resourceHandlers.alternates.length+' ---');
+				payload.resourceHandlers.alternates.each(function(l)
+				{
+					for (var c in l) alert(c+': '+l[c]);
+				}.bind(this));
+			}
+			else
+			{
+				alert('alternates: 0');
+			}
 		}
 	}
 }
