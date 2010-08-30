@@ -10,7 +10,8 @@ var rh = new resourceHandler(
 {
 	extension:		'ipk',
 	mime:			'application/vnd.webos.ipk',
-	dialogMessage:	'Preware is not currently the default application for handling .ipk files.<br>Current Default: #{active}<br><br><b>Would you like to make Preware the default application?</b>',
+	addMessage:		'Preware is not associated to open applicaiton packages (.ipk files) from email or web.<br><br><b>Would you like to add preware to the association list for .ipk?</b>',
+	activeMessage:	'Preware is not currently the default application for handling .ipk files.<br>Current Default: #{active}<br><br><b>Would you like to make Preware the default application?</b>',
 });
 
 // stage names

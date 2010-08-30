@@ -1,5 +1,5 @@
 /*
- * filePicker
+ * resourceHandler
  */
 
 resourceHandler.serviceIdentifier = 'palm://com.palm.applicationManager';
@@ -8,29 +8,110 @@ function resourceHandler(params)
 {
 	this.extension =		params.extension;
 	this.mime =				params.mime;
-	this.dialogMessage =	params.dialogMessage;
+	this.addMessage =		params.addMessage;
+	this.activeMessage =	params.activeMessage;
 
 	this.extensionMap =		false;
 	this.resourceHandlers =	false;
 	
-	this.log =				false;
+	this.log =				true;
 	
 	if (prefs.get().resourceHandlerCheck)
 	{
+		this.listExtMap();
 		this.listMimeHandlers();
 	}
 }
 
 resourceHandler.prototype.doIt = function(assistant)
 {
-	if (!this.isActive())
+	if (!this.isAdded())
 	{
 		assistant.controller.showDialog(
 		{
 			template: 'resource-handler/dialog',
-			assistant: new resourceHandlerDialog(assistant, this),
+			assistant: new resourceHandlerDialog(assistant, this, 'add'),
 			preventCancel: true
 		});
+	}
+	else
+	{
+		if (!this.isActive())
+		{
+			assistant.controller.showDialog(
+			{
+				template: 'resource-handler/dialog',
+				assistant: new resourceHandlerDialog(assistant, this, 'active'),
+				preventCancel: true
+			});
+		}
+	}
+}
+
+resourceHandler.prototype.isAdded = function()
+{
+	if (this.extensionMap) 
+	{
+		var foundExtension = false;
+		for (var m = 0; m < this.extensionMap.length; m++)
+		{
+			for (var x in this.extensionMap[m])
+			{
+				if (x == this.extension && this.extensionMap[m][x] == this.mime)
+				{
+					foundExtension = true;
+				}
+			}
+		}
+		if (foundExtension)
+		{
+			if (this.isActive()) return true;
+			if (this.resourceHandlers)
+			{
+				if (this.resourceHandlers.alternates.length > 0)
+				{
+					for (var a = 0; a < this.resourceHandlers.alternates.length; a++)
+					{
+						if (this.resourceHandlers.alternates[a].appId == Mojo.Controller.appInfo.id)
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+resourceHandler.prototype.add = function(activate)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'addResource',
+		parameters:
+		{
+			extension: this.extension,
+			mimeType:  this.mime,
+			appId:	   Mojo.Controller.appInfo.id
+		},
+		onSuccess: this.addResourceResponse.bind(this, activate),
+		onFailure: this.addResourceResponse.bind(this, activate)
+	});
+	return request;
+}
+resourceHandler.prototype.addResourceResponse = function(payload, activate)
+{
+	//alert('=================');
+	//for (var p in payload) alert(p+': '+payload[p]);
+	
+	if (payload.returnValue)
+	{
+		this.listExtMap();
+		this.listMimeHandlers();
+		if (activate && !this.isActive())
+		{
+			this.makeActive();
+		}
 	}
 }
 
@@ -48,7 +129,7 @@ resourceHandler.prototype.getActive = function()
 	{
 		return this.resourceHandlers.activeHandler.appName;
 	}
-	return 'Unknown';
+	return $L('Unknown');
 }
 resourceHandler.prototype.makeActive = function()
 {
@@ -156,10 +237,11 @@ resourceHandler.prototype.listMimeHandlersResponse = function(payload)
 
 
 
-function resourceHandlerDialog(sceneAssistant, resourceHandler)
+function resourceHandlerDialog(sceneAssistant, resourceHandler, type)
 {
 	this.sceneAssistant =	sceneAssistant;
 	this.resourceHandler =	resourceHandler;
+	this.type =				type
 }
 resourceHandlerDialog.prototype.setup = function(widget)
 {
@@ -169,11 +251,21 @@ resourceHandlerDialog.prototype.setup = function(widget)
 	this.dialogMessage =	this.sceneAssistant.controller.get('dialogMessage');
 	this.yesButton =		this.sceneAssistant.controller.get('yesButton');
 	this.noButton =			this.sceneAssistant.controller.get('noButton');
-	this.alwaysCheck =		this.sceneAssistant.controller.get('always-perform-check');
+	this.toggleMessage =	this.sceneAssistant.controller.get('toggleMessage');
 	
 	this.dialogTitle.innerHTML =	$L('FileType Association');
-	this.dialogMessage.innerHTML =	$L(this.resourceHandler.dialogMessage).interpolate({active: this.resourceHandler.getActive()});
-	this.alwaysCheck.innerHTML = 	$L('Always perform check');
+	if (this.type == 'add')
+	{
+		this.dialogMessage.innerHTML =	$L(this.resourceHandler.addMessage);
+		this.alwaysCheck.innerHTML = 	$L('Make active handler');
+		var toggleValue = true;
+	}
+	else if (this.type == 'active')
+	{
+		this.dialogMessage.innerHTML =	$L(this.resourceHandler.activeMessage).interpolate({active: this.resourceHandler.getActive()});
+		this.toggleMessage.innerHTML = 	$L('Always perform check');
+		var toggleValue = prefs.get().resourceHandlerCheck;
+	}
 	
 	this.yesTapped =	this.yes.bindAsEventListener(this);
 	this.noTapped =		this.no.bindAsEventListener(this);
@@ -199,14 +291,14 @@ resourceHandlerDialog.prototype.setup = function(widget)
 	
 	this.sceneAssistant.controller.setupWidget
 	(
-		'performCheck',
+		'dialogToggle',
 		{
   			trueLabel:  $L("Yes"),
  			falseLabel: $L("No")
 		},
-		this.performCheckModel =
+		this.dialogToggleModel =
 		{
-			value: prefs.get().resourceHandlerCheck
+			value: toggleValue
 		}
 	);
 	
@@ -216,16 +308,31 @@ resourceHandlerDialog.prototype.setup = function(widget)
 resourceHandlerDialog.prototype.yes = function(event)
 {
 	event.stop();
-	prefs.prefs.resourceHandlerCheck = this.performCheckModel.value;
-	prefs.put(prefs.prefs);
-	this.resourceHandler.makeActive();
+	if (this.type == 'add')
+	{
+		this.resourceHandler.add(this.dialogToggleModel.value);
+	}
+	else if (this.type == 'active')
+	{
+		prefs.prefs.resourceHandlerCheck = this.dialogToggleModel.value;
+		prefs.put(prefs.prefs);
+		this.resourceHandler.makeActive();
+	}
 	this.widget.mojo.close();
 }
 resourceHandlerDialog.prototype.no = function(event)
 {
 	event.stop();
-	prefs.prefs.resourceHandlerCheck = this.performCheckModel.value;
-	prefs.put(prefs.prefs);
+	if (this.type == 'add')
+	{
+		prefs.prefs.resourceHandlerCheck = false;
+		prefs.put(prefs.prefs);
+	}
+	else if (this.type == 'active')
+	{
+		prefs.prefs.resourceHandlerCheck = this.dialogToggleModel.value;
+		prefs.put(prefs.prefs);
+	}
 	this.widget.mojo.close();
 }
 resourceHandlerDialog.prototype.cleanup = function(event)
