@@ -28,7 +28,7 @@ AppAssistant.prototype.handleLaunch = function(params)
 	{
 		//alert('-----LAUNCHPARAMS-----');
 		//for (var p in params) alert(p+': '+params[p]);
-		if (!params) 
+		if (!params || (params.source && params.source == 'updateNotification')) 
 		{
 			var mainStageController = this.controller.getStageController(mainStageName);
 	        if (mainStageController)
