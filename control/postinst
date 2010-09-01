@@ -27,6 +27,10 @@ rm -f /var/usr/sbin/${SID}
 # Remove the dbus service
 rm -f /usr/share/dbus-1/system-services/${SID}.service /var/palm/system-services/${SID}.service
 
+# Remove the ls2 roles
+rm -f /usr/share/ls2/roles/prv/${SID}.json /var/palm/ls2/roles/prv/${SID}.json
+rm -f /usr/share/ls2/roles/pub/${SID}.json /var/palm/ls2/roles/pub/${SID}.json
+
 # Stop the service if running
 /sbin/stop ${SID} || true
 /usr/bin/killall -9 ${SID} || true
@@ -43,10 +47,10 @@ mkdir -p /var/palm/system-services
 cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /var/palm/system-services/${SID}.service
 
 # Install the ls2 roles
-mkdir -p /var/palm/ls2/roles/prv
-cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /var/palm/ls2/roles/prv/${SID}.json
-mkdir -p /var/palm/ls2/roles/pub
-cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /var/palm/ls2/roles/pub/${SID}.json
+if [ -d /usr/share/ls2/roles ] ; then
+  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /usr/share/ls2/roles/prv/${SID}.json
+  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /usr/share/ls2/roles/pub/${SID}.json
+fi
 
 # Install the upstart script
 mkdir -p /var/palm/event.d

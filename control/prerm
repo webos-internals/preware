@@ -3,7 +3,15 @@
 PID="org.webosinternals.preware"
 SID="org.webosinternals.ipkgservice"
 
+# Handle execution as pmPreRemove.script
+if [ -z "$IPKG_OFFLINE_ROOT" ]; then
+  IPKG_OFFLINE_ROOT=/media/cryptofs/apps
+  mount -o remount,rw /
+fi
+
 APPS=/media/cryptofs/apps
+
+[ -d $APPS ] || { echo "Requires webOS 1.3.5 or later" ; exit 1 ; }
 
 # Only remove the service if neither Preware or Preware Alpha will remain
 if [ ! -f ${APPS}/usr/palm/applications/${PID}/appinfo.json -o \
@@ -16,8 +24,8 @@ if [ ! -f ${APPS}/usr/palm/applications/${PID}/appinfo.json -o \
   rm -f /var/palm/system-services/${SID}.service
 
   # Remove the ls2 roles
-  rm -f /var/palm/ls2/roles/prv/${SID}.json
-  rm -f /var/palm/ls2/roles/pub/${SID}.json
+  rm -f /usr/share/ls2/roles/prv/${SID}.json /var/palm/ls2/roles/prv/${SID}.json
+  rm -f /usr/share/ls2/roles/pub/${SID}.json /var/palm/ls2/roles/pub/${SID}.json
 
   # Don't stop the service, because it is needed to remove the package
   # /sbin/stop ${SID} || true
