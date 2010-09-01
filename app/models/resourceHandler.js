@@ -14,12 +14,13 @@ function resourceHandler(params)
 	this.extensionMap =		false;
 	this.resourceHandlers =	false;
 	
+	this.brokenMime =		false; // this variable only needed for preware
+	
 	this.log =				false;
 	
 	if (prefs.get().resourceHandlerCheck)
 	{
-		this.listExtMap();
-		this.listMimeHandlers();
+		this.listExtMap(this.listMimeHandlers.bind(this));
 	}
 }
 
@@ -61,6 +62,21 @@ resourceHandler.prototype.isAdded = function()
 				{
 					foundExtension = true;
 				}
+				// this condition is only needed for preware
+				if (x == this.extension && this.extensionMap[m][x] == 'application/vnd.preware.ipk')
+				{
+					this.brokenMime = true;
+					assistant.controller.showAlertDialog(
+					{
+					    title:				$L("Preware <3s You"),
+						preventCancel:		true,
+						allowHTMLMessage:	true,
+					    message:			$L("A few months ago, we released a beta version of preware. A version that was only in the beta feeds for about 6 hours. And you were fortunate enough to get that very special and totally awesome version of preware...<br><br>Unfortunately, that version had a bug. A bug which incorrectly registered itself to handle .ipk files. And now, that bug has the possibility to cause you some unanticipated problems. And we're very sorry about that.<br><br>Fortunately, we have a fix."),
+					    choices:			[{label:$L("Take me to it!"), value:'ok'}],
+						onChoose:			this.brokenMimeDialogResponse.bindAsEventListener(this)
+				    });
+					return true;
+				}
 			}
 		}
 		if (foundExtension)
@@ -86,6 +102,28 @@ resourceHandler.prototype.isAdded = function()
 	}
 	return false;
 }
+resourceHandler.prototype.brokenMimeDialogResponse = function(value)
+{	// this function is only needed for preware
+	if (value == "ok")
+	{
+		var num = packages.packageInList('org.webosinternals.emergency-mimetable-reset');
+		if (num === false)
+		{
+			assistant.controller.showAlertDialog(
+			{
+			    title:				$L("Preware"),
+				allowHTMLMessage:	true,
+			    message:			$L("We couldn't find it! Make sure you have the right feeds turned on."),
+			    choices:			[{label:$L("Ok"), value:'ok'}],
+				onChoose:			function(e){}
+		    });
+		}
+		else
+		{
+			assistant.controller.stageController.pushScene('pkg-view', packages.packages[num].getForList(), this);
+		}
+	}
+};
 resourceHandler.prototype.add = function(activate)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
@@ -110,14 +148,13 @@ resourceHandler.prototype.addResourceResponse = function(payload, activate)
 	
 	if (payload.returnValue)
 	{
-		this.listExtMap();
 		if (activate)
 		{
-			this.listMimeHandlers(this.addActivate.bind(this));
+			this.listExtMap(this.listMimeHandlers.bind(this, this.addActivate.bind(this)));
 		}
 		else
 		{
-			this.listMimeHandlers();
+			this.listExtMap(this.listMimeHandlers.bind(this));
 		}
 	}
 }
@@ -133,6 +170,8 @@ resourceHandler.prototype.addActivate = function()
 
 resourceHandler.prototype.isActive = function()
 {
+	if (this.brokenMime) return true; // this escape route only needed for preware
+	
 	if (this.resourceHandlers) 
 	{
 		if (this.resourceHandlers.activeHandler.appId == Mojo.Controller.appInfo.id) return true;
@@ -193,22 +232,23 @@ resourceHandler.prototype.swapResourceResponse = function(payload)
 	}
 }
 
-resourceHandler.prototype.listExtMap = function()
+resourceHandler.prototype.listExtMap = function(callback)
 {
 	this.extensionMap = false;
 	var request = new Mojo.Service.Request(resourceHandler.serviceIdentifier,
 	{
 		method: 'listExtensionMap',
-		onSuccess: this.listExtMapResponse.bind(this),
-		onFailure: this.listExtMapResponse.bind(this)
+		onSuccess: this.listExtMapResponse.bindAsEventListener(this, callback),
+		onFailure: this.listExtMapResponse.bindAsEventListener(this, callback)
 	});
 	return request;
 }
-resourceHandler.prototype.listExtMapResponse = function(payload)
+resourceHandler.prototype.listExtMapResponse = function(payload, callback)
 {
 	if (payload.returnValue)
 	{
 		this.extensionMap = payload.extensionMap;
+		if (typeof callback == 'function') callback();
 		if (this.log)
 		{
 			alert('=================');
