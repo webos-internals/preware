@@ -239,6 +239,16 @@ IPKGService.deleteConfig = function(callback, config, name)
 	});
 	return request;
 };
+IPKGService.installStatus = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'installStatus',
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+};
 
 IPKGService.logClear = function()
 {

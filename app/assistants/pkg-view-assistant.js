@@ -444,12 +444,7 @@ PkgViewAssistant.prototype.doGetAppCatInstallStatus = function(operation)
 		operation == 'update' ||
 		operation == 'remove')
 	{
-	    this.controller.serviceRequest("palm://com.palm.appInstallService", {
-		    method:"status",
-		    parameters:{},
-		    onSuccess: this.doCheckAppCatInstalls.bindAsEventListener(this, operation),
-		    onFailure: this.doCheckAppCatInstalls.bindAsEventListener(this, operation)
-		});
+		IPKGService.installStatus(this.doCheckAppCatInstalls.bindAsEventListener(this, operation));
 	}
 };
 

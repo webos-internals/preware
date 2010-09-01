@@ -148,17 +148,7 @@ PkgInstallAssistant.prototype.browsed = function(value)
 
 PkgInstallAssistant.prototype.installButtonPressed = function(event)
 {
-	this.doGetAppCatInstallStatus();
-}
-PkgInstallAssistant.prototype.doGetAppCatInstallStatus = function()
-{
-    this.controller.serviceRequest("palm://com.palm.appInstallService",
-	{
-	    method:		"status",
-	    parameters:	{},
-	    onSuccess: 	this.doCheckAppCatInstalls.bindAsEventListener(this),
-	    onFailure: 	this.doCheckAppCatInstalls.bindAsEventListener(this)
-	});
+	IPKGService.installStatus(this.doCheckAppCatInstalls.bindAsEventListener(this));
 };
 
 PkgInstallAssistant.prototype.doCheckAppCatInstalls = function(response)

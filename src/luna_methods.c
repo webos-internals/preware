@@ -1843,6 +1843,7 @@ bool installStatus_handler(LSHandle* lshandle, LSMessage *reply, void *ctx) {
   LSErrorInit(&lserror);
   LSMessage* message = (LSMessage*)ctx;
   retVal = LSMessageRespond(message, LSMessageGetPayload(reply), &lserror);
+  LSMessageUnref(message);
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
     LSErrorFree(&lserror);
@@ -1858,7 +1859,7 @@ bool installStatus_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
   LSMessageRef(message);
-  retVal = LSCall(priv_serviceHandle, "palm://com.palm.appInstallService/status", "{\"subscribe\":true}",
+  retVal = LSCall(priv_serviceHandle, "palm://com.palm.appInstallService/status", "{}",
 		  installStatus_handler, message, NULL, &lserror);
   if (!retVal) {
     LSErrorPrint(&lserror, stderr);
