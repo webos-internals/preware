@@ -39,18 +39,18 @@ mkdir -p /var/usr/sbin/
 install -m 755 $APPS/usr/palm/applications/${PID}/bin/${SID} /var/usr/sbin/${SID}
 
 # Install the dbus service
-if [ -d /var/palm/system-services ] ; then
-  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /var/palm/system-services/${SID}.service
-else
-  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /usr/share/dbus-1/system-services/${SID}.service
-fi
+mkdir -p /var/palm/system-services
+cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /var/palm/system-services/${SID}.service
+
+# Install the ls2 roles
+mkdir -p /var/palm/ls2/roles/prv
+cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /var/palm/ls2/roles/prv/${SID}.json
+mkdir -p /var/palm/ls2/roles/pub
+cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /var/palm/ls2/roles/pub/${SID}.json
 
 # Install the upstart script
-if [ -d /var/palm/event.d ] ; then
-  cp $APPS/usr/palm/applications/${PID}/upstart/${SID} /var/palm/event.d/${SID}
-else
-  cp $APPS/usr/palm/applications/${PID}/upstart/${SID} /etc/event.d/${SID}
-fi
+mkdir -p /var/palm/event.d
+cp $APPS/usr/palm/applications/${PID}/upstart/${SID} /var/palm/event.d/${SID}
 
 # Start the service
 /sbin/start ${SID}
@@ -136,11 +136,5 @@ if [ "`ls $APPS/etc/ipkg/*.new`" ] ; then
     fi
   done
 fi
-
-# Check the upstart script is installed
-[ -f /var/palm/event.d/${SID} ] || [ -f /etc/event.d/${SID} ] || exit 1
-
-# Check the dbus service is installed
-[ -f /var/palm/system-services/${SID}.service ] || [ -f /usr/share/dbus-1/system-services/${SID}.service ] || exit 1
 
 exit 0
