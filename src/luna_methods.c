@@ -823,7 +823,7 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   char filename[MAXLINLEN];
 
   // Extract the feed argument from the message
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id = json_find_first_label(object, "feed");               
   if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
     if (!LSMessageReply(lshandle, message,
@@ -860,7 +860,7 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
   int size;
   int datasize = 0;
 
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id = json_find_first_label(object, "package");               
 
   if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
@@ -939,7 +939,7 @@ bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   char filename[MAXLINLEN];
 
   // Extract the feed argument from the message
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id = json_find_first_label(object, "package");               
   if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
     if (!LSMessageReply(lshandle, message,
@@ -980,7 +980,7 @@ bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   char filename[MAXLINLEN];
 
   // Extract the feed argument from the message
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id = json_find_first_label(object, "package");               
   if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
     if (!LSMessageReply(lshandle, message,
@@ -1020,7 +1020,7 @@ bool get_dir_listing_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   // Was there an error in accessing any of the files?
   bool error = false;
 
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id = json_find_first_label(object, "directory");
 
   if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS"/") != strlen(id->child->text))) {
@@ -1105,7 +1105,7 @@ bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   LSError lserror;
   LSErrorInit(&lserror);
 
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id;
 
   // Extract the config argument from the message
@@ -1167,7 +1167,7 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id;
 
   // Extract the config argument from the message
@@ -1249,7 +1249,7 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id;
 
   // Extract the config argument from the message
@@ -1322,7 +1322,7 @@ bool do_install(LSHandle* lshandle, LSMessage *message, bool useSvc, bool *insta
     installFilter = passthrough;
   }
 
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id;
 
   *installed = false;
@@ -1555,7 +1555,7 @@ bool do_remove(LSHandle* lshandle, LSMessage *message, bool replace, bool *remov
   LSError lserror;
   LSErrorInit(&lserror);
 
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id;
 
   *removed = false;
@@ -1718,7 +1718,7 @@ bool extract_control_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
   char command[MAXLINLEN];
 
-  json_t *object = LSMessageGetPayloadJSON(message);
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id;
 
   // Extract the filename argument from the message
