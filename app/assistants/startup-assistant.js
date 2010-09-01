@@ -9,6 +9,14 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.3.4',
+	     log:
+	     [
+		  'Preware now supports installation of application package files (.ipk files) directly from URLs, email attachments, and local files.  Also supported are Send to Preware links on homebrew application gallery and news websites (this requires the Neato! application to also be installed)',
+		  'If Preware continually asks you about file associations on every single launch, even after you have answered Yes to the questions it asks, then you may have a damaged file association table and will need to run the Emergency MimeTable Reset tool and then reboot to repair it',
+	      ]
+	 },
+	 {
 	     version: '1.3.3',
 	     log:
 	     [
