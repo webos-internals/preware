@@ -247,4 +247,5 @@
 "Always perform check": "Toujours effectuer la vérification",
 "Unknown": "Inconnu",
 "Check .ipk Association": "Verif. assoc. avec .ipk",
+"<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the package that you just installed.</i><br />": "<b>Un redémarrage du téléphone est requis</b><br /><i>Vous aurez besoin de redémarrer votre téléphone pour avoir la possibilité d'utiliser le paquetage qui vient d'être installé.</i><br />",
 }
