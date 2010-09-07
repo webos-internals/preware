@@ -246,4 +246,6 @@
 "Preware is not currently the default application for handling .ipk files.<br>Current Default: #{active}<br><br><b>Would you like to make Preware the default application?</b>": "Preware is not currently the default application for handling .ipk files.<br>Current Default: #{active}<br><br><b>Would you like to make Preware the default application?</b>",
 "Always perform check": "Always perform check",
 "Unknown": "Unknown",
+"Check .ipk Association": "Check .ipk Association",
+"<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the package that you just installed.</i><br />": "<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the package that you just installed.</i><br />",
 }

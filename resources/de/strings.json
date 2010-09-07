@@ -249,5 +249,6 @@
 "Always perform check": "Immer überprüfen",
 "Make active handler" : "Zuordnung aktivieren",
 "Check .ipk Association" : ".IPK Zuordnung prüfen",
-"Unknown": "Unknown"
+"Unknown": "Unknown",
+"<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the package that you just installed.</i><br />": "<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the package that you just installed.</i><br />",
 }
