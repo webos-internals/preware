@@ -24,7 +24,8 @@ ConfigsAssistant.prototype.setup = function()
 	this.controller.get('headerButton').innerHTML = $L("Preferences");
 	this.controller.get('headerTitle').innerHTML = $L("Feeds");		
 	this.controller.get('installed-feeds-title').innerHTML = $L("Installed");	
-	this.controller.get('new-feed-title').innerHTML = $L("New Feed");	
+	this.controller.get('new-feed-title').innerHTML = $L("New Feed");
+	this.controller.get('new-feed-name').innerHTML = $L("Name");
 	this.controller.get('new-feed-url').innerHTML = $L("URL");	
 	this.controller.get('new-feed-is-compressed').innerHTML = $L("Is Compressed");	
 	
