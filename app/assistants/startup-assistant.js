@@ -9,6 +9,13 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.3.7',
+	     log:
+	     [
+		  'Updated French translations (courtesy of Yannick LE NY)',
+	      ]
+	 },
+	 {
 	     version: '1.3.6',
 	     log:
 	     [

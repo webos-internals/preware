@@ -47,9 +47,11 @@ mkdir -p /var/palm/system-services
 cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /var/palm/system-services/${SID}.service
 
 # Install the ls2 roles
-if [ -d /usr/share/ls2/roles ] ; then
-  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /usr/share/ls2/roles/prv/${SID}.json
-  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /usr/share/ls2/roles/pub/${SID}.json
+if [ -d /var/palm/ls2/roles ] ; then
+  mkdir -p /var/palm/ls2/roles/prv /var/palm/ls2/roles/pub
+  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /var/palm/ls2/roles/prv/${SID}.json
+  cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /var/palm/ls2/roles/pub/${SID}.json
+  /usr/bin/ls-control scan-services || true
 fi
 
 # Install the upstart script
