@@ -120,7 +120,7 @@ function packagesModel()
 	}
 };
 
-packagesModel.prototype.loadFeeds = function(feeds, urls, updateAssistant)
+packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 {
 	try 
 	{
@@ -128,10 +128,14 @@ packagesModel.prototype.loadFeeds = function(feeds, urls, updateAssistant)
 		this.packages = [];
 		this.packagesReversed = $H();
 		this.hasPrices = false;
-		
-		// get our current data
-		this.feeds = feeds;
-		this.urls = urls;
+		this.feeds = [];
+		this.urls = [];
+
+		for (var i = 0; i < feeds.length; i++) {
+			this.feeds.push(feeds[i].name);
+			this.urls.push(feeds[i].url);
+		}
+
 		this.updateAssistant = updateAssistant;
 		
 		// set title and show progress
@@ -641,7 +645,7 @@ packagesModel.prototype.doneLoading = function()
 			// build types list
 			if (this.types.indexOf(this.packages[p].type) === -1) 
 			{
-				// push new category
+				// push new feed
 				this.types.push(this.packages[p].type);
 			}
 		}

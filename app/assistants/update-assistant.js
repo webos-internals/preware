@@ -270,8 +270,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 				else 
 				{
 					// if not, go right to loading the pkg info
-					this.displayAction($L("<strong>Loading Package Information</strong>"));
-					this.subscription = IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
+					this.loadFeeds();
 				}
 			}
 		}
@@ -307,7 +306,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			else
 			{
 				this.errorMessage('Preware', payload.errorText + '<br>' + payload.stdErr,
-						  this.continueFeeds);
+						  this.loadFeeds);
 			}
 		}
 		else if (payload.stage == "status") {
@@ -322,7 +321,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			// well updating looks to have finished, lets log the date:
 			prefs.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
 			
-			this.continueFeeds();
+			this.loadFeeds();
 		}
 	}
 	catch (e)
@@ -331,7 +330,8 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 		this.errorMessage('onUpdate Error', e, this.doneUpdating);
 	}
 };
-UpdateAssistant.prototype.continueFeeds = function(value)
+
+UpdateAssistant.prototype.loadFeeds = function()
 {
 	// cancel the last subscription, this may not be needed
 	if (this.subscription)
@@ -341,75 +341,13 @@ UpdateAssistant.prototype.continueFeeds = function(value)
 	
 	// lets call the function to update the global list of pkgs
 	this.displayAction($L("<strong>Loading Package Information</strong>"));
-	this.subscription = IPKGService.list_configs(this.onFeeds.bindAsEventListener(this));
+	feeds.loadFeeds(this, this.parseFeeds.bind(this));
 };
-UpdateAssistant.prototype.onFeeds = function(payload)
+
+UpdateAssistant.prototype.parseFeeds = function(feeds)
 {
-	try 
-	{
-		// log payload for display
-		IPKGService.logPayload(payload, $L("Feeds"));
-		
-		if (!payload) 
-		{
-			// i dont know if this will ever happen, but hey, it might
-			this.errorMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your phone and try again."),
-					  this.doneUpdating);
-		}
-		else if (payload.errorCode != undefined) 
-		{
-			// we probably dont need to check this stuff here,
-			// it would have already been checked and errored out of this process
-			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
-			{
-				this.errorMessage('Preware', $L("The service is not running. First try restarting Preware, or reboot your phone and try again."),
-						  this.doneUpdating);
-			}
-			else
-			{
-				this.errorMessage('Preware', payload.errorText, this.doneUpdating);
-			}
-		}
-		else 
-		{
-			// clear feeds array
-			var feeds = [];
-			var urls = [];
-			
-			// load feeds
-			for (var x = 0; x < payload.configs.length; x++)
-			{
-				if (payload.configs[x].enabled) 
-				{
-				    if (payload.configs[x].contents) {
-					var tmpSplit1 = payload.configs[x].contents.split('<br>');
-					for (var c = 0; c < tmpSplit1.length; c++) 
-					{
-						if (tmpSplit1[c]) 
-						{
-							var tmpSplit2 = tmpSplit1[c].split(' ');
-							if (tmpSplit2[1]) 
-							{
-								feeds.push(tmpSplit2[1]);
-								urls.push(tmpSplit2[2]);
-								//alert(x + '-' + p + ': ' + tmpSplit2[1]);
-							}
-						}
-					}
-				    }
-				}
-			}
-			
-			// send payload to items object
-			packages.loadFeeds(feeds, urls, this);
-		}
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'main#onFeeds');
-		this.errorMessage('onFeeds Error', e, this.doneUpdating);
-	}
-};
+	packages.loadFeeds(feeds, this);
+}
 
 UpdateAssistant.prototype.displayAction = function(msg, msgHelp)
 {

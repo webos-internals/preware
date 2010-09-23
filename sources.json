@@ -1,6 +1,7 @@
 [
     {"source": "app/models/utility.js"},
     {"source": "app/models/IPKGService.js"},
+    {"source": "app/models/feeds.js"},
     {"source": "app/models/packages.js"},
     {"source": "app/models/package.js"},
     {"source": "app/models/cookies.js"},

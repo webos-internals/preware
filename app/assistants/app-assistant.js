@@ -1,6 +1,9 @@
 // global packages object
 var packages = new packagesModel();
 
+// global feeds object
+var feeds = new feedsModel();
+
 // get the cookies
 var prefs = new preferenceCookie();
 var vers =  new versionCookie();
