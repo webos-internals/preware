@@ -42,6 +42,22 @@ IPKGService.setConfigState = function(callback, config, enabled)
 	return request;
 };
 
+IPKGService.extractControl = function(callback, filename, url)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'extractControl',
+		parameters:
+		{
+			'filename':	filename,
+			'url':		url
+		},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+};
+
 IPKGService.update = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,

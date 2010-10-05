@@ -2,8 +2,15 @@ function PkgViewAssistant(item, listAssistant)
 {
 	// item of the list that was tapped
 	// load it from the global package array based on the pkgNum in the list item
-	this.pkgNum = item.pkgNum;
-	this.item = packages.packages[this.pkgNum];
+	if (item.pkgNum)
+	{
+		this.pkgNum = item.pkgNum;
+		this.item = packages.packages[this.pkgNum];
+	}
+	else
+	{
+		this.item = item;
+	}
 	
 	// save this for later
 	this.listAssistant = listAssistant;

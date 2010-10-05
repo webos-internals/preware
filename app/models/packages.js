@@ -348,6 +348,66 @@ packagesModel.prototype.parsePackages = function(rawData, url)
 		Mojo.Log.logException(e, 'packagesModel#parsePackages');
 	}
 };
+packagesModel.prototype.parsePackage = function(rawData)
+{
+	try 
+	{
+		if (rawData) 
+		{
+			var test = rawData;
+			var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
+			var curPkg = false;
+			
+			for (var x = 0; x < test.length; x++) 
+			{
+				var match = lineRegExp.exec(test[x]);
+				if (match) 
+				{
+					if (match[1] == 'Package' && !curPkg) 
+					{
+						curPkg = 
+						{
+							Size: 0,
+							Status: '',
+							Architecture: '',
+							Section: '',
+							Package: '',
+							Filename: '',
+							Depends: '',
+							Maintainer: '',
+							Version: '',
+							Description: '',
+							MD5Sum: '',
+							'Installed-Time': 0,
+							'Installed-Size': 0,
+							Source: ''
+						};
+					}
+					if (match[1] && match[2]) 
+					{
+						curPkg[match[1]] = match[2];
+					}
+				}
+				else
+				{
+					if (curPkg) 
+					{
+						return curPkg;
+					}
+				}
+			}
+			
+			if (curPkg) 
+			{
+				return curPkg;
+			}
+		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#parsePackage');
+	}
+};
 packagesModel.prototype.loadPackage = function(packageObj, url)
 {
 	// Skip packages that are in the status file, but are not actually installed

@@ -54,10 +54,12 @@ PkgInstallAssistant.prototype.setup = function()
 	
 	this.fileElement =			this.controller.get('file');
 	this.browseButtonElement =	this.controller.get('browseButton');
+	this.infoButtonElement =	this.controller.get('infoButton');
 	this.installButtonElement =	this.controller.get('installButton');
 	
 	this.textChanged =			this.textChanged.bindAsEventListener(this);
 	this.browseButtonPressed =	this.browseButtonPressed.bindAsEventListener(this);
+	this.infoButtonPressed =	this.infoButtonPressed.bindAsEventListener(this);
 	this.installButtonPressed =	this.installButtonPressed.bindAsEventListener(this);
 	
 	
@@ -90,11 +92,23 @@ PkgInstallAssistant.prototype.setup = function()
 	
 	this.controller.setupWidget
 	(
+		'infoButton',
+		{
+			type: Mojo.Widget.activityButton
+		},
+		this.infoButtonModel = {
+			buttonLabel: $L('Get Info'),
+			disabled: (this.launchFile ? false : true)
+		}
+	);
+	
+	this.controller.setupWidget
+	(
 		'installButton',
 		{
 			type: Mojo.Widget.activityButton
 		},
-		this.buttonModel = {
+		this.installButtonModel = {
 			buttonLabel: $L('Install'),
 			disabled: (this.launchFile ? false : true)
 		}
@@ -102,6 +116,7 @@ PkgInstallAssistant.prototype.setup = function()
 	
 	Mojo.Event.listen(this.fileElement, Mojo.Event.propertyChange, this.textChanged);
 	Mojo.Event.listen(this.browseButtonElement, Mojo.Event.tap, this.browseButtonPressed);
+	Mojo.Event.listen(this.infoButtonElement, Mojo.Event.tap, this.infoButtonPressed);
 	Mojo.Event.listen(this.installButtonElement, Mojo.Event.tap, this.installButtonPressed);
 	
 };
@@ -110,13 +125,17 @@ PkgInstallAssistant.prototype.textChanged = function(event)
 {
 	if (event.value != '')
 	{
-		this.buttonModel.disabled = false;
-		this.controller.modelChanged(this.buttonModel);
+		this.installButtonModel.disabled = false;
+		this.infoButtonModel.disabled = false;
+		this.controller.modelChanged(this.installButtonModel);
+		this.controller.modelChanged(this.infoButtonModel);
 	}
 	else
 	{
-		this.buttonModel.disabled = true;
-		this.controller.modelChanged(this.buttonModel);
+		this.installButtonModel.disabled = true;
+		this.infoButtonModel.disabled = true;
+		this.controller.modelChanged(this.installButtonModel);
+		this.controller.modelChanged(this.infoButtonModel);
 	}
 }
 PkgInstallAssistant.prototype.updateText = function(value)
@@ -143,6 +162,25 @@ PkgInstallAssistant.prototype.browsed = function(value)
 		this.fileElement.mojo.setValue('file://'+value);
 	}
 	this.browseButtonElement.mojo.deactivate();
+}
+
+PkgInstallAssistant.prototype.infoButtonPressed = function(event)
+{
+	var url =		this.fileElement.mojo.getValue();
+	var filename =	filePicker.getFileName(url);
+	IPKGService.extractControl(this.controllExtracted.bindAsEventListener(this, filename, url), filename, url);
+}
+PkgInstallAssistant.prototype.controllExtracted = function(payload, filename, url)
+{
+	if (payload.stage && payload.stage == 'completed')
+	{
+		this.infoButtonElement.mojo.deactivate();
+		var tmpPackageModel = new packageModel(packages.parsePackage(payload.info), {type: 'Package', filename: filename, location: url});
+		if (tmpPackageModel)
+		{
+			this.controller.stageController.pushScene('pkg-view', tmpPackageModel, false);
+		}
+	}
 }
 
 
