@@ -112,6 +112,7 @@ ConfigsAssistant.prototype.setup = function()
 	);
 	this.controller.listen('confList', Mojo.Event.propertyChanged, this.confToggled.bindAsEventListener(this));
 	this.controller.listen('confList', Mojo.Event.listDelete, this.confDeleted.bindAsEventListener(this));
+	this.controller.listen('confList', Mojo.Event.listTap, this.confTapped.bindAsEventListener(this));
 	
 	
 	// make it so nothing is selected by default
@@ -152,10 +153,11 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 			for (var x = 0; x < payload.configs.length; x++)
 			{
 			    var feedObj = {
-				config: payload.configs[x].config,
-				name: payload.configs[x].config.replace(/.conf/, ''),
-				urls: [],
-				enabled: payload.configs[x].enabled
+					config: payload.configs[x].config,
+					name: payload.configs[x].config.replace(/.conf/, ''),
+					urls: [],
+					data: [],
+					enabled: payload.configs[x].enabled
 			    };
 				
 			    if (payload.configs[x].contents) {
@@ -167,6 +169,7 @@ ConfigsAssistant.prototype.onFeeds = function(payload)
 					{
 						var tmpSplit2 = tmpSplit1[c].split(' ');
 						feedObj.urls.push(tmpSplit2[2]);
+						feedObj.data.push(tmpSplit2)
 					}
 				}
 				
@@ -207,7 +210,6 @@ ConfigsAssistant.prototype.doneLoading = function()
 			
 			for (var f = 0; f < this.feeds.length; f++) 
 			{
-				
 				var fancyName = this.feeds[f].name;
 				var urls = '';
 				for (var u = 0; u < this.feeds[f].urls.length; u++)
@@ -259,6 +261,12 @@ ConfigsAssistant.prototype.dirtyFeed = function(payload)
 	packages.dirtyFeeds = true;
 };
 
+ConfigsAssistant.prototype.confTapped = function(event)
+{
+	alert('---');
+	alert(event.item.toggleName);
+	for (var f in this.feeds[event.item.toggleName]) alert(f+': '+this.feeds[event.item.toggleName][f]);
+};
 ConfigsAssistant.prototype.confToggled = function(event)
 {
 	// make sure this is a toggle button
