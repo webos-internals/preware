@@ -69,6 +69,10 @@ PreferencesAssistant.prototype.setup = function()
 		// toggle panes:
 		this.toggleShowTypesChanged();
 		
+		// listener for help toggle
+		this.helpTap = this.helpRowTapped.bindAsEventListener(this);
+		this.controller.listen(this.controller.get('help-toggle'), Mojo.Event.tap, this.helpButtonTapped.bindAsEventListener(this));
+		
 		// setup header button
 		this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
 		
@@ -437,6 +441,13 @@ PreferencesAssistant.prototype.setup = function()
 		// hide secret group
 		this.controller.get('secretPreferences').style.display = 'none';
 		
+		
+		// add listeners to all the help-overlays
+		var helps = this.controller.get('container').querySelectorAll('div.help-overlay');
+		for (var h = 0; h < helps.length; h++) {
+			this.controller.listen(helps[h], Mojo.Event.tap, this.helpTap);
+		}
+		
 	}
 	catch (e)
 	{
@@ -548,6 +559,34 @@ PreferencesAssistant.prototype.blackListSave = function()
 	}
 	this.prefs.blackList = newData;
 	this.cookie.put(this.prefs);
+}
+
+PreferencesAssistant.prototype.helpButtonTapped = function(event)
+{
+	if (this.controller.get('container').hasClassName('help'))
+	{
+		this.controller.get('container').removeClassName('help');
+		event.target.removeClassName('selected');
+	}
+	else
+	{
+		this.controller.get('container').addClassName('help');
+		event.target.addClassName('selected');
+	}
+}
+PreferencesAssistant.prototype.helpRowTapped = function(event)
+{
+	event.stop();
+	event.stopPropagation();
+	event.preventDefault();
+	
+	var lookup = event.target.id.replace(/help-/, '');
+	var help = helpData.get(lookup);
+	
+	if (lookup && help)
+	{
+		this.controller.stageController.pushScene('help-data', help);
+	}
 }
 
 PreferencesAssistant.prototype.headerButton = function(event)

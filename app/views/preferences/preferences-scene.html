@@ -1,9 +1,10 @@
-<div class="prefs">
+<div class="prefs" id="container">
 	
 	<div class="scene-fade-top" x-mojo-scroll-fade="top"></div>
 	
 	<div class="palm-page-header multi-line">
 		<div class="palm-page-header-wrapper">
+			<div class="help-toggle" id="help-toggle" x-mojo-tap-highlight="persistent"></div>
 			<div class="headerButton" id="headerButton" x-mojo-touch-feedback="delayed">Feeds</div>
 			<div class="icon"></div>
 			<div class="title" id="preferences-title">Preferences</div>
@@ -16,6 +17,7 @@
 			
 			<div class="palm-row single"> <!-- x-mojo-tap-highlight="momentary" //-->
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-theme"></div>
 					<div id="theme" x-mojo-element="ListSelector"></div>
 				</div>
 			</div>
@@ -29,12 +31,14 @@
 			
 			<div class="palm-row first">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-updateInterval"></div>
 					<div id="updateInterval" x-mojo-element="ListSelector"></div>
 				</div>
 			</div>
 			
 			<div class="palm-row">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-lastUpdate"></div>
 					<div class="label left" id="last-update-title">Last Update</div>
 					<div class="title right" id="lastUpdate">Never</div>
 				</div>
@@ -42,6 +46,7 @@
 			
 			<div class="palm-row">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-fixUnknown"></div>
 					<div class="label left" id="scan-unknown-packages">Scan Unknown Packages</div>
 					<div id="fixUnknown" x-mojo-element="ToggleButton"></div>
 				</div>
@@ -49,6 +54,7 @@
 			
 			<div class="palm-row last">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-resourceHandlerCheck"></div>
 					<div class="label left" id="check-ipk-association">Check .ipk Association</div>
 					<div id="resourceHandlerCheck" x-mojo-element="ToggleButton"></div>
 				</div>
@@ -63,6 +69,7 @@
 			
 			<div class="palm-row single">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-avoidBugs"></div>
 					<div class="label left" id="avoid-bugs">Avoid webOS Bugs</div>
 					<div id="avoidBugs" x-mojo-element="ToggleButton"></div>
 					<div id="avoid-bugs-note" class="palm-body-text note">* May not work in future webOS versions.</div>
@@ -78,6 +85,7 @@
 			
 			<div class="palm-row single" id="showAvailableTypesContainer">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-showAvailableTypes"></div>
 					<div class="label left" id="show-available-types">Show Available Types</div>
 					<div id="showAvailableTypes" x-mojo-element="ToggleButton"></div>
 				</div>
@@ -87,6 +95,7 @@
 				
 				<div class="palm-row">
 					<div class="palm-row-wrapper">
+						<div class="help-overlay" id="help-showTypeApplication"></div>
 						<div class="label left" id="show-applications">Show Applications</div>
 						<div id="showTypeApplication" x-mojo-element="ToggleButton"></div>
 					</div>
@@ -94,6 +103,7 @@
 				
 				<div class="palm-row">
 					<div class="palm-row-wrapper">
+						<div class="help-overlay" id="help-showTypeTheme"></div>
 						<div class="label left" id="show-themes">Show Themes</div>
 						<div id="showTypeTheme" x-mojo-element="ToggleButton"></div>
 					</div>
@@ -101,6 +111,7 @@
 				
 				<div class="palm-row">
 					<div class="palm-row-wrapper">
+						<div class="help-overlay" id="help-showTypePatch"></div>
 						<div class="label left" id="show-patches">Show Patches</div>
 						<div id="showTypePatch" x-mojo-element="ToggleButton"></div>
 					</div>
@@ -108,6 +119,7 @@
 				
 				<div class="palm-row last">
 					<div class="palm-row-wrapper">
+						<div class="help-overlay" id="help-showTypeOther"></div>
 						<div class="label left" id="show-other-types">Show Other Types</div>
 						<div id="showTypeOther" x-mojo-element="ToggleButton"></div>
 					</div>
@@ -124,6 +136,7 @@
 			
 			<div class="palm-row first">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-searchDesc"></div>
 					<div class="label left" id="search-descriptions">Search Descriptions</div>
 					<div id="searchDesc" x-mojo-element="ToggleButton"></div>
 				</div>
@@ -131,18 +144,21 @@
 			
 			<div class="palm-row">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-listSort"></div>
 					<div id="listSort" x-mojo-element="ListSelector"></div>
 				</div>
 			</div>
 			
 			<div class="palm-row">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-secondRow"></div>
 					<div id="secondRow" x-mojo-element="ListSelector"></div>
 				</div>
 			</div>
 			
 			<div class="palm-row">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-listInstalled"></div>
 					<div class="label left" id="installed-is-available">Installed is Available</div>
 					<div id="listInstalled" x-mojo-element="ToggleButton"></div>
 				</div>
@@ -150,6 +166,7 @@
 			
 			<div class="palm-row">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-onlyShowFree"></div>
 					<div class="label left" id="only-show-free-apps">Only Show Free Apps</div>
 					<div id="onlyShowFree" x-mojo-element="ToggleButton"></div>
 				</div>
@@ -157,6 +174,7 @@
 			
 			<div class="palm-row last">
 				<div class="palm-row-wrapper">
+					<div class="help-overlay" id="help-onlyShowEnglish"></div>
 					<div class="label left" id="only-show-english-apps">Only Show English Apps</div>
 					<div id="onlyShowEnglish" x-mojo-element="ToggleButton"></div>
 				</div>

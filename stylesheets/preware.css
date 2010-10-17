@@ -321,7 +321,7 @@ body.palm-dark .update .progress .progress-bar
 	-webkit-border-image: url(../images/palm-default/selector-header.png) 0 16 0 16 stretch stretch;
 	-webkit-box-sizing: border-box;
 	border-width: 0px 16px 0px 16px;
-	margin: 9px 9px 0px 0px;
+	margin: 9px 48px 0px 0px;
 	text-transform: uppercase;
 	display: inline-block;
 	font-size: 14px;
@@ -329,6 +329,10 @@ body.palm-dark .update .progress .progress-bar
 	line-height: 35px;
 	float: right;
 	color: #555;
+}
+.configs .headerButton
+{
+	margin: 9px 9px 0px 0px;
 }
 body.palm-dark .prefs .headerButton,
 body.palm-dark .configs .headerButton
@@ -381,6 +385,60 @@ body.palm-dark .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.s
 	float: right;
 	max-width: 273px;
 }
+
+.prefs .palm-row .palm-row-wrapper
+{
+	position: relative;
+}
+.prefs .palm-row .palm-row-wrapper
+{
+	min-height: 53px;
+}
+.prefs .palm-row .palm-row-wrapper .help-overlay
+{
+	display: none;
+	position: absolute;
+	z-index: 10000;
+	top: 0px;
+	left: 0px;
+	width: 300px;
+	height: 53px;
+	background-position: 3px 3px;
+	background-repeat: no-repeat;
+	background-image: url(../images/palm-default/helprow.png);
+}
+.prefs.help .palm-row .palm-row-wrapper .help-overlay
+{
+	display: block;
+}
+.prefs .palm-row.first .palm-row-wrapper .help-overlay
+{
+	background-image: url(../images/palm-default/helprow-first.png);
+}
+.prefs .palm-row.single .palm-row-wrapper .help-overlay
+{
+	background-image: url(../images/palm-default/helprow-single.png);
+}
+.prefs .palm-row.last .palm-row-wrapper .help-overlay
+{
+	background-image: url(../images/palm-default/helprow-last.png);
+}
+.prefs .help-toggle
+{
+	position: absolute;
+	right: 11px;
+	top: 11px;
+	width: 32px;
+	height: 32px;
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	background-image: url(../images/palm-default/help-toggle.png);
+}
+.prefs .help-toggle.selected
+{
+	background-position: 0px -32px;
+}
+
 
 /*
  * Config/Feed Scene Styles
@@ -1039,6 +1097,7 @@ body.palm-dark .ipkglog #logScroller #logData .stdErr div
 	height: 320px;
 }
 
+
 /*
  * Help Scene Styles
  */
@@ -1076,7 +1135,10 @@ body.palm-dark .ipkglog #logScroller #logData .stdErr div
 	padding: 0px 0px 0px 5px;
 	float:left;
 }
-
+.help #data
+{
+	padding: 10px;
+}
 
 
 
