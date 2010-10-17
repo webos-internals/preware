@@ -28,7 +28,7 @@ preferenceCookie.prototype.get = function(reload)
 				// Main Scene Group
 				showAvailableTypes: false,
 				showTypeApplication: true,
-				showTypeTheme: true,
+				showTypeTheme: false,
 				showTypePatch: true,
 				showTypeOther: true,
 				
