@@ -1165,6 +1165,15 @@ body.palm-dark .ipkglog #logScroller #logData .stdErr div
 .help #data
 {
 	padding: 10px;
+	font-size: 18px;
+}
+.help #data ul
+{
+	margin: 0px;
+	padding-top: 10px;
+	padding-left: 26px;
+	padding-right: 0px;
+	padding-bottom: 10px;
 }
 
 
