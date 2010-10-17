@@ -423,6 +423,33 @@ body.palm-dark .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.s
 {
 	background-image: url(../images/palm-default/helprow-last.png);
 }
+.prefs .palm-row .palm-row-wrapper .help-overlay.more
+{
+	background: none;
+	padding: 3px;
+	height: 100%;
+}
+.prefs .palm-row .palm-row-wrapper .help-overlay.more div
+{
+	height: 100%;
+	width: 295px;
+	-webkit-border-image: url(../images/palm-default/helprow.png) 23 23 23 23 stretch stretch;
+	-webkit-box-sizing: border-box;
+	border-width: 23px 23px 23px 23px;
+	-webkit-palm-mouse-target: ignore;
+}
+.prefs .palm-row.first .palm-row-wrapper .help-overlay.more div
+{
+	-webkit-border-image: url(../images/palm-default/helprow-first.png) 23 23 23 23 stretch stretch;
+}
+.prefs .palm-row.single .palm-row-wrapper .help-overlay.more div
+{
+	-webkit-border-image: url(../images/palm-default/helprow-single.png) 23 23 23 23 stretch stretch;
+}
+.prefs .palm-row.last .palm-row-wrapper .help-overlay.more div
+{
+	-webkit-border-image: url(../images/palm-default/helprow-last.png) 23 23 23 23 stretch stretch;
+}
 .prefs .help-toggle
 {
 	position: absolute;
