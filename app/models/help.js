@@ -54,7 +54,7 @@ helpData.lookup =
 	'avoidBugs':
 	{
 		title: $L('Avoid webOS Bugs'),
-		data: $L('This section has no help yet - you can contribute some!')
+		data: $L('Preware initially used ipkg-opt to install packages, and would use a method called "rescan" to update the launcher with new application icons. This method had since been abandoned by palm and started to cause unintended consequences (like causing email to think you have nothing setup, or no notifications for new sms messages.) When "Avoid webOS Bugs" is set to on, the default, preware will use palms new package install methods which doesn\'t cause the same problems that rescan does. But palm may block us from using this in the future, so this fallback option is here.')
 	},
 	
 	
