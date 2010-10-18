@@ -390,7 +390,7 @@ body.palm-dark .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.s
 {
 	position: relative;
 }
-.prefs .palm-row .palm-row-wrapper
+.prefs .palm-row .palm-row-wrapper:not(.textfield-group)
 {
 	min-height: 53px;
 }
