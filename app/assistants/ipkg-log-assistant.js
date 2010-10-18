@@ -89,7 +89,7 @@ IpkgLogAssistant.prototype.emailLog = function()
 	            params:
 				{
 	                summary: "Preware IPKG Log",
-	                text: style+'<br><br>'+IPKGService.log
+	                text: '<html><body>'+style+'<br><br>'+IPKGService.log+'</body></html>'
 	            }
 	        }
 	    }
