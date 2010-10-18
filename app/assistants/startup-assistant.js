@@ -9,6 +9,17 @@ function StartupAssistant()
     this.newMessages =
 	[
 	 {
+	     version: '1.4.0',
+	     log:
+	     [
+		  'Added help to preferences scene',
+		  'Fixed swipe-to-delete bug in blacklist',
+		  'Updated Italian translations (courtesy of Darkmagister)',
+		  'Added "Get Info" button to package install scene',
+		  'Added "Send" button to ipkg log scene'
+	      ]
+	 },
+	 {
 	     version: '1.3.8',
 	     log:
 	     [
