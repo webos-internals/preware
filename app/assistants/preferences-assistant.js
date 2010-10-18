@@ -523,7 +523,12 @@ PreferencesAssistant.prototype.blackListAdd = function(event)
 }
 PreferencesAssistant.prototype.blackListDelete = function(event)
 {
+	alert('----------');
 	var newData = [];
+	alert('index: '+event.item.index);
+	
+	for (var i = 0; i < this.blackListModel.items.length; i++) alert(i+': '+this.blackListModel.items[i].index);
+	
 	if (this.blackListModel.items.length > 0) 
 	{
 		for (var b = 0; b < this.blackListModel.items.length; b++) 
@@ -543,8 +548,10 @@ PreferencesAssistant.prototype.blackListDelete = function(event)
 		}
 	}
 	this.blackListModel.items = newData;
-	this.blackListElement.mojo.noticeUpdatedItems(0, this.blackListModel.items);
- 	this.blackListElement.mojo.setLength(this.blackListModel.items.length);
+	
+	alert('====');
+	for (var i = 0; i < this.blackListModel.items.length; i++) alert(i+': '+this.blackListModel.items[i].index);
+	
 	this.blackListSave();
 }
 PreferencesAssistant.prototype.blackListSave = function()

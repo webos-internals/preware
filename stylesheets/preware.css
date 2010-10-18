@@ -394,6 +394,15 @@ body.palm-dark .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.s
 {
 	min-height: 53px;
 }
+.prefs .palm-row .palm-row-wrapper.textfield-group
+{
+	min-height: 23px;
+}
+.prefs .palm-row .palm-row-wrapper.textfield-group .help-overlay
+{
+	top: -15px;
+	left: -15px;
+}
 .prefs .palm-row .palm-row-wrapper .help-overlay
 {
 	display: none;
