@@ -43,6 +43,13 @@ IpkgLogAssistant.prototype.setup = function()
 	this.controller.listen(this.controller.stageController.window, 'resize', this.windowResizeHandler);
 	this.handleWindowResize();
 	
+	// setup command menu
+	this.cmdMenuModel = {items:[]};
+	this.cmdMenuModel.items.push({});
+	this.cmdMenuModel.items.push({label: $L('Email IPKG Log'), icon: 'send', command: 'do-emailLog'});
+	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
+	
+	
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 };
