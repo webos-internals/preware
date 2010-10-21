@@ -210,7 +210,10 @@ PkgViewAssistant.prototype.setupData = function()
 		}
 		
 		// add download size
-		data += Mojo.View.render({object: {title: $L('Download Size'), data: formatSize(this.item.size)}, template: dataTemplate});
+		if (this.item.size)
+		{
+			data += Mojo.View.render({object: {title: $L('Download Size'), data: formatSize(this.item.size)}, template: dataTemplate});
+		}
 		
 		// add installed information
 		if (this.item.isInstalled)
