@@ -46,7 +46,7 @@ helpData.lookup =
 	'resourceHandlerCheck':
 	{
 		title: $L('Check .ipk Association'),
-		data: $L('This will scan the "appinfo.js" file for installed apps that are not in any of the feeds. This way you still get some information about the app. This stops " This is a webOS application."')
+		data: $L('When this is on, Preware will check to see if it is the default handler for ipkg files, and will ask the user to rectify that if it is not.')
 	},
 	
 	
@@ -54,7 +54,7 @@ helpData.lookup =
 	'avoidBugs':
 	{
 		title: $L('Avoid webOS Bugs'),
-		data: $L('Preware initially used ipkg-opt to install packages, and would use a method called "rescan" to update the launcher with new application icons. This method had since been abandoned by palm and started to cause unintended consequences (like causing email to think you have nothing setup, or no notifications for new sms messages.) When "Avoid webOS Bugs" is set to on, the default, preware will use palms new package install methods which doesn\'t cause the same problems that rescan does. But palm may block us from using this in the future, so this fallback option is here.')
+		data: $L('Preware initially used ipkg to install packages, and would use a method called "rescan" to update the launcher with new application icons. This method had since been abandoned by Palm and started to cause unintended consequences (like causing email to think you have nothing setup, or no notifications for new SMS messages). When "Avoid webOS Bugs" is on, the default, Preware will use webOS package install service methods which do not cause the same problems that rescan does. But Palm may block us from using this in the future, so this fallback option is here.')
 	},
 	
 	
