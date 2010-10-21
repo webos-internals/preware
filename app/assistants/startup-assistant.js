@@ -16,7 +16,8 @@ function StartupAssistant()
 		  'Fixed swipe-to-delete bug in blacklist',
 		  'Updated Italian translations (courtesy of Darkmagister)',
 		  'Added "Get Info" button to package install scene',
-		  'Added "Send" button to ipkg log scene'
+		  'Added "Send" button to ipkg log scene',
+		  'Fixed bug when loading large package descriptions'
 	      ]
 	 },
 	 {

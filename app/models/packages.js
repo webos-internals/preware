@@ -235,7 +235,7 @@ packagesModel.prototype.infoResponse = function(payload, num)
 				{
 					this.rawData += payload.contents;
 					var position = this.rawData.lastIndexOf("\n\n");
-					if (position) {
+					if (position != -1) {
 						this.parsePackages(this.rawData.substr(0, position), this.urls[num]);
 						this.rawData = this.rawData.substr(position);
 					}
