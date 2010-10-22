@@ -8,7 +8,7 @@ function MainAssistant()
 		{weight: 15, text: $L("The Open Standard Installer")},
 		{weight: 15, text: $L("The Universal Application Installer")},
 		{weight: 15, text: $L("Accessing All Open Standard Feeds")},
-		{weight:  6, text: $L("<a href=\"http://www.webos-internals.org/wiki/WebOS_Internals:Site_support\">Donated</a> To WebOS Internals Lately?")},
+		{weight:  6, text: $L("<a href=\"http://donate.webos-internals.org/\">Donated</a> To WebOS Internals Lately?")},
 		{weight:  4, text: $L("The w Isn't Capitalized")},
 		{weight:  2, text: $L("Random Taglines Are Awesome")},
 		{weight:  2, text: $L("We Know Palm Loves Preware")},
