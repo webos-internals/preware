@@ -1,5 +1,7 @@
-function StartupAssistant()
+function StartupAssistant(changelog)
 {
+	this.justChangelog = changelog;
+	
     // on first start, this message is displayed, along with the current version message from below
     this.firstMessage = $L("Here are some tips for first-timers:<ul><li>Preware will take some time to download the data for all your enabled package feeds</li><li>Select the \"Preferences\" menu item to change how often the feeds are updated</li><li>Customize the main screen using the \"Show Available Types\" preference options</li><li>Select the \"Manage Feeds\" menu item to enable just your desired package feeds</li><li>To search, just start typing</li></ul>");
 	
@@ -428,13 +430,13 @@ function StartupAssistant()
 	     version: '0.9.6',
 	     log:
 	     [
-	      'Fixed the display of packages with multiple maintainers',
-	      'Now loads extended appinfo and control file information for "unknown" packages',
-	      'Changed default list second-line to version + maintainer',
-	      'No longer allows back-gestures during package operations',
-	      'Multi-line package titles are now supported',
-	      '"Show All Packages" changed to "Show Available Types" and now defaults to "No" for new users',
-	      'Added this startup scene'
+		  'Fixed the display of packages with multiple maintainers',
+		  'Now loads extended appinfo and control file information for "unknown" packages',
+		  'Changed default list second-line to version + maintainer',
+		  'No longer allows back-gestures during package operations',
+		  'Multi-line package titles are now supported',
+		  '"Show All Packages" changed to "Show Available Types" and now defaults to "No" for new users',
+		  'Added this startup scene'
 	      ]
 	 }
 	 ];
@@ -445,18 +447,18 @@ function StartupAssistant()
 	    visible: true,
 	    items:
 	    [
-    {
-	label: $L("Preferences"),
-	command: 'do-prefs'
-    },
-    {
-	label: $L("Luna Manager"),
-	command: 'do-luna'
-    },
-    {
-	label: $L("Help"),
-	command: 'do-help'
-    }
+	    {
+			label: $L("Preferences"),
+			command: 'do-prefs'
+	    },
+	    {
+			label: $L("Luna Manager"),
+			command: 'do-luna'
+	    },
+	    {
+			label: $L("Help"),
+			command: 'do-help'
+	    }
 	     ]
 	};
 	
@@ -466,12 +468,12 @@ function StartupAssistant()
 	    visible: false, 
 	    items:
 	    [
-    {},
-    {
-	label: $L("Ok, I've read this. Let's continue ..."),
-	command: 'do-continue'
-    },
-    {}
+		    {},
+		    {
+				label: $L("Ok, I've read this. Let's continue ..."),
+				command: 'do-continue'
+		    },
+		    {}
 	     ]
 	};
 };
@@ -486,35 +488,60 @@ StartupAssistant.prototype.setup = function()
     this.dataContainer =  this.controller.get('data');
 	
     // set title
-    if (vers.isFirst) 
+	if (this.justChangelog)
 	{
-	    this.titleContainer.innerHTML = $L("Welcome To Preware");
+		this.titleContainer.innerHTML = $L('Changelog');
 	}
-    else if (vers.isNew) 
+	else
 	{
-	    this.titleContainer.innerHTML = $L("Preware Changelog");
+	    if (vers.isFirst) 
+		{
+		    this.titleContainer.innerHTML = $L("Welcome To Preware");
+		}
+	    else if (vers.isNew) 
+		{
+		    this.titleContainer.innerHTML = $L("Preware Changelog");
+		}
 	}
-	
 	
     // build data
     var html = '';
-    if (vers.isFirst)
+	if (this.justChangelog)
 	{
-	    html += '<div class="text">' + this.firstMessage + '</div>';
-	}
-    if (vers.isNew)
-	{
-	    html += '<div class="text">' + this.secondMessage + '</div>';
-	    for (var m = 0; m < this.newMessages.length; m++)
+		for (var m = 0; m < this.newMessages.length; m++) 
 		{
 		    html += Mojo.View.render({object: {title: 'v' + this.newMessages[m].version}, template: 'startup/changeLog'});
-		    html += '<ul class="changelog">';
+		    html += '<ul>';
 		    for (var l = 0; l < this.newMessages[m].log.length; l++)
 			{
-			    html += '<li>' + this.newMessages[m].log[l] + '</li>';
-			}
+				html += '<li>' + this.newMessages[m].log[l] + '</li>';
+		    }
 		    html += '</ul>';
 		}
+	}
+	else
+	{
+		if (vers.isFirst)
+		{
+			html += '<div class="text">' + this.firstMessage + '</div>';
+		}
+	    if (vers.isNew)
+		{
+			if (!this.justChangelog)
+			{
+				html += '<div class="text">' + this.secondMessage + '</div>';
+			}
+			for (var m = 0; m < this.newMessages.length; m++) 
+			{
+			    html += Mojo.View.render({object: {title: 'v' + this.newMessages[m].version}, template: 'startup/changeLog'});
+			    html += '<ul>';
+			    for (var l = 0; l < this.newMessages[m].log.length; l++)
+				{
+					html += '<li>' + this.newMessages[m].log[l] + '</li>';
+			    }
+			    html += '</ul>';
+			}
+	    }
 	}
 	
     // set data
@@ -524,8 +551,11 @@ StartupAssistant.prototype.setup = function()
     // setup menu
     this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
-    // set command menu
-    this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
+	if (!this.justChangelog)
+	{
+	    // set command menu
+	    this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
+	}
 	
     // set this scene's default transition
     this.controller.setDefaultTransition(Mojo.Transition.zoomFade);

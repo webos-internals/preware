@@ -1171,6 +1171,17 @@ body.palm-dark .ipkglog #logScroller #logData .stdErr div
 	padding: 0px 0px 0px 5px;
 	float:left;
 }
+.help .img_changelog
+{
+	position:relative;
+	left:8px;
+	top:10px;
+	width:32px; 
+	height:32px;
+	background: url(../images/help/scene-changelog.png) no-repeat  bottom;
+	padding: 0px 0px 0px 5px;
+	float:left;
+}
 .help #data
 {
 	padding: 10px;

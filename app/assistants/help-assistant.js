@@ -30,6 +30,11 @@ HelpAssistant.prototype.setup = function()
 		Class: 'img_web',
 		type: 'web'
 	});
+	this.supportModel.items.push({
+		text: $L('Changelog'),
+		Class: 'img_changelog',
+		type: 'changelog'
+	});
 	
 	this.controller.setupWidget
 	(
@@ -73,6 +78,10 @@ HelpAssistant.prototype.listTapHandler = function(event)
 					target: 'mailto:' + event.item.address + "?subject=" + Mojo.appInfo.title + " " + event.item.subject
 				}
 			});
+			break;
+			
+		case 'changelog':
+			this.controller.stageController.pushScene('startup', true);
 			break;
 			
 		case 'scene':
