@@ -1160,6 +1160,10 @@ packageModel.prototype.matchItem = function(item)
 				{
 					matchIt = false;
 				}
+				else if (prefs.get().blackList[b].field == 'category' && this.category && this.category.toLowerCase().include(blacklist[b].search.toLowerCase()))
+				{
+					matchIt = false;
+				}
 			}
 		}
 	}

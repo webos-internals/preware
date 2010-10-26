@@ -61,7 +61,8 @@ PreferencesBlacklistAssistant.prototype.setup = function()
 					{label:$L("Title"),			value:'title'},
 					{label:$L("Maintainer"),	value:'maintainer'},
 					{label:$L("Package Id"),	value:'id'},
-					{label:$L("Description"),	value:'desc'}
+					{label:$L("Description"),	value:'desc'},
+					{label:$L("Category"),		value:'category'}
 				],
 				modelProperty: 'field'
 			},
