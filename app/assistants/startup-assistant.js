@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.4.3', log: [ 'Updated the version check to support future webOS versions' ] },
 	 {	 version: '1.4.2', log: [ 'Added Category as a blacklist option' ] },
 	 {	 version: '1.4.1', log: [ 'Added a Changelog button to the Help scene' ] },
 	 {
