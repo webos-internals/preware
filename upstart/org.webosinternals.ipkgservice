@@ -10,7 +10,7 @@ pre-start script
    # Remove erroneously large list database cache files
    find $APPS/usr/lib/ipkg/lists -size +10240k -delete
 
-   VERSION=`grep PRODUCT_VERSION_STRING /etc/palm-build-info | sed -e 's/.*=Palm webOS \([0-9.]*\).*/\1/'`
+   VERSION=`grep PRODUCT_VERSION_STRING /etc/palm-build-info | sed -e 's/.* webOS \([0-9.]*\).*/\1/'`
 
    # Configure the webos-patches feed
    if [ -f $APPS/etc/ipkg/webos-patches.conf ] ; then
