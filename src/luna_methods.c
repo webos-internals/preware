@@ -28,7 +28,7 @@
 
 #define ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-+_"
 
-#define API_VERSION "14"
+#define API_VERSION "15"
 
 //
 // We use static buffers instead of continually allocating and deallocating stuff,
@@ -73,6 +73,7 @@ static char *json_escape_str(char *str)
     case '\r':
     case '\t':
     case '"':
+    case '\'':
     case '\\': {
       // Copy the chunk before the character which must be escaped
       if (pos - start_offset > 0) {
@@ -86,6 +87,7 @@ static char *json_escape_str(char *str)
       else if (c == '\r') {memcpy(resultsPt, "\\r",  2); resultsPt += 2;} 
       else if (c == '\t') {memcpy(resultsPt, "\\t",  2); resultsPt += 2;} 
       else if (c == '"')  {memcpy(resultsPt, "\\\"", 2); resultsPt += 2;} 
+      else if (c == '\'') {memcpy(resultsPt, "\\'",  2); resultsPt += 2;} 
       else if (c == '\\') {memcpy(resultsPt, "\\\\", 2); resultsPt += 2;} 
 
       // Reset the start of the next chunk
@@ -515,6 +517,13 @@ bool restart_java_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 //
 bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return simple_command(lshandle, message, "/sbin/reboot 2>&1");
+}
+
+//
+// Get the machine name, and return the output to webOS.
+//
+bool get_machine_name_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  return simple_command(lshandle, message, "/bin/cat /etc/prefs/properties/machineName 2>&1");
 }
 
 //
@@ -1951,6 +1960,8 @@ LSMethod luna_methods[] = {
   { "restartLuna",	restart_luna_method },
   { "restartJava",	restart_java_method },
   { "restartDevice",	restart_device_method },
+
+  { "getMachineName",	get_machine_name_method },
 
   { "getConfigs",	get_configs_method },
   { "getListFile",	get_list_file_method },
