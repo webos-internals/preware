@@ -202,6 +202,22 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	// this is the start of the stayawake class to keep it awake till we're done with it
 	this.stayAwake.start();
 	
+	// get device type
+	this.displayAction($L("<strong>Checking Device Type</strong>"), $L("This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and try again."));
+	this.showActionHelpTimer(2);
+	this.hideProgress();
+	this.subscription = IPKGService.getMachineName(this.onDeviceType.bindAsEventListener(this, onlyLoad));
+
+};
+UpdateAssistant.prototype.onDeviceType = function(response, onlyLoad)
+{
+
+	if (response && response.returnValue === true) {
+		if (response.stdOut[0] == "roadrunner") {
+			Mojo.Environment.DeviceInfo.modelNameAscii = "Pre2";
+		}
+	}
+	
 	// start with checking the internet connection
 	this.displayAction($L("<strong>Checking Internet Connection</strong>"), $L("This action should be immediate.  If it takes longer than that, then check your network connectivity."));
 	this.showActionHelpTimer(2);

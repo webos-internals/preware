@@ -17,6 +17,17 @@ IPKGService.version = function(callback)
 	return request;
 };
 
+IPKGService.getMachineName = function(callback)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'getMachineName',
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+};
+
 IPKGService.list_configs = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
