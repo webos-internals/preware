@@ -84,9 +84,10 @@ PreferencesAssistant.prototype.setup = function()
 				label: $L("Theme"),
 				choices:
 				[
-					{label:$L("Palm Default"),	value:'palm-default'},
-					{label:$L("Palm Dark"),		value:'palm-dark'},
-					{label:$L("App Catalog"),	value:'palm-default appcat'}
+					{label:$L("Palm Default"),		value:'palm-default'},
+					{label:$L("Palm Dark"),			value:'palm-dark'},
+					{label:$L("App Catalog Blue"),	value:'palm-default appcat'},
+					{label:$L("App Catalog Green"),	value:'palm-default appcat green'}
 				],
 				modelProperty: 'theme'
 			},

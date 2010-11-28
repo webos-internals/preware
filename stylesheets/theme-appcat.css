@@ -9,22 +9,29 @@ body.palm-default.appcat {
     background: url(../images/appcat/appcat-bg.png);
     color: #FFFFFF;
 }
+body.palm-default.appcat.green {
+    background: url(../images/appcat/appcat-green-bg.png);
+    color: #FFFFFF;
+}
 body.palm-default.appcat .palm-body-text {
-  color: #444444;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 16px;
 }
 
 body.palm-default.appcat .palm-popup-container {
   -webkit-border-image: url(../images/appcat/palm-popup-background.png) 24 24 24 24 stretch stretch;
 }
+body.palm-default.appcat.green .palm-popup-container {
+  -webkit-border-image: url(../images/appcat/palm-popup-green-background.png) 24 24 24 24 stretch stretch;
+}
 body.palm-default.appcat .palm-popup-fade-top > .fade-background {
-  -webkit-border-image: url(../images/appcat/palm-popup-fade-top.png) 0 24 0 24 repeat repeat;
+  -webkit-border-image: none;
 }
 body.palm-default.appcat .palm-popup-fade-top > .fade-arrow {
   background: url(../images/appcat/palm-popup-fade-arrow-up.png) center center no-repeat;
 }
 body.palm-default.appcat .palm-popup-fade-bottom > .fade-background {
-  -webkit-border-image: url(../images/appcat/palm-popup-fade-bottom.png) 0 24 0 24 repeat repeat;
+  -webkit-border-image: none;
 }
 body.palm-default.appcat .palm-popup-fade-bottom > .fade-arrow {
   background: url(../images/appcat/palm-popup-fade-arrow-down.png) center center no-repeat;
@@ -38,8 +45,8 @@ body.palm-default.appcat .palm-row .title .description {
 }
 
 body.palm-default.appcat .palm-group {
-	margin: 3px;
-	padding: 0 0 0 0;
+	/*margin: 3px;
+	padding: 0 0 0 0;*/
 }
 body.palm-default.appcat .palm-page-header {
   -webkit-border-image: url(../images/appcat/palm-page-header.png) 35 24 13 24 repeat stretch;
@@ -48,7 +55,9 @@ body.palm-default.appcat .palm-page-header {
 
 body.palm-default.appcat .palm-page-header.multi-line {
   -webkit-border-image: url(../images/appcat/palm-page-header.png) 35 24 13 24 repeat stretch;
-  color: #000000;
+}
+body.palm-default.appcat .palm-page-header.multi-line .title {
+	color: #fff;
 }
 body.palm-default.appcat .palm-divider.labeled {
   height: 32px;
@@ -87,6 +96,14 @@ body.palm-default.appcat .scene-fade-bottom
 	width: 100%;
 	background: url(../images/appcat/scrollFade-bottom.png) bottom center repeat-x;
 	-webkit-palm-mouse-target: ignore;
+}
+body.palm-default.appcat.green .scene-fade-top
+{
+	background: url(../images/appcat/scrollFade-green-top.png) top center repeat-x;
+}
+body.palm-default.appcat.green .scene-fade-bottom
+{
+	background: url(../images/appcat/scrollFade-green-bottom.png) bottom center repeat-x;
 }
 body.palm-default.appcat .palm-row-wrapper .pkgCount
 {
@@ -234,11 +251,12 @@ body.palm-default.appcat .main .filter-field-wrapper #searchWidget input
 	font-size: 30px;
 	padding-top: 5px;
 	padding-bottom: 0px;
+	color: #fff;
 }
 body.palm-default.appcat .main .palm-page-header-wrapper .title .version
 {
 	font-size: 12px;
-	color: #555555;
+	color: rgba(255, 255, 255, 0.8);
 	text-transform: lowercase;
 }
 body.palm-default.appcat .main .palm-page-header-wrapper .title.sub
@@ -264,7 +282,7 @@ body.palm-default.appcat .main .palm-row-wrapper .title
 }
 body.palm-default.appcat .main .palm-row-wrapper.disabled .title
 {
-	color: #aaaaaa;
+	color: rgba(255, 255, 255, 0.5);
 }
 body.palm-default.appcat .main .palm-row-wrapper .pkgCount
 {
@@ -342,7 +360,7 @@ body.palm-default.appcat .configs .headerButton
 	height: 35px;
 	line-height: 35px;
 	float: right;
-	color: #555;
+	color: rgba(255, 255, 255, 0.8);
 }
 body.palm-default.appcat .configs .headerButton
 {
@@ -382,93 +400,49 @@ body.palm-default.appcat .prefs .palm-group .palm-row .palm-row-wrapper.blacklis
 	max-width: 273px;
 }
 
-body.palm-default.appcat .prefs .palm-row .palm-row-wrapper
-{
-	position: relative;
-}
-body.palm-default.appcat .prefs .palm-row .palm-row-wrapper:not(.textfield-group)
-{
-	min-height: 53px;
-}
-body.palm-default.appcat .prefs .palm-row .palm-row-wrapper.textfield-group
-{
-	min-height: 23px;
-}
-body.palm-default.appcat .prefs .palm-row .palm-row-wrapper.textfield-group .help-overlay
-{
-	top: -15px;
-	left: -15px;
-}
 body.palm-default.appcat .prefs .palm-row .palm-row-wrapper .help-overlay
 {
-	display: none;
-	position: absolute;
-	z-index: 10000;
-	top: 0px;
-	left: 0px;
-	width: 300px;
-	height: 53px;
-	background-position: 3px 3px;
-	background-repeat: no-repeat;
-	background-image: url(../images/palm-default/helprow.png);
-}
-body.palm-default.appcat .prefs.help .palm-row .palm-row-wrapper .help-overlay
-{
-	display: block;
+	background-image: url(../images/appcat/helprow.png);
 }
 body.palm-default.appcat .prefs .palm-row.first .palm-row-wrapper .help-overlay
 {
-	background-image: url(../images/palm-default/helprow-first.png);
+	background-image: url(../images/appcat/helprow-first.png);
 }
 body.palm-default.appcat .prefs .palm-row.single .palm-row-wrapper .help-overlay
 {
-	background-image: url(../images/palm-default/helprow-single.png);
+	background-image: url(../images/appcat/helprow-single.png);
 }
 body.palm-default.appcat .prefs .palm-row.last .palm-row-wrapper .help-overlay
 {
-	background-image: url(../images/palm-default/helprow-last.png);
+	background-image: url(../images/appcat/helprow-last.png);
 }
 body.palm-default.appcat .prefs .palm-row .palm-row-wrapper .help-overlay.more
 {
 	background: none;
-	padding: 3px;
-	height: 100%;
 }
 body.palm-default.appcat .prefs .palm-row .palm-row-wrapper .help-overlay.more div
 {
-	height: 100%;
-	width: 295px;
-	-webkit-border-image: url(../images/palm-default/helprow.png) 23 23 23 23 stretch stretch;
-	-webkit-box-sizing: border-box;
-	border-width: 23px 23px 23px 23px;
-	-webkit-palm-mouse-target: ignore;
+	-webkit-border-image: url(../images/appcat/helprow.png) 23 23 23 23 stretch stretch;
 }
 body.palm-default.appcat .prefs .palm-row.first .palm-row-wrapper .help-overlay.more div
 {
-	-webkit-border-image: url(../images/palm-default/helprow-first.png) 23 23 23 23 stretch stretch;
+	-webkit-border-image: url(../images/appcat/helprow-first.png) 23 23 23 23 stretch stretch;
 }
 body.palm-default.appcat .prefs .palm-row.single .palm-row-wrapper .help-overlay.more div
 {
-	-webkit-border-image: url(../images/palm-default/helprow-single.png) 23 23 23 23 stretch stretch;
+	-webkit-border-image: url(../images/appcat/helprow-single.png) 23 23 23 23 stretch stretch;
 }
 body.palm-default.appcat .prefs .palm-row.last .palm-row-wrapper .help-overlay.more div
 {
-	-webkit-border-image: url(../images/palm-default/helprow-last.png) 23 23 23 23 stretch stretch;
+	-webkit-border-image: url(../images/appcat/helprow-last.png) 23 23 23 23 stretch stretch;
 }
-body.palm-default.appcat .prefs .help-toggle
+body.palm-default.appcat .prefs .add-item .title
 {
-	position: absolute;
-	right: 11px;
-	top: 11px;
-	width: 32px;
-	height: 32px;
-	background-position: 0px 0px;
-	background-repeat: no-repeat;
-	background-image: url(../images/palm-default/help-toggle.png);
+	color: rgba(255, 255, 255, 0.7);
 }
-body.palm-default.appcat .prefs .help-toggle.selected
+body.palm-default.appcat .prefs .list-item-add-button
 {
-	background-position: 0px -32px;
+	background-image: url(../images/appcat/list-icon-add-item.png);
 }
 
 
@@ -670,11 +644,10 @@ body.palm-default.appcat .pkg-list .palm-row-wrapper .title.sub
 	text-overflow: ellipsis;
 	padding-right: 5px;
 	padding-bottom: 6px;
-	color: #000000;
 	font-size: 14px;
 }
 body.palm-default.appcat .pkg-list .palm-row-wrapper .title.sub {
-	color: #555555;
+	color: rgba(255, 255, 255, 0.7);
 }
 body.palm-default.appcat .group-popup.palm-popup-container
 {
@@ -796,6 +769,9 @@ body.palm-default.appcat .pkg-connected .palm-row-wrapper .title.sub
 }
 
 /* Package Install Scene Styles */
+body.palm-default.appcat .pkg-install {
+	color: #ffffff;
+}
 body.palm-default.appcat .pkg-install #spinner
 {
 	margin-top: 85px;
@@ -876,11 +852,10 @@ body.palm-default.appcat .pkg-view .palm-row .palm-row-wrapper .title.descriptio
 body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.screenshots
 {
 	background: url(../images/appcat/screenshotFade.png) repeat-x;
-	background: none;
 	text-align: left;
 	width: 100%;
-	margin: 0 0 0 0;
-	padding: 0 0 0 0;
+	padding-top: 5px;
+	padding-bottom: 5px;
 }
 body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.apps
 {
@@ -889,7 +864,8 @@ body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.apps
 body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.screenshots #viewScroller
 {
 	height: 120px;
-	padding: 0 0 0 -10px;
+	padding-top: 5px;
+	padding-bottom: 5px; 
 	width: 100%;
 }
 body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.apps #viewScroller
@@ -1120,7 +1096,7 @@ body.palm-default.appcat .folder-picker #list .palm-row > .palm-row-wrapper > .i
 	margin-top: 2px;
 	margin-right: -4px;
 	margin-left: 4px;
-	background: url(../images/palm-default/folder.png) center center no-repeat;
+	background: url(../images/appcat/folder.png) center center no-repeat;
 }
 body.palm-default.appcat .folder-picker #list .palm-row.selected > .palm-row-wrapper > .icon
 {
@@ -1130,7 +1106,7 @@ body.palm-default.appcat .folder-picker #list .palm-row.open > .palm-row-wrapper
 {
 	margin-left: 6px;
 	margin-right: -6px;
-	background: url(../images/palm-default/folder-open.png) center center no-repeat;
+	background: url(../images/appcat/folder-open.png) center center no-repeat;
 }
 body.palm-default.appcat .folder-picker #list .palm-row.selected.open > .palm-row-wrapper > .icon
 {
@@ -1191,7 +1167,7 @@ body.palm-default.appcat .file-picker .folder .palm-page-header .palm-page-heade
 	margin-top: 2px;
 	margin-left: 8px;
 	margin-right: 6px;
-	background: url(../images/palm-default/folder-open-head.png) center center no-repeat;
+	background: url(../images/appcat/folder-open-head.png) center center no-repeat;
 }
 body.palm-default.appcat .file-picker .folder .palm-page-header .palm-page-header-wrapper .title
 {
@@ -1241,7 +1217,7 @@ body.palm-default.appcat .file-picker #folderHolder .folderIcon
 }
 body.palm-default.appcat .file-picker #folderHolder .palm-row .fileIcon
 {
-	background: url(../images/palm-default/file.png) center center no-repeat;
+	background: url(../images/appcat/file.png) center center no-repeat;
 }
 body.palm-default.appcat .file-picker #folderHolder .palm-row.selected .fileIcon
 {
@@ -1249,7 +1225,7 @@ body.palm-default.appcat .file-picker #folderHolder .palm-row.selected .fileIcon
 }
 body.palm-default.appcat .file-picker #folderHolder .palm-row .folderIcon
 {
-	background: url(../images/palm-default/folder.png) center center no-repeat;
+	background: url(../images/appcat/folder.png) center center no-repeat;
 }
 body.palm-default.appcat .file-picker #folderHolder .palm-row.selected .folderIcon
 {
