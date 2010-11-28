@@ -592,7 +592,7 @@ body.palm-dark .pkg-list #searchText
 	color: #666;
 	font-size: 16px;
 }
-body.palm-dark .palm-list #statusSpinner #spinnerStatus
+body.palm-dark .pkg-list #statusSpinner #spinnerStatus
 {
 	color: #999;
 }

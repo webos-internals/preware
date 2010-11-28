@@ -44,10 +44,6 @@ body.palm-default.appcat .palm-row .title .description {
 	color: #000000;
 }
 
-body.palm-default.appcat .palm-group {
-	/*margin: 3px;
-	padding: 0 0 0 0;*/
-}
 body.palm-default.appcat .palm-page-header {
   -webkit-border-image: url(../images/appcat/palm-page-header.png) 35 24 13 24 repeat stretch;
   color: #000000;
@@ -79,23 +75,11 @@ body.palm-default.appcat .palm-divider .label {
 }
 body.palm-default.appcat .scene-fade-top
 {
-	position: fixed; 
-	top: 0; 
-	z-index: 11000;
-	height: 30px; 
-	width: 100%;
 	background: url(../images/appcat/scrollFade-top.png) top center repeat-x;
-	-webkit-palm-mouse-target: ignore;
 }
 body.palm-default.appcat .scene-fade-bottom
 {
-	position: fixed; 
-	bottom: 0; 
-	z-index: 11000;
-	height: 30px; 
-	width: 100%;
 	background: url(../images/appcat/scrollFade-bottom.png) bottom center repeat-x;
-	-webkit-palm-mouse-target: ignore;
 }
 body.palm-default.appcat.green .scene-fade-top
 {
@@ -105,23 +89,6 @@ body.palm-default.appcat.green .scene-fade-bottom
 {
 	background: url(../images/appcat/scrollFade-green-bottom.png) bottom center repeat-x;
 }
-body.palm-default.appcat .palm-row-wrapper .pkgCount
-{
-	float: right;
-    line-height: 19px;
-    height: 30px;
-    min-width: 30px;
-	vertical-align: middle;
-    -webkit-border-image: url(../images/palm-default/pkgCount.png) 5 10 5 10 stretch stretch;
-    -webkit-box-sizing: border-box;
-    border-width: 5px 10px 5px 10px;
-	margin-top: 12px;
-	margin-right: 15px;
-}
-body.palm-default.appcat .palm-row-wrapper .pkgCount .count
-{
-	color: #e4e4e2;
-}
 body.palm-default.appcat .list-item-add-button
 {
   height: 54px;
@@ -130,274 +97,52 @@ body.palm-default.appcat .add-item .title
 {
   color: #555552;
 }
-body.palm-default.appcat .palm-dialog-box .label {
-  color: #1f75bf !important;
-  text-shadow: #ffffff 0px 1px 0px !important;
-}
 
-/* Startup Scene Styles */
-
-body.palm-default.appcat .startup #data .palm-divider.labeled .label
-{
-	text-transform: lowercase;
-}
-body.palm-default.appcat .startup #data
-{
-	font-size: 18px;
-}
-body.palm-default.appcat .startup #data .text
-{
-	padding-top: 4px;
-	padding-left: 17px;
-	padding-right: 15px;
-	padding-bottom: 10px;
-}
-body.palm-default.appcat .startup #data ul
-{
-	margin: 0px;
-	padding-left: 37px;
-	padding-right: 15px;
-	padding-bottom: 10px;
-}
-body.palm-default.appcat .startup #data ul.changelog
-{
-	font-size: 15px;
-}
 
 /* Update Scene Styles */
-body.palm-default.appcat .update #spinner
-{
-	margin-top: 116px;
-	margin-left: auto;
-	margin-right: auto;
-}
 body.palm-default.appcat .update #spinner #spinnerStatus
 {
-	text-align: center;
-	padding-top: 122px;
-	width: 300px;
-	margin-left: -85px;
 	color: #ffffff;
-	font-size: 16px;
-}
-body.palm-default.appcat .update #spinner #spinnerStatus .text
-{
-	margin-top: 10px;
-	padding: 10px;
-	text-align: left;
 }
 body.palm-default.appcat .update .progress
 {
-	margin-top: 42px;
-	height: 15px;
-	width: 114px;
-	margin-left: auto;
-	margin-right: auto;
 	background: url(../images/appcat/progress-back.png) center center no-repeat;
 }
 body.palm-default.appcat .update .progress .progress-bar
 {
-	height: 15px;
-	width: 50%;
-	margin-left: 0px;
 	background: url(../images/appcat/progress-front.png) top left no-repeat;
 }
+
+
 /*
  * Main Scene Styles
  */
 
-body.palm-default.appcat .main .filter-field-wrapper
-{
-	height: 73px; 
-}
-body.palm-default.appcat .main .palm-page-header-wrapper .icon
-{
-	width: 76px;
-	height: 75px;
-	background: url(../icon-search.png) center center no-repeat;
-	background: url(../icon.png) center center no-repeat;
-}
-body.palm-default.appcat .main .filter-field-wrapper .icon
-{
-	width: 76px;
-	height: 75px;
-	background: url(../icon-search.png) center center no-repeat;
-}
-body.palm-default.appcat .main .palm-page-header-wrapper .title
-{
-	padding-left: 80px;
-}
-body.palm-default.appcat .main .palm-page-header-wrapper .title.main
-{
-	font-size: 30px;
-	padding-top: 5px;
-	padding-bottom: 0px;
-}
-body.palm-default.appcat .main .filter-field-wrapper .title.main
-{
-	text-transform: none;
-}
-body.palm-default.appcat .main .filter-field-wrapper #searchWidget
-{
-	padding-left: 69px;
-	margin-top: -30px;
-	font-size: 30px;
-	padding-top: 5px;
-	padding-bottom: 0px;
-}
 body.palm-default.appcat .main .filter-field-wrapper #searchWidget input
 {
-	margin-top: -30px;
-	font-size: 30px;
-	padding-top: 5px;
-	padding-bottom: 0px;
 	color: #fff;
 }
 body.palm-default.appcat .main .palm-page-header-wrapper .title .version
 {
-	font-size: 12px;
 	color: rgba(255, 255, 255, 0.8);
-	text-transform: lowercase;
-}
-body.palm-default.appcat .main .palm-page-header-wrapper .title.sub
-{
-	font-size: 14px;
-	padding-top: 0px;
-	margin-top: 0px;
-}
-body.palm-default.appcat .main .filter-field-wrapper .title.sub
-{
-	font-size: 14px;
-	padding-top: 0px;
-	margin-top: -55px;
-	margin-left: 22px;
-}
-body.palm-default.appcat .main .palm-row-wrapper
-{
-	height: 60px;
-}
-body.palm-default.appcat .main .palm-row-wrapper .title
-{
-	padding-top: 15px;
 }
 body.palm-default.appcat .main .palm-row-wrapper.disabled .title
 {
 	color: rgba(255, 255, 255, 0.5);
-}
-body.palm-default.appcat .main .palm-row-wrapper .pkgCount
-{
-	display: none;
-}
-body.palm-default.appcat .main .palm-row-wrapper.showCount .pkgCount
-{
-	display: inline;
-	margin-top: 14px;
-}
-body.palm-default.appcat .main #searchContainer .icon
-{
-	background: url(../icon-search.png) center center no-repeat;
-}
-body.palm-default.appcat .main #searchContainer #subSearch
-{
-	display: block;
-}
-body.palm-default.appcat .main #searchContainer #subInstall
-{
-	display: none;
-}
-body.palm-default.appcat .main #searchContainer.install .icon
-{
-	background: url(../icon-package.png) center center no-repeat;
-}
-body.palm-default.appcat .main #searchContainer.install #subSearch
-{
-	display: none;
-}
-body.palm-default.appcat .main #searchContainer.install #subInstall
-{
-	display: block;
 }
 
 /* Preference Scene Styles */
 body.palm-default.appcat .prefs {
 	color: #ffffff;
 }
-body.palm-default.appcat .prefs .palm-row-wrapper .note
-{
-	clear: both;
-	padding-left: 10px;
-	font-style: italic;
-}
-body.palm-default.appcat .prefs .palm-row-wrapper .label.left
-{
-	padding-left: 6px;
-	-webkit-palm-mouse-target: ignore;
-}
-body.palm-default.appcat .prefs .palm-list-selector .label
-{
-	float: left;
-}
-body.palm-default.appcat .prefs .palm-list-selector .title
-{
-	text-align: right;
-}
-body.palm-default.appcat .prefs .palm-group.disabled
-{
-	opacity: 0.35;
-}
-
 body.palm-default.appcat .prefs .headerButton,
 body.palm-default.appcat .configs .headerButton
 {
-	-webkit-border-image: url(../images/palm-default/selector-header-selected.png);
-	-webkit-border-image: url(../images/palm-default/selector-header.png) 0 16 0 16 stretch stretch;
-	-webkit-box-sizing: border-box;
-	border-width: 0px 16px 0px 16px;
-	margin: 9px 48px 0px 0px;
-	text-transform: uppercase;
-	display: inline-block;
-	font-size: 14px;
-	height: 35px;
-	line-height: 35px;
-	float: right;
 	color: rgba(255, 255, 255, 0.8);
-}
-body.palm-default.appcat .configs .headerButton
-{
-	margin: 9px 9px 0px 0px;
-}
-body.palm-default.appcat .prefs .headerButton.selected ,
-body.palm-default.appcat .configs .headerButton.selected {
-	-webkit-border-image: url(../images/palm-default/selector-header-selected.png) 0 16 0 16 stretch stretch;
-	color: #c0c0c0;
-}
-body.palm-default.appcat .prefs .palm-group .palm-group-title .right
-{
-	float: right;
-	margin-right: 12px;
-}
-body.palm-default.appcat .prefs .palm-group .palm-row-wrapper.blacklist .title
-{
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
 }
 body.palm-default.appcat .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.search
 {
-	float: left;
 	color: #f7b516;
-	max-width: 273px;
-	margin-bottom: -20px;
-}
-body.palm-default.appcat .prefs .palm-group .palm-row.selected .palm-row-wrapper.blacklist .title.search
-{
-	color: #fff;
-}
-body.palm-default.appcat .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.field
-{
-	text-transform: capitalize;
-	float: right;
-	max-width: 273px;
 }
 
 body.palm-default.appcat .prefs .palm-row .palm-row-wrapper .help-overlay
@@ -450,412 +195,66 @@ body.palm-default.appcat .prefs .list-item-add-button
 body.palm-default.appcat .configs {
 	color: #ffffff;
 }
-body.palm-default.appcat .configs #confList .toggle-text
-{
-	float: right;
-}
 body.palm-default.appcat .configs #confList .title {
 	color: #f7b516;
 }
 body.palm-default.appcat .configs #confList .title.sub
 {
 	color: #ffffff;
-	padding-top: 0px;
-	padding-left: 16px;
-	padding-right: 10px;
-	margin-top: -5px;
-	font-size: 14px;
-}
-body.palm-default.appcat .configs #confList .disabled,
-body.palm-default.appcat .configs #confList .disabled *,
-body.palm-default.appcat .configs .palm-group.disabled
-{
-	opacity: 0.35;
 }
 
 /* Package Category List Styles */
 body.palm-default.appcat .pkg-groups {
 	color: #ffffff;
 }
-body.palm-default.appcat .pkg-groups #groupList .title
-{
-	text-transform: capitalize;
-}
-body.palm-default.appcat .pkg-groups #groupList .palm-row-wrapper.all .title
-{
-	font-weight: bold;
-}
 
 /* Package List Scene Styles */
 body.palm-default.appcat .pkg-list {
 	color: #FFFFFF;
 }
-body.palm-default.appcat .pkg-list #searchText
-{
-	display: none;
-	z-index: 20000;
-	position: fixed;
-	top: 0px;
-	left: 0px;
-	right: 0px;
-	height: 50px;
-	color: #fff;
-	padding-top: 2px;
-	padding-left: 1px;
-	border-width: 10px 25px 10px 25px;
-	-webkit-border-image: url(../images/palm-default/search-box.png) 10 25 10 25 stretch stretch;
-	-webkit-box-sizing: border-box;
-}
-body.palm-default.appcat .pkg-list #searchText input
-{
-	color: #fff;
-	background: none;
-	margin-top: 0px;
-	margin-left: -1px;
-	border: 0px;
-	padding: 0px;
-}
-body.palm-default.appcat .pkg-list .countContainer
-{
-	display: none;
-	position: fixed;
-	float: right;
-	top: 15px;
-	right: 16px;
-    line-height: 8px;
-    height: 20px;
-    min-width: 19px;
-	vertical-align: middle;
-    -webkit-border-image: url(../images/palm-default/search-count.png) 5 5 5 5 stretch stretch;
-    -webkit-box-sizing: border-box;
-    border-width: 5px 5px 5px 5px;
-	font-size: 14px;
-	z-index: 20001;
-}
-body.palm-default.appcat .pkg-list .countContainer .count
-{
-	color: #fff;
-}
-body.palm-default.appcat .pkg-list #spinner
-{
-	position: fixed;
-	top: 8px;
-	right: 10px;
-	z-index: 20001;
-	float: right;
-}
-body.palm-default.appcat .pkg-list #statusSpinner
-{
-	margin-top: 135px;
-	margin-left: auto;
-	margin-right: auto;
-}
 body.palm-default.appcat .pkg-list #statusSpinner #spinnerStatus
 {
-	text-align: center;
-	padding-top: 122px;
-	width: 200px;
-	margin-left: -35px;
 	color: #f7b516;
-	font-size: 16px;
-}
-body.palm-default.appcat .pkg-list .group-source 
-{
-	display: none;
-	position: relative;
-	float: right;
-	margin: 8px -16px 0px 0px;
-	font-size: 14px;
-	text-transform: uppercase;
-	font-weight: bold;
-	height: 35px;
-	line-height: 33px;
-	border-width: 0px 22px 0px 16px;
-	-webkit-border-image:url(../images/palm-default/header-selector.png) 0 22 0 16 stretch stretch;
-	-webkit-box-sizing: border-box;
-}
-body.palm-default.appcat .pkg-list .group-selector 
-{
-	margin-left: -5px;
-	padding-right: 2px;
-	background: transparent;
-	display: inline-block;
-	min-width: 12px;
-	max-width: 80px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
-	-webkit-palm-mouse-target: ignore;
-}
-body.palm-default.appcat .pkg-list .palm-row-wrapper
-{
-	position: relative;
-	min-height: 56px;
-}
-body.palm-default.appcat .pkg-list .palm-row-wrapper .icon
-{
-	position: absolute;
-	width: 48px;
-	height: 48px;
-	background: url(../images/noIcon.png) center center no-repeat;
-	-webkit-background-size: 48px 48px;
-	top: 3px;
-	left: 4px;
-}
-body.palm-default.appcat .pkg-list .palm-row-wrapper.installed .icon .sub
-{
-	position: absolute;
-	width: 16px;
-	height: 16px;
-	top: 0px;
-	left: 32px;
-	background: url(../images/icon_installed.png) center center no-repeat;
-}
-body.palm-default.appcat .pkg-list .palm-row-wrapper.update .icon .sub
-{
-	position: absolute;
-	width: 16px;
-	height: 16px;
-	top: 0px;
-	left: 32px;
-	background: url(../images/icon_updates.png) center center no-repeat;
-}
-body.palm-default.appcat .pkg-list .palm-row-wrapper .title
-{
-	padding-top: 0px;
-	padding-left: 60px;
-}
-body.palm-default.appcat .pkg-list .palm-row-wrapper .title .highlight
-{
-	font-weight: bold;
-	text-decoration: underline;
-}
-body.palm-default.appcat .pkg-list .palm-row-wrapper .title.description
-{
-	line-height: 22px;
-	padding-top: 5px;
-	padding-right: 2px;
-	padding-bottom: 1px;
-}
-body.palm-default.appcat .pkg-list .palm-row-wrapper .title.sub
-{
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	padding-right: 5px;
-	padding-bottom: 6px;
-	font-size: 14px;
 }
 body.palm-default.appcat .pkg-list .palm-row-wrapper .title.sub {
 	color: rgba(255, 255, 255, 0.7);
 }
-body.palm-default.appcat .group-popup.palm-popup-container
-{
-	text-transform: capitalize;
-}
-body.palm-default.appcat .icon-filter-date
-{
-	background:url(../images/icon_date.png) top center no-repeat;
-}
-body.palm-default.appcat .icon-filter-alpha
-{
-	background:url(../images/icon_alpha.png) top center no-repeat;
-}
-body.palm-default.appcat .icon-filter-price
-{
-	background:url(../images/icon_price.png) top center no-repeat;
-}
-body.palm-default.appcat .icon-filter-multi
-{
-	background:url(../images/icon_multi.png) top center no-repeat;
-}
 
 /* Package Connected Scene Styles */
-body.palm-default.appcat .pkg-connected #spinner
-{
-	margin-top: 135px;
-	margin-left: auto;
-	margin-right: auto;
-}
 body.palm-default.appcat .pkg-connected #spinner #spinnerStatus
 {
-	text-align: center;
-	padding-top: 122px;
-	width: 200px;
-	margin-left: -35px;
 	color: #f7b516;
-	font-size: 16px;
-}
-body.palm-default.appcat .pkg-connected #pkgSingle,
-body.palm-default.appcat .pkg-connected #pkgSingle *
-{
-	text-transform: none;
-}
-body.palm-default.appcat .pkg-connected #pkgSingle
-{
-	position: fixed;
-	padding-top: 50px;
-	height: 110px;
-	z-index: 999;
-	width: 320px;
-}
-body.palm-default.appcat .pkg-connected .palm-row-wrapper
-{
-	position: relative;
-	height: 56px;
-}
-body.palm-default.appcat .pkg-connected .palm-page-header-wrapper .icon
-{
-	margin-top: -4px;
-}
-body.palm-default.appcat .pkg-connected .palm-page-header-wrapper .icon,
-body.palm-default.appcat .pkg-connected .palm-row-wrapper .icon
-{
-	position: absolute;
-	width: 48px;
-	height: 48px;
-	background: url(../images/noIcon.png) center center no-repeat;
-	-webkit-background-size: 48px 48px;
-	top: 3px;
-	left: 4px;
-}
-body.palm-default.appcat .pkg-connected .palm-page-header-wrapper.installed .icon .sub,
-body.palm-default.appcat .pkg-connected .palm-row-wrapper.installed .icon .sub
-{
-	position: absolute;
-	width: 16px;
-	height: 16px;
-	top: 0px;
-	left: 32px;
-	background: url(../images/icon_installed.png) center center no-repeat;
-}
-body.palm-default.appcat .pkg-connected .palm-page-header-wrapper.update .icon .sub,
-body.palm-default.appcat .pkg-connected .palm-row-wrapper.update .icon .sub
-{
-	position: absolute;
-	width: 16px;
-	height: 16px;
-	top: 0px;
-	left: 32px;
-	background: url(../images/icon_updates.png) center center no-repeat;
-}
-body.palm-default.appcat .pkg-connected .palm-page-header-wrapper .title,
-body.palm-default.appcat .pkg-connected .palm-row-wrapper .title
-{
-	position: absolute;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	padding-top: 0px;
-	padding-left: 0px;
-	left: 60px;
-	right: 5px;
 }
 body.palm-default.appcat .pkg-connected .palm-page-header-wrapper .title.description
 {
-	color: #000;
-}
-body.palm-default.appcat .pkg-connected .palm-page-header-wrapper .title.description,
-body.palm-default.appcat .pkg-connected .palm-row-wrapper .title.description
-{
-	top: 4px;
+	color: #fff;
 }
 body.palm-default.appcat .pkg-connected .palm-page-header-wrapper .title.sub,
 body.palm-default.appcat .pkg-connected .palm-row-wrapper .title.sub
 {
-	color: #999;
-	top: 30px;
-	font-size: 14px;
+	color: rgba(255, 255, 255, 0.7);
 }
 
 /* Package Install Scene Styles */
 body.palm-default.appcat .pkg-install {
 	color: #ffffff;
 }
-body.palm-default.appcat .pkg-install #spinner
-{
-	margin-top: 85px;
-	margin-left: auto;
-	margin-right: auto;
-}
 body.palm-default.appcat .pkg-install #spinner #spinnerStatus
 {
-	text-align: center;
-	padding-top: 122px;
-	width: 200px;
-	margin-left: -35px;
 	color: #f7b516;
-	font-size: 16px;
 }
 
 /* Package View Scene Styles */
 body.palm-default.appcat .pkg-view {
 	color: #ffffff;
 }
-body.palm-default.appcat .pkg-view #spinner
-{
-	margin-top: 85px;
-	margin-left: auto;
-	margin-right: auto;
-}
 body.palm-default.appcat .pkg-view #spinner #spinnerStatus
 {
-	text-align: center;
-	padding-top: 122px;
-	width: 200px;
-	margin-left: -35px;
-	color: #666;
-	font-size: 16px;
-}
-body.palm-default.appcat .pkg-view .palm-header
-{
-	padding-left: 0px;
-}
-body.palm-default.appcat .pkg-view .palm-header #icon
-{
-	float: left;
-	width: 48px;
-	height: 48px;
-	margin-top: 2px;
-	margin-left: -10px;
-	background: url(../images/noIcon.png) center center no-repeat;
-	-webkit-background-size: 48px 48px;
-}
-body.palm-default.appcat .pkg-view .palm-header #title
-{
-	float: left;
-	padding-left: 15px;
-	width: 215px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
-}
-body.palm-default.appcat .pkg-view .palm-header-spacer
-{
-	height: 50px;
-}
-body.palm-default.appcat .pkg-view .palm-row .palm-row-wrapper .title.description
-{
-	margin-top: 5px;
-	font-size: 18px !important;
-}
-body.palm-default.appcat .pkg-view .palm-row .palm-row-wrapper .title.description *
-{
-	font-size: 18px !important;
-}
-body.palm-default.appcat .pkg-view .palm-row .palm-row-wrapper .title.description p
-{
-	margin: 0px;
-	padding: 0px;
-	margin-bottom: 10px;
+	color: #f7b516;
 }
 body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.screenshots
 {
 	background: url(../images/appcat/screenshotFade.png) repeat-x;
-	text-align: left;
-	width: 100%;
-	padding-top: 5px;
-	padding-bottom: 5px;
 }
 body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.apps
 {
@@ -874,366 +273,26 @@ body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.apps #viewScrolle
 	padding-top: 10px;
 	width: 100%;
 }
-body.palm-default.appcat .pkg-view #viewScroller #scrollItems
-{
-	width: 280px;
-	text-align: center;
-	white-space: nowrap;
-	overflow: visible;
-}
-body.palm-default.appcat .pkg-view #viewScroller #scrollItems img.screenshot
-{
-	margin-left: 6px;
-	margin-right: 6px;
-	height: 120px
-}
-body.palm-default.appcat .pkg-view #viewScroller #scrollItems div.appReset
-{
-	background: #fff; /* for some reason, if i remove this, it stops working */
-	position: relative;
-	display: inline;
-	margin-left: 0px;
-	margin-right: 0px;
-	height: 54px;
-	width: 0px;
-}
-body.palm-default.appcat .pkg-view #viewScroller #scrollItems div.app
-{
-	position: relative;
-	display: inline-block;
-	margin-left: 13px;
-	margin-right: 13px;
-	height: 54px;
-	width: 54px;
-	background: url(../images/noIcon.png) center center no-repeat;
-	-webkit-background-size: 54px 54px;
-}
-body.palm-default.appcat .pkg-view #viewScroller #scrollItems div.app .sub
-{
-	position: absolute;
-	display: inline-block;
-	width: 0px;
-	height: 0px;
-	-webkit-palm-mouse-target: ignore;
-}
-body.palm-default.appcat .pkg-view #viewScroller #scrollItems div.app.installed .sub
-{
-	width: 16px;
-	height: 16px;
-	margin-left: 38px;
-	background: url(../images/icon_installed.png) center center no-repeat;
-}
-body.palm-default.appcat .pkg-view #viewScroller #scrollItems div.app.update .sub
-{
-	width: 16px;
-	height: 16px;
-	margin-left: 38px;
-	background: url(../images/icon_updates.png) center center no-repeat;
-}
-body.palm-default.appcat .pkg-view #viewScroller #scrollItems div.app.text
-{
-	background: none;
-}
-body.palm-default.appcat .pkg-view #viewScroller #scrollItems div.app.text .sub
-{
-	margin-top: 10px;
-	font-size: 14px;
-	height: 40px;
-	width: 54px;
-}
-
-/* IPKGLog Scene Styles */
-body.palm-default.appcat .ipkglog #logScroller
-{
-	height: 100%;
-	width: 320px;
-}
-body.palm-default.appcat .ipkglog #logScroller .palm-header-spacer
-{
-	height: 42px;
-}
-body.palm-default.appcat .ipkglog #logScroller #logData
-{
-	white-space: nowrap;
-	height: 100%;
-	width: 100%;
-}
-body.palm-default.appcat .ipkglog #logScroller #logData .noData
-{
-	text-align: center;
-	margin-top: 100px;
-	font-style: italic;
-}
-body.palm-default.appcat .ipkglog #logScroller #logData .container
-{
-	padding: 8px;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	width: 100%;
-}
-body.palm-default.appcat .ipkglog #logScroller #logData .container.two
-{
-	background: #dbdbdb;
-}
-body.palm-default.appcat .ipkglog #logScroller #logData .title
-{
-	text-transform: capitalize;
-	font-weight: bold;
-	font-size: 20px;
-}
-body.palm-default.appcat .ipkglog #logScroller #logData .msg
-{
-	padding-left: 10px;
-	font-size: 18px;
-}
-body.palm-default.appcat .ipkglog #logScroller #logData .stdOut div
-{
-	padding-left: 10px;
-	font-size: 18px;
-	color: #060;
-}
-body.palm-default.appcat .ipkglog #logScroller #logData .stdErr div
-{
-	padding-left: 10px;
-	font-size: 18px;
-	color: #600;
-}
-
-/* Screenshot Scene Styles */
-body.palm-default.appcat .ss-scene
-{
-	padding: 0px;
-	background: black;
-}
-body.palm-default.appcat .ss-scene #screenshotView
-{
-	height: 480px;
-	width: 320px;
-	margin: 0px;
-	-webkit-user-drag: none;
-	border: 0px;
-	padding: 0px;
-	background-color: black;
-}
-body.palm-default.appcat .ss-scene #screenshotView.sideways
-{
-	width: 480px;
-	height: 320px;
-}
-
-
-/* Help Scene Styles */
-body.palm-default.appcat .help .list_scene
-{
-	position:relative;
-	left:48px;
-	top:10px;
-	width:32px; 
-	height:32px;
-	vertical-align:bottom;
-	padding: 0px 0px 0px 5px;
-	float:left;
-}
-body.palm-default.appcat .help .img_web
-{
-	position:relative;
-	left:8px;
-	top:10px;
-	width:32px; 
-	height:32px;
-	background: url(../images/help/application-web.png) no-repeat  bottom;
-	padding: 0px 0px 0px 5px;
-	float:left;
-}
-body.palm-default.appcat .help .img_email
-{
-	position:relative;
-	left:8px;
-	top:10px;
-	width:32px; 
-	height:32px;
-	background: url(../images/help/application-email.png) no-repeat bottom;
-	vertical-align:bottom;
-	padding: 0px 0px 0px 5px;
-	float:left;
-}
-body.palm-default.appcat .help .img_changelog
-{
-	position:relative;
-	left:8px;
-	top:10px;
-	width:32px; 
-	height:32px;
-	background: url(../images/help/scene-changelog.png) no-repeat  bottom;
-	padding: 0px 0px 0px 5px;
-	float:left;
-}
-body.palm-default.appcat .help #data
-{
-	padding: 10px;
-	font-size: 18px;
-}
-body.palm-default.appcat .help #data ul
-{
-	margin: 0px;
-	padding-top: 10px;
-	padding-left: 26px;
-	padding-right: 0px;
-	padding-bottom: 10px;
-}
 
 /* File/Folder Picker Styles */
-body.palm-default.appcat .folder-picker #list .drawer
-{
-	border-left: 30px solid #bfbfbd;
-	background: url(../images/palm-default/list-separator-light.png) top left repeat-x
-}
 body.palm-default.appcat .folder-picker #list .palm-row > .palm-row-wrapper > .icon
 {
-	float: left;
-	width: 25px;
-	height: 48px;
-	margin-top: 2px;
-	margin-right: -4px;
-	margin-left: 4px;
 	background: url(../images/appcat/folder.png) center center no-repeat;
-}
-body.palm-default.appcat .folder-picker #list .palm-row.selected > .palm-row-wrapper > .icon
-{
-	background: url(../images/palm-dark/folder.png) center center no-repeat;
 }
 body.palm-default.appcat .folder-picker #list .palm-row.open > .palm-row-wrapper > .icon
 {
-	margin-left: 6px;
-	margin-right: -6px;
 	background: url(../images/appcat/folder-open.png) center center no-repeat;
 }
-body.palm-default.appcat .folder-picker #list .palm-row.selected.open > .palm-row-wrapper > .icon
-{
-	background: url(../images/palm-dark/folder-open.png) center center no-repeat;
-}
-body.palm-default.appcat .folder-picker #list .palm-row > .palm-row-wrapper > .check
-{
-	display: none;
-}
-body.palm-default.appcat .folder-picker #list .palm-row.check > .palm-row-wrapper > .check
-{
-	display: block;
-	float: right;
-	width: 32px;
-	height: 48px;
-	margin-top: 2px;
-	margin-right: 8px;
-	margin-left: -10px;
-	background: url(../images/checkmark-green.png) center center no-repeat;
-}
-body.palm-default.appcat .folder-picker #list .palm-row .palm-row-wrapper .title
-{
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
 
-body.palm-default.appcat .file-picker #folderHolder .folder
-{
-	position: absolute;
-	top: 0px;
-	width: 321px;
-	height: 100%;
-	border-width: 38px 26px 13px 25px;
-	-webkit-border-image: url(../images/file-picker-background.png) 38 26 13 25;
-	-webkit-box-sizing: border-box;
-}
-body.palm-default.appcat .file-picker .folder .palm-page-header
-{
-	position: absolute;
-	top: -38px;
-	left: -25px;
-	width: 320px;
-	padding-top: 42px;
-	padding-bottom: 0px;
-	z-index: 2;
-}
-body.palm-default.appcat .file-picker .folder .palm-page-header .palm-page-header-wrapper
-{
-	padding-bottom: 0px;
-	margin-bottom: -18px;
-}
 body.palm-default.appcat .file-picker .folder .palm-page-header .palm-page-header-wrapper .headerFolderIcon
 {
-	float: left;
-	width: 25px;
-	height: 48px;
-	margin-top: 2px;
-	margin-left: 8px;
-	margin-right: 6px;
 	background: url(../images/appcat/folder-open-head.png) center center no-repeat;
-}
-body.palm-default.appcat .file-picker .folder .palm-page-header .palm-page-header-wrapper .title
-{
-	font-weight: bold;
-	text-transform: none !important;
-	padding-left: 0px;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
-}
-body.palm-default.appcat .file-picker #folderHolder .folder .palm-list
-{
-	width: 320px;
-	margin-left: -25px;
-	margin-top: -38px;
-	padding-top: 90px;
-	z-index: 1;
-}
-body.palm-default.appcat .file-picker #folderHolder .folder .palm-list .file-list
-{
-	margin-bottom: 90px;
-}
-body.palm-default.appcat .file-picker #folderHolder .palm-row > .palm-row-wrapper > .check
-{
-	display: none;
-}
-body.palm-default.appcat .file-picker #folderHolder .palm-row.check > .palm-row-wrapper > .check
-{
-	display: block;
-	float: right;
-	width: 32px;
-	height: 48px;
-	margin-top: 2px;
-	margin-right: 8px;
-	margin-left: -10px;
-	background: url(../images/checkmark-green.png) center center no-repeat;
-}
-body.palm-default.appcat .file-picker #folderHolder .fileIcon,
-body.palm-default.appcat .file-picker #folderHolder .folderIcon
-{
-	float: left;
-	width: 25px;
-	height: 48px;
-	margin-top: 2px;
-	margin-right: -6px;
-	margin-left: 6px;
 }
 body.palm-default.appcat .file-picker #folderHolder .palm-row .fileIcon
 {
 	background: url(../images/appcat/file.png) center center no-repeat;
 }
-body.palm-default.appcat .file-picker #folderHolder .palm-row.selected .fileIcon
-{
-	background: url(../images/palm-dark/file.png) center center no-repeat;
-}
 body.palm-default.appcat .file-picker #folderHolder .palm-row .folderIcon
 {
 	background: url(../images/appcat/folder.png) center center no-repeat;
-}
-body.palm-default.appcat .file-picker #folderHolder .palm-row.selected .folderIcon
-{
-	background: url(../images/palm-dark/folder.png) center center no-repeat;
-}
-body.palm-default.appcat .file-picker #folderHolder .palm-row .palm-row-wrapper .title
-{
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	overflow: hidden;
 }
