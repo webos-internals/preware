@@ -413,6 +413,7 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 	// Skip packages that are in the status file, but are not actually installed
 	if (packageObj.Status &&
 	    (packageObj.Status.include('not-installed') || packageObj.Status.include('deinstall'))) {
+		//alert('+ 1');
 		return
 	}
 
@@ -421,23 +422,27 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 	
 	// Filter out apps with a minimum webos version that is greater then current
 	if (this.versionNewer(Mojo.Environment.DeviceInfo.platformVersion, newPkg.minWebOSVersion)) {
+		//alert('+ 2');
 		return;
 	}
 	
 	// Filter out apps with a maximum webos version that is less then current
-	if (this.versionNewer(newPkg.minWebOSVersion, Mojo.Environment.DeviceInfo.platformVersion)) {
+	if (this.versionNewer(newPkg.maxWebOSVersion, Mojo.Environment.DeviceInfo.platformVersion)) {
+		//alert('+ 3');
 		return;
 	}
 	
 	// Filter out apps with a specified devices that dont match the current
 	if (newPkg.deviceCompatibility && newPkg.deviceCompatibility.length > 0 &&
 		!newPkg.deviceCompatibility.include(Mojo.Environment.DeviceInfo.modelNameAscii)) {
+		//alert('+ 4');
 		return;
 	}
 	
 	// Filter out paid apps if desired
 	if ((prefs.get().onlyShowFree) && (newPkg.price != undefined) &&
 	    (newPkg.price != "0") && (newPkg.price != "0.00")) {
+		//alert('+ 5');
 		return;
 	}
 
@@ -445,11 +450,13 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 	if ((prefs.get().onlyShowEnglish) &&
 		newPkg.languages && newPkg.languages.length &&
 		!newPkg.inLanguage("en")) {
+		//alert('+ 6');
 		return;
 	}
 
 	// default location is none is set
 	if (!newPkg.location && newPkg.filename && url) {
+		//alert('+ 7');
 		newPkg.location = url + '/' + newPkg.filename;
 	}
 
@@ -561,28 +568,25 @@ packagesModel.prototype.loadSavedOpenOK = function()
 };
 packagesModel.prototype.loadSavedGetOK = function(savedPackageList)
 {
-	if (savedPackageList) {
-		for (var p = 0; p < savedPackageList.length; p++) {
-			info = savedPackageList[p];
-			//alert('Loaded ' + savedPackageList[p].Package);
-			//alert('info.Package: ' + info.Package);
-			//alert('info.Version: ' + info.Version);
-			//alert('info.Size: ' + info.Size);
-			//alert('info.Filename: ' + info.Filename);
-			//alert('info.Description: ' + info.Description);
-			//alert('info.Source: ' + info.Source);
+	if (savedPackageList)
+	{
+		for (var p = 0; p < savedPackageList.length; p++)
+		{
 			var savedPkg = this.loadPackage(savedPackageList[p]);
-			var pkgNum = this.packageInList(savedPkg.pkg);
-			var gblPkg = this.packages[pkgNum];
-			//alert("isInstalled: " + gblPkg.isInstalled);
-			//alert("appCatalog: " + gblPkg.appCatalog);
-			if (!gblPkg.appCatalog) {
-				gblPkg.isInSavedList = true;
+			if (savedPkg)
+			{
+				var pkgNum = this.packageInList(savedPkg.pkg);
+				var gblPkg = this.packages[pkgNum];
+				if (!gblPkg.appCatalog)
+				{
+					gblPkg.isInSavedList = true;
+				}
 			}
 		}
 		this.doneLoading();
 	}
-	else {
+	else
+	{
 		alert('No savedPackageList');
 		this.loadSavedDefault(this.doneLoading.bind(this));
 	}
