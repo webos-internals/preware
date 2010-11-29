@@ -424,6 +424,11 @@ packagesModel.prototype.loadPackage = function(packageObj, url)
 		return;
 	}
 	
+	// Filter out apps with a maximum webos version that is less then current
+	if (this.versionNewer(newPkg.minWebOSVersion, Mojo.Environment.DeviceInfo.platformVersion)) {
+		return;
+	}
+	
 	// Filter out apps with a specified devices that dont match the current
 	if (newPkg.deviceCompatibility && newPkg.deviceCompatibility.length > 0 &&
 		!newPkg.deviceCompatibility.include(Mojo.Environment.DeviceInfo.modelNameAscii)) {

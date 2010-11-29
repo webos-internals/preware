@@ -50,6 +50,7 @@ function packageModel(infoString, infoObj)
 		this.appCatalog =			false;
 		this.isInSavedList =		false;
 		this.minWebOSVersion =		'1.0.0';
+		this.maxWebOSVersion =		'99.9.9';
 		this.deviceCompatibility =	[];
 		this.preInstallMessage =	false;
 		this.preUpdateMessage =		false;
@@ -244,6 +245,10 @@ packageModel.prototype.infoLoad = function(info)
 			if (sourceJson.MinWebOSVersion)
 			{
 				this.minWebOSVersion = sourceJson.MinWebOSVersion;
+			}
+			if (sourceJson.MaxWebOSVersion)
+			{
+				this.maxWebOSVersion = sourceJson.MaxWebOSVersion;
 			}
 			
 			if (sourceJson.DeviceCompatibility) 
