@@ -250,6 +250,28 @@ body.palm-dark.appcat .pkg-install #spinner #spinnerStatus
 }
 
 /* Package View Scene Styles */
+body.palm-dark.appcat .pkg-view .palm-header
+{
+	position: relative;
+	padding: 0px;
+	border-width: 35px 24px 13px 24px;
+	-webkit-border-image: url(../images/appcat/palm-page-header.png) 35 24 13 24 repeat stretch;
+	-webkit-box-sizing: border-box;
+	height: 65px;
+	margin-bottom: -1px;
+}
+body.palm-dark.appcat .pkg-view .palm-header #icon
+{
+	margin-top: -26px;
+}
+body.palm-dark.appcat .pkg-view .palm-header #title
+{
+	margin-top: -26px;
+}
+body.palm-dark.appcat .pkg-view .palm-header-spacer
+{
+	height: 0px;
+}
 body.palm-dark.appcat .pkg-view {
 	color: #ffffff;
 }
