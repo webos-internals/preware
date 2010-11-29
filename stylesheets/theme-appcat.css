@@ -5,110 +5,115 @@
 
 /* Global Styles */
 
-body.palm-default.appcat {
+body.palm-dark.appcat {
     background: url(../images/appcat/appcat-bg.png);
     color: #FFFFFF;
 }
-body.palm-default.appcat.green {
+body.palm-dark.appcat.green {
     background: url(../images/appcat/appcat-green-bg.png);
     color: #FFFFFF;
 }
-body.palm-default.appcat .palm-body-text {
+body.palm-dark.appcat .palm-body-text {
   color: rgba(255, 255, 255, 0.7);
   font-size: 16px;
 }
 
-body.palm-default.appcat .palm-popup-container {
+body.palm-dark.appcat .palm-group .palm-group-title
+{
+	color: #fff;
+}
+
+body.palm-dark.appcat .palm-popup-container {
   -webkit-border-image: url(../images/appcat/palm-popup-background.png) 24 24 24 24 stretch stretch;
 }
-body.palm-default.appcat.green .palm-popup-container {
+body.palm-dark.appcat.green .palm-popup-container {
   -webkit-border-image: url(../images/appcat/palm-popup-green-background.png) 24 24 24 24 stretch stretch;
 }
-body.palm-default.appcat .palm-popup-fade-top > .fade-background {
+body.palm-dark.appcat .palm-popup-fade-top > .fade-background {
   -webkit-border-image: none;
 }
-body.palm-default.appcat .palm-popup-fade-top > .fade-arrow {
+body.palm-dark.appcat .palm-popup-fade-top > .fade-arrow {
   background: url(../images/appcat/palm-popup-fade-arrow-up.png) center center no-repeat;
 }
-body.palm-default.appcat .palm-popup-fade-bottom > .fade-background {
+body.palm-dark.appcat .palm-popup-fade-bottom > .fade-background {
   -webkit-border-image: none;
 }
-body.palm-default.appcat .palm-popup-fade-bottom > .fade-arrow {
+body.palm-dark.appcat .palm-popup-fade-bottom > .fade-arrow {
   background: url(../images/appcat/palm-popup-fade-arrow-down.png) center center no-repeat;
 }
 
-body.palm-default.appcat .palm-row .label {
+body.palm-dark.appcat .palm-row .label {
   color: #f7b516;
 }
-body.palm-default.appcat .palm-row .title .description {
+body.palm-dark.appcat .palm-row .title .description {
 	color: #000000;
 }
 
-body.palm-default.appcat .palm-page-header {
+body.palm-dark.appcat .palm-page-header {
   -webkit-border-image: url(../images/appcat/palm-page-header.png) 35 24 13 24 repeat stretch;
   color: #000000;
 }
 
-body.palm-default.appcat .palm-page-header.multi-line {
+body.palm-dark.appcat .palm-page-header.multi-line {
   -webkit-border-image: url(../images/appcat/palm-page-header.png) 35 24 13 24 repeat stretch;
 }
-body.palm-default.appcat .palm-page-header.multi-line .title {
+body.palm-dark.appcat .palm-page-header.multi-line .title {
 	color: #fff;
 }
-body.palm-default.appcat .palm-divider.labeled {
+body.palm-dark.appcat .palm-divider.labeled {
   height: 32px;
   border: none;
   width: 100%;
 }
-body.palm-default.appcat .palm-divider.labeled .left {
+body.palm-dark.appcat .palm-divider.labeled .left {
   background: url(../images/appcat/list-section-line.png) right center no-repeat;
 }
-body.palm-default.appcat .palm-divider.labeled .right {
+body.palm-dark.appcat .palm-divider.labeled .right {
   background: url(../images/appcat/list-section-line.png) left center no-repeat;
 }
-body.palm-default.appcat .palm-divider .label {
+body.palm-dark.appcat .palm-divider .label {
   font-size: 16px;
   text-transform: uppercase;
   color: #f7b516;
   text-shadow: #ffffff 0px 1px 0px;
   font-weight: bold;
 }
-body.palm-default.appcat .scene-fade-top
+body.palm-dark.appcat .scene-fade-top
 {
 	background: url(../images/appcat/scrollFade-top.png) top center repeat-x;
 }
-body.palm-default.appcat .scene-fade-bottom
+body.palm-dark.appcat .scene-fade-bottom
 {
 	background: url(../images/appcat/scrollFade-bottom.png) bottom center repeat-x;
 }
-body.palm-default.appcat.green .scene-fade-top
+body.palm-dark.appcat.green .scene-fade-top
 {
 	background: url(../images/appcat/scrollFade-green-top.png) top center repeat-x;
 }
-body.palm-default.appcat.green .scene-fade-bottom
+body.palm-dark.appcat.green .scene-fade-bottom
 {
 	background: url(../images/appcat/scrollFade-green-bottom.png) bottom center repeat-x;
 }
-body.palm-default.appcat .list-item-add-button
+body.palm-dark.appcat .list-item-add-button
 {
   height: 54px;
 }
-body.palm-default.appcat .add-item .title
+body.palm-dark.appcat .add-item .title
 {
   color: #555552;
 }
 
 
 /* Update Scene Styles */
-body.palm-default.appcat .update #spinner #spinnerStatus
+body.palm-dark.appcat .update #spinner #spinnerStatus
 {
 	color: #ffffff;
 }
-body.palm-default.appcat .update .progress
+body.palm-dark.appcat .update .progress
 {
 	background: url(../images/appcat/progress-back.png) center center no-repeat;
 }
-body.palm-default.appcat .update .progress .progress-bar
+body.palm-dark.appcat .update .progress .progress-bar
 {
 	background: url(../images/appcat/progress-front.png) top left no-repeat;
 }
@@ -118,156 +123,156 @@ body.palm-default.appcat .update .progress .progress-bar
  * Main Scene Styles
  */
 
-body.palm-default.appcat .main .filter-field-wrapper #searchWidget input
+body.palm-dark.appcat .main .filter-field-wrapper #searchWidget input
 {
 	color: #fff;
 }
-body.palm-default.appcat .main .palm-page-header-wrapper .title .version
+body.palm-dark.appcat .main .palm-page-header-wrapper .title .version
 {
 	color: rgba(255, 255, 255, 0.8);
 }
-body.palm-default.appcat .main .palm-row-wrapper.disabled .title
+body.palm-dark.appcat .main .palm-row-wrapper.disabled .title
 {
 	color: rgba(255, 255, 255, 0.5);
 }
 
 /* Preference Scene Styles */
-body.palm-default.appcat .prefs {
+body.palm-dark.appcat .prefs {
 	color: #ffffff;
 }
-body.palm-default.appcat .prefs .headerButton,
-body.palm-default.appcat .configs .headerButton
+body.palm-dark.appcat .prefs .headerButton,
+body.palm-dark.appcat .configs .headerButton
 {
 	color: rgba(255, 255, 255, 0.8);
 }
-body.palm-default.appcat .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.search
+body.palm-dark.appcat .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.search
 {
 	color: #f7b516;
 }
 
-body.palm-default.appcat .prefs .palm-row .palm-row-wrapper .help-overlay
+body.palm-dark.appcat .prefs .palm-row .palm-row-wrapper .help-overlay
 {
 	background-image: url(../images/appcat/helprow.png);
 }
-body.palm-default.appcat .prefs .palm-row.first .palm-row-wrapper .help-overlay
+body.palm-dark.appcat .prefs .palm-row.first .palm-row-wrapper .help-overlay
 {
 	background-image: url(../images/appcat/helprow-first.png);
 }
-body.palm-default.appcat .prefs .palm-row.single .palm-row-wrapper .help-overlay
+body.palm-dark.appcat .prefs .palm-row.single .palm-row-wrapper .help-overlay
 {
 	background-image: url(../images/appcat/helprow-single.png);
 }
-body.palm-default.appcat .prefs .palm-row.last .palm-row-wrapper .help-overlay
+body.palm-dark.appcat .prefs .palm-row.last .palm-row-wrapper .help-overlay
 {
 	background-image: url(../images/appcat/helprow-last.png);
 }
-body.palm-default.appcat .prefs .palm-row .palm-row-wrapper .help-overlay.more
+body.palm-dark.appcat .prefs .palm-row .palm-row-wrapper .help-overlay.more
 {
 	background: none;
 }
-body.palm-default.appcat .prefs .palm-row .palm-row-wrapper .help-overlay.more div
+body.palm-dark.appcat .prefs .palm-row .palm-row-wrapper .help-overlay.more div
 {
 	-webkit-border-image: url(../images/appcat/helprow.png) 23 23 23 23 stretch stretch;
 }
-body.palm-default.appcat .prefs .palm-row.first .palm-row-wrapper .help-overlay.more div
+body.palm-dark.appcat .prefs .palm-row.first .palm-row-wrapper .help-overlay.more div
 {
 	-webkit-border-image: url(../images/appcat/helprow-first.png) 23 23 23 23 stretch stretch;
 }
-body.palm-default.appcat .prefs .palm-row.single .palm-row-wrapper .help-overlay.more div
+body.palm-dark.appcat .prefs .palm-row.single .palm-row-wrapper .help-overlay.more div
 {
 	-webkit-border-image: url(../images/appcat/helprow-single.png) 23 23 23 23 stretch stretch;
 }
-body.palm-default.appcat .prefs .palm-row.last .palm-row-wrapper .help-overlay.more div
+body.palm-dark.appcat .prefs .palm-row.last .palm-row-wrapper .help-overlay.more div
 {
 	-webkit-border-image: url(../images/appcat/helprow-last.png) 23 23 23 23 stretch stretch;
 }
-body.palm-default.appcat .prefs .add-item .title
+body.palm-dark.appcat .prefs .add-item .title
 {
 	color: rgba(255, 255, 255, 0.7);
 }
-body.palm-default.appcat .prefs .list-item-add-button
+body.palm-dark.appcat .prefs .list-item-add-button
 {
 	background-image: url(../images/appcat/list-icon-add-item.png);
 }
 
 
 /* Config/Feed Scene Styles */
-body.palm-default.appcat .configs {
+body.palm-dark.appcat .configs {
 	color: #ffffff;
 }
-body.palm-default.appcat .configs #confList .title {
+body.palm-dark.appcat .configs #confList .title {
 	color: #f7b516;
 }
-body.palm-default.appcat .configs #confList .title.sub
+body.palm-dark.appcat .configs #confList .title.sub
 {
 	color: #ffffff;
 }
 
 /* Package Category List Styles */
-body.palm-default.appcat .pkg-groups {
+body.palm-dark.appcat .pkg-groups {
 	color: #ffffff;
 }
 
 /* Package List Scene Styles */
-body.palm-default.appcat .pkg-list {
+body.palm-dark.appcat .pkg-list {
 	color: #FFFFFF;
 }
-body.palm-default.appcat .pkg-list #statusSpinner #spinnerStatus
+body.palm-dark.appcat .pkg-list #statusSpinner #spinnerStatus
 {
 	color: #f7b516;
 }
-body.palm-default.appcat .pkg-list .palm-row-wrapper .title.sub {
+body.palm-dark.appcat .pkg-list .palm-row-wrapper .title.sub {
 	color: rgba(255, 255, 255, 0.7);
 }
 
 /* Package Connected Scene Styles */
-body.palm-default.appcat .pkg-connected #spinner #spinnerStatus
+body.palm-dark.appcat .pkg-connected #spinner #spinnerStatus
 {
 	color: #f7b516;
 }
-body.palm-default.appcat .pkg-connected .palm-page-header-wrapper .title.description
+body.palm-dark.appcat .pkg-connected .palm-page-header-wrapper .title.description
 {
 	color: #fff;
 }
-body.palm-default.appcat .pkg-connected .palm-page-header-wrapper .title.sub,
-body.palm-default.appcat .pkg-connected .palm-row-wrapper .title.sub
+body.palm-dark.appcat .pkg-connected .palm-page-header-wrapper .title.sub,
+body.palm-dark.appcat .pkg-connected .palm-row-wrapper .title.sub
 {
 	color: rgba(255, 255, 255, 0.7);
 }
 
 /* Package Install Scene Styles */
-body.palm-default.appcat .pkg-install {
+body.palm-dark.appcat .pkg-install {
 	color: #ffffff;
 }
-body.palm-default.appcat .pkg-install #spinner #spinnerStatus
+body.palm-dark.appcat .pkg-install #spinner #spinnerStatus
 {
 	color: #f7b516;
 }
 
 /* Package View Scene Styles */
-body.palm-default.appcat .pkg-view {
+body.palm-dark.appcat .pkg-view {
 	color: #ffffff;
 }
-body.palm-default.appcat .pkg-view #spinner #spinnerStatus
+body.palm-dark.appcat .pkg-view #spinner #spinnerStatus
 {
 	color: #f7b516;
 }
-body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.screenshots
+body.palm-dark.appcat .pkg-view #scrollerContainer.palm-row.screenshots
 {
 	background: url(../images/appcat/screenshotFade.png) repeat-x;
 }
-body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.apps
+body.palm-dark.appcat .pkg-view #scrollerContainer.palm-row.apps
 {
 	background: url(../images/appcat/appFade.png) repeat-x;
 }
-body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.screenshots #viewScroller
+body.palm-dark.appcat .pkg-view #scrollerContainer.palm-row.screenshots #viewScroller
 {
 	height: 120px;
 	padding-top: 5px;
 	padding-bottom: 5px; 
 	width: 100%;
 }
-body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.apps #viewScroller
+body.palm-dark.appcat .pkg-view #scrollerContainer.palm-row.apps #viewScroller
 {
 	height: 64px;
 	padding-top: 10px;
@@ -275,24 +280,24 @@ body.palm-default.appcat .pkg-view #scrollerContainer.palm-row.apps #viewScrolle
 }
 
 /* File/Folder Picker Styles */
-body.palm-default.appcat .folder-picker #list .palm-row > .palm-row-wrapper > .icon
+body.palm-dark.appcat .folder-picker #list .palm-row > .palm-row-wrapper > .icon
 {
 	background: url(../images/appcat/folder.png) center center no-repeat;
 }
-body.palm-default.appcat .folder-picker #list .palm-row.open > .palm-row-wrapper > .icon
+body.palm-dark.appcat .folder-picker #list .palm-row.open > .palm-row-wrapper > .icon
 {
 	background: url(../images/appcat/folder-open.png) center center no-repeat;
 }
 
-body.palm-default.appcat .file-picker .folder .palm-page-header .palm-page-header-wrapper .headerFolderIcon
+body.palm-dark.appcat .file-picker .folder .palm-page-header .palm-page-header-wrapper .headerFolderIcon
 {
 	background: url(../images/appcat/folder-open-head.png) center center no-repeat;
 }
-body.palm-default.appcat .file-picker #folderHolder .palm-row .fileIcon
+body.palm-dark.appcat .file-picker #folderHolder .palm-row .fileIcon
 {
 	background: url(../images/appcat/file.png) center center no-repeat;
 }
-body.palm-default.appcat .file-picker #folderHolder .palm-row .folderIcon
+body.palm-dark.appcat .file-picker #folderHolder .palm-row .folderIcon
 {
 	background: url(../images/appcat/folder.png) center center no-repeat;
 }
