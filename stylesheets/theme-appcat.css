@@ -301,6 +301,13 @@ body.palm-dark.appcat .pkg-view #scrollerContainer.palm-row.apps #viewScroller
 	width: 100%;
 }
 
+/* IPKGLog Scene Styles */
+body.palm-dark .ipkglog #logScroller #logData .container.two
+{
+	background: rgba(255, 255, 255, 0.1);
+}
+
+
 /* File/Folder Picker Styles */
 body.palm-dark.appcat .folder-picker #list .palm-row > .palm-row-wrapper > .icon
 {
