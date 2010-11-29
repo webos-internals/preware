@@ -208,7 +208,7 @@ packageModel.prototype.infoLoad = function(info)
 			}
 			catch (e) 
 			{
-				Mojo.Log.logException(e, 'infoLoad#parse ('+this.pkg+')');
+				Mojo.Log.logException(e, 'infoLoad#parse ('+this.pkg+'): '+info.Source);
 				var sourceJson = {};
 			}
 
@@ -575,7 +575,7 @@ packageModel.prototype.loadAppinfoFileResponse = function(payload, callback)
 		}
 		catch (e) 
 		{
-			Mojo.Log.logException(e, 'loadAppinfoFileResponse#parse');
+			Mojo.Log.logException(e, 'loadAppinfoFileResponse#parse: '+payload.contents);
 			var appInfo = {};
 		}
 		

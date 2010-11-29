@@ -73,7 +73,6 @@ static char *json_escape_str(char *str)
     case '\r':
     case '\t':
     case '"':
-    case '\'':
     case '\\': {
       // Copy the chunk before the character which must be escaped
       if (pos - start_offset > 0) {
@@ -87,7 +86,6 @@ static char *json_escape_str(char *str)
       else if (c == '\r') {memcpy(resultsPt, "\\r",  2); resultsPt += 2;} 
       else if (c == '\t') {memcpy(resultsPt, "\\t",  2); resultsPt += 2;} 
       else if (c == '"')  {memcpy(resultsPt, "\\\"", 2); resultsPt += 2;} 
-      else if (c == '\'') {memcpy(resultsPt, "\\'",  2); resultsPt += 2;} 
       else if (c == '\\') {memcpy(resultsPt, "\\\\", 2); resultsPt += 2;} 
 
       // Reset the start of the next chunk
