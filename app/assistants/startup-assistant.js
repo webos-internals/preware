@@ -10,7 +10,8 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
-	 {	 version: '1.4.6', log: [ 'New "App Catalog" theme preferences thanks to Garrett92C' ] },
+	 {	 version: '1.4.6', log: [ 'New "App Catalog" theme preferences thanks to Garrett92C',
+	 							  'Added support for "MaxWebOSVersion" in the feeds' ] },
 	 {	 version: '1.4.5', log: [ 'Added support for identifying when running on a Pre 2 device' ] },
 	 {	 version: '1.4.4', log: [ 'Updated the version check to support future webOS versions' ] },
 	 {	 version: '1.4.2', log: [ 'Added Category as a blacklist option' ] },
