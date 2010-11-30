@@ -205,7 +205,7 @@ packageModel.prototype.infoLoad = function(info)
 			// parse json to object
 			try
 			{
-				var sourceJson = JSON.parse(info.Source);
+				var sourceJson = JSON.parse(info.Source.replace(/\\'/g, "'"));
 			}
 			catch (e) 
 			{
