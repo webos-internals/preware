@@ -147,6 +147,8 @@ PkgInstallAssistant.prototype.browseButtonPressed = function(event)
 {
 	var f = new filePicker({
 		type: 'file',
+		root: prefs.get().browseFromRoot,
+		folder: '/media/internal/',
 		extensions: ['ipk'],
 		onSelect: this.browsed.bind(this),
 		pop: false

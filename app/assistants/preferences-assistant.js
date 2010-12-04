@@ -51,10 +51,11 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('only-show-english-apps').innerHTML = $L("Only Show English Apps");
 		this.controller.get('background').innerHTML = $L("Background");
 		this.controller.get('automatically-install').innerHTML = $L("Automatically Install");
+		this.controller.get('blacklist-title-right').innerHTML = $L('Search Field');
+		this.controller.get('blacklist-title').innerHTML = $L('Blacklist');
 		this.controller.get('secret-stuff').innerHTML = $L("Secret Stuff");
-		this.controller.get('secret-options').innerHTML = $L("This version has no secret options.");
-		this.controller.get('blacklist-title-right').innerHTML=$L('Search Field');
-		this.controller.get('blacklist-title').innerHTML=$L('Blacklist');
+		//this.controller.get('secret-options').innerHTML = $L("This version has no secret options.");
+		this.controller.get('browse-from-roots').innerHTML = $L("Browse From Root");
 
 		// setup menu
 		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
@@ -378,8 +379,8 @@ PreferencesAssistant.prototype.setup = function()
 		
 		
 		
-		/*
 		// Background Group
+		/*
 		this.controller.setupWidget
 		(
 			'backgroundUpdates',
@@ -418,9 +419,28 @@ PreferencesAssistant.prototype.setup = function()
 		// hide background group
 		this.controller.get('backgroundPreferences').style.display = 'none';
 		
+		
+		
+		
 		// Secret Group
 		this.keyPressHandler = this.keyPress.bindAsEventListener(this)
 		Mojo.Event.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyPressHandler);
+		
+		this.controller.setupWidget
+		(
+			'browseFromRoot',
+			{
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
+	  			fieldName:  'browseFromRoot'
+			},
+			{
+				value: this.prefs.browseFromRoot,
+	 			disabled: false
+			}
+		);
+		
+		this.controller.listen('browseFromRoot', Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		/*
 		this.controller.setupWidget

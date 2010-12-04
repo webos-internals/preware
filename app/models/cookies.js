@@ -49,10 +49,10 @@ preferenceCookie.prototype.get = function(reload)
 				blackAuto: 'none',
 				
 				// For Resource Handler Object
-				resourceHandlerCheck: true
+				resourceHandlerCheck: true,
 				
 				// Hidden Advanced Group
-				//allowServiceUpdates: false
+				browseFromRoot:	false
 				//allowFlagSkip: false
 			};
 			

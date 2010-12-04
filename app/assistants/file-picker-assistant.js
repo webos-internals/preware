@@ -31,6 +31,7 @@ function FilePickerAssistant(picker)
 	this.selectedFile = false;
 	this.selected = false;
 	this.folderTree = [];
+	this.initialTree = 0;
 }
 FilePickerAssistant.prototype.setup = function()
 {
@@ -39,7 +40,7 @@ FilePickerAssistant.prototype.setup = function()
 
 	this.picker.setAssistant(this);
 	
-    	this.flickHandler = this.flickHandler.bindAsEventListener(this);
+    this.flickHandler = this.flickHandler.bindAsEventListener(this);
 
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
@@ -73,6 +74,7 @@ FilePickerAssistant.prototype.initialData = function()
 					build += '/';
 				}
 			}
+			this.initialTree = this.folderTree.length;
 		}
 	}
 	catch (e) 
@@ -93,14 +95,17 @@ FilePickerAssistant.prototype.addFolder = function(folder, parent, initial)
 {
 	var tpl = 'file-picker/folder-container';
 	var folderId = filePicker.parseFileStringForId(folder);
+	var prevFolderId = false;
 	
-	var html = Mojo.View.render({object: {folder: folderId, left: (initial?0:321), location: filePicker.parseFileString(folder)}, template: tpl});
+	var html = Mojo.View.render({object: {folder: folderId, left: (initial?0:321), location: (this.picker.root ? folder : filePicker.parseFileString(folder))}, template: tpl});
 	parent.insert({bottom: html});
 	this.folderTree.push(folder);
 	
-	this.picker.getDirectory(folder, this.addFolderPart2.bindAsEventListener(this, folderId, initial));
+	if (this.folderTree[this.folderTree.length-2]) prevFolderId = filePicker.parseFileStringForId(this.folderTree[this.folderTree.length-2]);
+	
+	this.picker.getDirectory(folder, this.addFolderPart2.bindAsEventListener(this, folderId, prevFolderId, initial));
 }
-FilePickerAssistant.prototype.addFolderPart2 = function(data, folderId, initial)
+FilePickerAssistant.prototype.addFolderPart2 = function(data, folderId, prevFolderId, initial)
 {
 	if (data.length > 0)
 	{
@@ -115,10 +120,10 @@ FilePickerAssistant.prototype.addFolderPart2 = function(data, folderId, initial)
 	
     this.controller.listen('folder'+folderId, Mojo.Event.flick, this.flickHandler);
 	
-	if (!initial)
+	if (!initial && prevFolderId)
 	{
 		Mojo.Animation.animateStyle(
-		    this.controller.get('folder' + filePicker.parseFileStringForId(this.folderTree[this.folderTree.length-2])),
+		    this.controller.get('folder' + prevFolderId),
 		    'left',
 		    'linear',
 			{from: 0, to: -321, duration: this.animationDuration}
@@ -179,6 +184,10 @@ FilePickerAssistant.prototype.delFolder = function(e)
 {
 	e.remove();
 	this.folderTree = this.folderTree.without(this.folderTree[this.folderTree.length-1]);
+	if (this.folderTree.length < this.initialTree)
+	{
+		this.initialTree = this.folderTree.length;
+	}
 	this.movingBack = false;
 }
 FilePickerAssistant.prototype.fileTap = function(event, location)
@@ -251,7 +260,7 @@ FilePickerAssistant.prototype.handleCommand = function(event)
 {
 	if(event.type == Mojo.Event.back || event.type == Mojo.Event.forward)
 	{
-		if (this.folderTree.length > 1 && !this.movingBack)
+		if (this.folderTree.length > this.initialTree && !this.movingBack)
 		{
 			event.preventDefault();
 			event.stopPropagation();

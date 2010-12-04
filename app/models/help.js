@@ -125,6 +125,13 @@ helpData.lookup =
 	{
 		title: $L('Only Show English Apps'),
 		data: $L('When on, preware will only show english apps.')
+	},
+	
+	
+	'browseFromRoot':
+	{
+		title: $L('Browse From Root'),
+		data: $L('When enabled, will allow you to browse outside /media/internal in the file picker for single package install.')
 	}
 	
 	

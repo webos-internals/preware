@@ -11,6 +11,8 @@
  * 									   it will be passed either a file/folder based on type or false for a cancel
  * 									   this is the only required parameter
  * 
+ * 		root: false,				//  weather or not to allow access to root
+ * 
  * 		folder: '/media/internal/',	// initial folder location, notice the trailing slash!
  * 
  * 		extensions: ['jpg','png'],	// (file type only) array of extensions to list (lowercase extensions only)
@@ -31,13 +33,14 @@ function filePicker(params)
 	filePicker.num++;
 	this.num =					filePicker.num;
 	
-	this.topLevel =				'/media/internal/';
-	
 	this.params =				params;
 	
 	this.type =					(params.type ? params.type : 'file');
 	this.onSelect =				params.onSelect;
 
+	this.root =					(params.root ? params.root : false);
+	this.topLevel =				(params.root ? '/' : '/media/internal/');
+	
 	this.pop =					(params.pop ? params.pop : false);
 	this.folder =				(params.folder ? params.folder : this.topLevel);
 	this.extensions =			(params.extensions ? params.extensions : []);
