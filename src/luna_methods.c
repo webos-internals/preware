@@ -1658,7 +1658,6 @@ void *appinstaller_install_thread(void *arg) {
     goto end;
   }
 
-  bool removed;
   do_install(message, filename->child->text, url->child->text, true);
 
  end:
@@ -1724,7 +1723,6 @@ void *ipkg_install_thread(void *arg) {
     goto end;
   }
 
-  bool removed;
   do_install(message, filename->child->text, url->child->text, false);
 
  end:
@@ -1776,7 +1774,7 @@ void *remove_thread(void *arg) {
     goto end;
   }
 
-  bool removed;
+  bool removed = false;
   do_remove(message, id->child->text, false, &removed);
 
  end:
