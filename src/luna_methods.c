@@ -646,13 +646,7 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
-//
-// Run ipkg update to download all enabled feeds.
-// Note that the package lists are retrieved separately, this just does the download.
-// The package lists are moved to a cache sibling directory to avoid any possible
-// interaction with installations via the App Catalog and ApplicationInstallerUtility.
-//
-bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+void *update_thread(void *arg) {
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -662,8 +656,7 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   // Capture any errors
   bool error = false;
 
-  // Report that the update operaton has begun
-  if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"update\"}", &lserror)) goto error;
+  LSMessage *message = (LSMessage *)arg;
 
   // Store the command, so it can be used in the error report if necessary
   strcpy(command, "/usr/bin/ipkg -o /media/cryptofs/apps update 2>&1");
@@ -738,6 +731,35 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   else {
     if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
   }
+
+ end:
+  LSMessageUnref(message);
+  return;
+
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+  goto end;
+}
+
+//
+// Run ipkg update to download all enabled feeds.
+// Note that the package lists are retrieved separately, this just does the download.
+// The package lists are moved to a cache sibling directory to avoid any possible
+// interaction with installations via the App Catalog and ApplicationInstallerUtility.
+//
+bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  pthread_t tid;
+
+  LSMessageRef(message);
+
+  // Report that the update operaton has begun
+  if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"update\"}", &lserror)) goto error;
+
+  pthread_create(&tid, NULL, update_thread, (void *)message);
 
   return true;
  error:
@@ -1310,7 +1332,7 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
-bool do_install(LSMessage *message, bool useSvc, bool *installed) {
+bool do_install(LSMessage *message, bool useSvc) {
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1332,7 +1354,7 @@ bool do_install(LSMessage *message, bool useSvc, bool *installed) {
   json_t *object = json_parse_document(LSMessageGetPayload(message));
   json_t *id;
 
-  *installed = false;
+  bool installed = false;
 
   // Extract the filename argument from the message
   id = json_find_first_label(object, "filename");
@@ -1408,12 +1430,12 @@ bool do_install(LSMessage *message, bool useSvc, bool *installed) {
   strcpy(run_command_buffer, "{\"stdOut\": [");
   if (run_command(command, message, installFilter)) {
     strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"install\"}");
-    *installed = true;
+    installed = true;
     if (!LSMessageRespond(message, run_command_buffer, &lserror)) goto error;
   }
   else {
     strcat(run_command_buffer, "]");
-    *installed = false;
+    installed = false;
     if (!report_command_failure(message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
     return true;
   }
@@ -1480,12 +1502,12 @@ bool do_install(LSMessage *message, bool useSvc, bool *installed) {
       strcpy(run_command_buffer, "{\"stdOut\": [");
       if (run_command(command, message, passthrough)) {
 	strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"postinst\"}");
-	*installed = true;
+	installed = true;
 	if (!LSMessageRespond(message, run_command_buffer, &lserror)) goto error;
       }
       else {
 	strcat(run_command_buffer, "]");
-	*installed = false;
+	installed = false;
 	if (!report_command_failure(message, command, run_command_buffer+11, "\"stage\": \"postinst\"")) goto end;
 	// Ignore any error here.
       }
@@ -1494,7 +1516,7 @@ bool do_install(LSMessage *message, bool useSvc, bool *installed) {
 
   /* Revert any failed installation */
 
-  if (!*installed) {
+  if (!installed) {
     snprintf(command, MAXLINLEN,
 	     "/usr/bin/ipkg -o /media/cryptofs/apps remove %s 2>&1", package);
     
@@ -1526,7 +1548,7 @@ bool do_install(LSMessage *message, bool useSvc, bool *installed) {
 
   /* Report the success or failure of the operation */
 
-  if (*installed) {
+  if (installed) {
     if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
   }
   else {
@@ -1650,13 +1672,11 @@ bool do_remove(LSMessage *message, bool replace, bool *removed) {
 }
 
 bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-  bool installed;
-  return do_install(message, true, &installed);
+  return do_install(message, true);
 }
 
 bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-  bool installed;
-  return do_install(message, false, &installed);
+  return do_install(message, false);
 }
 
 bool remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
@@ -1669,10 +1689,9 @@ bool ipkg_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSErrorInit(&lserror);
 
   bool removed = false;
-  bool installed = false;
   if (!do_remove(message, true, &removed)) goto end;
   if (removed) {
-    if (!do_install(message, false, &installed)) goto end;
+    if (!do_install(message, false)) goto end;
   }
 
   return true;
@@ -1688,10 +1707,9 @@ bool appinstaller_replace_method(LSHandle* lshandle, LSMessage *message, void *c
   LSErrorInit(&lserror);
 
   bool removed = false;
-  bool installed = false;
   if (!do_remove(message, true, &removed)) goto end;
   if (removed) {
-    if (!do_install(message, true, &installed)) goto end;
+    if (!do_install(message, true)) goto end;
   }
 
   return true;
