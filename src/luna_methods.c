@@ -1332,7 +1332,7 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
-bool do_install(LSMessage *message, bool useSvc) {
+bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -1342,6 +1342,8 @@ bool do_install(LSMessage *message, bool useSvc) {
   char *installCommand;
   subscribefun installFilter;
   
+  bool installed = false;
+
   if (useSvc) {
     installCommand = "/usr/bin/luna-send -n 6 luna://com.palm.appinstaller/installNoVerify '{\"subscribe\":true, \"target\": \"%s\", \"uncompressedSize\": 0}' 2>&1";
     installFilter = appinstaller;
@@ -1351,49 +1353,18 @@ bool do_install(LSMessage *message, bool useSvc) {
     installFilter = passthrough;
   }
 
-  json_t *object = json_parse_document(LSMessageGetPayload(message));
-  json_t *id;
-
-  bool installed = false;
-
-  // Extract the filename argument from the message
-  id = json_find_first_label(object, "filename");
-  if (!id || (id->child->type != JSON_STRING) ||
-      (strlen(id->child->text) >= MAXNAMLEN) ||
-      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    if (!LSMessageRespond(message,
-			"{\"returnValue\": false, \"errorCode\": -1, "
-			"\"errorText\": \"Invalid or missing filename parameter\", "
-			"\"stage\": \"failed\"}",
-			&lserror)) goto error;
-    return true;
-  }
-  char filename[MAXNAMLEN];
-  sprintf(filename, "/media/internal/.developer/%s", id->child->text);
-
-  // Extract the url argument from the message
-  id = json_find_first_label(object, "url");               
-  if (!id || (id->child->type != JSON_STRING) ||
-      (strlen(id->child->text) >= MAXLINLEN)) {
-    if (!LSMessageRespond(message,
-			"{\"returnValue\": false, \"errorCode\": -1, "
-			"\"errorText\": \"Invalid or missing url parameter\", "
-			"\"stage\": \"failed\"}",
-			&lserror)) goto error;
-    return true;
-  }
-  char url[MAXLINLEN];
-  strcpy(url, id->child->text);
+  char pathname[MAXNAMLEN];
+  sprintf(pathname, "/media/internal/.developer/%s", filename);
 
   if (!strncmp(url, "file:///media/internal/.developer/", 34)) {
-    strcpy(filename, url+7);
+    strcpy(pathname, url+7);
   }
   else {
 
     /* Download the package */
 
     snprintf(command, MAXLINLEN,
-	     "/usr/bin/curl --create-dirs --insecure --location --fail --show-error --output %s %s 2>&1", filename, url);
+	     "/usr/bin/curl --create-dirs --insecure --location --fail --show-error --output %s %s 2>&1", pathname, url);
 
     strcpy(run_command_buffer, "{\"stdOut\": [");
     if (run_command(command, message, downloadstats)) {
@@ -1410,7 +1381,7 @@ bool do_install(LSMessage *message, bool useSvc) {
   /* Extract the package id */
   char package[MAXNAMLEN];
   snprintf(command, MAXLINLEN,
-	   "/usr/bin/ar p %s control.tar.gz | /bin/tar -O -z -x --no-anchored -f - control | /bin/sed -n -e 's/^Package: //p' 2>&1", filename);
+	   "/usr/bin/ar p %s control.tar.gz | /bin/tar -O -z -x --no-anchored -f - control | /bin/sed -n -e 's/^Package: //p' 2>&1", pathname);
   strcpy(run_command_buffer, "");
   if (run_command(command, NULL, NULL) && strlen(run_command_buffer)) {
     strcpy(package, run_command_buffer);
@@ -1426,7 +1397,7 @@ bool do_install(LSMessage *message, bool useSvc) {
 
   /* Install the package */
 
-  snprintf(command, MAXLINLEN, installCommand, filename);
+  snprintf(command, MAXLINLEN, installCommand, pathname);
   strcpy(run_command_buffer, "{\"stdOut\": [");
   if (run_command(command, message, installFilter)) {
     strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"install\"}");
@@ -1563,28 +1534,11 @@ bool do_install(LSMessage *message, bool useSvc) {
   return false;
 }
 
-bool do_remove(LSMessage *message, bool replace, bool *removed) {
+bool do_remove(LSMessage *message, char *package, bool replace, bool *removed) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  json_t *object = json_parse_document(LSMessageGetPayload(message));
-  json_t *id;
-
   *removed = false;
-
-  // Extract the package argument from the message
-  id = json_find_first_label(object, "package");
-  if (!id || (id->child->type != JSON_STRING) ||
-      (strlen(id->child->text) >= MAXNAMLEN) ||
-      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
-    if (!LSMessageRespond(message,
-			"{\"returnValue\": false, \"errorCode\": -1, "
-			"\"errorText\": \"Invalid or missing package parameter\"}",
-			&lserror)) goto error;
-    return true;
-  }
-  char package[MAXNAMLEN];
-  strcpy(package, id->child->text);
 
   char command[MAXLINLEN];
 
@@ -1671,28 +1625,63 @@ bool do_remove(LSMessage *message, bool replace, bool *removed) {
   return false;
 }
 
-bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-  return do_install(message, true);
-}
-
-bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-  return do_install(message, false);
-}
-
-bool remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
-  bool removed;
-  return do_remove(message, false, &removed);
-}
-
-bool ipkg_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+void *appinstaller_install_thread(void *arg) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  bool removed = false;
-  if (!do_remove(message, true, &removed)) goto end;
-  if (removed) {
-    if (!do_install(message, false)) goto end;
+  LSMessage *message = (LSMessage *)arg;
+
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
+  
+  // Extract the filename argument from the message
+  json_t *filename = json_find_first_label(object, "filename");
+  if (!filename || (filename->child->type != JSON_STRING) ||
+      (strlen(filename->child->text) >= MAXNAMLEN) ||
+      (strspn(filename->child->text, ALLOWED_CHARS) != strlen(filename->child->text))) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing filename parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    goto end;
   }
+
+  // Extract the url argument from the message
+  json_t *url = json_find_first_label(object, "url");               
+  if (!url || (url->child->type != JSON_STRING) ||
+      (strlen(url->child->text) >= MAXLINLEN)) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing url parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  bool removed;
+  do_install(message, filename->child->text, url->child->text, true);
+
+ end:
+  LSMessageUnref(message);
+  return;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+  goto end;
+}
+
+bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  pthread_t tid;
+
+  LSMessageRef(message);
+
+  // Report that the update operaton has begun
+  if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"begin\"}", &lserror)) goto error;
+
+  pthread_create(&tid, NULL, appinstaller_install_thread, (void *)message);
 
   return true;
  error:
@@ -1702,15 +1691,277 @@ bool ipkg_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
+void *ipkg_install_thread(void *arg) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  LSMessage *message = (LSMessage *)arg;
+
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
+  
+  // Extract the filename argument from the message
+  json_t *filename = json_find_first_label(object, "filename");
+  if (!filename || (filename->child->type != JSON_STRING) ||
+      (strlen(filename->child->text) >= MAXNAMLEN) ||
+      (strspn(filename->child->text, ALLOWED_CHARS) != strlen(filename->child->text))) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing filename parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  // Extract the url argument from the message
+  json_t *url = json_find_first_label(object, "url");               
+  if (!url || (url->child->type != JSON_STRING) ||
+      (strlen(url->child->text) >= MAXLINLEN)) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing url parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  bool removed;
+  do_install(message, filename->child->text, url->child->text, false);
+
+ end:
+  LSMessageUnref(message);
+  return;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+  goto end;
+}
+
+bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  pthread_t tid;
+
+  LSMessageRef(message);
+
+  // Report that the update operaton has begun
+  if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"begin\"}", &lserror)) goto error;
+
+  pthread_create(&tid, NULL, ipkg_install_thread, (void *)message);
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
+void *remove_thread(void *arg) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  LSMessage *message = (LSMessage *)arg;
+
+  // Extract the package argument from the message
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
+  json_t *id = json_find_first_label(object, "package");
+  if (!id || (id->child->type != JSON_STRING) ||
+      (strlen(id->child->text) >= MAXNAMLEN) ||
+      (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing package parameter\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  bool removed;
+  do_remove(message, id->child->text, false, &removed);
+
+ end:
+  LSMessageUnref(message);
+  return;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+  goto end;
+}
+
+bool remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  pthread_t tid;
+
+  LSMessageRef(message);
+
+  // Report that the remove operaton has begun
+  if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"begin\"}", &lserror)) goto error;
+
+  pthread_create(&tid, NULL, remove_thread, (void *)message);
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
+void *ipkg_replace_thread(void *arg) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  LSMessage *message = (LSMessage *)arg;
+
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
+
+  // Extract the package argument from the message
+  json_t *package = json_find_first_label(object, "package");
+  if (!package || (package->child->type != JSON_STRING) ||
+      (strlen(package->child->text) >= MAXNAMLEN) ||
+      (strspn(package->child->text, ALLOWED_CHARS) != strlen(package->child->text))) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing package parameter\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  // Extract the filename argument from the message
+  json_t *filename = json_find_first_label(object, "filename");
+  if (!filename || (filename->child->type != JSON_STRING) ||
+      (strlen(filename->child->text) >= MAXNAMLEN) ||
+      (strspn(filename->child->text, ALLOWED_CHARS) != strlen(filename->child->text))) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing filename parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  // Extract the url argument from the message
+  json_t *url = json_find_first_label(object, "url");               
+  if (!url || (url->child->type != JSON_STRING) ||
+      (strlen(url->child->text) >= MAXLINLEN)) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing url parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  bool removed = false;
+  if (!do_remove(message, package->child->text, true, &removed)) goto end;
+  if (removed) {
+    if (!do_install(message, filename->child->text, url->child->text, false)) goto end;
+  }
+
+ end:
+  LSMessageUnref(message);
+  return;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+  goto end;
+}
+
+bool ipkg_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  pthread_t tid;
+
+  LSMessageRef(message);
+
+  // Report that the update operaton has begun
+  if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"begin\"}", &lserror)) goto error;
+
+  pthread_create(&tid, NULL, ipkg_replace_thread, (void *)message);
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
+void *appinstaller_replace_thread(void *arg) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  LSMessage *message = (LSMessage *)arg;
+
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
+
+  // Extract the package argument from the message
+  json_t *package = json_find_first_label(object, "package");
+  if (!package || (package->child->type != JSON_STRING) ||
+      (strlen(package->child->text) >= MAXNAMLEN) ||
+      (strspn(package->child->text, ALLOWED_CHARS) != strlen(package->child->text))) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing package parameter\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  // Extract the filename argument from the message
+  json_t *filename = json_find_first_label(object, "filename");
+  if (!filename || (filename->child->type != JSON_STRING) ||
+      (strlen(filename->child->text) >= MAXNAMLEN) ||
+      (strspn(filename->child->text, ALLOWED_CHARS) != strlen(filename->child->text))) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing filename parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  // Extract the url argument from the message
+  json_t *url = json_find_first_label(object, "url");               
+  if (!url || (url->child->type != JSON_STRING) ||
+      (strlen(url->child->text) >= MAXLINLEN)) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing url parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  bool removed = false;
+  if (!do_remove(message, package->child->text, true, &removed)) goto end;
+  if (removed) {
+    if (!do_install(message, filename->child->text, url->child->text, true)) goto end;
+  }
+
+ end:
+  LSMessageUnref(message);
+  return;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+  goto end;
+}
+
 bool appinstaller_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  bool removed = false;
-  if (!do_remove(message, true, &removed)) goto end;
-  if (removed) {
-    if (!do_install(message, true)) goto end;
-  }
+  pthread_t tid;
+
+  LSMessageRef(message);
+
+  // Report that the update operaton has begun
+  if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"begin\"}", &lserror)) goto error;
+
+  pthread_create(&tid, NULL, appinstaller_replace_thread, (void *)message);
 
   return true;
  error:
