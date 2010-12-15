@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.4.8', log: [ 'Now calls the correct software manager updates screen on webOS 2.0' ] },
 	 {	 version: '1.4.7', log: [ 'Fixed update, install and remove status messages on webOS 2.0' ] },
 	 {	 version: '1.4.6', log: [ 'New "App Catalog" theme preferences thanks to Garrett92C',
 	 							  'Added support for "MaxWebOSVersion" in the feeds' ] },

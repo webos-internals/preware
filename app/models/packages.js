@@ -1244,14 +1244,27 @@ packagesModel.prototype.doMultiInstall = function(number)
 		{
 			if (this.doMyApps) {
 				this.dirtyFeeds = true;
-				var request = new Mojo.Service.Request('palm://com.palm.applicationManager', {
-						method: 'launch',
-						parameters: 
-						{
-							id: "com.palm.app.findapps",
-							params: { myapps: '' }
-						}
-					});
+				var version = getWebOSVersion();
+				if (version && version.substring(0,1) == "1.") {
+					var request = new Mojo.Service.Request('palm://com.palm.applicationManager', {
+							method: 'launch',
+							parameters: 
+							{
+								id: "com.palm.app.findapps",
+								params: { myapps: '' }
+							}
+						});
+				}
+				else {
+					var request = new Mojo.Service.Request('palm://com.palm.applicationManager', {
+							method: 'launch',
+							parameters: 
+							{
+								id: "com.palm.app.swmanager",
+								params: { launchType: "updates" }
+							}
+						});
+				}
 			}
 
 			if (this.multiFlags.RestartLuna || this.multiFlags.RestartJava || this.multiFlags.RestartDevice) 
