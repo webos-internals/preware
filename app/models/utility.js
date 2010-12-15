@@ -68,41 +68,6 @@ trim = function(str)
 	return str.replace(/^\s*/, "").replace(/\s*$/, "");
 };
 
-// function to get the webos version
-getWebOSVersion = function()
-{
-	//alert('----------');
-	returnVersion = 0;
-	var buildInfo = palmGetResource("/etc/palm-build-info");
-	var lines = buildInfo.split(/\n/);
-	var lineRegExp = new RegExp(/^[\s]*([^=]*)=[\s]*(.*)[\s]*$/);
-	var verRegExp = new RegExp(/^[\D]*([0-9.]*)(.*)$/);
-	for (var l = 0; l < lines.length; l++)
-	{
-		//alert(l + ': ' + lines[l]);
-		var match = lineRegExp.exec(lines[l]);
-		if (match) 
-		{
-			//for (var m = 0; m < match.length; m++) alert('  ' + m + ': ' + match[m]);
-			if (match[1] == 'PRODUCT_VERSION_STRING')
-			{
-				//alert('MATCHED');
-				var ver = verRegExp.exec(match[2]);
-				if (ver) 
-				{
-					//for (var v = 0; v < ver.length; v++) alert('    ' + v + ': ' + ver[v]);
-					if (ver[1]) 
-					{
-						returnVersion = ver[1];
-					}
-				}
-			}
-		}
-	}
-	
-	return returnVersion; 
-};
-
 // Local Variables:
 // tab-width: 4
 // End:

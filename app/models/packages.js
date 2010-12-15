@@ -1244,8 +1244,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 		{
 			if (this.doMyApps) {
 				this.dirtyFeeds = true;
-				var version = getWebOSVersion();
-				if (version && version.substring(0,1) == "1.") {
+				if (Mojo.Environment.DeviceInfo.platformVersionMajor == 1) {
 					var request = new Mojo.Service.Request('palm://com.palm.applicationManager', {
 							method: 'launch',
 							parameters: 
