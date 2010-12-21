@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.5.1', log: [ 'Added support for optware testing feeds' ] },
 	 {	 version: '1.5.0', log: [ 'You must upgrade to this version for full webOS 2.0 compatibility' ] },
 	 {	 version: '1.4.9', log: [ 'Better compatibility with unknown future webOS versions' ] },
 	 {	 version: '1.4.8', log: [ 'Now calls the correct software manager updates screen on webOS 2.0' ] },

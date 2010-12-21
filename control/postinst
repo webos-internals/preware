@@ -104,6 +104,12 @@ echo "src/gz webos-kernels http://ipkg.preware.org/feeds/webos-kernels/${VERSION
 
 if [ -f /var/preferences/org.webosinternals.preware/enable-testing-feeds ] ; then
 
+  # Install optware testing feeds
+  echo "src/gz optware-testing http://ipkg.preware.org/feeds/optware/testing/all" > $APPS/etc/ipkg/optware-testing.conf
+  echo "src/gz optware-testing-`/bin/uname -m` http://ipkg.preware.org/feeds/optware/testing/`/bin/uname -m`" >> $APPS/etc/ipkg/optware-testing.conf
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/optware-testing.conf
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/optware-testing.conf
+
   # Install webosinternals testing feeds
   echo "src/gz webosinternals-testing http://ipkg.preware.org/feeds/webos-internals/testing/all" > $APPS/etc/ipkg/webos-internals-testing.conf
   echo "src/gz webosinternals-testing-`/bin/uname -m` http://ipkg.preware.org/feeds/webos-internals/testing/`/bin/uname -m`" >> $APPS/etc/ipkg/webos-internals-testing.conf
