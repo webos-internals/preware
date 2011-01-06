@@ -68,6 +68,17 @@ trim = function(str)
 	return str.replace(/^\s*/, "").replace(/\s*$/, "");
 };
 
+// tells you if val is "numeric"
+isNumeric = function(val)
+{
+	if (isNaN(parseFloat(val)))
+	{
+		return false;
+	}
+	return true
+}
+
+
 // Local Variables:
 // tab-width: 4
 // End:
