@@ -1,29 +1,31 @@
 // formats a timestamp to a readable date
 formatDate = function(date)
 {
-	var dateObj = new Date(date * 1000);
 	var toReturn = '';
-	var pm = false;
-	
-	toReturn += (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '/' + String(dateObj.getFullYear()).substring(2) + ' ';
-	
-	if (dateObj.getHours() > 12) pm = true;
-	
-	if (!pm)
+	if (date)
 	{
-		if (dateObj.getHours() < 1) toReturn += '12';
-		if (dateObj.getHours() > 0) toReturn += dateObj.getHours();
-		toReturn += ':';
-		if (dateObj.getMinutes() < 10) toReturn += '0'
-		toReturn += dateObj.getMinutes() + ' AM';
+		var dateObj = new Date(date * 1000);
+		var pm = false;
+		
+		toReturn += (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '/' + String(dateObj.getFullYear()).substring(2) + ' ';
+		
+		if (dateObj.getHours() > 12) pm = true;
+		
+		if (!pm)
+		{
+			if (dateObj.getHours() < 1) toReturn += '12';
+			if (dateObj.getHours() > 0) toReturn += dateObj.getHours();
+			toReturn += ':';
+			if (dateObj.getMinutes() < 10) toReturn += '0'
+			toReturn += dateObj.getMinutes() + ' AM';
+		}
+		else
+		{
+			toReturn += (dateObj.getHours() - 12) + ':';
+			if (dateObj.getMinutes() < 10) toReturn += '0'
+			toReturn += dateObj.getMinutes() + ' PM';
+		}
 	}
-	else
-	{
-		toReturn += (dateObj.getHours() - 12) + ':';
-		if (dateObj.getMinutes() < 10) toReturn += '0'
-		toReturn += dateObj.getMinutes() + ' PM';
-	}
-	
 	return toReturn;
 };
 

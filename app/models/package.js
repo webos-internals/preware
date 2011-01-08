@@ -173,7 +173,7 @@ packageModel.prototype.infoLoad = function(info)
 		if (info.Status && !info.Status.include('not-installed') && !info.Status.include('deinstall'))
 		{
 			this.isInstalled =		true;
-			this.dateInstalled =	info['Installed-Time'];
+			this.dateInstalled =	(info['Installed-Time'] && isNumeric(info['Installed-Time']) ? info['Installed-Time'] : false);
 			this.sizeInstalled =	info['Installed-Size'];
 		}
 		
@@ -224,7 +224,8 @@ packageModel.prototype.infoLoad = function(info)
 			if (!this.category &&			sourceJson.Category)			this.category =				sourceJson.Category;
 			if (!this.title &&				sourceJson.Title)				this.title =				sourceJson.Title;
 			if (!this.icon &&				sourceJson.Icon)				this.icon =					sourceJson.Icon;
-			if (!this.date &&				sourceJson.LastUpdated)			this.date =					sourceJson.LastUpdated;
+			if (!this.date &&				sourceJson.LastUpdated
+			 && isNumeric(sourceJson.LastUpdated))							this.date =					sourceJson.LastUpdated;
 			if (!this.homepage &&			sourceJson.Homepage)			this.homepage =				sourceJson.Homepage;
 			if (!this.filename &&			sourceJson.Filename)			this.filename =				sourceJson.Filename;
 			if (!this.location &&			sourceJson.Location)			this.location =				sourceJson.Location;
@@ -358,7 +359,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.size)						this.size =					pkg.size;
 		if (!this.filename)					this.filename =				pkg.filename;
 		if (!this.location)					this.location =				pkg.location;
-		if (!this.date)						this.date =					pkg.date;
+		if (!this.date && pkg.date && isNumeric(pkg.date)) this.date =	pkg.date;
 		if (!this.price)					this.price =				pkg.price;
 		if (!this.homepage)					this.homepage =				pkg.homepage;
 		if (!this.license)					this.license =				pkg.license;
@@ -366,7 +367,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.changeLog)				this.changeLog =			pkg.changeLog;
 		if (!this.isInstalled)				this.isInstalled =			pkg.isInstalled;
 		if (!this.hasUpdate)				this.hasUpdate =			pkg.hasUpdate;
-		if (!this.dateInstalled)			this.dateInstalled =		pkg.dateInstalled;
+		if (!this.dateInstalled && pkg.dateInstalled && isNumeric(pkg.dateInstalled)) this.dateInstalled =		pkg.dateInstalled;
 		if (!this.sizeInstalled)			this.sizeInstalled =		pkg.sizeInstalled;
 		if (!this.isInSavedList)			this.isInSavedList =		pkg.isInSavedList;
 		if (!this.preInstallMessage)		this.preInstallMessage =	pkg.preInstallMessage;

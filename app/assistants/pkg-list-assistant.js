@@ -327,8 +327,8 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 			bTime = 0;
 			toReturn = 0;
 			
-			if (a.date && isNumeric(a.date)) aTime = a.date;
-			if (b.date && isNumeric(b.date)) bTime = b.date;
+			if (a.date) aTime = a.date;
+			if (b.date) bTime = b.date;
 			toReturn = bTime - aTime;
 			
 			if (toReturn == 0)
@@ -495,7 +495,7 @@ PkgListAssistant.prototype.getDivider = function(item)
 	// how to divide when sorting by date
 	if (this.currentSort == 'date')
 	{
-		if (item.date && isNumeric(item.date)) 
+		if (item.date) 
 		{
 			// a number of different date breakdowns
 			var now = Math.round(new Date().getTime()/1000.0);
