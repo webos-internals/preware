@@ -11,7 +11,7 @@ function StartupAssistant(changelog)
     this.newMessages =
 	[
 	 {	 version: '1.5.2', log: [ 'Check if package dates are actually dates',
-	 							  'Removed banner notification of saved package list being saved.' ] },
+	 							  'Removed banner notification of saved package list being saved' ] },
 	 {	 version: '1.5.1', log: [ 'Added support for optware testing feeds' ] },
 	 {	 version: '1.5.0', log: [ 'You must upgrade to this version for full webOS 2.0 compatibility' ] },
 	 {	 version: '1.4.9', log: [ 'Better compatibility with unknown future webOS versions' ] },
