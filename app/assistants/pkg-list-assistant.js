@@ -782,7 +782,10 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				break;
 				
 			case 'do-updateList':
-				packages.loadSavedDefault();
+				packages.loadSavedDefault(function(){Mojo.Controller.getAppController().showBanner({
+								 messageText:$L("Preware: Wrote Saved Package List"),
+								 icon:'miniicon.png'
+							 } , {source:'saveNotification'});});
 				this.updateList();
 				break;
 				

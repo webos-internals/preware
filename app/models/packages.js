@@ -634,10 +634,6 @@ packagesModel.prototype.savePackageList = function(callback)
 			
 	this.savedDB.add("savedPackageList", savedPackageList,
 					 function() {
-						 /*Mojo.Controller.getAppController().showBanner({
-								 messageText:$L("Preware: Wrote Saved Package List"),
-								 icon:'miniicon.png'
-							 } , {source:'saveNotification'});*/
 						 if (callback) callback();
 					 },
 					 function() {
