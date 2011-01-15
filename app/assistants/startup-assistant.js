@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.5.4', log: [ 'Updated French translations (courtesy of Clément)' ] },
 	 {	 version: '1.5.3', log: [ 'Reinstated banner notification of manual saved package list update' ] },
 	 {	 version: '1.5.2', log: [ 'Check if package dates are actually dates',
 	 							  'Removed banner notification of saved package list being saved' ] },
