@@ -1117,10 +1117,15 @@ body.palm-dark .ipkglog #logScroller #logData .stdErr div
 	padding: 0px;
 	background: black;
 }
+.ss-scene .ss-table
+{
+	text-align: center;
+	border-collapse: collapse;
+	width: 100%;
+	height: 100%;
+}
 .ss-scene #screenshotView
 {
-	height: 480px;
-	width: 320px;
 	margin: 0px;
 	-webkit-user-drag: none;
 	border: 0px;

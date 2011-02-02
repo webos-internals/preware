@@ -34,6 +34,7 @@ ScreenshotsAssistant.prototype.wentLeft = function()
 		if (this.current > 0) 
 		{
 			this.current--;
+			this.getSizeInfo(this.screenshots[this.current]);
 			
 			if (this.current > 0 && this.screenshots[this.current - 1]) 
 			{
@@ -60,6 +61,7 @@ ScreenshotsAssistant.prototype.wentRight = function()
 		if (this.current < (this.screenshots.length - 1)) 
 		{
 			this.current++;
+			this.getSizeInfo(this.screenshots[this.current]);
 			
 			if (this.current > 0 && this.screenshots[this.current - 1]) 
 			{
@@ -78,6 +80,25 @@ ScreenshotsAssistant.prototype.wentRight = function()
 	{
 		Mojo.Log.logException(e, 'screenshots#wentRight');
 	}
+};
+
+ScreenshotsAssistant.prototype.getSizeInfo = function(ss) {
+	var img;
+	img = document.createElement('img');
+	img.src = ss;
+	img.onload = function() {
+		var ssRatio = img.height / img.width,
+			windowRatio = Mojo.Environment.DeviceInfo.screenHeight / Mojo.Environment.DeviceInfo.screenWidth,
+			scaleWidth, scaleHeight;
+		if (ssRatio < windowRatio) {
+			scaleWidth = Mojo.Environment.DeviceInfo.screenWidth;
+			scaleHeight = parseInt((scaleWidth * ssRatio), 10);
+		} else {
+			scaleHeight = Mojo.Environment.DeviceInfo.screenHeight;
+			scaleWidth = parseInt((scaleHeight / ssRatio), 10);
+		}
+		this.controller.get('screenshotView').mojo.manualSize(scaleWidth,scaleHeight);
+	}.bind(this);
 };
 
 /*// for whatever reason i cant get this to work
@@ -107,7 +128,11 @@ ScreenshotsAssistant.prototype.activate = function(event)
         	this.controller.stageController.setWindowOrientation("free");
     	}
     	*/
-		
+
+		this.controller.get('ss-scene').style.width = Mojo.Environment.DeviceInfo.screenWidth + 'px';
+		this.controller.get('ss-scene').style.height = Mojo.Environment.DeviceInfo.screenHeight + 'px';
+		this.getSizeInfo(this.screenshots[this.current]);
+
 		if (this.controller.window.PalmSystem)
 		{
 			this.controller.window.PalmSystem.enableFullScreenMode(true);
