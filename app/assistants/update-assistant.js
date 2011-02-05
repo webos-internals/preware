@@ -231,7 +231,7 @@ UpdateAssistant.prototype.onDeviceType = function(response, onlyLoad)
 UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 {
 	var hasNet = false;
-	if (response && response.returnValue === true && response.isInternetConnectionAvailable === true)
+	if (response && response.returnValue === true && (response.isInternetConnectionAvailable === true || response.wifi.state == "connected"))
 	{
 		var hasNet = true;
 	}
