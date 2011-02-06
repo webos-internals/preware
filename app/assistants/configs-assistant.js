@@ -17,6 +17,8 @@ function ConfigsAssistant()
 			}
 		]
 	}
+	
+	this.warningOkd = false;
 };
 
 ConfigsAssistant.prototype.setup = function()
@@ -289,14 +291,21 @@ ConfigsAssistant.prototype.newConfButton = function()
 		this.controller.get('newUrl').mojo.getValue() != '' &&
 		this.controller.get('newUrl').mojo.getValue() != 'http://')
 	{
-		this.controller.showAlertDialog(
+		if (!this.warningOkd)
 		{
-		    title:				$L("Custom Feed"),
-			allowHTMLMessage:	true,
-		    message:			$L("By adding a custom feed, you take full responsibility for any and all potential outcomes that may occur as a result of doing so, including (but not limited to): loss of warranty, loss of all data, loss of all privacy, security vulnerabilities and device damage."),
-		    choices:			[{label:$L("Ok"), value:'ok'}, {label:$L("Cancel"), value:'cancel'}],
-			onChoose:			this.newConfCall.bindAsEventListener(this)
-	    });
+			this.controller.showAlertDialog(
+			{
+			    title:				$L("Custom Feed"),
+				allowHTMLMessage:	true,
+			    message:			$L("By adding a custom feed, you take full responsibility for any and all potential outcomes that may occur as a result of doing so, including (but not limited to): loss of warranty, loss of all data, loss of all privacy, security vulnerabilities and device damage."),
+			    choices:			[{label:$L("Ok"), value:'ok'}, {label:$L("Cancel"), value:'cancel'}],
+				onChoose:			this.newConfCall.bindAsEventListener(this)
+		    });
+		}
+		else
+		{
+			this.newConfTest();
+		}
 	}
 	else
 	{
@@ -310,15 +319,23 @@ ConfigsAssistant.prototype.newConfButton = function()
 	    });
 	}
 };
+ConfigsAssistant.prototype.newConfTest = function()
+{
+	// Test the new feed here, if successful, run the below, if not, tell them
+	
+	this.subscription = IPKGService.addConfig(this.newConfResponse.bindAsEventListener(this),
+		this.controller.get('newName').mojo.getValue() + ".conf",
+		this.controller.get('newName').mojo.getValue(),
+		this.controller.get('newUrl').mojo.getValue(),
+		this.newCompressed.value);
+	
+}
 ConfigsAssistant.prototype.newConfCall = function(value)
 {
 	if (value == "ok")
 	{
-		this.subscription = IPKGService.addConfig(this.newConfResponse.bindAsEventListener(this),
-			this.controller.get('newName').mojo.getValue() + ".conf",
-			this.controller.get('newName').mojo.getValue(),
-			this.controller.get('newUrl').mojo.getValue(),
-			this.newCompressed.value);
+		this.warningOkd = true;
+		this.newConfTest();
 	}
 	else
 	{
