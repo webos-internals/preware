@@ -1,6 +1,11 @@
 /*
  * Global Styles
  */
+.palm-scrim
+{
+	background-repeat: no-repeat;
+	background-size: 100%;
+}
 .scene-fade-top
 {
 	position: fixed; 
@@ -295,6 +300,7 @@ body.palm-dark .update .progress .progress-bar
 	clear: both;
 	padding-left: 10px;
 	font-style: italic;
+	margin-bottom: -12px;
 }
 .prefs .palm-row-wrapper .label.left
 {
@@ -408,13 +414,14 @@ body.palm-dark .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.s
 	display: none;
 	position: absolute;
 	z-index: 10000;
-	top: 0px;
-	left: 0px;
-	width: 300px;
-	height: 53px;
-	background-position: 3px 3px;
-	background-repeat: no-repeat;
-	background-image: url(../images/palm-default/helprow.png);
+	width: auto;
+	height: auto;
+	border: 20px;
+	top: 2px;
+	left: 2px;
+	right: 2px;
+	bottom: 4px;
+	-webkit-border-image: url(../images/palm-default/helprow.png) 20 20 20 20 stretch stretch;
 }
 .prefs.help .palm-row .palm-row-wrapper .help-overlay
 {
@@ -422,42 +429,17 @@ body.palm-dark .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .title.s
 }
 .prefs .palm-row.first .palm-row-wrapper .help-overlay
 {
-	background-image: url(../images/palm-default/helprow-first.png);
+	-webkit-border-image: url(../images/palm-default/helprow-first.png) 20 20 20 20 stretch stretch;
 }
 .prefs .palm-row.single .palm-row-wrapper .help-overlay
 {
-	background-image: url(../images/palm-default/helprow-single.png);
+	-webkit-border-image: url(../images/palm-default/helprow-single.png) 20 20 20 20 stretch stretch;
+	bottom: 3px;
 }
 .prefs .palm-row.last .palm-row-wrapper .help-overlay
 {
-	background-image: url(../images/palm-default/helprow-last.png);
-}
-.prefs .palm-row .palm-row-wrapper .help-overlay.more
-{
-	background: none;
-	padding: 3px;
-	height: 100%;
-}
-.prefs .palm-row .palm-row-wrapper .help-overlay.more div
-{
-	height: 100%;
-	width: 295px;
-	-webkit-border-image: url(../images/palm-default/helprow.png) 23 23 23 23 stretch stretch;
-	-webkit-box-sizing: border-box;
-	border-width: 23px 23px 23px 23px;
-	-webkit-palm-mouse-target: ignore;
-}
-.prefs .palm-row.first .palm-row-wrapper .help-overlay.more div
-{
-	-webkit-border-image: url(../images/palm-default/helprow-first.png) 23 23 23 23 stretch stretch;
-}
-.prefs .palm-row.single .palm-row-wrapper .help-overlay.more div
-{
-	-webkit-border-image: url(../images/palm-default/helprow-single.png) 23 23 23 23 stretch stretch;
-}
-.prefs .palm-row.last .palm-row-wrapper .help-overlay.more div
-{
-	-webkit-border-image: url(../images/palm-default/helprow-last.png) 23 23 23 23 stretch stretch;
+	-webkit-border-image: url(../images/palm-default/helprow-last.png) 20 20 20 20 stretch stretch;
+	bottom: 3px;
 }
 .prefs .help-toggle
 {

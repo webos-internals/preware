@@ -150,42 +150,6 @@ body.palm-dark.appcat .prefs .palm-group .palm-row .palm-row-wrapper.blacklist .
 	color: #f7b516;
 }
 
-body.palm-dark.appcat .prefs .palm-row .palm-row-wrapper .help-overlay
-{
-	background-image: url(../images/appcat/helprow.png);
-}
-body.palm-dark.appcat .prefs .palm-row.first .palm-row-wrapper .help-overlay
-{
-	background-image: url(../images/appcat/helprow-first.png);
-}
-body.palm-dark.appcat .prefs .palm-row.single .palm-row-wrapper .help-overlay
-{
-	background-image: url(../images/appcat/helprow-single.png);
-}
-body.palm-dark.appcat .prefs .palm-row.last .palm-row-wrapper .help-overlay
-{
-	background-image: url(../images/appcat/helprow-last.png);
-}
-body.palm-dark.appcat .prefs .palm-row .palm-row-wrapper .help-overlay.more
-{
-	background: none;
-}
-body.palm-dark.appcat .prefs .palm-row .palm-row-wrapper .help-overlay.more div
-{
-	-webkit-border-image: url(../images/appcat/helprow.png) 23 23 23 23 stretch stretch;
-}
-body.palm-dark.appcat .prefs .palm-row.first .palm-row-wrapper .help-overlay.more div
-{
-	-webkit-border-image: url(../images/appcat/helprow-first.png) 23 23 23 23 stretch stretch;
-}
-body.palm-dark.appcat .prefs .palm-row.single .palm-row-wrapper .help-overlay.more div
-{
-	-webkit-border-image: url(../images/appcat/helprow-single.png) 23 23 23 23 stretch stretch;
-}
-body.palm-dark.appcat .prefs .palm-row.last .palm-row-wrapper .help-overlay.more div
-{
-	-webkit-border-image: url(../images/appcat/helprow-last.png) 23 23 23 23 stretch stretch;
-}
 body.palm-dark.appcat .prefs .add-item .title
 {
 	color: rgba(255, 255, 255, 0.7);
