@@ -10,7 +10,10 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
-	 {	 version: '1.5.5', log: [ 'Fix display of screenshots from devices with a different resolution.' ] },
+	 {	 version: '1.5.5', log: [ 'Added support for Visibility feed value',
+	 							  'Fix display of screenshots from devices with a different resolution',
+	 							  'Test fix for custom feed on network with no internet connection',
+	 							  'Style updates for pre3 screen size' ] },
 	 {	 version: '1.5.4', log: [ 'Updated French translations (courtesy of Clément)' ] },
 	 {	 version: '1.5.3', log: [ 'Reinstated banner notification of manual saved package list update' ] },
 	 {	 version: '1.5.2', log: [ 'Check if package dates are actually dates',

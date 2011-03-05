@@ -55,6 +55,7 @@ function packageModel(infoString, infoObj)
 		this.preInstallMessage =	false;
 		this.preUpdateMessage =		false;
 		this.preRemoveMessage =		false;
+		this.visibility =			'Always';
 		
 		// load the info
 		this.infoLoad(infoString);
@@ -224,8 +225,7 @@ packageModel.prototype.infoLoad = function(info)
 			if (!this.category &&			sourceJson.Category)			this.category =				sourceJson.Category;
 			if (!this.title &&				sourceJson.Title)				this.title =				sourceJson.Title;
 			if (!this.icon &&				sourceJson.Icon)				this.icon =					sourceJson.Icon;
-			if (!this.date &&				sourceJson.LastUpdated
-			 && isNumeric(sourceJson.LastUpdated))							this.date =					sourceJson.LastUpdated;
+			if (!this.date && sourceJson.LastUpdated && isNumeric(sourceJson.LastUpdated)) this.date = sourceJson.LastUpdated;
 			if (!this.homepage &&			sourceJson.Homepage)			this.homepage =				sourceJson.Homepage;
 			if (!this.filename &&			sourceJson.Filename)			this.filename =				sourceJson.Filename;
 			if (!this.location &&			sourceJson.Location)			this.location =				sourceJson.Location;
@@ -236,6 +236,7 @@ packageModel.prototype.infoLoad = function(info)
 			if (!this.preUpdateMessage &&	sourceJson.PreUpdateMessage)	this.preUpdateMessage =		sourceJson.PreUpdateMessage;
 			if (!this.preRemoveMessage &&	sourceJson.PreRemoveMessage)	this.preRemoveMessage =		sourceJson.PreRemoveMessage;
 			if (!this.screenshots || this.screenshots.length == 0 && sourceJson.Screenshots) this.screenshots =	sourceJson.Screenshots;
+			if (this.visibility == 'Always' && sourceJson.Visibility && (sourceJson.Visibility == 'Installed' || sourceJson.Visibility == 'Hidden')) this.visibility = sourceJson.Visibility;
 			
 			if (!this.price && sourceJson.Price)
 			{
@@ -373,6 +374,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.preInstallMessage)		this.preInstallMessage =	pkg.preInstallMessage;
 		if (!this.preUpdateMessage)			this.preUpdateMessage =		pkg.preUpdateMessage;
 		if (!this.preRemoveMessage)			this.preRemoveMessage =		pkg.preRemoveMessage;
+		if (this.visibility == 'Always')	this.visibility =			pkg.visibility;
 		if (!this.icon) 
 		{
 			this.icon =				pkg.icon;
@@ -1126,6 +1128,12 @@ packageModel.prototype.matchItem = function(item)
 	else if (item.pkgList == 'installed' && this.isInstalled) matchIt = true;
 	else if (item.pkgList == 'saved' && this.isInSavedList && !this.appCatalog) matchIt = true;
 	
+	// check package visibility
+	if (this.visibility != 'Always')
+	{
+		if (this.visibility == 'Installed' && item.pkgList == 'all') matchIt = false;
+		if (this.visibility == 'Hidden' && (item.pkgList == 'all' || item.pkgList == 'updates')) matchIt = false;
+	}
 	
 	// check type and dont push if not right
 	if (item.pkgType != 'all' && item.pkgType != '' && item.pkgType != this.type) matchIt = false;
