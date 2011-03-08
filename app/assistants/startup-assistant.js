@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.5.6', log: [ 'Removed support for Visibility feed value - use a category filter to exclude Unavailable packages if desired' ] },
 	 {	 version: '1.5.5', log: [ 'Added support for Visibility feed value',
 	 							  'Fix display of screenshots from devices with a different resolution',
 	 							  'Test fix for custom feed on network with no internet connection',
