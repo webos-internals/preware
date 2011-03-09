@@ -550,99 +550,143 @@ packagesModel.prototype.fixUnknownDone = function()
 
 packagesModel.prototype.loadSaved = function()
 {
-	this.savedDB = new Mojo.Depot
-	({
-		name:			"packageDB",
-		version:		1,
-		estimatedSize:	1048576,
-		replace:		false
-	},
-		this.loadSavedOpenOK.bind(this),
-		this.loadSavedError.bind(this));
+	try
+	{
+		this.savedDB = new Mojo.Depot
+		({
+			name:			"packageDB",
+			version:		1,
+			estimatedSize:	1048576,
+			replace:		false
+		},
+			this.loadSavedOpenOK.bind(this),
+			this.loadSavedError.bind(this));
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#loadSaved');
+	}
 	return;
 };
 packagesModel.prototype.loadSavedOpenOK = function()
 {
-	this.savedDB.get("savedPackageList",
-					 this.loadSavedGetOK.bind(this),
-					 this.doneLoading.bind(this));
+	try
+	{
+		this.savedDB.get("savedPackageList",
+						 this.loadSavedGetOK.bind(this),
+						 this.doneLoading.bind(this));
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#loadSavedOpenOK');
+	}
 	return;
 };
 packagesModel.prototype.loadSavedGetOK = function(savedPackageList)
 {
-	if (savedPackageList)
+	try
 	{
-		for (var p = 0; p < savedPackageList.length; p++)
+		if (savedPackageList)
 		{
-			var savedPkg = this.loadPackage(savedPackageList[p]);
-			if (savedPkg)
+			for (var p = 0; p < savedPackageList.length; p++)
 			{
-				var pkgNum = this.packageInList(savedPkg.pkg);
-				var gblPkg = this.packages[pkgNum];
-				if (!gblPkg.appCatalog)
+				var savedPkg = this.loadPackage(savedPackageList[p]);
+				if (savedPkg)
 				{
-					gblPkg.isInSavedList = true;
+					var pkgNum = this.packageInList(savedPkg.pkg);
+					var gblPkg = this.packages[pkgNum];
+					if (!gblPkg.appCatalog)
+					{
+						gblPkg.isInSavedList = true;
+					}
 				}
 			}
+			this.doneLoading();
 		}
-		this.doneLoading();
+		else
+		{
+			Mojo.Log.info('No savedPackageList');
+			this.loadSavedDefault(this.doneLoading.bind(this));
+		}
 	}
-	else
+	catch (e)
 	{
-		alert('No savedPackageList');
-		this.loadSavedDefault(this.doneLoading.bind(this));
+		Mojo.Log.logException(e, 'packagesModel#loadSavedGetOK');
+		this.doneLoading();
 	}
 };
 packagesModel.prototype.loadSavedDefault = function(callback)
 {
-	for (var p = 0; p < this.packages.length; p++) {
-		if (this.packages[p].isInstalled && !this.packages[p].appCatalog) {
-			alert('Default ' + this.packages[p].pkg);
-			alert("isInstalled: " + this.packages[p].isInstalled);
-			alert("appCatalog: " + this.packages[p].appCatalog);
-			this.packages[p].isInSavedList = true;
+	try
+	{
+		for (var p = 0; p < this.packages.length; p++) {
+			if (this.packages[p].isInstalled && !this.packages[p].appCatalog) {
+				alert('Default ' + this.packages[p].pkg);
+				alert("isInstalled: " + this.packages[p].isInstalled);
+				alert("appCatalog: " + this.packages[p].appCatalog);
+				this.packages[p].isInSavedList = true;
+			}
+			else {
+				this.packages[p].isInSavedList = false;
+			}
 		}
-		else {
-			this.packages[p].isInSavedList = false;
-		}
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#loadSavedDefault');
 	}
 	this.savePackageList(callback);
 };
 packagesModel.prototype.loadSavedError = function(result)
 {
-	this.updateAssistant.errorMessage('Preware', $L("Unable to open saved packages database: ") + result,
-									  this.updateAssistant.doneUpdating);
+	try
+	{
+		this.updateAssistant.errorMessage('Preware', $L("Unable to open saved packages database: ") + result,
+										  this.updateAssistant.doneUpdating);
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#loadSavedError');
+	}
 	return;
 };
 packagesModel.prototype.savePackageList = function(callback)
 {
-	var savedPackageList = [];
-
-	for (var p = 0; p < this.packages.length; p++) {
-		if (this.packages[p].isInSavedList) {
-			var info = this.packages[p].infoSave();
-			//alert('Save ' + this.packages[p].pkg);
-			//alert('info.Package: ' + info.Package);
-			//alert('info.Version: ' + info.Version);
-			//alert('info.Size: ' + info.Size);
-			//alert('info.Filename: ' + info.Filename);
-			//alert('info.Description: ' + info.Description);
-			//alert('info.Source: ' + info.Source);
-			savedPackageList.push(info);
+	try
+	{
+		var savedPackageList = [];
+	
+		for (var p = 0; p < this.packages.length; p++) {
+			if (this.packages[p].isInSavedList) {
+				var info = this.packages[p].infoSave();
+				//alert('Save ' + this.packages[p].pkg);
+				//alert('info.Package: ' + info.Package);
+				//alert('info.Version: ' + info.Version);
+				//alert('info.Size: ' + info.Size);
+				//alert('info.Filename: ' + info.Filename);
+				//alert('info.Description: ' + info.Description);
+				//alert('info.Source: ' + info.Source);
+				savedPackageList.push(info);
+			}
 		}
+		
+		this.savedDB.add("savedPackageList", savedPackageList,
+						 function() {
+							 if (callback) callback();
+						 },
+						 function() {
+							 Mojo.Controller.getAppController().showBanner({
+									 messageText:$L("Preware: Error writing Saved Package List"),
+									 icon:'miniicon.png'
+								 } , {source:'saveNotification'});
+							 if (callback) callback();
+						 });
 	}
-			
-	this.savedDB.add("savedPackageList", savedPackageList,
-					 function() {
-						 if (callback) callback();
-					 },
-					 function() {
-						 Mojo.Controller.getAppController().showBanner({
-								 messageText:$L("Preware: Error writing Saved Package List"),
-								 icon:'miniicon.png'
-							 } , {source:'saveNotification'});
-						 if (callback) callback();
-					 });
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'packagesModel#savePackageList');
+		if (callback) callback();
+	}
 	return;
 };
 
