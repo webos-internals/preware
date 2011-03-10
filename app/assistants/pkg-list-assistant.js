@@ -442,12 +442,17 @@ PkgListAssistant.prototype.filter = function(skipUpdate)
 			this.packages[p].displayTitle = this.packages[p].title;
 			pushIt = true;
 		}
-		else if (this.packages[p].title.toLowerCase().include(this.searchText.toLowerCase()))
+		
+		if (this.packages[p].title)
 		{
-     		this.packages[p].displayTitle = this.packages[p].title.replace(new RegExp('(' + this.searchText + ')', 'gi'), '<span class="highlight">$1</span>');
-			pushIt = true;
+			if (this.packages[p].title.toLowerCase().include(this.searchText.toLowerCase()))
+			{
+	     		this.packages[p].displayTitle = this.packages[p].title.replace(new RegExp('(' + this.searchText + ')', 'gi'), '<span class="highlight">$1</span>');
+				pushIt = true;
+			}
 		}
-		else if (prefs.get().searchDesc && this.packages[p].description)
+		
+		if (prefs.get().searchDesc && this.packages[p].description)
 		{
 			if (this.packages[p].description.toLowerCase().include(this.searchText.toLowerCase()))
 			{
