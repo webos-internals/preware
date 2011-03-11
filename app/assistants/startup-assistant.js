@@ -10,8 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
-	 {	 version: '1.5.7', log: [ 'Added more logging to saved package list to try and determine why people get stuck at "Complete!"',
-	 							  'Added check to make sure package has a title before trying to search it' ] },
+	 {	 version: '1.5.7', log: [ 'Added check to make sure package has a title before trying to search it' ] },
 	 {	 version: '1.5.6', log: [ 'Removed support for Visibility feed value - use a category filter to exclude Unavailable packages if desired' ] },
 	 {	 version: '1.5.5', log: [ 'Added support for Visibility feed value',
 	 							  'Fix display of screenshots from devices with a different resolution',
