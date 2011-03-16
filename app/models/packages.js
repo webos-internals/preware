@@ -25,6 +25,9 @@ function packagesModel()
 	// holds flag for when feeds are changed
 	this.dirtyFeeds = false;
 	
+	// holds flag for when blacklists are changed
+	this.soiledPackages = false;
+	
 	// stores packages staged by a multi-install option
 	this.stagedPkgs = false;
 	
@@ -270,7 +273,7 @@ packagesModel.prototype.infoResponse = function(payload, num)
 		else 
 		{
 			// we're done
-			this.updateAssistant.displayAction($L("<strong>Complete!</strong>"));
+			this.updateAssistant.displayAction($L("<strong>Done Loading!</strong>"));
 			this.updateAssistant.setProgress(0);
 			this.updateAssistant.hideProgress();
 			if (prefs.get().fixUnknown) 
@@ -537,7 +540,7 @@ packagesModel.prototype.fixUnknownDone = function()
 	
 	if (this.unknownFixed == this.unknownCount)
 	{
-		this.updateAssistant.displayAction($L("<strong>Complete!</strong>"));
+		this.updateAssistant.displayAction($L("<strong>Done Fixing!</strong>"));
 		this.updateAssistant.hideProgress();
 		this.loadSaved();
 	}
@@ -552,6 +555,7 @@ packagesModel.prototype.loadSaved = function()
 {
 	try
 	{
+		this.updateAssistant.displayAction($L("<strong>Reading Saved Package List</strong>"));
 		this.savedDB = new Mojo.Depot
 		({
 			name:			"packageDB",
@@ -601,6 +605,7 @@ packagesModel.prototype.loadSavedGetOK = function(savedPackageList)
 					}
 				}
 			}
+			this.updateAssistant.displayAction($L("<strong>Complete!</strong>"));
 			this.doneLoading();
 		}
 		else
@@ -700,8 +705,9 @@ packagesModel.prototype.doneLoading = function()
 			this.subscription.cancel();
 		}
 		
-		// feeds are no longer dirty
+		// feeds are no longer dirty and packages are no longer soiled
 		this.dirtyFeeds = false;
+		this.soiledPackages = false;
 
 		// clear out our current data (incase this is a re-update)
 		this.packagesReversed = $H(); // reset this again so we can rebuild it in alphabetical order

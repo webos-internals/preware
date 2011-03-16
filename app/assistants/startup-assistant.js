@@ -10,6 +10,9 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.5.8', log: [ 'Moved blacklisting to feed load to speed up listing',
+	 							  'Suggests a reload after changing the blacklist',
+	 							  'Fixed homebrew feed/catalog feed same appid bug' ] },
 	 {	 version: '1.5.7', log: [ 'Added check to make sure package has a title before trying to search it' ] },
 	 {	 version: '1.5.6', log: [ 'Removed support for Visibility feed value - use a category filter to exclude Unavailable packages if desired' ] },
 	 {	 version: '1.5.5', log: [ 'Added support for Visibility feed value',

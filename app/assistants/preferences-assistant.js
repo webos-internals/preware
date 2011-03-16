@@ -578,6 +578,7 @@ PreferencesAssistant.prototype.blackListSave = function()
 		}
 	}
 	this.prefs.blackList = newData;
+	packages.soiledPackages = true;
 	this.cookie.put(this.prefs);
 }
 

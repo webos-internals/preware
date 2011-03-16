@@ -105,9 +105,14 @@ UpdateAssistant.prototype.setup = function()
 	this.isLoading = true;
 	
 	// call for feed update depending on update interval
-	if (this.force)
+	if (this.force === true)
 	{
 		this.updateFeeds();
+	}
+	else if (this.force === 'load')
+	{
+		this.updateFeeds(true);
+		this.onlyLoad = true;
 	}
 	else if (prefs.get().updateInterval == 'launch')
 	{

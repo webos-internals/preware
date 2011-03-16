@@ -135,6 +135,17 @@ MainAssistant.prototype.activate = function(event)
 				onChoose:			this.dirtyFeedsResponse.bindAsEventListener(this)
 		    });
 		}
+		else if (packages.soiledPackages)
+		{
+			this.controller.showAlertDialog(
+			{
+			    title:				$L("Preware"),
+				allowHTMLMessage:	true,
+			    message:			$L("You have recently changed your blacklist. You should reload the package list."),
+			    choices:			[{label:$L("Do It Now"), value:'ok'}, {label:$L("Later"), value:'skip'}],
+				onChoose:			this.soiledPackagesResponse.bindAsEventListener(this)
+		    });
+		}
 		this.updateList();		
 	}
 	else
@@ -156,6 +167,17 @@ MainAssistant.prototype.dirtyFeedsResponse = function(value)
 	else
 	{
 		packages.dirtyFeeds = false;
+	}
+};
+MainAssistant.prototype.soiledPackagesResponse = function(value)
+{
+	if (value == "ok")
+	{
+		this.controller.stageController.swapScene({name: 'update', transition: Mojo.Transition.crossFade}, 'main', 'load');
+	}
+	else
+	{
+		packages.soiledPackages = false;
 	}
 };
 

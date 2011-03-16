@@ -55,6 +55,7 @@ function packageModel(infoString, infoObj)
 		this.preInstallMessage =	false;
 		this.preUpdateMessage =		false;
 		this.preRemoveMessage =		false;
+		this.blacklisted =			false;
 		
 		// load the info
 		this.infoLoad(infoString);
@@ -332,6 +333,44 @@ packageModel.prototype.infoLoad = function(info)
 				}
 			}
 		}
+		
+		// check blacklist
+		var blacklist = prefs.get().blackList;
+		if (!this.blacklisted && blacklist.length > 0 && !this.isInstalled && !this.isInSavedList)
+		{
+			for (var b = 0; b < prefs.get().blackList.length; b++)
+			{
+				if (!this.blacklisted)
+				{
+					if (prefs.get().blackList[b].field == 'title' && this.title && this.title.toLowerCase().include(blacklist[b].search.toLowerCase()))
+					{
+						this.blacklisted = true;
+					}
+					else if (prefs.get().blackList[b].field == 'maintainer' && this.maintainer.length > 0)
+					{
+						for (var m = 0; m < this.maintainer.length; m++) 
+						{
+							if (this.maintainer[m].name.toLowerCase().include(blacklist[b].search.toLowerCase()))
+							{
+								this.blacklisted = true;
+							}
+						}
+					}
+					else if (prefs.get().blackList[b].field == 'id' && this.pkg.toLowerCase().include(blacklist[b].search.toLowerCase()))
+					{
+						this.blacklisted = true;
+					}
+					else if (prefs.get().blackList[b].field == 'desc' && this.description && this.description.toLowerCase().include(blacklist[b].search.toLowerCase()))
+					{
+						this.blacklisted = true;
+					}
+					else if (prefs.get().blackList[b].field == 'category' && this.category && this.category.toLowerCase().include(blacklist[b].search.toLowerCase()))
+					{
+						this.blacklisted = true;
+					}
+				}
+			}
+		}
 
 	}
 	catch (e)
@@ -345,12 +384,18 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 	{
 		if ((!this.type || this.type == 'Unknown') && pkg.type) this.type = pkg.type;
 		// override the type
-		if (pkg.appCatalog || (pkg.type == "AppCatalog")) {
+		if (pkg.appCatalog || (pkg.type == "AppCatalog"))
+		{
 		    this.type = "Application";
 		    this.appCatalog = true;
-		} else {
+		}
+		else
+		{
 		    this.appCatalog = false;
 		}
+		
+		// check blacklist
+		if (pkg.blacklisted == true) this.blacklisted = true;
 		
 		if (!this.title || this.title == 'This is a webOS application.')	this.title = pkg.title;
 		if (this.category == 'Unsorted')	this.category =			pkg.category;
@@ -1101,6 +1146,9 @@ packageModel.prototype.matchItem = function(item)
 {
 	var matchIt = false;
 	
+	// check blacklist
+	if (this.blacklisted) return false;
+	
 	// push packages that meet the listing
 	if ((item.pkgList == 'all') ||
 		(item.pkgList == 'other' &&
@@ -1135,44 +1183,6 @@ packageModel.prototype.matchItem = function(item)
 	
 	// check category and dont push if not right
 	if (item.pkgCat != 'all' && item.pkgCat != '' && item.pkgCat != this.category) matchIt = false;
-	
-	// check blacklist
-	var blacklist = prefs.get().blackList;
-	if (matchIt && blacklist.length > 0 && !this.isInstalled && !this.isInSavedList)
-	{
-		for (var b = 0; b < prefs.get().blackList.length; b++)
-		{
-			if (matchIt)
-			{
-				if (prefs.get().blackList[b].field == 'title' && this.title && this.title.toLowerCase().include(blacklist[b].search.toLowerCase()))
-				{
-					matchIt = false;
-				}
-				else if (prefs.get().blackList[b].field == 'maintainer' && this.maintainer.length > 0)
-				{
-					for (var m = 0; m < this.maintainer.length; m++) 
-					{
-						if (this.maintainer[m].name.toLowerCase().include(blacklist[b].search.toLowerCase()))
-						{
-							matchIt = false;
-						}
-					}
-				}
-				else if (prefs.get().blackList[b].field == 'id' && this.pkg.toLowerCase().include(blacklist[b].search.toLowerCase()))
-				{
-					matchIt = false;
-				}
-				else if (prefs.get().blackList[b].field == 'desc' && this.description && this.description.toLowerCase().include(blacklist[b].search.toLowerCase()))
-				{
-					matchIt = false;
-				}
-				else if (prefs.get().blackList[b].field == 'category' && this.category && this.category.toLowerCase().include(blacklist[b].search.toLowerCase()))
-				{
-					matchIt = false;
-				}
-			}
-		}
-	}
 	
 	// return if it matches!
 	return matchIt;

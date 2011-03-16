@@ -121,6 +121,7 @@ PreferencesBlacklistAssistant.prototype.saveButtonPressed = function(event)
 		if (this.params.search != '' && this.params.field != '')
 		{
 			this.prefs.blackList.push({field: this.params.field, search: this.params.search});
+			packages.soiledPackages = true;
 			this.cookie.put(this.prefs);
 			this.doneSaving();
 		}
@@ -188,6 +189,7 @@ PreferencesBlacklistAssistant.prototype.deactivate = function(event)
 	if (this.index !== false && this.params.search != '' && this.params.field != '')
 	{
 		this.prefs.blackList[this.index] = ({field: this.params.field, search: this.params.search});
+		packages.soiledPackages = true;
 		this.cookie.put(this.prefs);
 	}
 	// reload global storage of preferences when we get rid of this stage
