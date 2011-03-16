@@ -348,6 +348,8 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (pkg.appCatalog || (pkg.type == "AppCatalog")) {
 		    this.type = "Application";
 		    this.appCatalog = true;
+		} else {
+		    this.appCatalog = false;
 		}
 		
 		if (!this.title || this.title == 'This is a webOS application.')	this.title = pkg.title;
