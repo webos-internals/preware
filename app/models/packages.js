@@ -829,6 +829,17 @@ packagesModel.prototype.doneLoading = function()
 		});
 	}
 	
+	if(this.updateAssistant.onlyLoad === false){
+		var db8 = new db8Storage(), justTypeObjs = [];
+		for(var i = 0; i < packages.packages.length; i++){
+			if(packages.packages[i].blacklisted === false){
+				justTypeObjs.push({_kind: "org.webosinternals.preware.justType:1", id: packages.packages[i].pkg, display: packages.packages[i].title, secondary: packages.packages[i].type + " - " + packages.packages[i].category});
+			}
+		}
+		db8.deleteAll(function(){
+			db8.putArray(justTypeObjs);
+		}.bind(this));
+	}
 	// tell the main scene we're done updating
 	this.updateAssistant.doneUpdating();
 };

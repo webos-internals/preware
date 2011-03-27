@@ -65,9 +65,10 @@ AppAssistant.prototype.handleLaunch = function(params)
 				this.controller.createStageWithCallback({name: installStageName, lightweight: true}, this.launchInstallScene.bindAsEventListener(this, params.file));
 			}
 		}
-		if (params.type == 'view' && params.id)
+		if ((params.type == 'view' && params.id) || params.viewPackage)
 		{
-			var viewStageController = this.controller.getStageController(viewStageName + params.id);
+			var id = params.viewPackage || params.id;
+			var viewStageController = this.controller.getStageController(viewStageName + id);
 	        if (viewStageController)
 			{
 				viewStageController.popScenesTo('pkg-load');
@@ -75,7 +76,7 @@ AppAssistant.prototype.handleLaunch = function(params)
 			}
 			else
 			{
-				this.controller.createStageWithCallback({name: viewStageName + params.id, lightweight: true}, this.launchViewScene.bindAsEventListener(this, params.id));
+				this.controller.createStageWithCallback({name: viewStageName + id, lightweight: true}, this.launchViewScene.bindAsEventListener(this, id));
 			}
 		}
 	}
