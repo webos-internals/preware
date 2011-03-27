@@ -64,6 +64,10 @@
         "source": "app/assistants/pkg-view-assistant.js"
     },
     {
+        "scenes": "pkg-load",
+        "source": "app/assistants/pkg-load-assistant.js"
+    },
+    {
         "scenes": "pkg-install",
         "source": "app/assistants/pkg-install-assistant.js"
     },

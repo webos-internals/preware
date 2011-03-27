@@ -8,6 +8,9 @@ function packagesModel()
 	this.multiPkgs = false;
 	this.doMyApps = false;
 	
+	// stores if packages are loaded or not
+	this.loaded = false;
+	
 	// for storing all the package information
 	this.packages = [];
 	this.packagesReversed = $H();
@@ -128,6 +131,7 @@ packagesModel.prototype.loadFeeds = function(feeds, updateAssistant)
 	try 
 	{
 		// clear out our current data (incase this is a re-update)
+		this.loaded = false;
 		this.packages = [];
 		this.packagesReversed = $H();
 		this.hasPrices = false;
@@ -708,6 +712,9 @@ packagesModel.prototype.doneLoading = function()
 		// feeds are no longer dirty and packages are no longer soiled
 		this.dirtyFeeds = false;
 		this.soiledPackages = false;
+		
+		// now that we're loaded, lets set this to true
+		this.loaded = true;
 
 		// clear out our current data (incase this is a re-update)
 		this.packagesReversed = $H(); // reset this again so we can rebuild it in alphabetical order
@@ -829,17 +836,22 @@ packagesModel.prototype.doneLoading = function()
 		});
 	}
 	
-	if(this.updateAssistant.onlyLoad === false){
+	if(this.updateAssistant.onlyLoad === false)
+	{
 		var db8 = new db8Storage(), justTypeObjs = [];
-		for(var i = 0; i < packages.packages.length; i++){
-			if(packages.packages[i].blacklisted === false){
-				justTypeObjs.push({_kind: "org.webosinternals.preware.justType:1", id: packages.packages[i].pkg, display: packages.packages[i].title, secondary: packages.packages[i].type + " - " + packages.packages[i].category});
+		for (var i = 0; i < this.packages.length; i++)
+		{
+			if (this.packages[i].blacklisted === false)
+			{
+				justTypeObjs.push({_kind: "org.webosinternals.preware.justType:1", id: this.packages[i].pkg, display: this.packages[i].title, secondary: this.packages[i].type + " - " + this.packages[i].category});
 			}
 		}
-		db8.deleteAll(function(){
+		db8.deleteAll(function()
+		{
 			db8.putArray(justTypeObjs);
 		}.bind(this));
 	}
+	
 	// tell the main scene we're done updating
 	this.updateAssistant.doneUpdating();
 };
