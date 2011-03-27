@@ -737,7 +737,9 @@ packageModel.prototype.iconInit = function()
 {
 	if (this.icon) 
 	{
-		doc = Mojo.Controller.appController.getStageController(mainStageName).document;
+		var stage = Mojo.Controller.appController.getStageController(mainStageName);
+		if (!stage) stage = Mojo.Controller.appController.getActiveStageController('card');
+		var doc = stage.document;
 		// think that above line was too roundabout? well it works, so whatever... (btw: mainStageName is setup in the app-assistant)
 		this.iconImg.object = doc.createElement('img');
 		this.iconImg.object.onload = this.iconOnLoad.bind(this);

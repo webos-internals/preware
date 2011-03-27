@@ -185,19 +185,40 @@ PkgLoadAssistant.prototype.loadPackageResponse = function(payload, pkg)
 	}
 	else
 	{
-		for (var p in payload) Mojo.Log.error(p+':', payload[p]);
-		Mojo.Log.error('contents:', payload.contents);
-		var data = packages.parsePackage(payload.contents);
-		Mojo.Log.error('data:', data);
-		for (var d in data) Mojo.Log.error(d+':', data[d]);
-		
-		/*var tmpPackageModel = new packageModel(data);
-		if (tmpPackageModel)
+		//Mojo.Log.error('========================');
+		//for (var p in payload) Mojo.Log.error(p+':', payload[p]);
+		if (payload.stage == 'start')
 		{
-			//Mojo.Log.error('pm:', tmpPackageModel);
-			//this.pkgObj = tmpPackageModel;
-			//this.doneUpdating();
-		}*/
+			// at start we clear the old data to make sure its empty
+			this.rawData = '';
+		}
+		else if (payload.stage == 'middle')
+		{
+			// in the middle, we append the data
+			if (payload.contents) 
+			{
+				this.rawData += payload.contents;
+			}
+		}
+		else if (payload.stage == 'end')
+		{
+			// at end, we parse the data we've recieved this whole time
+			if (this.rawData != '') 
+			{
+				//Mojo.Log.error('raw:', this.rawData);
+				var data = packages.parsePackage(this.rawData.split(/\n/));
+				//Mojo.Log.error('data:', data);
+				//for (var d in data) Mojo.Log.error(d+':', data[d]);
+				var tmpPackageModel = new packageModel(data);
+				if (tmpPackageModel)
+				{
+					//Mojo.Log.error('pm:', tmpPackageModel);
+					this.pkgObj = tmpPackageModel;
+					this.doneUpdating();
+				}
+			}
+		}
+		
 	}
 };
 

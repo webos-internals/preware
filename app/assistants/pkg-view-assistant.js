@@ -44,32 +44,39 @@ function PkgViewAssistant(item, listAssistant)
 
 PkgViewAssistant.prototype.setup = function()
 {
-	// clear log so it only shows stuff from this scene
-	IPKGService.logClear();
-	
-	// setup menu
-	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
-	
-	// build command menu widget
-	this.updateCommandMenu(true);
-	this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
-	
-	// setup PkgViewAssistant title and icon
-	this.controller.get('title').innerHTML = this.item.title;
-	this.item.iconFill(this.controller.get('icon'));
-	
-	// setup spinner widget
-	this.spinnerModel = {spinning: false};
-	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
-	
-	// setup screenshot sideways scroller
-	this.controller.setupWidget
-	(
-		'viewScroller',
-		{},
-		{mode: 'horizontal-snap'}
-	);
-	
+	try
+	{
+		// clear log so it only shows stuff from this scene
+		IPKGService.logClear();
+		
+		// setup menu
+		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
+		
+		// build command menu widget
+		this.updateCommandMenu(true);
+		this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
+		
+		// setup PkgViewAssistant title and icon
+		this.controller.get('title').innerHTML = this.item.title;
+		this.item.iconFill(this.controller.get('icon'));
+		
+		// setup spinner widget
+		this.spinnerModel = {spinning: false};
+		this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
+		
+		// setup screenshot sideways scroller
+		this.controller.setupWidget
+		(
+			'viewScroller',
+			{},
+			{mode: 'horizontal-snap'}
+		);
+	}
+	catch (e)
+	{
+		Mojo.Log.logException(e, 'pkg-view#setup');
+	}
+		
 	// lastly... build screens data
 	this.setupImages();
 	this.setupData();
