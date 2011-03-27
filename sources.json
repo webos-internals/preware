@@ -2,6 +2,7 @@
     {"source": "app/models/utility.js"},
     {"source": "app/models/IPKGService.js"},
     {"source": "app/models/feeds.js"},
+    {"source": "app/models/db8Storage.js"},
     {"source": "app/models/packages.js"},
     {"source": "app/models/package.js"},
     {"source": "app/models/cookies.js"},
@@ -61,6 +62,10 @@
     {
         "scenes": "pkg-view",
         "source": "app/assistants/pkg-view-assistant.js"
+    },
+    {
+        "scenes": "pkg-load",
+        "source": "app/assistants/pkg-load-assistant.js"
     },
     {
         "scenes": "pkg-install",
