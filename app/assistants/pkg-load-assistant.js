@@ -1,7 +1,6 @@
 function PkgLoadAssistant(pkg)
 {
 	this.pkg = pkg;
-	Mojo.Log.error('pkg:', this.pkg);
 	
 	this.pkgObj = false;
 	
@@ -89,33 +88,11 @@ PkgLoadAssistant.prototype.setup = function()
 	}
 	else
 	{
-		/*
-		// call for feed update depending on update interval
-		if (this.force === true)
-		{
-			this.updateFeeds();
-		}
-		else if (this.force === 'load')
-		{
-			this.updateFeeds(true);
-			this.onlyLoad = true;
-		}
-		else if (prefs.get().updateInterval == 'launch')
-		{
-			// we should update then load
-			this.updateFeeds();
-		}
-		else if (prefs.get().updateInterval == 'manual')
-		{
-			// straight to loading
-			this.updateFeeds(true);
-			this.onlyLoad = true;
-		}
-		*/
+		this.checkDeviceType();
 	}
 };
 
-PkgLoadAssistant.prototype.updateFeeds = function()
+PkgLoadAssistant.prototype.checkDeviceType = function()
 {
 	// even if there is an internet connection
 	this.spinnerElement.style.display = "";
@@ -183,18 +160,7 @@ PkgLoadAssistant.prototype.onVersionCheck = function(payload)
 			}
 			else 
 			{
-				if (hasNet && !onlyLoad) 
-				{
-					// initiate update if we have a connection
-					this.displayAction($L("<strong>Downloading Feed Information</strong>"), $L("This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding."));
-					this.showActionHelpTimer(120); // 2 minutes
-					this.subscription = IPKGService.update(this.onUpdate.bindAsEventListener(this));
-				}
-				else 
-				{
-					// if not, go right to loading the pkg info
-					this.loadFeeds();
-				}
+				this.loadPackage();
 			}
 		}
 	}
@@ -204,73 +170,36 @@ PkgLoadAssistant.prototype.onVersionCheck = function(payload)
 		this.errorMessage('onVersionCheck Error', e, this.doneUpdating);
 	}
 };
-PkgLoadAssistant.prototype.onUpdate = function(payload)
+
+PkgLoadAssistant.prototype.loadPackage = function(pkg)
 {
-	try 
+	this.displayAction($L("<strong>Loading Package</strong>"));
+	if (!pkg) pkg = this.pkg;
+	IPKGService.getPackageInfo(this.loadPackageResponse.bindAsEventListener(this, pkg), pkg);
+};
+PkgLoadAssistant.prototype.loadPackageResponse = function(payload, pkg)
+{
+	if (!payload || payload.errorCode != undefined)
 	{
-		// log payload for display
-		IPKGService.logPayload(payload, $L("Update"));
+		this.errorMessage('Preware', payload.errorText, this.doneUpdating);
+	}
+	else
+	{
+		for (var p in payload) Mojo.Log.error(p+':', payload[p]);
+		Mojo.Log.error('contents:', payload.contents);
+		var data = packages.parsePackage(payload.contents);
+		Mojo.Log.error('data:', data);
+		for (var d in data) Mojo.Log.error(d+':', data[d]);
 		
-		if (!payload) 
+		/*var tmpPackageModel = new packageModel(data);
+		if (tmpPackageModel)
 		{
-			// i dont know if this will ever happen, but hey, it might
-			this.errorMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your phone and try again."),
-					  this.doneUpdating);
-		}
-		else if (payload.errorCode != undefined)
-		{
-			// we probably dont need to check this stuff here,
-			// it would have already been checked and errored out of this process
-			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
-			{
-				this.errorMessage('Preware', $L("The service is not running. First try restarting Preware, or reboot your phone and try again."),
-						  this.doneUpdating);
-			}
-			else
-			{
-				this.errorMessage('Preware', payload.errorText + '<br>' + payload.stdErr,
-						  this.loadFeeds);
-			}
-		}
-		else if (payload.stage == "status") {
-			this.displayAction($L("<strong>Downloading Feed Information</strong><br>") + payload.status);
-		}
-		else if (((payload.stage == undefined) && (payload.returnVal != undefined)) ||
-			 (payload.stage == "completed"))
-		{
-			// its returned, but we don't really care if anything was actually updated
-			//console.log(payload.returnVal);
-			
-			// well updating looks to have finished, lets log the date:
-			prefs.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
-			
-			this.loadFeeds();
-		}
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'main#onUpdate');
-		this.errorMessage('onUpdate Error', e, this.doneUpdating);
+			//Mojo.Log.error('pm:', tmpPackageModel);
+			//this.pkgObj = tmpPackageModel;
+			//this.doneUpdating();
+		}*/
 	}
 };
-
-PkgLoadAssistant.prototype.loadFeeds = function()
-{
-	// cancel the last subscription, this may not be needed
-	if (this.subscription)
-	{
-		this.subscription.cancel();
-	}
-	
-	// lets call the function to update the global list of pkgs
-	this.displayAction($L("<strong>Loading Package Information</strong>"));
-	feeds.loadFeeds(this, this.parseFeeds.bind(this));
-};
-
-PkgLoadAssistant.prototype.parseFeeds = function(feeds)
-{
-	packages.loadFeeds(feeds, this);
-}
 
 PkgLoadAssistant.prototype.displayAction = function(msg, msgHelp)
 {

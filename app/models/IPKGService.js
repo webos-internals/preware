@@ -225,7 +225,10 @@ IPKGService.getPackageInfo = function(callback, pkg)
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
 		method: 'getPackageInfo',
-		parameters: {"package":pkg},
+		parameters: {
+			"subscribe":true,
+			"package":pkg
+		},
 		onSuccess: callback,
 		onFailure: callback
 	});
