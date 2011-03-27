@@ -936,6 +936,12 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
     }
   }
 
+  if (sprintf(read_file_buffer,
+	      "{\"returnValue\": true, \"filesize\": %d, \"chunksize\": %d, \"stage\": \"start\"}",
+	      strlen(package)+10, chunksize)) {
+    if (!LSMessageRespond(message, read_file_buffer, &lserror)) goto error;
+  }
+
   while (package && datasize < strlen(package)) {
     size = MIN(strlen(&package[datasize]) + strlen("\nPackage: "), chunksize);
     bcopy(&package[datasize], chunk, size);
@@ -944,11 +950,15 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
       strcat(read_file_buffer, "Package: ");
     strcat(read_file_buffer, json_escape_str(chunk));
     strcat(read_file_buffer, "\"");
+    strcat(read_file_buffer, ", \"stage\": \"middle\"");
     strcat(read_file_buffer, "}");
 
     datasize += size;
     if (!LSMessageRespond(message, read_file_buffer, &lserror)) goto error;
   }
+
+  sprintf(read_file_buffer, "{\"returnValue\": true, \"datasize\": %d, \"stage\": \"end\"}", datasize);
+  if (!LSMessageRespond(message, read_file_buffer, &lserror)) goto error;
 
   g_strfreev(packages);
   return true;
