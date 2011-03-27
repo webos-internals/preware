@@ -28,7 +28,7 @@ db8Storage.prototype.putKinds = function(){
 			onFailure: function(e) { 
 				Mojo.Log.error("delKind failure! Err = " + JSON.stringify(e));
 			}
-		});*/
+	});*/
 	for(var i = 0; i < this.kinds.length; i++){
 		new Mojo.Service.Request("palm://com.palm.db/", {
 			method: "putKind",
@@ -63,7 +63,6 @@ db8Storage.prototype.putArray = function(array){
 			"objects": array
 		},
 		onSuccess: function() { 
-			this.search("hello");
 			Mojo.Log.info("Put success!");	
 		}.bind(this),
 		onFailure: function(e) { 
@@ -72,21 +71,6 @@ db8Storage.prototype.putArray = function(array){
 	});
 };
 
-db8Storage.prototype.search = function(string){
-	new Mojo.Service.Request("palm://com.palm.db/", {
-		method: "search",
-		parameters: { 
-			"query": {"from":"org.webosinternals.preware.justType:1","where":[{"prop":"display","op":"?","val":string, "collate": "primary"}], "limit":50}
-		},
-		onSuccess: function(result) { 
-			Mojo.Log.error("SUCCESS SUCKER");
-			Mojo.Log.info("Put success!");	
-		},
-		onFailure: function(e) { 
-			Mojo.Log.error("Put failure! Err = " + JSON.stringify(e));
-		}
-	});
-};
 db8Storage.prototype.deleteAll = function(callback){
 	new Mojo.Service.Request("palm://com.palm.db/", {
 		method: "del",
