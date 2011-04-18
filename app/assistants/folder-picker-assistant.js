@@ -148,9 +148,9 @@ FolderPickerAssistant.prototype.expandResponse = function(data, folder)
 			this.addRow({name: data[d].name, location: data[d].location+'/', rowClass: (d == data.length-1?'last':'')}, drawer, false);
 		}
 		this.loadedFolders.push(folder);
-		this.controller.setupWidget('list' + folderId, {modelProperty: 'open', unstyled: true}, {open: (initial?true:false)});
+		this.controller.setupWidget('list' + folderId, {modelProperty: 'open', unstyled: true}, {open: true)});
 		this.controller.instantiateChildWidgets(this.list);
-		if (!initial) drawer.mojo.setOpenState(true);
+		drawer.mojo.setOpenState(true);
 	}
 }
 FolderPickerAssistant.prototype.selectFolder = function(folder)
