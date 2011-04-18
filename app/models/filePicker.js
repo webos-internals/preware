@@ -95,11 +95,44 @@ filePicker.prototype.parseDirectory = function(payload, dir, callback)
 	}
 	callback(returnArray);
 }
-filePicker.prototype.getDirectories = function(dir)
+filePicker.prototype.getDirectories = function(dir, callback)
 {
-	// this for folderpicker...
+	IPKGService.getDirListing(this.parseDirectories.bindAsEventListener(this, dir, callback), dir);
+}
+filePicker.prototype.parseDirectories = function(payload, dir, callback)
+{
 	var returnArray = [];
-	return returnArray;
+	if (payload.contents.length > 0)
+	{
+		for (var c = 0; c < payload.contents.length; c++)
+		{
+			if (!payload.contents[c].name.match(filePicker.folderRegExp) && payload.contents[c].type == 'directory')
+			{
+				returnArray.push({
+					name: payload.contents[c].name,
+					type: payload.contents[c].type,
+					location: dir + payload.contents[c].name
+				});
+			}
+		}
+	}
+	if (returnArray.length > 0)
+	{
+		returnArray.sort(function(a, b)
+		{
+			if (a.name && b.name)
+			{
+				strA = a.name.toLowerCase();
+				strB = b.name.toLowerCase();
+				return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
+			}
+			else
+			{
+				return -1;
+			}
+		});
+	}
+	callback(returnArray, dir);
 }
 
 filePicker.prototype.ok = function(value)
