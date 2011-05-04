@@ -769,7 +769,7 @@ bool update_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
-static bool read_file(LSMessage *message, char *filename, bool subscribed) {
+static bool read_file(LSMessage *message, char *filename) {
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -792,17 +792,12 @@ static bool read_file(LSMessage *message, char *filename, bool subscribed) {
   int filesize = ftell(file);
   fseek(file, 0, SEEK_SET);
 
-  if (subscribed) {
-    if (sprintf(read_file_buffer,
-		"{\"returnValue\": true, \"filesize\": %d, \"chunksize\": %d, \"stage\": \"start\"}",
-		filesize, chunksize)) {
+  if (sprintf(read_file_buffer,
+	      "{\"returnValue\": true, \"filesize\": %d, \"chunksize\": %d, \"stage\": \"start\"}",
+	      filesize, chunksize)) {
 
-      if (!LSMessageRespond(message, read_file_buffer, &lserror)) goto error;
+    if (!LSMessageRespond(message, read_file_buffer, &lserror)) goto error;
 
-    }
-  }
-  else if (filesize < chunksize) {
-    chunksize = filesize;
   }
 
   int size;
@@ -812,23 +807,17 @@ static bool read_file(LSMessage *message, char *filename, bool subscribed) {
     chunk[size] = '\0';
     sprintf(read_file_buffer, "{\"returnValue\": true, \"size\": %d, \"contents\": \"", size);
     strcat(read_file_buffer, json_escape_str(chunk));
-    strcat(read_file_buffer, "\"");
-    if (subscribed) {
-      strcat(read_file_buffer, ", \"stage\": \"middle\"");
-    }
-    strcat(read_file_buffer, "}");
+    strcat(read_file_buffer, "\", \"stage\": \"middle\"}");
 
     if (!LSMessageRespond(message, read_file_buffer, &lserror)) goto error;
 
   }
 
   if (!fclose(file)) {
-    if (subscribed) {
-      sprintf(read_file_buffer, "{\"returnValue\": true, \"datasize\": %d, \"stage\": \"end\"}", datasize);
+    sprintf(read_file_buffer, "{\"returnValue\": true, \"datasize\": %d, \"stage\": \"end\"}", datasize);
 
-      if (!LSMessageRespond(message, read_file_buffer, &lserror)) goto error;
+    if (!LSMessageRespond(message, read_file_buffer, &lserror)) goto error;
 
-    }
   }
   else {
     sprintf(read_file_buffer, "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Cannot close file\"}");
@@ -864,7 +853,7 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   strcpy(filename, "/media/cryptofs/apps/usr/lib/ipkg/cache/");
   strcat(filename, id->child->text);
 
-  return read_file(message, filename, true);
+  return read_file(message, filename);
 
  error:
   LSErrorPrint(&lserror, stderr);
@@ -990,7 +979,7 @@ bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   strcat(filename, id->child->text);
   strcat(filename, ".control");
 
-  return read_file(message, filename, false);
+  return read_file(message, filename);
 
  error:
   LSErrorPrint(&lserror, stderr);
@@ -1003,7 +992,7 @@ bool get_status_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  return read_file(message, "/media/cryptofs/apps/usr/lib/ipkg/status", true);
+  return read_file(message, "/media/cryptofs/apps/usr/lib/ipkg/status");
 
  error:
   LSErrorPrint(&lserror, stderr);
@@ -1032,7 +1021,7 @@ bool get_appinfo_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   strcat(filename, id->child->text);
   strcat(filename, "/appinfo.json");
 
-  return read_file(message, filename, false);
+  return read_file(message, filename);
 
  error:
   LSErrorPrint(&lserror, stderr);

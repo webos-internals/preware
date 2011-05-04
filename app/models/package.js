@@ -69,7 +69,6 @@ function packageModel(infoString, infoObj)
 		{
 			this.type = 'Unknown';
 		}
-		
 	}
 	catch (e)
 	{
@@ -206,6 +205,7 @@ packageModel.prototype.infoLoad = function(info)
 			// parse json to object
 			try
 			{
+				//alert('parsing source '+this.pkg);
 				var sourceJson = JSON.parse(info.Source.replace(/\\'/g, "'")); //"
 			}
 			catch (e) 
@@ -371,7 +371,6 @@ packageModel.prototype.infoLoad = function(info)
 				}
 			}
 		}
-
 	}
 	catch (e)
 	{
@@ -613,98 +612,128 @@ packageModel.prototype.loadAppinfoFile = function(callback)
 {
 	this.subscription = IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bindAsEventListener(this, callback), this.pkg);
 };
+packageModel.prototype.loadAppinfoFileResponse = function(payload, callback)
+{
+	if (payload.returnValue === false) {
+		// hit control file
+		this.loadControlFile(callback);
+		return;
+	}
+
+	if (payload.stage == 'start') {
+		// at start we clear the old data to make sure its empty
+		this.rawData = '';
+	}
+	else if (payload.stage == 'middle') {
+		// in the middle, we append the data
+		if (payload.contents) {
+			this.rawData += payload.contents;
+		}
+	}
+	else if (payload.stage == 'end') {
+		// at end, we parse the data we've received this whole time
+		if (this.rawData != '') {
+			try {
+				//alert("parsing appinfo "+this.pkg);
+				var appInfo = JSON.parse(this.rawData);
+			}
+			catch (e) {
+				//alert("error in appinfo "+this.pkg);
+				Mojo.Log.logException(e, 'loadAppinfoFileResponse#parse: '+this.rawData);
+				var appInfo = {};
+			}
+		
+			if ((!this.type || this.type == '' || this.type == 'Unknown') && this.title == 'This is a webOS application.') {
+				// assume application if its unknown and has an appinfo
+				this.type = 'Application';
+			}
+			if ((!this.title || this.title == '' || this.title == 'This is a webOS application.')
+				&& appInfo.title) {
+				this.title = appInfo.title;
+			}
+			if (!this.icon || this.icon == '') {
+				this.iconImg.local = true;
+				if (appInfo.icon) {
+					this.icon = '../' + this.pkg + '/' + appInfo.icon;
+				}
+				else {
+					this.icon = '../' + this.pkg + '/icon.png';
+				}
+			}
+			if ((!this.maintainer || this.maintainer.length == 0
+				 || (this.maintainer.length == 1 && this.maintainer[0].name == 'N/A'))
+				&& appInfo.vendor) {
+				this.maintainer = [{name: appInfo.vendor, url: false}];
+			}
+		}
+	
+		// hit control file
+		this.loadControlFile(callback);
+	}
+};
 packageModel.prototype.loadControlFile = function(callback)
 {
 	this.subscription = IPKGService.getControlFile(this.loadControlFileResponse.bindAsEventListener(this, callback), this.pkg);
 };
-packageModel.prototype.loadAppinfoFileResponse = function(payload, callback)
-{
-	if (payload.contents) 
-	{
-		try
-		{
-			var appInfo = JSON.parse(payload.contents);
-		}
-		catch (e) 
-		{
-			Mojo.Log.logException(e, 'loadAppinfoFileResponse#parse: '+payload.contents);
-			var appInfo = {};
-		}
-		
-		if ((!this.type || this.type == '' || this.type == 'Unknown') && this.title == 'This is a webOS application.') 
-		{
-			// assume application if its unknown and has an appinfo
-			this.type = 'Application';
-		}
-		if ((!this.title || this.title == '' || this.title == 'This is a webOS application.')
-			&& appInfo.title)
-		{
-			this.title = appInfo.title;
-		}
-		if (!this.icon || this.icon == '')
-		{
-			this.iconImg.local = true;
-			if (appInfo.icon) 
-			{
-				this.icon = '../' + this.pkg + '/' + appInfo.icon;
-			}
-			else
-			{
-				this.icon = '../' + this.pkg + '/icon.png';
-			}
-		}
-		if ((!this.maintainer || this.maintainer.length == 0
-			|| (this.maintainer.length == 1 && this.maintainer[0].name == 'N/A'))
-			&& appInfo.vendor) 
-		{
-			this.maintainer = [{name: appInfo.vendor, url: false}];
-		}
-	}
-	
-	// hit control file
-	this.loadControlFile(callback);
-};
 packageModel.prototype.loadControlFileResponse = function(payload, callback)
 {
-	if (payload.contents) 
-	{
-		var data = payload.contents.split(/\n/);
-		var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
-		var info = 
-		{	// blank information
-			Architecture: '',
-			Section: '',
-			Package: '',
-			Depends: '',
-			Maintainer: '',
-			Version: '',
-			Description: '',
-			Source: ''
-		};
+	if (payload.returnValue === false) {
+		if (callback) callback();
+		return;
+	}
+
+	if (payload.stage == 'start') {
+		// at start we clear the old data to make sure its empty
+		this.rawData = '';
+	}
+	else if (payload.stage == 'middle') {
+		// in the middle, we append the data
+		if (payload.contents) {
+			this.rawData += payload.contents;
+		}
+	}
+	else if (payload.stage == 'end') {
+		// at end, we parse the data we've received this whole time
+		if (this.rawData != '') {
+			var data = this.rawData.split(/\n/);
+			var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
+			var info = 
+			{	// blank information
+				Architecture: '',
+				Section: '',
+				Package: '',
+				Depends: '',
+				Maintainer: '',
+				Version: '',
+				Description: '',
+				Source: ''
+			};
 		
-		for (var x = 0; x < data.length; x++) 
-		{
-			var match = lineRegExp.exec(data[x]);
-			if (match) 
-			{
-				if (match[1] && match[2]) 
-				{
-					info[match[1]] = match[2];
+			for (var x = 0; x < data.length; x++) {
+				var match = lineRegExp.exec(data[x]);
+				if (match) {
+					if (match[1] && match[2]) {
+						info[match[1]] = match[2];
+					}
 				}
+			}
+		
+			//alert('== = ==');
+			//for (var d in data) alert(d + ': ' + data[d]);
+			//alert('-- - --');
+			//for (var i in info) alert(i + ': ' + info[i]);
+		
+			try {
+				//alert("parsing control "+this.pkg);
+				this.infoLoad(info);
+			}
+			catch (e) {
+				//alert("error in control "+this.pkg);
+				Mojo.Log.logException(e, 'loadControlFileResponse#infoLoad: '+this.rawData);
 			}
 		}
 		
-		//alert('== = ==');
-		//for (var d in data) alert(d + ': ' + data[d]);
-		//alert('-- - --');
-		//for (var i in info) alert(i + ': ' + info[i]);
-		
-		this.infoLoad(info);
-	}
-	
-	if (callback) 
-	{
-		callback();
+		if (callback) callback();
 	}
 };
 

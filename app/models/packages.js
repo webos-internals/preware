@@ -415,17 +415,17 @@ packagesModel.prototype.parsePackage = function(rawData)
 		Mojo.Log.logException(e, 'packagesModel#parsePackage');
 	}
 };
-packagesModel.prototype.loadPackage = function(packageObj, url)
+packagesModel.prototype.loadPackage = function(infoObj, url)
 {
 	// Skip packages that are in the status file, but are not actually installed
-	if (packageObj.Status &&
-	    (packageObj.Status.include('not-installed') || packageObj.Status.include('deinstall'))) {
+	if (infoObj.Status &&
+	    (infoObj.Status.include('not-installed') || infoObj.Status.include('deinstall'))) {
 		//alert('+ 1');
 		return
 	}
 
 	// load the package from the info
-	var newPkg = new packageModel(packageObj);
+	var newPkg = new packageModel(infoObj);
 	
 	if (Mojo.Environment.DeviceInfo.platformVersion.match(/^[0-9:.-]+$/)) {
 		// Filter out apps with a minimum webos version that is greater then current
@@ -598,7 +598,7 @@ packagesModel.prototype.loadSavedGetOK = function(savedPackageList)
 		{
 			for (var p = 0; p < savedPackageList.length; p++)
 			{
-				var savedPkg = this.loadPackage(savedPackageList[p]);
+				var savedPkg = new packageModel(savedPackageList[p]);
 				if (savedPkg)
 				{
 					var pkgNum = this.packageInList(savedPkg.pkg);
@@ -1269,7 +1269,12 @@ packagesModel.prototype.doMultiInstall = function(number)
 			}
 			else if (this.packages[this.multiPkgs[number]].isInstalled) 
 			{
-				if (this.can(this.packages[this.multiPkgs[number]].type, 'update')) 
+				if (!this.packages[this.multiPkgs[number]].location) {
+					alert('No location');
+					// see note above about this skipping if the type can't be updated
+					this.doMultiInstall(number+1);
+				}
+				else if (this.can(this.packages[this.multiPkgs[number]].type, 'update')) 
 				{
 					this.packages[this.multiPkgs[number]].doUpdate(this.assistant, number, true);
 				}
@@ -1283,7 +1288,14 @@ packagesModel.prototype.doMultiInstall = function(number)
 			}
 			else
 			{
-				this.packages[this.multiPkgs[number]].doInstall(this.assistant, number, true);
+				if (!this.packages[this.multiPkgs[number]].location) {
+					alert('No location');
+					// see note above about this skipping if the type can't be updated
+					this.doMultiInstall(number+1);
+				}
+				else {
+					this.packages[this.multiPkgs[number]].doInstall(this.assistant, number, true);
+				}
 			}
 		}
 		// call install for package
@@ -1295,7 +1307,12 @@ packagesModel.prototype.doMultiInstall = function(number)
 			}
 			else if (this.multiPkg.isInstalled) 
 			{
-				if (this.can(this.multiPkg.type, 'update')) 
+				if (!this.multiPkg.location) {
+					alert('No location');
+					// see note above about this skipping if the type can't be updated
+					this.doMultiInstall(number+1);
+				}
+				else if (this.can(this.multiPkg.type, 'update')) 
 				{
 					this.multiPkg.doUpdate(this.assistant, number, true);
 				}
@@ -1307,7 +1324,14 @@ packagesModel.prototype.doMultiInstall = function(number)
 			}
 			else
 			{
-				this.multiPkg.doInstall(this.assistant, number, true);
+				if (!this.multiPkg.location) {
+					alert('No location');
+					// see note above about this skipping if the type can't be updated
+					this.doMultiInstall(number+1);
+				}
+				else {
+					this.multiPkg.doInstall(this.assistant, number, true);
+				}
 			}
 		}
 		// end actions!
