@@ -377,13 +377,15 @@ packageModel.prototype.infoLoad = function(info)
 		Mojo.Log.logException(e, 'packageModel#infoLoad ('+this.pkg+')');
 	}
 };
+
 packageModel.prototype.infoLoadFromPkg = function(pkg)
 {
 	try
 	{
 		if ((!this.type || this.type == 'Unknown') && pkg.type) this.type = pkg.type;
 		// override the type
-		if (pkg.appCatalog || (pkg.type == "AppCatalog"))
+		if (this.appCatalog || (this.type == "AppCatalog") ||
+			pkg.appCatalog || (pkg.type == "AppCatalog"))
 		{
 		    this.type = "Application";
 		    this.appCatalog = true;

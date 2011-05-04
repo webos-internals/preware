@@ -10,6 +10,8 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.5.9', log: [ 'Fixed parse errors resulting from packages with very large descriptions',
+								  'Fixed problems with updates to app catalog apps' ] },
 	 {	 version: '1.5.8', log: [ 'Moved blacklisting to feed load to speed up listing',
 	 							  'Suggests a reload after changing the blacklist',
 	 							  'Fixed homebrew feed/catalog feed same appid bug' ] },

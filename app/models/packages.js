@@ -630,9 +630,9 @@ packagesModel.prototype.loadSavedDefault = function(callback)
 	{
 		for (var p = 0; p < this.packages.length; p++) {
 			if (this.packages[p].isInstalled && !this.packages[p].appCatalog) {
-				alert('Default ' + this.packages[p].pkg);
-				alert("isInstalled: " + this.packages[p].isInstalled);
-				alert("appCatalog: " + this.packages[p].appCatalog);
+				//alert('Default ' + this.packages[p].pkg);
+				//alert("isInstalled: " + this.packages[p].isInstalled);
+				//alert("appCatalog: " + this.packages[p].appCatalog);
 				this.packages[p].isInSavedList = true;
 			}
 			else {
