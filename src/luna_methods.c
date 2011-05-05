@@ -28,7 +28,7 @@
 
 #define ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-+_"
 
-#define API_VERSION "15"
+#define API_VERSION "16"
 
 //
 // We use static buffers instead of continually allocating and deallocating stuff,
@@ -870,6 +870,7 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
   const gchar *name = NULL;
   gchar **packages = NULL;
   gchar *package = NULL;
+  gchar *feedname = NULL;
   gchar *contents = NULL;
   gsize length;
   gboolean ret;
@@ -907,6 +908,7 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
       if (!bcmp(id->child->text, &packages[i][offset], len) &&
           (packages[i][offset + len] == '\n')) {
         package = packages[i];
+	asprintf(&feedname, "%s", name);
       }
       i++;
     }
@@ -926,8 +928,8 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
   }
 
   if (sprintf(read_file_buffer,
-	      "{\"returnValue\": true, \"filesize\": %d, \"chunksize\": %d, \"stage\": \"start\"}",
-	      strlen(package)+10, chunksize)) {
+	      "{\"returnValue\": true, \"feed\": \"%s\", \"filesize\": %d, \"chunksize\": %d, \"stage\": \"start\"}",
+	      feedname, strlen(package)+10, chunksize)) {
     if (!LSMessageRespond(message, read_file_buffer, &lserror)) goto error;
   }
 
@@ -949,6 +951,8 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
   sprintf(read_file_buffer, "{\"returnValue\": true, \"datasize\": %d, \"stage\": \"end\"}", datasize);
   if (!LSMessageRespond(message, read_file_buffer, &lserror)) goto error;
 
+  g_free(feedname);
+
   g_strfreev(packages);
   return true;
 
@@ -956,6 +960,7 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
   LSErrorPrint(&lserror, stderr);
   LSErrorFree(&lserror);
  end:
+  g_free(feedname);
   g_strfreev(packages);
   return false;
 }
