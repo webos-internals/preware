@@ -1,8 +1,8 @@
 {
 	"title": "Preware",
 	"id": "org.webosinternals.preware",
-	"version": "1.5.9",
-	"release_date":	"4-May-2011",
+	"version": "1.6.0",
+	"release_date":	"19-May-2011",
 	"vendor": "WebOS Internals",
 	"vendor_email":	"support@webos-internals.org",
 	"vendor_url": "http://www.webos-internals.org/wiki/Application:Preware",
@@ -14,7 +14,7 @@
 	"removable": "true",
 	"noWindow": true,
 	"noDeprecatedStyles" : true ,
-	"universalSearch":{
+	"universalSearch-disabled":{
 		"dbsearch" : {
 			"displayName":"Preware",
 			"url":"org.webosinternals.preware",

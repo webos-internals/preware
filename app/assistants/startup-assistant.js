@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.6.0', log: [ 'TBD' ] },
 	 {	 version: '1.5.9', log: [ 'Fixed parse errors resulting from packages with very large descriptions',
 								  'Fixed problems with updates to app catalog apps' ] },
 	 {	 version: '1.5.8', log: [ 'Moved blacklisting to feed load to speed up listing',
