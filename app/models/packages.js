@@ -836,7 +836,7 @@ packagesModel.prototype.doneLoading = function()
 		});
 	}
 	
-	if(this.updateAssistant.onlyLoad === false)
+	if(this.updateAssistant.onlyLoad === false && Mojo.Environment.DeviceInfo.platformVersionMajor != 1)
 	{
 		var db8 = new db8Storage(), justTypeObjs = [];
 		for (var i = 0; i < this.packages.length; i++)
