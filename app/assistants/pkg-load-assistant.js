@@ -38,7 +38,11 @@ PkgLoadAssistant.prototype.setup = function()
 	this.controller.get('spinnerStatus').innerHTML = $L("Starting");
 
 	// set theme because this can be the first scene pushed
-	this.controller.document.body.className = prefs.get().theme;
+	var deviceTheme = '';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
+		deviceTheme = ' small-device';
+    this.controller.document.body.className = prefs.get().theme + deviceTheme;
 	
 	// get elements
 	this.documentElement =			this.controller.stageController.document;

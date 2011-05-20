@@ -1,0 +1,21 @@
+/*
+ * Small devices, Pixi && Veer
+ */
+body.small-device .update #question
+{
+	margin-top: 96px;
+}
+body.small-device .update #spinner
+{
+	margin-top: 90px;
+}
+body.small-device .pkg-list #statusSpinner,
+body.small-device .pkg-connected #spinner
+{
+	margin-top: 95px;
+}
+body.small-device .pkg-install #spinner,
+body.small-device .pkg-view #spinner
+{
+	margin-top: 55px;
+}

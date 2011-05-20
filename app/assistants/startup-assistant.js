@@ -11,7 +11,8 @@ function StartupAssistant(changelog)
     this.newMessages =
 	[
 	 {	 version: '1.6.0', log: [ 'webOS 2.x Just Type integration',
-	 							  'Fixed package list ordering bug' ] },
+	 							  'Fixed package list ordering bug',
+								  'Layout fixes for Pixi/Veer' ] },
 	 {	 version: '1.5.9', log: [ 'Fixed parse errors resulting from packages with very large descriptions',
 								  'Fixed problems with updates to app catalog apps' ] },
 	 {	 version: '1.5.8', log: [ 'Moved blacklisting to feed load to speed up listing',
@@ -509,7 +510,11 @@ function StartupAssistant(changelog)
 StartupAssistant.prototype.setup = function()
 {
     // set theme because this can be the first scene pushed
-    this.controller.document.body.className = prefs.get().theme;
+	var deviceTheme = '';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
+		deviceTheme = ' small-device';
+    this.controller.document.body.className = prefs.get().theme + deviceTheme;
 	
     // get elements
     this.titleContainer = this.controller.get('title');
