@@ -28,9 +28,22 @@ feedsModel.prototype.loadFeeds = function(updateAssistant, callback)
 	}
 };
 
+feedsModel.prototype.getFeedUrl = function(name)
+{
+	if (name && this.feeds.length > 0)
+	{
+		for (var f = 0; f <= this.feeds.length; f++)
+		{
+			if (this.feeds[f].name == name) return this.feeds[f].url;
+		}
+	}
+	return false;
+}
+
 feedsModel.prototype.onConfigs = function(payload, callback)
 {
 	try {
+		
 		if (!payload) {
 			// i dont know if this will ever happen, but hey, it might
 			this.updateAssistant.errorMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your phone and try again."), this.updateAssistant.doneUpdating);
@@ -77,7 +90,7 @@ feedsModel.prototype.onConfigs = function(payload, callback)
 						return -1;
 					}
 				});
-
+			
 			if (callback) {
 				callback(this.feeds);
 			}

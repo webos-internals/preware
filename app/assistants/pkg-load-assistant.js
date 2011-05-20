@@ -17,7 +17,7 @@ function PkgLoadAssistant(pkg)
 	this.stayAwake = new stayAwake();
 	
 	// required ipkgservice
-	this.ipkgServiceVersion = 14;
+	this.ipkgServiceVersion = 16;
 	
 	// setup menu
 	this.menuModel =
@@ -88,8 +88,21 @@ PkgLoadAssistant.prototype.setup = function()
 	}
 	else
 	{
-		this.checkDeviceType();
+		this.loadFeeds();
 	}
+};
+
+PkgLoadAssistant.prototype.loadFeeds = function()
+{
+	// cancel the last subscription, this may not be needed
+	if (this.subscription)
+	{
+		this.subscription.cancel();
+	}
+	
+	// lets call the function to update the global list of pkgs
+	this.displayAction($L("<strong>Loading Package Information</strong>"));
+	feeds.loadFeeds(this, this.checkDeviceType.bind(this));
 };
 
 PkgLoadAssistant.prototype.checkDeviceType = function()
@@ -191,6 +204,7 @@ PkgLoadAssistant.prototype.loadPackageResponse = function(payload, pkg)
 		{
 			// at start we clear the old data to make sure its empty
 			this.rawData = '';
+			this.feedName = payload.feed
 		}
 		else if (payload.stage == 'middle')
 		{
@@ -210,6 +224,18 @@ PkgLoadAssistant.prototype.loadPackageResponse = function(payload, pkg)
 				//Mojo.Log.error('data:', data);
 				//for (var d in data) Mojo.Log.error(d+':', data[d]);
 				var tmpPackageModel = new packageModel(data);
+				
+				var feedUrl = feeds.getFeedUrl(this.feedName);
+				if (feedUrl)
+				{
+					tmpPackageModel.location = feedUrl + '/' + tmpPackageModel.filename;
+				}
+				else
+				{
+					this.displayAction($L("<strong>ERROR!</strong><br />Unknown feed?"));
+					return;
+				}
+				
 				if (tmpPackageModel)
 				{
 					//Mojo.Log.error('pm:', tmpPackageModel);

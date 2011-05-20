@@ -14,7 +14,7 @@
 	"removable": "true",
 	"noWindow": true,
 	"noDeprecatedStyles" : true ,
-	"universalSearch-disabled":{
+	"universalSearch":{
 		"dbsearch" : {
 			"displayName":"Preware",
 			"url":"org.webosinternals.preware",
