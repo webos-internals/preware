@@ -336,6 +336,13 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 				aTitle = a.title.toLowerCase();
 				bTitle = b.title.toLowerCase();
 				toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+				if (toReturn == 0)
+				{	// if the titles are also the exact same!
+					aId = a.pkg;
+					bId = b.pkg;
+					toReturn = ((aId < bId) ? -1 : ((aId > bId) ? 1 : 0));
+					// if its still 0 at this point, screw it
+				}
 			}
 			
 			return toReturn
@@ -358,6 +365,13 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 				aTitle = a.title.toLowerCase();
 				bTitle = b.title.toLowerCase();
 				toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+				if (toReturn == 0)
+				{	// if the titles are also the exact same!
+					aId = a.pkg;
+					bId = b.pkg;
+					toReturn = ((aId < bId) ? -1 : ((aId > bId) ? 1 : 0));
+					// if its still 0 at this point, screw it
+				}
 			}
 			
 			return toReturn
