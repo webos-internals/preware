@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.6.1', log: [ 'Added the clock themes feed (disabled by default)' ] },
 	 {	 version: '1.6.0', log: [ 'webOS 2.x Just Type integration',
 	 							  'Fixed package list ordering bug',
 								  'Layout fixes for Pixi/Veer' ] },

@@ -90,6 +90,9 @@ echo "src/gz precentral-themes http://ipkg.preware.org/feeds/precentral-themes" 
 # Install prethemer feed
 echo "src/gz prethemer http://www.prethemer.com/feeds/preware/themes" > $APPS/etc/ipkg/prethemer.conf.new
 
+# Install clock-themes feed
+echo "src/gz clock-themes http://webos-clock-themer.googlecode.com/svn/trunk/WebOS%20Clock%20Theme%20Builder/feed" > $APPS/etc/ipkg/clock-theme.conf.new
+
 # Install webosinternals feeds
 echo "src/gz webosinternals http://ipkg.preware.org/feeds/webos-internals/all" > $APPS/etc/ipkg/webos-internals.conf
 echo "src/gz webosinternals-`/bin/uname -m` http://ipkg.preware.org/feeds/webos-internals/`/bin/uname -m`" >> $APPS/etc/ipkg/webos-internals.conf
