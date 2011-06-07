@@ -75,14 +75,6 @@ echo "src/gz optware-`/bin/uname -m` http://ipkg.preware.org/feeds/optware/`/bin
 sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/optware.conf
 sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/optware.conf
 
-# Install palm-* feeds
-echo "src/gz palm-beta http://ipkg.preware.org/feeds/palm-beta" > $APPS/etc/ipkg/palm-beta.conf
-echo "src/gz palm-beta-updates http://ipkg.preware.org/feeds/palm-beta-updates" > $APPS/etc/ipkg/palm-beta-updates.conf
-echo "src/gz palm-catalog http://ipkg.preware.org/feeds/palm-catalog" > $APPS/etc/ipkg/palm-catalog.conf.new
-echo "src/gz palm-catalog-updates http://ipkg.preware.org/feeds/palm-catalog-updates" > $APPS/etc/ipkg/palm-catalog-updates.conf
-echo "src/gz palm-web http://ipkg.preware.org/feeds/palm-web" > $APPS/etc/ipkg/palm-web.conf
-echo "src/gz palm-web-updates http://ipkg.preware.org/feeds/palm-web-updates" > $APPS/etc/ipkg/palm-web-updates.conf
-
 # Install precentral feeds
 echo "src/gz precentral http://ipkg.preware.org/feeds/precentral" > $APPS/etc/ipkg/precentral.conf
 echo "src/gz precentral-themes http://ipkg.preware.org/feeds/precentral-themes" > $APPS/etc/ipkg/precentral-themes.conf.new
