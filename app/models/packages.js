@@ -603,7 +603,7 @@ packagesModel.prototype.loadSavedGetOK = function(savedPackageList)
 				{
 					var pkgNum = this.packageInList(savedPkg.pkg);
 					var gblPkg = this.packages[pkgNum];
-					if (!gblPkg.appCatalog)
+					if (gblPkg && !gblPkg.appCatalog)
 					{
 						gblPkg.isInSavedList = true;
 					}

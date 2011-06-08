@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.6.4', log: [ 'Fixed a problem when loading the saved packages list' ] },
 	 {	 version: '1.6.3', log: [ 'WebOS Internals has been formally notified by Richard Kerris (HP Vice President of Worldwide Developer Relations) that open access to the webOS app catalog feed (including the beta and web feeds) is no longer available to third party developers or applications. Please direct any questions about this decision (which is final and permanent) to HP, not to WebOS Internals.',
 								  'Removed all HP webOS app catalog feeds from new installations of Preware' ] },
 	 {	 version: '1.6.2', log: [ 'Added the clock themes feed (disabled by default)' ] },
