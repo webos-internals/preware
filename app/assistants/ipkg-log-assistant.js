@@ -22,6 +22,11 @@ IpkgLogAssistant.prototype.setup = function()
 {
 	this.controller.get('log-title').innerHTML = $L("IPKG Log");
 
+	// setup back tap
+	this.backElement = this.controller.get('log-title');
+	this.backTapHandler = this.backTap.bindAsEventListener(this);
+	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
+
 	if (IPKGService.log == '') 
 	{
 		this.controller.get('logData').innerHTML = $L("<div class=\"noData\">The log is empty.</div>");
@@ -58,6 +63,12 @@ IpkgLogAssistant.prototype.handleWindowResize = function(event)
 {
 	this.controller.get('logScroller').style.height = this.controller.stageController.window.innerHeight + 'px';
 };
+
+IpkgLogAssistant.prototype.backTap = function(event)
+{
+	this.controller.stageController.popScene();
+};
+
 IpkgLogAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
@@ -108,6 +119,7 @@ IpkgLogAssistant.prototype.deactivate = function(event) {};
 IpkgLogAssistant.prototype.cleanup = function(event)
 {
 	this.controller.stopListening(this.controller.stageController.window, 'resize', this.windowResizeHandler);
+	this.controller.stopListening(this.backElement, Mojo.Event.tap, this.backTapHandler);
 };
 
 // Local Variables:

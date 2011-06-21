@@ -51,6 +51,11 @@ PkgConnectedAssistant.prototype.setup = function()
 	// hide this by default
 	this.controller.get('pkgSingle').style.display = 'none';
 	
+	// setup back tap
+	this.backElement = this.controller.get('pkgConnectedHeader');
+	this.backTapHandler = this.backTap.bindAsEventListener(this);
+	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
+
 	// set title
 	if (this.type == 'install')	this.controller.get('listTitle').innerHTML = $L("Packages To Be Installed / Updated");
 	else if (this.type == 'remove') this.controller.get('listTitle').innerHTML = $L("Packages That Depend On This");
@@ -196,6 +201,14 @@ PkgConnectedAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 	}
 };
+
+PkgConnectedAssistant.prototype.backTap = function(event)
+{
+	if (!this.active) {
+		this.controller.stageController.popScene();
+	}
+};
+
 PkgConnectedAssistant.prototype.handleCommand = function(event)
 {
 	if(event.type == Mojo.Event.back)
@@ -321,7 +334,9 @@ PkgConnectedAssistant.prototype.actionMessage = function(message, choices, actio
 /* end functions called by the package model */
 
 PkgConnectedAssistant.prototype.deactivate = function(event) {};
-PkgConnectedAssistant.prototype.cleanup = function(event) {};
+PkgConnectedAssistant.prototype.cleanup = function(event) {
+	this.controller.stopListening(this.backElement, Mojo.Event.tap, this.backTapHandler);
+};
 
 // Local Variables:
 // tab-width: 4

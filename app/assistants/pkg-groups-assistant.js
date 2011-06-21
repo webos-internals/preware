@@ -60,6 +60,11 @@ PkgGroupsAssistant.prototype.setup = function()
 	// handlers
 	this.listTapHandler =	this.listTap.bindAsEventListener(this);
 	
+	// setup back tap
+	this.backElement = this.controller.get('pkgGroupsHeader');
+	this.backTapHandler = this.backTap.bindAsEventListener(this);
+	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
+
 	// setup list title
 	this.titleElement.innerHTML = this.item.name;
 	
@@ -270,6 +275,12 @@ PkgGroupsAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 	}
 };
+
+PkgGroupsAssistant.prototype.backTap = function(event)
+{
+	this.controller.stageController.popScene();
+};
+
 PkgGroupsAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
@@ -339,6 +350,7 @@ PkgGroupsAssistant.prototype.alertMessage = function(message)
 PkgGroupsAssistant.prototype.cleanup = function(event)
 {
 	this.controller.stopListening(this.listElement, Mojo.Event.listTap, this.listTapHandler);
+	this.controller.stopListening(this.backElement, Mojo.Event.tap, this.backTapHandler);
 };
 
 // Local Variables:

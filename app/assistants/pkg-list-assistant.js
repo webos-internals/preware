@@ -130,6 +130,11 @@ PkgListAssistant.prototype.setup = function()
 		this.keyHandler =			this.keyTest.bindAsEventListener(this);
 		this.searchFunction =		this.filter.bind(this);
 		
+		// setup back tap
+		this.backElement = this.controller.get('listTitle');
+		this.backTapHandler = this.backTap.bindAsEventListener(this);
+		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
+
 		// setup list title
 		this.titleElement.innerHTML = this.item.name;
 		
@@ -670,7 +675,15 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		// show the menu
 		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 	}
-}	
+};
+
+PkgListAssistant.prototype.backTap = function(event)
+{
+	if (!this.active) {
+		this.controller.stageController.popScene();
+	}
+};
+
 PkgListAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
@@ -946,6 +959,7 @@ PkgListAssistant.prototype.cleanup = function(event)
 	this.controller.stopListening(this.listElement,				Mojo.Event.listDelete, 		this.listSwipeHandler);
 	this.controller.stopListening(this.listElement,				Mojo.Event.propertyChanged, this.pkgCheckedHandler);
 	this.controller.stopListening(this.groupSourceElement,		Mojo.Event.tap,				this.menuTapHandler);
+	this.controller.stopListening(this.backElement,				Mojo.Event.tap,				this.backTapHandler);
 };
 
 // Local Variables:

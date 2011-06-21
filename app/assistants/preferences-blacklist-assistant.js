@@ -37,6 +37,11 @@ PreferencesBlacklistAssistant.prototype.setup = function()
 		// setup menu
 		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 		
+		// setup icon
+		this.iconElement = this.controller.get('icon');
+		this.iconTapHandler = this.iconTap.bindAsEventListener(this);
+		this.controller.listen(this.iconElement, Mojo.Event.tap, this.iconTapHandler);
+
 		if (this.index === false) this.controller.get('header').update($L('Add Blacklist'));
 		else this.controller.get('header').update($L('Edit Blacklist'));
 		
@@ -170,6 +175,11 @@ PreferencesBlacklistAssistant.prototype.doneSaving = function()
 	this.controller.stageController.popScene();
 }
 
+PreferencesBlacklistAssistant.prototype.iconTap = function(event)
+{
+	this.controller.stageController.popScene();
+};
+
 PreferencesBlacklistAssistant.prototype.handleCommand = function(event)
 {
 	if (event.type == Mojo.Event.command)
@@ -204,6 +214,9 @@ PreferencesBlacklistAssistant.prototype.cleanup = function(event)
 		Mojo.Event.stopListening(this.searchElement, Mojo.Event.propertyChange, this.textChanged);
 		Mojo.Event.stopListening(this.saveButtonElement, Mojo.Event.tap, this.saveButtonPressed);
 	}
+
+	this.controller.stopListening(this.iconElement,  Mojo.Event.tap,
+								  this.iconTapHandler);
 };
 
 // Local Variables:

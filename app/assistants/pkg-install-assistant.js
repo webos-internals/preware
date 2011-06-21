@@ -51,7 +51,11 @@ PkgInstallAssistant.prototype.setup = function()
 	this.spinnerModel = {spinning: false};
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
 	
-	
+	// setup icon
+	this.iconElement = this.controller.get('icon');
+	this.iconTapHandler = this.iconTap.bindAsEventListener(this);
+	this.controller.listen(this.iconElement, Mojo.Event.tap, this.iconTapHandler);
+
 	this.fileElement =			this.controller.get('file');
 	this.browseButtonElement =	this.controller.get('browseButton');
 	this.infoButtonElement =	this.controller.get('infoButton');
@@ -223,6 +227,13 @@ PkgInstallAssistant.prototype.doCheckAppCatInstalls = function(response)
     }
 };
 
+PkgInstallAssistant.prototype.iconTap = function(event)
+{
+	if (!this.active) {
+		this.controller.stageController.popScene();
+	}
+};
+
 PkgInstallAssistant.prototype.handleCommand = function(event)
 {
 	if(event.type == Mojo.Event.back)
@@ -326,14 +337,7 @@ PkgInstallAssistant.prototype.actionMessage = function(message, choices, actions
 
 PkgInstallAssistant.prototype.cleanup = function(event)
 {
-	try
-	{
-		
-	}
-	catch(e)
-	{
-		Mojo.Log.logException(e, 'pkg-install#cleanup');
-	}
+	this.controller.stopListening(this.iconElement,  Mojo.Event.tap, this.iconTapHandler);
 };
 
 // Local Variables:

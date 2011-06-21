@@ -56,6 +56,10 @@ PkgViewAssistant.prototype.setup = function()
 		this.updateCommandMenu(true);
 		this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
 		
+		this.backElement = this.controller.get('back');
+		this.backTapHandler = this.backTap.bindAsEventListener(this);
+		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
+
 		// setup PkgViewAssistant title and icon
 		this.controller.get('title').innerHTML = this.item.title;
 		this.item.iconFill(this.controller.get('icon'));
@@ -359,6 +363,14 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 	}
 };
+
+PkgViewAssistant.prototype.backTap = function(event)
+{
+	if (!this.active) {
+		this.controller.stageController.popScene();
+	}
+};
+
 PkgViewAssistant.prototype.handleCommand = function(event)
 {
 	if(event.type == Mojo.Event.back)
@@ -581,6 +593,9 @@ PkgViewAssistant.prototype.cleanup = function(event)
 			this.item.subscription.cancel();
 		}
 		
+		this.controller.stopListening(this.backElement,  Mojo.Event.tap,
+									  this.backTapHandler);
+
 		if (packages.can(this.item.type, 'showScreenshots') && this.item.screenshots.length > 0) 
 		{
 			// looping screenshots destroying listeners

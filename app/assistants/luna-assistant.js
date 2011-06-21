@@ -9,6 +9,12 @@ LunaAssistant.prototype.setup = function()
 		this.controller.get('rescan-text').innerHTML = $L("Due to a webOS bug, this will close and stop notifications from the phone, email and messaging applications when it rescans.");
 		this.controller.get('restart-luna-text').innerHTML = $L("This will close all the applications you have open when it restarts.");
 		this.controller.get('restart-java-text').innerHTML = $L("This will cause your phone to lose network connections and be pretty slow until it's done restarting.");
+
+		// setup back tap
+		this.backElement = this.controller.get('luna-title');
+		this.backTapHandler = this.backTap.bindAsEventListener(this);
+		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
+
 	try
 	{
 		this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, { visible: false });
@@ -149,6 +155,13 @@ LunaAssistant.prototype.alertMessage = function(title, message)
     });
 };
 
+LunaAssistant.prototype.backTap = function(event)
+{
+	if (!this.active) {
+		this.controller.stageController.popScene();
+	}
+};
+
 LunaAssistant.prototype.activate = function(event) {};
 LunaAssistant.prototype.deactivate = function(event) {};
 
@@ -157,6 +170,7 @@ LunaAssistant.prototype.cleanup = function(event)
 	this.controller.stopListening('Rescan',			Mojo.Event.tap, this.doRescan.bindAsEventListener(this));
 	this.controller.stopListening('RestartLuna',	Mojo.Event.tap, this.doRestartLuna.bindAsEventListener(this));
 	this.controller.stopListening('RestartJava',	Mojo.Event.tap, this.doRestartJava.bindAsEventListener(this));
+	this.controller.stopListening(this.backElement, Mojo.Event.tap, this.backTapHandler);
 };
 
 // Local Variables:
