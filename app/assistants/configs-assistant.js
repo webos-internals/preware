@@ -34,6 +34,14 @@ ConfigsAssistant.prototype.setup = function()
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
+	// setup icon
+	this.iconElement =			this.controller.get('icon');
+	this.iconTapHandler = this.iconTap.bindAsEventListener(this);
+	this.controller.listen(this.iconElement, Mojo.Event.tap, this.iconTapHandler);
+
+	// get elements
+	this.iconElement = this.controller.get('icon');
+
 	// set this scene's default transition
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
 	
@@ -359,6 +367,11 @@ ConfigsAssistant.prototype.newConfResponse = function(payload)
 	}
 };
 
+ConfigsAssistant.prototype.iconTap = function(event)
+{
+	this.controller.stageController.popScene();
+};
+
 ConfigsAssistant.prototype.headerButton = function(event)
 {
 	this.controller.stageController.swapScene({name: 'preferences', transition: Mojo.Transition.crossFade});
@@ -392,10 +405,12 @@ ConfigsAssistant.prototype.activate = function(event) {};
 ConfigsAssistant.prototype.deactivate = function(event) {};
 ConfigsAssistant.prototype.cleanup = function(event) {
 	// cancel the last subscription, this may not be needed
-	if (this.subscription)
-	{
+	if (this.subscription) {
 		this.subscription.cancel();
 	}
+
+	this.controller.stopListening(this.iconElement,  Mojo.Event.tap,
+								  this.iconTapHandler);
 };
 
 // Local Variables:

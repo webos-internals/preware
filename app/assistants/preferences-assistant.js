@@ -74,6 +74,11 @@ PreferencesAssistant.prototype.setup = function()
 		this.helpTap = this.helpRowTapped.bindAsEventListener(this);
 		this.controller.listen(this.controller.get('help-toggle'), Mojo.Event.tap, this.helpButtonTapped.bindAsEventListener(this));
 		
+		// setup icon
+		this.iconElement =			this.controller.get('icon');
+		this.iconTapHandler = this.iconTap.bindAsEventListener(this);
+		this.controller.listen(this.iconElement, Mojo.Event.tap, this.iconTapHandler);
+
 		// setup header button
 		this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
 		
@@ -610,6 +615,11 @@ PreferencesAssistant.prototype.helpRowTapped = function(event)
 	}
 }
 
+PreferencesAssistant.prototype.iconTap = function(event)
+{
+	this.controller.stageController.popScene();
+};
+
 PreferencesAssistant.prototype.headerButton = function(event)
 {
 	this.controller.stageController.swapScene({name: 'configs', transition: Mojo.Transition.crossFade});
@@ -677,7 +687,10 @@ PreferencesAssistant.prototype.deactivate = function(event)
 	var tmp = prefs.get(true);
 };
 
-PreferencesAssistant.prototype.cleanup = function(event) {};
+PreferencesAssistant.prototype.cleanup = function(event) {
+	this.controller.stopListening(this.iconElement,  Mojo.Event.tap,
+								  this.iconTapHandler);
+};
 
 // Local Variables:
 // tab-width: 4
