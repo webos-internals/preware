@@ -35,12 +35,9 @@ ConfigsAssistant.prototype.setup = function()
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
 	// setup icon
-	this.iconElement =			this.controller.get('icon');
+	this.iconElement = this.controller.get('icon');
 	this.iconTapHandler = this.iconTap.bindAsEventListener(this);
 	this.controller.listen(this.iconElement, Mojo.Event.tap, this.iconTapHandler);
-
-	// get elements
-	this.iconElement = this.controller.get('icon');
 
 	// set this scene's default transition
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);

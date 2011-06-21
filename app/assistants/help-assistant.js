@@ -5,6 +5,11 @@ function HelpAssistant()
 
 HelpAssistant.prototype.setup = function()
 {
+	// setup icon
+	this.iconElement = this.controller.get('icon');
+	this.iconTapHandler = this.iconTap.bindAsEventListener(this);
+	this.controller.listen(this.iconElement, Mojo.Event.tap, this.iconTapHandler);
+
 	this.controller.get('help-title').innerHTML = $L("Help");
 	this.controller.get('help-support').innerHTML = $L("Support");
 	
@@ -90,10 +95,16 @@ HelpAssistant.prototype.listTapHandler = function(event)
 	}
 };
 
+HelpAssistant.prototype.iconTap = function(event)
+{
+	this.controller.stageController.popScene();
+};
+
 HelpAssistant.prototype.activate = function(event) {};
 HelpAssistant.prototype.deactivate = function(event) {};
 HelpAssistant.prototype.cleanup = function(event)
 {
+	this.controller.stopListening(this.iconElement,  Mojo.Event.tap, this.iconTapHandler);
 	this.controller.stopListening('supportList', Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
 };
 
