@@ -1368,7 +1368,7 @@ bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
     /* Download the package */
 
     snprintf(command, MAXLINLEN,
-	     "/usr/bin/curl --create-dirs --insecure --location --fail --show-error --output %s %s 2>&1", pathname, url);
+	     "/usr/bin/curl --user-agent Preware --create-dirs --insecure --location --fail --show-error --output %s %s 2>&1", pathname, url);
 
     strcpy(run_command_buffer, "{\"stdOut\": [");
     if (run_command(command, message, downloadstats)) {
@@ -2019,7 +2019,7 @@ bool extract_control_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     /* Download the package */
 
     snprintf(command, MAXLINLEN,
-	     "/usr/bin/curl --create-dirs --insecure --location --fail --show-error --output %s %s 2>&1", filename, url);
+	     "/usr/bin/curl --user-agent Preware --create-dirs --insecure --location --fail --show-error --output %s %s 2>&1", filename, url);
 
     strcpy(run_command_buffer, "{\"stdOut\": [");
     if (run_command(command, message, downloadstats)) {
