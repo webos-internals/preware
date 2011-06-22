@@ -39,7 +39,13 @@ PkgInstallAssistant.prototype.setup = function()
 	this.controller.get('notice-text').innerHTML = $L("<b>Note:</b><br />If this package needs a luna restart or device restart after installation, you will need to manually perform it when the installation is complete.");
 
 	// set theme because this can be the first scene pushed
-	this.controller.document.body.className = prefs.get().theme;
+	var deviceTheme = '';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
+		deviceTheme += ' small-device';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
+		deviceTheme += ' no-gesture';
+	this.controller.document.body.className = prefs.get().theme + deviceTheme;
 	
 	// clear log so it only shows stuff from this scene
 	IPKGService.logClear();

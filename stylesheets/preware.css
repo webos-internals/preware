@@ -189,7 +189,7 @@ body.palm-dark .update .progress .progress-bar
 	width: 76px;
 	height: 75px;
 	background: url(../icon-search.png) center center no-repeat;
-	background: url(../icon.png) center center no-repeat;
+	background: url(../icon.png) center center no-repeat !important;
 }
 .main .filter-field-wrapper .icon
 {

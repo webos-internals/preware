@@ -19,3 +19,17 @@ body.small-device .pkg-view #spinner
 {
 	margin-top: 55px;
 }
+
+
+/*
+ * No gesture, TouchPad
+ */
+body.no-gesture
+{
+	
+}
+body.no-gesture .palm-page-header > .header-icon,
+body.no-gesture .palm-page-header .icon
+{
+  background: url(../images/ui-revision-2/back-flat.png) center center no-repeat;
+}

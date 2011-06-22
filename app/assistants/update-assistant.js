@@ -65,7 +65,9 @@ UpdateAssistant.prototype.setup = function()
 	var deviceTheme = '';
 	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
-		deviceTheme = ' small-device';
+		deviceTheme += ' small-device';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
+		deviceTheme += ' no-gesture';
 	this.controller.document.body.className = prefs.get().theme + deviceTheme;
 	
 	this.controller.get('update-question').innerHTML = $L("Update Feeds?");

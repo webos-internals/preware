@@ -520,6 +520,8 @@ StartupAssistant.prototype.setup = function()
 	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
 		deviceTheme = ' small-device';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
+		deviceTheme += ' no-gesture';
     this.controller.document.body.className = prefs.get().theme + deviceTheme;
 	
     // get elements
