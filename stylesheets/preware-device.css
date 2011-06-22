@@ -31,5 +31,38 @@ body.no-gesture
 body.no-gesture .palm-page-header > .header-icon,
 body.no-gesture .palm-page-header .icon
 {
-  background: url(../images/ui-revision-2/back-flat.png) center center no-repeat;
+	background-image: url(../images/ui-revision-2/back-flat.png);
+}
+
+
+body.no-gesture .palm-divider.labeled .right
+{
+	background-image: url(../images/ui-revision-2/palm-divider-line.png);
+}
+body.no-gesture.palm-dark .palm-divider.labeled .right
+{
+	background-image: url(../images/ui-revision-2/palm-divider-line-dark.png);
+}
+body.no-gesture.palm-dark.appcat .palm-divider.labeled .right
+{
+	background-image: url(../images/ui-revision-2/list-section-line.png);
+}
+
+body.no-gesture .palm-header .backPill
+{
+	position: absolute;
+	top: 9px;
+	left: -16px;
+	height: 33px;
+	width: 38px;
+	background: url(../images/ui-revision-2/back-pill.png) center center no-repeat;
+}
+body.no-gesture.palm-dark .palm-header .backPill
+{
+	background-image: url(../images/ui-revision-2/back-pill-dark.png);
+}
+
+body.no-gesture .pkg-view .palm-header #icon
+{
+	margin-left: 28px;
 }

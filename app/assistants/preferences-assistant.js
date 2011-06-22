@@ -490,7 +490,13 @@ PreferencesAssistant.prototype.listChanged = function(event)
 PreferencesAssistant.prototype.themeChanged = function(event)
 {
 	// set the theme right away with the body class
-	this.controller.document.body.className = event.value;
+	var deviceTheme = '';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
+		deviceTheme += ' small-device';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
+		deviceTheme += ' no-gesture';
+	this.controller.document.body.className = event.value + deviceTheme;
 	this.cookie.put(this.prefs);
 };
 PreferencesAssistant.prototype.toggleChanged = function(event)
