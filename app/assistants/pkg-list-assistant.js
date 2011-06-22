@@ -149,7 +149,10 @@ PkgListAssistant.prototype.setup = function()
 			else
 			{
 				// update submenu styles
-				this.headerElement.className = 'palm-header left';
+				if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
+					this.headerElement.className = 'palm-header';
+				else
+					this.headerElement.className = 'palm-header left';
 				this.groupSourceElement.style.display = 'inline';
 				
 				if (this.item.pkgGroup[0]		== 'types')			this.groupTitleElement.innerHTML = this.item.pkgType;
