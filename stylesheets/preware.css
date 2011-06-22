@@ -191,6 +191,10 @@ body.palm-dark .update .progress .progress-bar
 	background: url(../icon-search.png) center center no-repeat;
 	background: url(../icon.png) center center no-repeat !important;
 }
+.main .palm-page-header-wrapper .icon.birthday
+{
+	background-image: url(../images/birthday.png) !important;
+}
 .main .filter-field-wrapper .icon
 {
 	width: 76px;

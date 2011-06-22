@@ -72,6 +72,7 @@ MainAssistant.prototype.setup = function()
 	this.searchContainer =	this.controller.get('searchContainer');
 	this.searchWidget =		this.controller.get('searchWidget');
 	this.headerContainer =	this.controller.get('headerContainer');
+	this.iconElement =		this.controller.get('icon');
 	this.titleElement =		this.controller.get('main-title');
 	this.versionElement =	this.controller.get('version');
 	this.subTitleElement =	this.controller.get('subTitle');
@@ -87,6 +88,28 @@ MainAssistant.prototype.setup = function()
 	this.titleElement.innerHTML = Mojo.Controller.appInfo.title;
 	this.versionElement.innerHTML = "v" + Mojo.Controller.appInfo.version;
 	this.subTitleElement.innerHTML = this.getRandomSubTitle();
+	
+	// birthday check
+	var date  = new Date();
+	var day   = date.getDate();
+	var month = date.getMonth() + 1;
+	if (day == 20 && month == 8)
+	{
+		this.iconElement.className = 'icon birthday'; 
+		this.subTitleElement.innerHTML = $L("Happy Birthday to me!");
+		var r = new Mojo.Service.Request
+		(
+			'palm://com.palm.applicationManager',
+			{
+				method: 'updateLaunchPointIcon',
+				parameters:
+				{
+					launchPointId:	Mojo.appInfo.id + '_default',
+					icon:			Mojo.appPath + 'images/birthday.png'
+				}
+			}
+		);
+	}
 	
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
