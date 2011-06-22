@@ -8,6 +8,11 @@ ScreenshotsAssistant.prototype.setup = function()
 {
 	try
 	{
+		// setup back tap
+		this.backElement = this.controller.get('back');
+		this.backTapHandler = this.backTap.bindAsEventListener(this);
+		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
+		
 		this.controller.setupWidget
 		(
 			'screenshotView',
@@ -171,7 +176,15 @@ ScreenshotsAssistant.prototype.deactivate = function(event)
 	}
 };
 
-ScreenshotsAssistant.prototype.cleanup = function(event) {};
+ScreenshotsAssistant.prototype.backTap = function(event)
+{
+	this.controller.stageController.popScene();
+};
+
+ScreenshotsAssistant.prototype.cleanup = function(event)
+{
+	this.controller.stopListening(this.backElement,				Mojo.Event.tap,				this.backTapHandler);
+};
 
 // Local Variables:
 // tab-width: 4

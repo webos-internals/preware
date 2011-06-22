@@ -62,6 +62,17 @@ body.no-gesture.palm-dark .palm-header .backPill
 	background-image: url(../images/ui-revision-2/back-pill-dark.png);
 }
 
+body.no-gesture .ss-scene .ss-back
+{
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 50px;
+	height: 50px;
+	z-index: 2000;
+	background: url(../images/ui-revision-2/back-ss.png) center center no-repeat;
+}
+
 body.no-gesture .pkg-view .palm-header #icon
 {
 	margin-left: 28px;
