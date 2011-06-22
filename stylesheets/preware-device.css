@@ -77,3 +77,46 @@ body.no-gesture .pkg-view .palm-header #icon
 {
 	margin-left: 28px;
 }
+
+body.no-gesture .main .searchButton
+{
+	position: absolute;
+	top: 11px;
+	right: 6px;
+	width: 50px;
+	height: 50px;
+	background: url(../images/ui-revision-2/search-main.png) center center no-repeat;
+}
+body.no-gesture .pkg-list #searchText
+{
+	padding-left: 33px;
+}
+body.no-gesture .pkg-list .searchBack
+{
+	display: none;
+	position: absolute;
+	top: 5px;
+	left: 9px;
+	width: 40px;
+	height: 40px;
+	z-index: 200000;
+	background: url(../images/ui-revision-2/search-list.png) center center no-repeat;
+}
+body.no-gesture .pkg-list .searchPill
+{
+	position: relative;
+	float: right;
+	height: 36px;
+	width: 35px;
+	margin-top: 7px;
+	margin-right: -16px;
+	background: url(../images/ui-revision-2/search-pill.png) center center no-repeat;
+}
+body.no-gesture.palm-dark .pkg-list .searchPill
+{
+	background-image: url(../images/ui-revision-2/search-pill-dark.png);
+}
+body.no-gesture .pkg-list .group-source
+{
+	margin-left: 20px;
+}

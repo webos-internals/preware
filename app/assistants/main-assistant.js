@@ -77,8 +77,10 @@ MainAssistant.prototype.setup = function()
 	this.versionElement =	this.controller.get('version');
 	this.subTitleElement =	this.controller.get('subTitle');
 	this.listElement =		this.controller.get('mainList');
+	this.searchButton =		this.controller.get('searchButton');
 	
 	// handlers
+	this.searchButtonHandler =		this.searchButtonPressed.bindAsEventListener(this);
 	this.searchKeyHandler =			this.searchKey.bindAsEventListener(this);
 	this.generalKeyHandler =		this.generalKey.bindAsEventListener(this);
 	this.listTapHandler =			this.listTap.bindAsEventListener(this);
@@ -131,6 +133,7 @@ MainAssistant.prototype.setup = function()
 		}, 
 		this.searchModel
 	);
+	this.controller.listen(this.searchButton, Mojo.Event.tap, this.searchButtonHandler);
 	this.controller.listen(this.searchWidget, Mojo.Event.propertyChange, this.searchKeyHandler);
 	this.controller.listen(this.searchWidget, "keydown", this.searchKeyHandler);
 	this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.generalKeyHandler);
@@ -202,6 +205,17 @@ MainAssistant.prototype.soiledPackagesResponse = function(value)
 	{
 		packages.soiledPackages = false;
 	}
+};
+
+MainAssistant.prototype.searchButtonPressed = function(event)
+{
+	event.stop();
+	// display and focus search field
+	this.headerContainer.style.display = 'none';
+	this.searchContainer.style.display = '';
+	this.controller.sceneScroller.mojo.revealTop(this.searchContainer);
+	this.controller.listen(this.searchElement, 'blur', this.searchElementLoseFocus);
+	this.searchWidget.mojo.focus();
 };
 
 MainAssistant.prototype.generalKey = function(event)

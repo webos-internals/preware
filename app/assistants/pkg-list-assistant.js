@@ -120,20 +120,24 @@ PkgListAssistant.prototype.setup = function()
 		this.groupSourceElement =	this.controller.get('groupSource');
 		this.searchCountElement =	this.controller.get('searchCountElement');
 		this.searchCount =			this.controller.get('searchCount');
+		this.searchButtonElement =	this.controller.get('searchButton');
 		
 		// handlers
 		this.listTapHandler =		this.listTap.bindAsEventListener(this);
 		this.listSwipeHandler =		this.listSwipe.bindAsEventListener(this);
 		this.pkgCheckedHandler =	this.pkgChecked.bindAsEventListener(this);
 		this.menuTapHandler =		this.menuTap.bindAsEventListener(this);
+		this.searchButtonHandler =	this.searchButtonPressed.bindAsEventListener(this);
 		this.filterDelayHandler =	this.filterDelay.bindAsEventListener(this);
 		this.keyHandler =			this.keyTest.bindAsEventListener(this);
 		this.searchFunction =		this.filter.bind(this);
 		
 		// setup back tap
 		this.backElement = this.controller.get('back');
+		this.searchBackElement = this.controller.get('searchBack');
 		this.backTapHandler = this.backTap.bindAsEventListener(this);
 		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
+		this.controller.listen(this.searchBackElement, Mojo.Event.tap, this.backTapHandler);
 
 		// setup list title
 		this.titleElement.innerHTML = this.item.name;
@@ -211,6 +215,9 @@ PkgListAssistant.prototype.setup = function()
 		// listen for type
 		this.controller.listen(this.searchElement, Mojo.Event.propertyChange, this.filterDelayHandler);
 		
+		// listen for button
+		this.controller.listen(this.searchButtonElement, Mojo.Event.tap, this.searchButtonHandler);
+		
 		// if there isnt already search text, start listening
 		if (this.searchText == '') 
 		{
@@ -222,6 +229,7 @@ PkgListAssistant.prototype.setup = function()
 			this.headerElement.style.display = 'none';
 			this.searchElement.style.display = 'inline';
 			this.searchCountElement.style.display = 'inline';
+			this.searchBackElement.style.display = 'inline';
 			//this.searchElement.mojo.setValue(this.searchText);
 		}
 		
@@ -399,6 +407,18 @@ PkgListAssistant.prototype.pkgChecked = function(event)
 	}
 };
 
+PkgListAssistant.prototype.searchButtonPressed = function(event)
+{
+	event.stop();
+	// display and focus search field
+	this.controller.stopListening(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
+	this.headerElement.style.display = 'none';
+	this.searchElement.style.display = 'inline';
+	this.searchCountElement.style.display = 'inline';
+	this.searchBackElement.style.display = 'inline';
+	this.searchElement.mojo.focus();
+};
+
 PkgListAssistant.prototype.keyTest = function(event)
 {
 	// if its a valid character
@@ -409,6 +429,7 @@ PkgListAssistant.prototype.keyTest = function(event)
 		this.headerElement.style.display = 'none';
 		this.searchElement.style.display = 'inline';
 		this.searchCountElement.style.display = 'inline';
+		this.searchBackElement.style.display = 'inline';
 		this.searchElement.mojo.focus();
 	}
 };
@@ -431,6 +452,7 @@ PkgListAssistant.prototype.filterDelay = function(event)
 		this.searchElement.mojo.blur();
 		this.searchElement.style.display = 'none';
 		this.searchCountElement.style.display = 'none';
+		this.searchBackElement.style.display = 'none';
 		this.headerElement.style.display = 'inline';
 		this.controller.listen(this.controller.sceneElement, Mojo.Event.keypress, this.keyHandler);
 		this.searchFunction();
