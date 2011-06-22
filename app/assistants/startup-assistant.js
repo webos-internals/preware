@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.6.6', log: [ 'Added more recognisable back buttons' ] },
 	 {	 version: '1.6.5', log: [ 'Now useable on devices without a back gesture (tap the top-left icon or top header text instead)',
 								  'Set the wget user-agent to Preware when retrieving indexes and packages' ] },
 	 {	 version: '1.6.4', log: [ 'Fixed a problem when loading the saved packages list' ] },
@@ -521,24 +522,25 @@ StartupAssistant.prototype.setup = function()
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
 		deviceTheme = ' small-device';
 	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
-		deviceTheme += ' no-gesture';
+		deviceTheme = ' no-gesture';
     this.controller.document.body.className = prefs.get().theme + deviceTheme;
 	
     // get elements
     this.titleContainer = this.controller.get('title');
     this.dataContainer =  this.controller.get('data');
+	this.backElement = this.controller.get('back');
 	
     // set title
 	if (this.justChangelog)
 	{
 		this.titleContainer.innerHTML = $L('Changelog');
 		// setup back tap
-		this.backElement = this.controller.get('back');
 		this.backTapHandler = this.backTap.bindAsEventListener(this);
 		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 	}
 	else
 	{
+		this.backElement.hide();
 	    if (vers.isFirst) 
 		{
 		    this.titleContainer.innerHTML = $L("Welcome To Preware");
