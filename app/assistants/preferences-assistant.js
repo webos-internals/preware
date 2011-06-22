@@ -623,7 +623,7 @@ PreferencesAssistant.prototype.helpRowTapped = function(event)
 
 PreferencesAssistant.prototype.iconTap = function(event)
 {
-	this.controller.stageController.popScene();
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
 };
 
 PreferencesAssistant.prototype.headerButton = function(event)
