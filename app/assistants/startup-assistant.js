@@ -532,6 +532,10 @@ StartupAssistant.prototype.setup = function()
 	if (this.justChangelog)
 	{
 		this.titleContainer.innerHTML = $L('Changelog');
+		// setup back tap
+		this.backElement = this.controller.get('back');
+		this.backTapHandler = this.backTap.bindAsEventListener(this);
+		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 	}
 	else
 	{
@@ -612,6 +616,14 @@ StartupAssistant.prototype.showContinue = function()
     // show the command menu
     this.controller.setMenuVisible(Mojo.Menu.commandMenu, true);
 };
+
+StartupAssistant.prototype.backTap = function(event)
+{
+    if (this.justChangelog) {
+		this.controller.stageController.popScene();
+    }
+};
+
 StartupAssistant.prototype.handleCommand = function(event)
 {
     if (event.type == Mojo.Event.command)
