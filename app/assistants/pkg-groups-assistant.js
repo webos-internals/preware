@@ -61,7 +61,7 @@ PkgGroupsAssistant.prototype.setup = function()
 	this.listTapHandler =	this.listTap.bindAsEventListener(this);
 	
 	// setup back tap
-	this.backElement = this.controller.get('pkgGroupsHeader');
+	this.backElement = this.controller.get('back');
 	this.backTapHandler = this.backTap.bindAsEventListener(this);
 	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 

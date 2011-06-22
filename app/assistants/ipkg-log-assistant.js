@@ -23,7 +23,7 @@ IpkgLogAssistant.prototype.setup = function()
 	this.controller.get('log-title').innerHTML = $L("IPKG Log");
 
 	// setup back tap
-	this.backElement = this.controller.get('log-title');
+	this.backElement = this.controller.get('back');
 	this.backTapHandler = this.backTap.bindAsEventListener(this);
 	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 

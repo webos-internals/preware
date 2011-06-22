@@ -52,7 +52,7 @@ PkgConnectedAssistant.prototype.setup = function()
 	this.controller.get('pkgSingle').style.display = 'none';
 	
 	// setup back tap
-	this.backElement = this.controller.get('pkgConnectedHeader');
+	this.backElement = this.controller.get('back');
 	this.backTapHandler = this.backTap.bindAsEventListener(this);
 	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 
