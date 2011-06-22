@@ -20,7 +20,7 @@ function IpkgLogAssistant()
 
 IpkgLogAssistant.prototype.setup = function()
 {
-	this.controller.get('log-title').innerHTML = $L("IPKG Log");
+	this.controller.get('title').innerHTML = $L("IPKG Log");
 
 	// setup back tap
 	this.backElement = this.controller.get('back');
