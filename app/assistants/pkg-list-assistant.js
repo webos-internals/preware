@@ -205,7 +205,8 @@ PkgListAssistant.prototype.setup = function()
 		{
 			focus: false,
 			autoFocus: false,
-			changeOnKeyPress: true
+			changeOnKeyPress: true,
+			textCase: Mojo.Widget.steModeLowerCase
 		};
 		this.searchModel = { value: this.searchText };
 		

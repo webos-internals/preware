@@ -120,3 +120,18 @@ body.no-gesture .pkg-list .group-source
 {
 	margin-left: 20px;
 }
+
+
+
+body.no-gesture .file-picker #folderHolder .folder
+{
+	width: 1025px;
+}
+body.no-gesture .file-picker .folder .palm-page-header
+{
+	width: 1024px;
+}
+body.no-gesture .file-picker #folderHolder .folder .palm-list
+{
+	width: 1024px;
+}

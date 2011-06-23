@@ -129,7 +129,8 @@ MainAssistant.prototype.setup = function()
 			requiresEnterKey: true,
 			changeOnKeyPress: true,
 			modifierState: Mojo.Widget.sentenceCase,
-			focusMode: Mojo.Widget.focusInsertMode
+			focusMode: Mojo.Widget.focusInsertMode,
+			textCase: Mojo.Widget.steModeLowerCase
 		}, 
 		this.searchModel
 	);

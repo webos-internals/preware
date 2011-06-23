@@ -32,11 +32,20 @@ function FilePickerAssistant(picker)
 	this.selected = false;
 	this.folderTree = [];
 	this.initialTree = 0;
+	
+	this.screenWidth = Mojo.Environment.DeviceInfo.screenWidth;
+	if (this.screenWidth > 800) this.animationDuration = .1;
 }
 FilePickerAssistant.prototype.setup = function()
 {
 	// set theme
-	this.controller.document.body.className = prefs.get().theme;
+	var deviceTheme = '';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
+		deviceTheme = ' small-device';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
+		deviceTheme = ' no-gesture';
+    this.controller.document.body.className = prefs.get().theme + deviceTheme;
 
 	this.picker.setAssistant(this);
 	
@@ -97,7 +106,7 @@ FilePickerAssistant.prototype.addFolder = function(folder, parent, initial)
 	var folderId = filePicker.parseFileStringForId(folder);
 	var prevFolderId = false;
 	
-	var html = Mojo.View.render({object: {folder: folderId, left: (initial?0:321), location: (this.picker.root ? folder : filePicker.parseFileString(folder))}, template: tpl});
+	var html = Mojo.View.render({object: {folder: folderId, left: (initial?0:(this.screenWidth+1)), location: (this.picker.root ? folder : filePicker.parseFileString(folder))}, template: tpl});
 	parent.insert({bottom: html});
 	this.folderTree.push(folder);
 	
@@ -126,13 +135,13 @@ FilePickerAssistant.prototype.addFolderPart2 = function(data, folderId, prevFold
 		    this.controller.get('folder' + prevFolderId),
 		    'left',
 		    'linear',
-			{from: 0, to: -321, duration: this.animationDuration}
+			{from: 0, to: 0-(this.screenWidth+1), duration: this.animationDuration}
 		);
 		Mojo.Animation.animateStyle(
 		    this.controller.get('folder' + folderId),
 		    'left',
 		    'linear',
-			{from: 321, to: 0, duration: this.animationDuration, currentValue: 321}
+			{from: (this.screenWidth+1), to: 0, duration: this.animationDuration, currentValue: (this.screenWidth+1)}
 		);
 	}
 }
@@ -169,14 +178,14 @@ FilePickerAssistant.prototype.back = function()
 		    this.controller.get('folder' + filePicker.parseFileStringForId(this.folderTree[this.folderTree.length-1])),
 		    'left',
 		    'linear',
-			{from: 0, to: 321, duration: this.animationDuration,
+			{from: 0, to: (this.screenWidth+1), duration: this.animationDuration,
 			onComplete: this.delFolder.bind(this)}
 		);
 		Mojo.Animation.animateStyle(
 		    this.controller.get('folder' + filePicker.parseFileStringForId(this.folderTree[this.folderTree.length-2])),
 		    'left',
 		    'linear',
-			{from: -321, to: 0, duration: this.animationDuration}
+			{from: 0-(this.screenWidth+1), to: 0, duration: this.animationDuration}
 		);
 	}
 }
