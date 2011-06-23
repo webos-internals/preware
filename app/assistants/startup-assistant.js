@@ -10,8 +10,8 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
-	 {	 version: '1.6.6', log: [ 'Added more recognisable back buttons' ] },
-	 {	 version: '1.6.5', log: [ 'Now useable on devices without a back gesture (tap the top-left icon or top header text instead)',
+	 {	 version: '1.6.6', log: [ 'Preware is now fully compatible with the TouchPad, using the full screen area' ] },
+	 {	 version: '1.6.5', log: [ 'Now useable on devices without a back gesture',
 								  'Set the wget user-agent to Preware when retrieving indexes and packages' ] },
 	 {	 version: '1.6.4', log: [ 'Fixed a problem when loading the saved packages list' ] },
 	 {	 version: '1.6.3', log: [ 'WebOS Internals has been formally notified by Richard Kerris (HP Vice President of Worldwide Developer Relations) that open access to the webOS app catalog feed (including the beta and web feeds) is no longer available to third party developers or applications. Please direct any questions about this decision (which is final and permanent) to HP, not to WebOS Internals.',
