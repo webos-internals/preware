@@ -157,9 +157,7 @@ LunaAssistant.prototype.alertMessage = function(title, message)
 
 LunaAssistant.prototype.backTap = function(event)
 {
-	if (!this.active) {
-		this.controller.stageController.popScene();
-	}
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
 };
 
 LunaAssistant.prototype.activate = function(event) {};

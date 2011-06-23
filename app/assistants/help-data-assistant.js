@@ -19,7 +19,7 @@ HelpDataAssistant.prototype.setup = function()
 
 HelpDataAssistant.prototype.iconTap = function(event)
 {
-	this.controller.stageController.popScene();
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
 };
 
 HelpDataAssistant.prototype.activate = function(event)

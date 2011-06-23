@@ -367,7 +367,7 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 PkgViewAssistant.prototype.backTap = function(event)
 {
 	if (!this.active) {
-		this.controller.stageController.popScene();
+		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
 	}
 };
 

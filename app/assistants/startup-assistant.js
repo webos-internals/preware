@@ -622,7 +622,7 @@ StartupAssistant.prototype.showContinue = function()
 StartupAssistant.prototype.backTap = function(event)
 {
     if (this.justChangelog) {
-		this.controller.stageController.popScene();
+		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
     }
 };
 

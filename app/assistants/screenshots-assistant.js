@@ -178,12 +178,12 @@ ScreenshotsAssistant.prototype.deactivate = function(event)
 
 ScreenshotsAssistant.prototype.backTap = function(event)
 {
-	this.controller.stageController.popScene();
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
 };
 
 ScreenshotsAssistant.prototype.cleanup = function(event)
 {
-	this.controller.stopListening(this.backElement,				Mojo.Event.tap,				this.backTapHandler);
+	this.controller.stopListening(this.backElement, Mojo.Event.tap, this.backTapHandler);
 };
 
 // Local Variables:

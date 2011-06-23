@@ -236,7 +236,7 @@ PkgInstallAssistant.prototype.doCheckAppCatInstalls = function(response)
 PkgInstallAssistant.prototype.iconTap = function(event)
 {
 	if (!this.active) {
-		this.controller.stageController.popScene();
+		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
 	}
 };
 

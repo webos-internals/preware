@@ -366,7 +366,7 @@ ConfigsAssistant.prototype.newConfResponse = function(payload)
 
 ConfigsAssistant.prototype.iconTap = function(event)
 {
-	this.controller.stageController.popScene();
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
 };
 
 ConfigsAssistant.prototype.headerButton = function(event)

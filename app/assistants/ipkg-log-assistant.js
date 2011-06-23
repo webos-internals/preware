@@ -66,7 +66,7 @@ IpkgLogAssistant.prototype.handleWindowResize = function(event)
 
 IpkgLogAssistant.prototype.backTap = function(event)
 {
-	this.controller.stageController.popScene();
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
 };
 
 IpkgLogAssistant.prototype.handleCommand = function(event)
