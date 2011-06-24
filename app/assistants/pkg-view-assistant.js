@@ -56,7 +56,12 @@ PkgViewAssistant.prototype.setup = function()
 		this.updateCommandMenu(true);
 		this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
 		
-		this.backElement = this.controller.get('back');
+		// setup back tap
+		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+			Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
+			this.backElement = this.controller.get('back');
+		else
+			this.backElement = this.controller.get('header');
 		this.backTapHandler = this.backTap.bindAsEventListener(this);
 		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 
@@ -367,7 +372,7 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 PkgViewAssistant.prototype.backTap = function(event)
 {
 	if (!this.active) {
-		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
+		this.controller.stageController.popScene();
 	}
 };
 
@@ -593,8 +598,7 @@ PkgViewAssistant.prototype.cleanup = function(event)
 			this.item.subscription.cancel();
 		}
 		
-		this.controller.stopListening(this.backElement,  Mojo.Event.tap,
-									  this.backTapHandler);
+		this.controller.stopListening(this.backElement,  Mojo.Event.tap, this.backTapHandler);
 
 		if (packages.can(this.item.type, 'showScreenshots') && this.item.screenshots.length > 0) 
 		{

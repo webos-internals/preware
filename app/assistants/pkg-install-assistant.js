@@ -43,7 +43,8 @@ PkgInstallAssistant.prototype.setup = function()
 	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
 		deviceTheme += ' small-device';
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
 		deviceTheme += ' no-gesture';
 	this.controller.document.body.className = prefs.get().theme + deviceTheme;
 	
@@ -57,10 +58,10 @@ PkgInstallAssistant.prototype.setup = function()
 	this.spinnerModel = {spinning: false};
 	this.controller.setupWidget('spinner', {spinnerSize: 'large'}, this.spinnerModel);
 	
-	// setup icon
-	this.iconElement = this.controller.get('icon');
-	this.iconTapHandler = this.iconTap.bindAsEventListener(this);
-	this.controller.listen(this.iconElement, Mojo.Event.tap, this.iconTapHandler);
+	// setup back tap
+	this.backElement = this.controller.get('icon');
+	this.backTapHandler = this.backTap.bindAsEventListener(this);
+	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 
 	this.fileElement =			this.controller.get('file');
 	this.browseButtonElement =	this.controller.get('browseButton');
@@ -233,10 +234,10 @@ PkgInstallAssistant.prototype.doCheckAppCatInstalls = function(response)
     }
 };
 
-PkgInstallAssistant.prototype.iconTap = function(event)
+PkgInstallAssistant.prototype.backTap = function(event)
 {
 	if (!this.active) {
-		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
+		this.controller.stageController.popScene();
 	}
 };
 
@@ -343,7 +344,7 @@ PkgInstallAssistant.prototype.actionMessage = function(message, choices, actions
 
 PkgInstallAssistant.prototype.cleanup = function(event)
 {
-	this.controller.stopListening(this.iconElement,  Mojo.Event.tap, this.iconTapHandler);
+	this.controller.stopListening(this.backElement,  Mojo.Event.tap, this.backTapHandler);
 };
 
 // Local Variables:

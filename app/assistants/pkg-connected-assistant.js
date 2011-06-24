@@ -52,7 +52,11 @@ PkgConnectedAssistant.prototype.setup = function()
 	this.controller.get('pkgSingle').style.display = 'none';
 	
 	// setup back tap
-	this.backElement = this.controller.get('back');
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
+		this.backElement = this.controller.get('back');
+	else
+		this.backElement = this.controller.get('header');
 	this.backTapHandler = this.backTap.bindAsEventListener(this);
 	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 
@@ -205,7 +209,7 @@ PkgConnectedAssistant.prototype.updateCommandMenu = function(skipUpdate)
 PkgConnectedAssistant.prototype.backTap = function(event)
 {
 	if (!this.active) {
-		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
+		this.controller.stageController.popScene();
 	}
 };
 
@@ -262,7 +266,7 @@ PkgConnectedAssistant.prototype.startAction = function()
 	this.controller.modelChanged(this.spinnerModel);
 	
 	// and to hide the data while we do the action
-	this.controller.get('pkgConnectedHeader').style.display = "none";
+	this.controller.get('header').style.display = "none";
 	this.controller.get('pkgSingle').style.display = "none";
 	this.controller.get('pkgSpacer').style.display = "none";
 	this.controller.get('pkgListContainer').style.display = "none";
@@ -290,7 +294,7 @@ PkgConnectedAssistant.prototype.endAction = function()
 	if (!this.simpleMessageUp) this.updateScene();
 	
 	// show the data
-	this.controller.get('pkgConnectedHeader').style.display = "inline";
+	this.controller.get('header').style.display = "inline";
 	this.controller.get('pkgSingle').style.display = "inline";
 	this.controller.get('pkgSpacer').style.display = "inline";
 	this.controller.get('pkgListContainer').style.display = "inline";

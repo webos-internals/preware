@@ -11,7 +11,11 @@ LunaAssistant.prototype.setup = function()
 		this.controller.get('restart-java-text').innerHTML = $L("This will cause your phone to lose network connections and be pretty slow until it's done restarting.");
 
 		// setup back tap
-		this.backElement = this.controller.get('back');
+		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+			Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
+			this.backElement = this.controller.get('back');
+		else
+			this.backElement = this.controller.get('header');
 		this.backTapHandler = this.backTap.bindAsEventListener(this);
 		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 
@@ -157,7 +161,7 @@ LunaAssistant.prototype.alertMessage = function(title, message)
 
 LunaAssistant.prototype.backTap = function(event)
 {
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
+	this.controller.stageController.popScene();
 };
 
 LunaAssistant.prototype.activate = function(event) {};

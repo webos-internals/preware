@@ -74,10 +74,10 @@ PreferencesAssistant.prototype.setup = function()
 		this.helpTap = this.helpRowTapped.bindAsEventListener(this);
 		this.controller.listen(this.controller.get('help-toggle'), Mojo.Event.tap, this.helpButtonTapped.bindAsEventListener(this));
 		
-		// setup icon
-		this.iconElement =			this.controller.get('icon');
-		this.iconTapHandler = this.iconTap.bindAsEventListener(this);
-		this.controller.listen(this.iconElement, Mojo.Event.tap, this.iconTapHandler);
+		// setup back tap
+		this.backElement =			this.controller.get('icon');
+		this.backTapHandler = this.backTap.bindAsEventListener(this);
+		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 
 		// setup header button
 		this.controller.listen('headerButton', Mojo.Event.tap, this.headerButton.bindAsEventListener(this));
@@ -494,7 +494,8 @@ PreferencesAssistant.prototype.themeChanged = function(event)
 	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
 		deviceTheme += ' small-device';
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
 		deviceTheme += ' no-gesture';
 	this.controller.document.body.className = event.value + deviceTheme;
 	this.cookie.put(this.prefs);
@@ -621,9 +622,9 @@ PreferencesAssistant.prototype.helpRowTapped = function(event)
 	}
 }
 
-PreferencesAssistant.prototype.iconTap = function(event)
+PreferencesAssistant.prototype.backTap = function(event)
 {
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
+	this.controller.stageController.popScene();
 };
 
 PreferencesAssistant.prototype.headerButton = function(event)
@@ -694,8 +695,7 @@ PreferencesAssistant.prototype.deactivate = function(event)
 };
 
 PreferencesAssistant.prototype.cleanup = function(event) {
-	this.controller.stopListening(this.iconElement,  Mojo.Event.tap,
-								  this.iconTapHandler);
+	this.controller.stopListening(this.backElement,  Mojo.Event.tap, this.backTapHandler);
 };
 
 // Local Variables:

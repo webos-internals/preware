@@ -34,10 +34,10 @@ ConfigsAssistant.prototype.setup = function()
 	// setup menu
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
-	// setup icon
-	this.iconElement = this.controller.get('icon');
-	this.iconTapHandler = this.iconTap.bindAsEventListener(this);
-	this.controller.listen(this.iconElement, Mojo.Event.tap, this.iconTapHandler);
+	// setup back tap
+	this.backElement = this.controller.get('icon');
+	this.backTapHandler = this.backTap.bindAsEventListener(this);
+	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 
 	// set this scene's default transition
 	this.controller.setDefaultTransition(Mojo.Transition.zoomFade);
@@ -364,9 +364,9 @@ ConfigsAssistant.prototype.newConfResponse = function(payload)
 	}
 };
 
-ConfigsAssistant.prototype.iconTap = function(event)
+ConfigsAssistant.prototype.backTap = function(event)
 {
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
+	this.controller.stageController.popScene();
 };
 
 ConfigsAssistant.prototype.headerButton = function(event)
@@ -406,8 +406,7 @@ ConfigsAssistant.prototype.cleanup = function(event) {
 		this.subscription.cancel();
 	}
 
-	this.controller.stopListening(this.iconElement,  Mojo.Event.tap,
-								  this.iconTapHandler);
+	this.controller.stopListening(this.backElement,  Mojo.Event.tap, this.backTapHandler);
 };
 
 // Local Variables:

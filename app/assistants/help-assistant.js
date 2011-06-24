@@ -5,10 +5,10 @@ function HelpAssistant()
 
 HelpAssistant.prototype.setup = function()
 {
-	// setup icon
-	this.iconElement = this.controller.get('icon');
-	this.iconTapHandler = this.iconTap.bindAsEventListener(this);
-	this.controller.listen(this.iconElement, Mojo.Event.tap, this.iconTapHandler);
+	// setup back tap
+	this.backElement = this.controller.get('icon');
+	this.backTapHandler = this.backTap.bindAsEventListener(this);
+	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 
 	this.controller.get('help-title').innerHTML = $L("Help");
 	this.controller.get('help-support').innerHTML = $L("Support");
@@ -95,16 +95,16 @@ HelpAssistant.prototype.listTapHandler = function(event)
 	}
 };
 
-HelpAssistant.prototype.iconTap = function(event)
+HelpAssistant.prototype.backTap = function(event)
 {
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
+	this.controller.stageController.popScene();
 };
 
 HelpAssistant.prototype.activate = function(event) {};
 HelpAssistant.prototype.deactivate = function(event) {};
 HelpAssistant.prototype.cleanup = function(event)
 {
-	this.controller.stopListening(this.iconElement,  Mojo.Event.tap, this.iconTapHandler);
+	this.controller.stopListening(this.backElement,  Mojo.Event.tap, this.backTapHandler);
 	this.controller.stopListening('supportList', Mojo.Event.listTap, this.listTapHandler.bindAsEventListener(this));
 };
 

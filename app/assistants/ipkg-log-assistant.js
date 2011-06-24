@@ -23,7 +23,12 @@ IpkgLogAssistant.prototype.setup = function()
 	this.controller.get('title').innerHTML = $L("IPKG Log");
 
 	// setup back tap
-	this.backElement = this.controller.get('back');
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
+		this.backElement = this.controller.get('back');
+	else
+		this.backElement = this.controller.get('header');
+
 	this.backTapHandler = this.backTap.bindAsEventListener(this);
 	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 
@@ -66,7 +71,7 @@ IpkgLogAssistant.prototype.handleWindowResize = function(event)
 
 IpkgLogAssistant.prototype.backTap = function(event)
 {
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
+	this.controller.stageController.popScene();
 };
 
 IpkgLogAssistant.prototype.handleCommand = function(event)

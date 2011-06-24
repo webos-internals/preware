@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.6.8', log: [ 'Enabled back tap on header for all devices' ] },
 	 {	 version: '1.6.7', log: [ 'Fixed full-screen formatting of ipkg log screen' ] },
 	 {	 version: '1.6.6', log: [ 'Preware is now fully compatible with the TouchPad, using the full screen area' ] },
 	 {	 version: '1.6.5', log: [ 'Now useable on devices without a back gesture',
@@ -521,15 +522,21 @@ StartupAssistant.prototype.setup = function()
 	var deviceTheme = '';
 	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
-		deviceTheme = ' small-device';
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
-		deviceTheme = ' no-gesture';
+		deviceTheme += ' small-device';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
+		deviceTheme += ' no-gesture';
     this.controller.document.body.className = prefs.get().theme + deviceTheme;
 	
     // get elements
     this.titleContainer = this.controller.get('title');
     this.dataContainer =  this.controller.get('data');
-	this.backElement = this.controller.get('back');
+
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
+		this.backElement = this.controller.get('back');
+	else
+		this.backElement = this.controller.get('header');
 	
     // set title
 	if (this.justChangelog)
@@ -541,7 +548,7 @@ StartupAssistant.prototype.setup = function()
 	}
 	else
 	{
-		this.backElement.hide();
+		this.controller.get('back').hide();
 	    if (vers.isFirst) 
 		{
 		    this.titleContainer.innerHTML = $L("Welcome To Preware");
@@ -599,8 +606,7 @@ StartupAssistant.prototype.setup = function()
     // setup menu
     this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	
-	if (!this.justChangelog)
-	{
+	if (!this.justChangelog) {
 	    // set command menu
 	    this.controller.setupWidget(Mojo.Menu.commandMenu, { menuClass: 'no-fade' }, this.cmdMenuModel);
 	}
@@ -611,8 +617,10 @@ StartupAssistant.prototype.setup = function()
 
 StartupAssistant.prototype.activate = function(event)
 {
-    // start continue button timer
-    this.timer = this.controller.window.setTimeout(this.showContinue.bind(this), 5 * 1000);
+	if (!this.justChangelog) {
+		// start continue button timer
+		this.timer = this.controller.window.setTimeout(this.showContinue.bind(this), 5 * 1000);
+	}
 };
 StartupAssistant.prototype.showContinue = function()
 {
@@ -623,7 +631,7 @@ StartupAssistant.prototype.showContinue = function()
 StartupAssistant.prototype.backTap = function(event)
 {
     if (this.justChangelog) {
-		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
+		this.controller.stageController.popScene();
     }
 };
 

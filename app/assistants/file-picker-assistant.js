@@ -41,15 +41,16 @@ FilePickerAssistant.prototype.setup = function()
 	// set theme
 	var deviceTheme = '';
 	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
-		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
-		deviceTheme = ' small-device';
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
-		deviceTheme = ' no-gesture';
-    this.controller.document.body.className = prefs.get().theme + deviceTheme;
+	    Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
+		deviceTheme += ' small-device';
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+	    Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
+		deviceTheme += ' no-gesture';
+	this.controller.document.body.className = prefs.get().theme + deviceTheme;
 
 	this.picker.setAssistant(this);
 	
-    this.flickHandler = this.flickHandler.bindAsEventListener(this);
+	this.flickHandler = this.flickHandler.bindAsEventListener(this);
 
 	this.controller.setupWidget(Mojo.Menu.appMenu, { omitDefaultItems: true }, this.menuModel);
 	

@@ -113,7 +113,7 @@ PkgListAssistant.prototype.setup = function()
 		
 		// get elements
 		this.titleElement =			this.controller.get('listTitle');
-		this.headerElement =		this.controller.get('pkgListHeader');
+		this.headerElement =		this.controller.get('header');
 		this.listElement =			this.controller.get('pkgList');
 		this.searchElement =		this.controller.get('searchText');
 		this.groupTitleElement =	this.controller.get('groupTitle');
@@ -133,7 +133,11 @@ PkgListAssistant.prototype.setup = function()
 		this.searchFunction =		this.filter.bind(this);
 		
 		// setup back tap
-		this.backElement = this.controller.get('back');
+		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+			Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
+			this.backElement = this.controller.get('back');
+		else
+			this.backElement = this.controller.get('listTitle');
 		this.searchBackElement = this.controller.get('searchBack');
 		this.backTapHandler = this.backTap.bindAsEventListener(this);
 		this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
@@ -153,10 +157,6 @@ PkgListAssistant.prototype.setup = function()
 			else
 			{
 				// update submenu styles
-				if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad')
-					this.headerElement.className = 'palm-header';
-				else
-					this.headerElement.className = 'palm-header left';
 				this.groupSourceElement.style.display = 'inline';
 				
 				if (this.item.pkgGroup[0]		== 'types')			this.groupTitleElement.innerHTML = this.item.pkgType;
@@ -706,7 +706,7 @@ PkgListAssistant.prototype.updateCommandMenu = function(skipUpdate)
 PkgListAssistant.prototype.backTap = function(event)
 {
 	if (!this.active) {
-		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') this.controller.stageController.popScene();
+		this.controller.stageController.popScene();
 	}
 };
 
