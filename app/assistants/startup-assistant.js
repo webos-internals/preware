@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.6.7', log: [ 'Fixed full-screen formatting of ipkg log screen' ] },
 	 {	 version: '1.6.6', log: [ 'Preware is now fully compatible with the TouchPad, using the full screen area' ] },
 	 {	 version: '1.6.5', log: [ 'Now useable on devices without a back gesture',
 								  'Set the wget user-agent to Preware when retrieving indexes and packages' ] },
