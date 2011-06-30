@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {   version: '1.7.0', log: [ 'Rolled up all the beta release features for a TouchPad-compatible public release' ] },
 	 {	 version: '1.6.8', log: [ 'Enabled back tap on header for all devices' ] },
 	 {	 version: '1.6.7', log: [ 'Fixed full-screen formatting of ipkg log screen' ] },
 	 {	 version: '1.6.6', log: [ 'Preware is now fully compatible with the TouchPad, using the full screen area' ] },
@@ -662,6 +663,12 @@ StartupAssistant.prototype.handleCommand = function(event)
 		break;
 		}
 	}
+};
+
+StartupAssistant.prototype.cleanup = function(event)
+{
+	if (this.justChangelog)
+		this.controller.stopListening(this.backElement,  Mojo.Event.tap, this.backTapHandler);
 };
 
 // Local Variables:

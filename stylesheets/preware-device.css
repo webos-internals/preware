@@ -99,7 +99,7 @@ body.no-gesture .pkg-list .searchBack
 	left: 9px;
 	width: 40px;
 	height: 40px;
-	z-index: 200000;
+	z-index: 20001;
 	background: url(../images/ui-revision-2/search-list.png) center center no-repeat;
 }
 body.no-gesture .pkg-list .searchPill
