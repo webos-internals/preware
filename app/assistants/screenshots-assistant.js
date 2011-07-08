@@ -8,6 +8,7 @@ ScreenshotsAssistant.prototype.setup = function()
 {
 	try
 	{
+		this.controller.window.onresize = this.handleOrientation.bind(this);
 		// setup back tap
 		this.backElement = this.controller.get('back');
 		this.backTapHandler = this.backTap.bindAsEventListener(this);
@@ -93,13 +94,13 @@ ScreenshotsAssistant.prototype.getSizeInfo = function(ss) {
 	img.src = ss;
 	img.onload = function() {
 		var ssRatio = img.height / img.width,
-			windowRatio = Mojo.Environment.DeviceInfo.screenHeight / Mojo.Environment.DeviceInfo.screenWidth,
+			windowRatio = this.controller.window.innerHeight / this.controller.window.innerWidth,
 			scaleWidth, scaleHeight;
 		if (ssRatio < windowRatio) {
-			scaleWidth = Mojo.Environment.DeviceInfo.screenWidth;
+			scaleWidth = this.controller.window.innerWidth;
 			scaleHeight = parseInt((scaleWidth * ssRatio), 10);
 		} else {
-			scaleHeight = Mojo.Environment.DeviceInfo.screenHeight;
+			scaleHeight = this.controller.window.innerHeight;
 			scaleWidth = parseInt((scaleHeight / ssRatio), 10);
 		}
 		this.controller.get('screenshotView').mojo.manualSize(scaleWidth,scaleHeight);
@@ -124,6 +125,14 @@ ScreenshotsAssistant.prototype.orientationChanged = function(orientation)
 };
 */
 
+ScreenshotsAssistant.prototype.handleOrientation = function(){
+	this.controller.get('ss-scene').style.height = this.controller.window.innerHeight + "px";
+	this.controller.get('ss-scene').style.width = this.controller.window.innerWidth + "px";
+	this.controller.get('screenshotView').style.height = this.controller.window.innerHeight + "px";
+	this.controller.get('screenshotView').style.width = this.controller.window.innerWidth + "px";
+	this.getSizeInfo(this.screenshots[this.current]);
+};
+
 ScreenshotsAssistant.prototype.activate = function(event)
 {
 	try
@@ -133,10 +142,13 @@ ScreenshotsAssistant.prototype.activate = function(event)
         	this.controller.stageController.setWindowOrientation("free");
     	}
     	*/
-
+		
+		/*
 		this.controller.get('ss-scene').style.width = Mojo.Environment.DeviceInfo.screenWidth + 'px';
 		this.controller.get('ss-scene').style.height = Mojo.Environment.DeviceInfo.screenHeight + 'px';
 		this.getSizeInfo(this.screenshots[this.current]);
+		*/
+		this.handleOrientation();
 
 		if (this.controller.window.PalmSystem)
 		{
