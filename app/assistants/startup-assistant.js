@@ -10,7 +10,8 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
-	 {   version: '1.7.1', log: [ 'Fix fullscreen screenshot resizing on touchpad rotate (courtesy of Appsotutely)' ] },
+	 {   version: '1.7.1', log: [ 'Fixed fullscreen screenshot resizing on touchpad rotate (courtesy of Appsotutely)',
+								  'Fixed dependent packages spinner location (courtesy of chpwn)' ] },
 	 {   version: '1.7.0', log: [ 'Rolled up all the beta release features for a TouchPad-compatible public release' ] },
 	 {	 version: '1.6.8', log: [ 'Enabled back tap on header for all devices' ] },
 	 {	 version: '1.6.7', log: [ 'Fixed full-screen formatting of ipkg log screen' ] },

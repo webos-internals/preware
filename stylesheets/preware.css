@@ -754,7 +754,7 @@ body.palm-dark .palm-connected #spinner #spinnerStatus
 	padding-top: 50px;
 	height: 110px;
 	z-index: 999;
-	width: 320px;
+	width: 100%;
 }
 .pkg-connected .palm-row-wrapper
 {
