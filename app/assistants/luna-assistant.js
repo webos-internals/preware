@@ -8,7 +8,7 @@ LunaAssistant.prototype.setup = function()
 		this.controller.get('title').innerHTML = $L("Luna Manager");	
 		this.controller.get('rescan-text').innerHTML = $L("Due to a webOS bug, this will close and stop notifications from the phone, email and messaging applications when it rescans.");
 		this.controller.get('restart-luna-text').innerHTML = $L("This will close all the applications you have open when it restarts.");
-		this.controller.get('restart-java-text').innerHTML = $L("This will cause your phone to lose network connections and be pretty slow until it's done restarting.");
+		this.controller.get('restart-java-text').innerHTML = $L("This will cause your device to lose network connections and be pretty slow until it's done restarting.");
 
 		// setup back tap
 		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
@@ -82,13 +82,13 @@ LunaAssistant.prototype.callbackFunction = function(payload, item)
 {
 	if (!payload) 
 	{
-		this.alertMessage('Luna Manager', $L("Cannot access the service. First try restarting Preware, or reboot your phone and try again."));
+		this.alertMessage('Luna Manager', $L("Cannot access the service. First try restarting Preware, or reboot your device and try again."));
 	}
 	else if (payload.errorCode == -1 && item != 'RestartJava') 
 	{
 		if (payload.errorText == "org.webosinternals.ipkgservice is not running.") 
 		{
-			this.alertMessage('Luna Manager', $L("The service is not running. First try restarting Preware, or reboot your phone and try again."));
+			this.alertMessage('Luna Manager', $L("The service is not running. First try restarting Preware, or reboot your device and try again."));
 		}
 		else 
 		{
@@ -99,7 +99,7 @@ LunaAssistant.prototype.callbackFunction = function(payload, item)
 	{
 		if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) 
 		{
-			this.alertMessage('Luna Manager', $L("The service version is too old. First try rebooting your phone, or reinstall Preware and try again."));
+			this.alertMessage('Luna Manager', $L("The service version is too old. First try rebooting your device, or reinstall Preware and try again."));
 		}
 	}
 	

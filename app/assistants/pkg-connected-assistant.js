@@ -280,7 +280,7 @@ PkgConnectedAssistant.prototype.displayAction = function(msg)
 };
 PkgConnectedAssistant.prototype.endAction = function()
 {
-	// we're done loading so let the phone sleep if it needs to
+	// we're done loading so let the device sleep if it needs to
 	this.stayAwake.end();
 	
 	// allow back gesture again

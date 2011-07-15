@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.7.2', log: [ 'Replaced the word phone with the word device in all messages' ] },
 	 {   version: '1.7.1', log: [ 'Fixed fullscreen screenshot resizing on touchpad rotate (courtesy of Appsotutely)',
 								  'Fixed dependent packages spinner location (courtesy of chpwn)' ] },
 	 {   version: '1.7.0', log: [ 'Rolled up all the beta release features for a TouchPad-compatible public release' ] },

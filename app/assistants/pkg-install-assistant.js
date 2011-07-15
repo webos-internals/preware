@@ -298,7 +298,7 @@ PkgInstallAssistant.prototype.displayAction = function(msg)
 };
 PkgInstallAssistant.prototype.endAction = function()
 {
-	// we're done loading so let the phone sleep if it needs to
+	// we're done loading so let the device sleep if it needs to
 	this.stayAwake.end();
 	
 	// let garbage collection of the service call happen

@@ -215,7 +215,7 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	this.stayAwake.start();
 	
 	// get device type
-	this.displayAction($L("<strong>Checking Device Type</strong>"), $L("This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and try again."));
+	this.displayAction($L("<strong>Checking Device Type</strong>"), $L("This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your device and try again."));
 	this.showActionHelpTimer(2);
 	this.hideProgress();
 	this.subscription = IPKGService.getMachineName(this.onDeviceType.bindAsEventListener(this, onlyLoad));
@@ -249,7 +249,7 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	}
 	
 	// run version check
-	this.displayAction($L("<strong>Checking Service Access</strong>"), $L("This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your phone and try again."));
+	this.displayAction($L("<strong>Checking Service Access</strong>"), $L("This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your device and try again."));
 	this.showActionHelpTimer(2);
 	this.subscription = IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
 };
@@ -263,14 +263,14 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
-			this.errorMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your phone and try again."),
+			this.errorMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your device and try again."),
 					  this.doneUpdating);
 		}
 		else if (payload.errorCode != undefined)
 		{
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', $L("The service is not running. First try restarting Preware, or reboot your phone and try again."),
+				this.errorMessage('Preware', $L("The service is not running. First try restarting Preware, or reboot your device and try again."),
 						  this.doneUpdating);
 			}
 			else
@@ -283,7 +283,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 			if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) 
 			{
 				// this is if this version is too old for the version number stuff
-				this.errorMessage('Preware', $L("The service version is too old. First try rebooting your phone, or reinstall Preware and try again."),
+				this.errorMessage('Preware', $L("The service version is too old. First try rebooting your device, or reinstall Preware and try again."),
 						  this.doneUpdating);
 			}
 			else 
@@ -319,7 +319,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 		if (!payload) 
 		{
 			// i dont know if this will ever happen, but hey, it might
-			this.errorMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your phone and try again."),
+			this.errorMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your device and try again."),
 					  this.doneUpdating);
 		}
 		else if (payload.errorCode != undefined)
@@ -328,7 +328,7 @@ UpdateAssistant.prototype.onUpdate = function(payload)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.errorMessage('Preware', $L("The service is not running. First try restarting Preware, or reboot your phone and try again."),
+				this.errorMessage('Preware', $L("The service is not running. First try restarting Preware, or reboot your device and try again."),
 						  this.doneUpdating);
 			}
 			else
@@ -438,7 +438,7 @@ UpdateAssistant.prototype.doneUpdating = function()
 	this.displayAction($L("<strong>Done!</strong>"));
 	this.hideProgress();
 	
-	// we're done loading so let the phone sleep if it needs to
+	// we're done loading so let the device sleep if it needs to
 	this.stayAwake.end();
 	
 	//alert(packages.packages.length);

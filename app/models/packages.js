@@ -198,7 +198,7 @@ packagesModel.prototype.infoResponse = function(payload, num)
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
 			{
-				this.updateAssistant.errorMessage('Preware', $L("The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your phone and not launching Preware until you have a stable network connection available."),
+				this.updateAssistant.errorMessage('Preware', $L("The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your device and not launching Preware until you have a stable network connection available."),
 						  this.updateAssistant.doneUpdating);
 				return;
 			}
@@ -1458,7 +1458,7 @@ packagesModel.prototype.multiActionMessage = function(flags)
 		var msg = '';
 		if (flags.RestartJava) 
 		{
-			msg = $L("<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />");
+			msg = $L("<b>Java Restart Is Required</b><br /><i>Once you press Ok your device will lose network connection and be unresponsive until it is done restarting.</i><br />");
 		}
 		if (flags.RestartLuna) 
 		{
@@ -1466,7 +1466,7 @@ packagesModel.prototype.multiActionMessage = function(flags)
 		}
 		if ((flags.RestartLuna && flags.RestartJava) || flags.RestartDevice) 
 		{
-			msg = $L("<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the packages that were just installed.</i><br />");
+			msg = $L("<b>Device Restart Is Required</b><br /><i>You will need to restart your device to be able to use the packages that were just installed.</i><br />");
 		}
 		return msg;
 	}

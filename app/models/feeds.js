@@ -46,13 +46,13 @@ feedsModel.prototype.onConfigs = function(payload, callback)
 		
 		if (!payload) {
 			// i dont know if this will ever happen, but hey, it might
-			this.updateAssistant.errorMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your phone and try again."), this.updateAssistant.doneUpdating);
+			this.updateAssistant.errorMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your device and try again."), this.updateAssistant.doneUpdating);
 		}
 		else if (payload.errorCode != undefined) {
 			// we probably dont need to check this stuff here,
 			// it would have already been checked and errored out of this process
 			if (payload.errorText == "org.webosinternals.ipkgservice is not running.") {
-				this.updateAssistant.errorMessage('Preware', $L("The service is not running. First try restarting Preware, or reboot your phone and try again."), this.updateAssistant.doneUpdating);
+				this.updateAssistant.errorMessage('Preware', $L("The service is not running. First try restarting Preware, or reboot your device and try again."), this.updateAssistant.doneUpdating);
 			}
 			else {
 				this.updateAssistant.errorMessage('Preware', payload.errorText, this.updateAssistant.doneUpdating);

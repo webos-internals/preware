@@ -1724,7 +1724,7 @@ packageModel.prototype.actionMessage = function(type)
 	var msg = '';
 	if (this.flags[type].RestartJava) 
 	{
-		msg += $L("<b>Java Restart Is Required</b><br /><i>Once you press Ok your phone will lose network connection and be unresponsive until it is done restarting.</i><br />");
+		msg += $L("<b>Java Restart Is Required</b><br /><i>Once you press Ok your device will lose network connection and be unresponsive until it is done restarting.</i><br />");
 	}
 	if (this.flags[type].RestartLuna) 
 	{
@@ -1732,7 +1732,7 @@ packageModel.prototype.actionMessage = function(type)
 	}
 	if ((this.flags[type].RestartJava && this.flags[type].RestartLuna) || this.flags[type].RestartDevice) 
 	{
-		msg = $L("<b>Phone Restart Is Required</b><br /><i>You will need to restart your phone to be able to use the package that you just installed.</i><br />");
+		msg = $L("<b>Device Restart Is Required</b><br /><i>You will need to restart your device to be able to use the package that you just installed.</i><br />");
 	}
 	return msg;
 };
