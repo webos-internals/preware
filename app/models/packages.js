@@ -86,6 +86,13 @@ function packagesModel()
 			showScreenshots: true,
 			showDependents: true
 		},
+		Font:
+		{
+			update: true,
+			updateAsReplace: true,
+			showScreenshots: true,
+			showDependents: true
+		},
 		Theme:
 		{
 			update: true,
