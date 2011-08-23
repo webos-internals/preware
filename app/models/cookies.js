@@ -52,6 +52,7 @@ preferenceCookie.prototype.get = function(reload)
 				resourceHandlerCheck: true,
 				
 				// Hidden Advanced Group
+				rodMode:		false, // haha
 				browseFromRoot:	false
 				//allowFlagSkip: false
 			};

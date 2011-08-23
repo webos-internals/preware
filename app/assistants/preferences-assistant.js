@@ -6,7 +6,7 @@ function PreferencesAssistant()
 	
 	// for secret group
 	this.secretString = '';
-	this.secretAnswer = 'iknowwhatimdoing';
+	this.secretAnswer = 'iwontblameoil';
 	
 	// setup menu
 	this.menuModel =
@@ -55,6 +55,7 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('blacklist-title').innerHTML = $L('Blacklist');
 		this.controller.get('secret-stuff').innerHTML = $L("Secret Stuff");
 		//this.controller.get('secret-options').innerHTML = $L("This version has no secret options.");
+		this.controller.get('rod-mode').innerHTML = $L("Rod Mode");
 		this.controller.get('browse-from-roots').innerHTML = $L("Browse From Root");
 
 		// setup menu
@@ -433,6 +434,20 @@ PreferencesAssistant.prototype.setup = function()
 		
 		this.controller.setupWidget
 		(
+			'rodMode',
+			{
+	  			trueLabel:  $L("On"),
+	 			falseLabel: $L("Off"),
+	  			fieldName:  'rodMode'
+			},
+			{
+				value: this.prefs.rodMode,
+	 			disabled: false
+			}
+		);
+		
+		this.controller.setupWidget
+		(
 			'browseFromRoot',
 			{
 	  			trueLabel:  $L("Yes"),
@@ -445,6 +460,7 @@ PreferencesAssistant.prototype.setup = function()
 			}
 		);
 		
+		this.controller.listen('rodMode', Mojo.Event.propertyChange, this.toggleChangeHandler);
 		this.controller.listen('browseFromRoot', Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		/*

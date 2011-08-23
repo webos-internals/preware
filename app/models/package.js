@@ -979,6 +979,19 @@ packageModel.prototype.getForList = function(item)
 				listObj.rowClass += ' update';
 			}
 		}
+		
+		if (prefs.get().rodMode)
+		{
+			if (listObj.title.substr(-2) != 'ah')
+			{
+				if (listObj.title.substr(-2) == 'er' || listObj.title.substr(-2) == 'or')
+					listObj.title = listObj.title.substr(0, listObj.title.length - 2);
+				else if (listObj.title.substr(-1) == 'a')
+					listObj.title = listObj.title.substr(0, listObj.title.length - 1);
+				
+				listObj.title += 'ah';
+			}
+		}
 	}
 	catch (e)
 	{
