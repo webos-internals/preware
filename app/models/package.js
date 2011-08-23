@@ -982,14 +982,15 @@ packageModel.prototype.getForList = function(item)
 		
 		if (prefs.get().rodMode)
 		{
-			if (listObj.title.substr(-2) != 'ah')
+			if (listObj.title.toLowerCase().substr(-2) != 'ah')
 			{
-				if (listObj.title.substr(-2) == 'er' || listObj.title.substr(-2) == 'or')
+				if (listObj.title.toLowerCase().substr(-2) == 'er' || listObj.title.toLowerCase().substr(-2) == 'or')
 					listObj.title = listObj.title.substr(0, listObj.title.length - 2);
-				else if (listObj.title.substr(-1) == 'a')
+				else if (listObj.title.toLowerCase().substr(-1) == 'a')
 					listObj.title = listObj.title.substr(0, listObj.title.length - 1);
 				
-				listObj.title += 'ah';
+				if (listObj.title.substr(-1).match(/[A-Z]*/) != '') listObj.title += 'AH';
+				else listObj.title += 'ah';
 			}
 		}
 	}
