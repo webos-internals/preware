@@ -47,8 +47,6 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('list-scene').innerHTML = $L("List Scene");
 		this.controller.get('search-descriptions').innerHTML = $L("Search Descriptions");
 		this.controller.get('installed-is-available').innerHTML = $L("Installed is Available");
-		this.controller.get('only-show-free-apps').innerHTML = $L("Only Show Free Apps");
-		this.controller.get('only-show-english-apps').innerHTML = $L("Only Show English Apps");
 		this.controller.get('background').innerHTML = $L("Background");
 		this.controller.get('automatically-install').innerHTML = $L("Automatically Install");
 		this.controller.get('blacklist-title-right').innerHTML = $L('Search Field');
@@ -327,39 +325,11 @@ PreferencesAssistant.prototype.setup = function()
 	 			disabled: false
 			}
 		);
-		this.controller.setupWidget
-		(
-			'onlyShowFree',
-			{
-	  			trueLabel:  $L("Yes"),
-	 			falseLabel: $L("No"),
-	  			fieldName:  'onlyShowFree'
-			},
-			{
-				value : this.prefs.onlyShowFree,
-	 			disabled: false
-			}
-		);
-		this.controller.setupWidget
-		(
-			'onlyShowEnglish',
-			{
-	  			trueLabel:  $L("Yes"),
-	 			falseLabel: $L("No"),
-	  			fieldName:  'onlyShowEnglish'
-			},
-			{
-				value : this.prefs.onlyShowEnglish,
-	 			disabled: false
-			}
-		);
 		
 		this.controller.listen('searchDesc', 	Mojo.Event.propertyChange, this.toggleChangeHandler);
 		this.controller.listen('listSort',      Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('secondRow',     Mojo.Event.propertyChange, this.listChangedHandler);
 		this.controller.listen('listInstalled', Mojo.Event.propertyChange, this.toggleChangeHandler);
-		this.controller.listen('onlyShowFree',  Mojo.Event.propertyChange, this.toggleChangeHandler);
-		this.controller.listen('onlyShowEnglish',  Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		
 		
@@ -520,11 +490,6 @@ PreferencesAssistant.prototype.toggleChanged = function(event)
 {
 	this.prefs[event.target.id] = event.value;
 	this.cookie.put(this.prefs);
-	if ((event.target.id == 'onlyShowFree') ||
-		(event.target.id == 'onlyShowEnglish')) {
-		// tell packages the feeds are "dirty"
-		packages.dirtyFeeds = true;
-	}
 };
 PreferencesAssistant.prototype.toggleShowTypesChanged = function(event)
 {
