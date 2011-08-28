@@ -292,7 +292,12 @@ PkgListAssistant.prototype.setupList = function()
 		reorderable: false,
 		onItemRendered: this.itemRendered.bind(this)
 	};
-	
+
+	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator') {
+		this.listAttributes.renderLimit = 32; // show all rows on TouchPad
+	}
+
 	// swipe to delete from saved package list
 	if (this.item.pkgList == 'saved') {
 		this.listAttributes.swipeToDelete = true;

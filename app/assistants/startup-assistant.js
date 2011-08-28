@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.7.5', log: [ 'Fixed list rendering on TouchPad (courtesy of chpwn)' ] },
 	 {	 version: '1.7.4', log: [ 'Removed catalog feed specific preferences (show only free/show only english)' ] },
 	 {	 version: '1.7.3', log: [ 'Added support for font packages' ] },
 	 {	 version: '1.7.2', log: [ 'Replaced the word phone with the word device in all messages' ] },
