@@ -55,11 +55,22 @@ body.no-gesture .palm-header .backPill
 	left: -16px;
 	height: 33px;
 	width: 38px;
-	background: url(../images/ui-revision-2/back-pill.png) center center no-repeat;
+    background-repeat: no-repeat;
+    background-position: center center;
+	background-image: url(../images/ui-revision-2/back-pill.png);
 }
+body.no-gesture .palm-header .backPill:active
+{
+	background-image: url(../images/ui-revision-2/back-pill-active.png);
+}
+
 body.no-gesture.palm-dark .palm-header .backPill
 {
 	background-image: url(../images/ui-revision-2/back-pill-dark.png);
+}
+body.no-gesture.palm-dark .palm-header .backPill:active
+{
+	background-image: url(../images/ui-revision-2/back-pill-dark-active.png);
 }
 
 body.no-gesture .ss-scene .ss-back
