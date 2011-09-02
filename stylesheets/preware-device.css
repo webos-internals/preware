@@ -149,3 +149,23 @@ body.no-gesture .file-picker #folderHolder .folder .palm-list
 {
 	width: 1024px;
 }
+
+body.no-gesture .pkg-view #scrollerContainer {
+    margin-top: 12px;
+}
+body.no-gesture .pkg-view #scrollerContainer.palm-row.screenshots
+{
+	background: url(../images/ui-revision-2/screenshotFade.png) repeat-x;
+}
+body.no-gesture.palm-dark .pkg-view #scrollerContainer.palm-row.screenshots
+{
+	background: url(../images/ui-revision-2/screenshotFadeDark.png) repeat-x;
+}
+body.no-gesture .pkg-view #scrollerContainer.palm-row.screenshots #viewScroller {
+    height: 240px;
+}
+body.no-gesture .pkg-view #viewScroller #scrollItems img.screenshot {
+    height: 220px;
+}
+
+
