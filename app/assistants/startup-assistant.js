@@ -10,6 +10,9 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+     {   version: '1.7.6', log: [ 'Larger screenshots on the TouchPad.',
+                                  'Pressed states for TouchPad back buttons.',
+                                  'Fixed search backspace on TouchPad.' ] },
 	 {	 version: '1.7.5', log: [ 'Fixed list rendering on TouchPad (courtesy of chpwn)' ] },
 	 {	 version: '1.7.4', log: [ 'Removed catalog feed specific preferences (show only free/show only english)' ] },
 	 {	 version: '1.7.3', log: [ 'Added support for font packages' ] },
