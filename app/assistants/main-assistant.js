@@ -237,12 +237,22 @@ MainAssistant.prototype.generalKey = function(event)
 	}
 	else if (this.searchText == '')
 	{
-		// reidsplay the title text
-		this.searchWidget.mojo.blur();
-		this.searchContainer.style.display = 'none';
-		this.headerContainer.style.display = '';
-		this.controller.stopListening(this.searchElement, 'blur', this.searchElementLoseFocus);
+	    if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') {
+            // the TouchPad uses a virtual keyboard, so avoid hiding the keyboard at this point, since
+            // they might just want to search for something else. instead, if they want to hide the
+            // search field, they can just tap somewhere else on the screen to blur it (and hide it).
+        } else {
+            this.hideSearch();
+        }
 	}
+};
+MainAssistant.prototype.hideSearch = function() {
+    // reidsplay the title text
+    this.searchWidget.mojo.setValue('');
+	this.searchWidget.mojo.blur();
+	this.searchContainer.style.display = 'none';
+	this.headerContainer.style.display = '';
+	this.controller.stopListening(this.searchElement, 'blur', this.searchElementLoseFocus);
 };
 MainAssistant.prototype.searchKey = function(event)
 {
@@ -284,11 +294,7 @@ MainAssistant.prototype.searchKey = function(event)
 };
 MainAssistant.prototype.searchFocus = function(event)
 {
-	if (this.searchElement)
-	{
-		this.searchWidget.mojo.setValue('');
-		this.generalKey({});
-	}
+    this.hideSearch();
 };
 
 MainAssistant.prototype.listTap = function(event)
