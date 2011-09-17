@@ -10,9 +10,10 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
-     {   version: '1.7.6', log: [ 'Larger screenshots on the TouchPad.',
-                                  'Pressed states for TouchPad back buttons.',
-                                  'Fixed search backspace on TouchPad.' ] },
+	 {	 version: '1.7.7', log: [ 'Enabled support for alpha and beta testing feeds' ] },
+     {   version: '1.7.6', log: [ 'Larger screenshots on the TouchPad',
+                                  'Pressed states for TouchPad back buttons',
+                                  'Fixed search backspace on TouchPad' ] },
 	 {	 version: '1.7.5', log: [ 'Fixed list rendering on TouchPad (courtesy of chpwn)' ] },
 	 {	 version: '1.7.4', log: [ 'Removed catalog feed specific preferences (show only free/show only english)' ] },
 	 {	 version: '1.7.3', log: [ 'Added support for font packages' ] },
@@ -26,8 +27,7 @@ function StartupAssistant(changelog)
 	 {	 version: '1.6.5', log: [ 'Now useable on devices without a back gesture',
 								  'Set the wget user-agent to Preware when retrieving indexes and packages' ] },
 	 {	 version: '1.6.4', log: [ 'Fixed a problem when loading the saved packages list' ] },
-	 {	 version: '1.6.3', log: [ 'WebOS Internals has been formally notified by Richard Kerris (HP Vice President of Worldwide Developer Relations) that open access to the webOS app catalog feed (including the beta and web feeds) is no longer available to third party developers or applications. Please direct any questions about this decision (which is final and permanent) to HP, not to WebOS Internals.',
-								  'Removed all HP webOS app catalog feeds from new installations of Preware' ] },
+	 {	 version: '1.6.3', log: [ 'Removed all HP webOS app catalog feeds from new installations of Preware' ] },
 	 {	 version: '1.6.2', log: [ 'Added the clock themes feed (disabled by default)' ] },
 	 {	 version: '1.6.0', log: [ 'webOS 2.x Just Type integration',
 	 							  'Fixed package list ordering bug',
@@ -262,7 +262,7 @@ function StartupAssistant(changelog)
 	      'Added additional Second Line preference values',
 	      'Added additional keywords for global search',
 	      'Search from the main screen',
-		  'Fixed "..." bug.',
+		  'Fixed "..." bug',
 		  'Added ability to email IPKG Log',
 		  'Fixed compression toggle in feed management so it actually works',
 		  'Added warning message to new feed additions',

@@ -119,6 +119,50 @@ if [ -f /var/preferences/org.webosinternals.preware/enable-testing-feeds ] ; the
 
 fi
 
+if [ -f /var/preferences/org.webosinternals.preware/enable-alpha-feeds ] ; then
+
+  # Install alpha optware feeds
+  echo "src/gz alpha-optware http://ipkg.preware.org/alpha/optware/all" > $APPS/etc/ipkg/alpha-optware.conf
+  echo "src/gz alpha-optware-`/bin/uname -m` http://ipkg.preware.org/alpha/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/alpha-optware.conf
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/alpha-optware.conf
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/alpha-optware.conf
+
+  # Install alpha apps feeds
+  echo "src/gz alpha-apps http://ipkg.preware.org/alpha/apps/all" > $APPS/etc/ipkg/alpha-apps.conf
+  echo "src/gz alpha-apps-`/bin/uname -m` http://ipkg.preware.org/alpha/apps/`/bin/uname -m`" >> $APPS/etc/ipkg/alpha-apps.conf
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/alpha-apps.conf
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/alpha-apps.conf
+
+  # Install alpha patches feed
+  echo "src/gz alpha-patches http://ipkg.preware.org/alpha/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-patches.conf
+
+  # Install alpha kernels feed
+  echo "src/gz alpha-kernels http://ipkg.preware.org/alpha/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-kernels.conf
+
+fi
+
+if [ -f /var/preferences/org.webosinternals.preware/enable-beta-feeds ] ; then
+
+  # Install beta optware feeds
+  echo "src/gz beta-optware http://ipkg.preware.org/beta/optware/all" > $APPS/etc/ipkg/beta-optware.conf
+  echo "src/gz beta-optware-`/bin/uname -m` http://ipkg.preware.org/beta/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/beta-optware.conf
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/beta-optware.conf
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/beta-optware.conf
+
+  # Install beta apps feeds
+  echo "src/gz beta-apps http://ipkg.preware.org/beta/apps/all" > $APPS/etc/ipkg/beta-apps.conf
+  echo "src/gz beta-apps-`/bin/uname -m` http://ipkg.preware.org/beta/apps/`/bin/uname -m`" >> $APPS/etc/ipkg/beta-apps.conf
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/beta-apps.conf
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/beta-apps.conf
+
+  # Install beta patches feed
+  echo "src/gz beta-patches http://ipkg.preware.org/beta/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-patches.conf
+
+  # Install beta kernels feed
+  echo "src/gz beta-kernels http://ipkg.preware.org/beta/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-kernels.conf
+
+fi
+
 # Retain disabled status of existing feeds
 if [ "`ls $APPS/etc/ipkg/*.disabled`" ] ; then
   for f in $APPS/etc/ipkg/*.disabled ; do
