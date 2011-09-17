@@ -292,9 +292,50 @@ ConfigsAssistant.prototype.confDeleted = function(event)
 
 ConfigsAssistant.prototype.newConfButton = function()
 {
-	if (this.controller.get('newName').mojo.getValue() != '' &&
-		this.controller.get('newUrl').mojo.getValue() != '' &&
-		this.controller.get('newUrl').mojo.getValue() != 'http://')
+	var newUrl = this.controller.get('newUrl').mojo.getValue();
+	if (newUrl.indexOf("http://ipkg.preware.org/alpha/") == 0)
+	{
+		this.controller.showAlertDialog(
+		{
+		    title:				$L("Custom Feed"),
+			allowHTMLMessage:	true,
+		    message:			$L("You may not add alpha testing feeds here. See http://testing.preware.org/"),
+		    choices:			[{label:$L("Ok"), value:'ok'}],
+		});
+	}
+	else if (newUrl.indexOf("http://ipkg.preware.org/beta/") == 0)
+	{
+		this.controller.showAlertDialog(
+		{
+		    title:				$L("Custom Feed"),
+			allowHTMLMessage:	true,
+		    message:			$L("You may not add beta testing feeds here. See http://testing.preware.org/"),
+		    choices:			[{label:$L("Ok"), value:'ok'}],
+		});
+	}
+	else if ((newUrl.indexOf("http://ipkg.preware.org/feeds/") == 0) &&
+			 (newUrl.indexOf("/testing/") > 0))
+	{
+		this.controller.showAlertDialog(
+		{
+		    title:				$L("Custom Feed"),
+			allowHTMLMessage:	true,
+		    message:			$L("The instructions you are following are obsolete. See http://testing.preware.org/"),
+		    choices:			[{label:$L("Ok"), value:'ok'}],
+		});
+	}
+	else if (newUrl.indexOf("http://preware.is.awesome.com") == 0)
+	{
+		this.controller.showAlertDialog(
+		{
+		    title:				$L("Custom Feed"),
+			allowHTMLMessage:	true,
+		    message:			$L("The instructions you are following are obsolete. See http://testing.preware.org/"),
+		    choices:			[{label:$L("Ok"), value:'ok'}],
+		});
+	}
+	else if (this.controller.get('newName').mojo.getValue() != '' &&
+			 newUrl != '' && newUrl != 'http://')
 	{
 		if (!this.warningOkd)
 		{

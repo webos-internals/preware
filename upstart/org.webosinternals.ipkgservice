@@ -28,6 +28,22 @@ pre-start script
       echo "src/gz webos-patches-testing http://ipkg.preware.org/feeds/webos-patches/testing/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-patches-testing.conf.disabled
    fi  
 
+   # Configure the alpha-patches feed
+   if [ -f $APPS/etc/ipkg/alpha-patches.conf ] ; then
+      echo "src/gz alpha-patches http://ipkg.preware.org/alpha/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-patches.conf
+   fi  
+   if [ -f $APPS/etc/ipkg/alpha-patches.conf.disabled ] ; then
+      echo "src/gz alpha-patches http://ipkg.preware.org/alpha/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-patches.conf.disabled
+   fi  
+
+   # Configure the beta-patches feed
+   if [ -f $APPS/etc/ipkg/beta-patches.conf ] ; then
+      echo "src/gz beta-patches http://ipkg.preware.org/beta/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-patches.conf
+   fi  
+   if [ -f $APPS/etc/ipkg/beta-patches.conf.disabled ] ; then
+      echo "src/gz beta-patches http://ipkg.preware.org/beta/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-patches.conf.disabled
+   fi  
+
    # Configure the webos-kernels feed
    if [ -f $APPS/etc/ipkg/webos-kernels.conf ] ; then
       echo "src/gz webos-kernels http://ipkg.preware.org/feeds/webos-kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-kernels.conf
@@ -42,6 +58,22 @@ pre-start script
    fi  
    if [ -f $APPS/etc/ipkg/webos-kernels-testing.conf.disabled ] ; then
       echo "src/gz webos-kernels-testing http://ipkg.preware.org/feeds/webos-kernels/testing/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-kernels-testing.conf.disabled
+   fi  
+
+   # Configure the alpha-kernels feed
+   if [ -f $APPS/etc/ipkg/alpha-kernels.conf ] ; then
+      echo "src/gz alpha-kernels http://ipkg.preware.org/alpha/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-kernels.conf
+   fi  
+   if [ -f $APPS/etc/ipkg/alpha-kernels.conf.disabled ] ; then
+      echo "src/gz alpha-kernels http://ipkg.preware.org/alpha/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-kernels.conf.disabled
+   fi  
+
+   # Configure the beta-kernels feed
+   if [ -f $APPS/etc/ipkg/beta-kernels.conf ] ; then
+      echo "src/gz beta-kernels http://ipkg.preware.org/beta/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-kernels.conf
+   fi  
+   if [ -f $APPS/etc/ipkg/beta-kernels.conf.disabled ] ; then
+      echo "src/gz beta-kernels http://ipkg.preware.org/beta/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-kernels.conf.disabled
    fi  
 
 end script
