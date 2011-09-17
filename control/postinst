@@ -119,47 +119,63 @@ if [ -f /var/preferences/org.webosinternals.preware/enable-testing-feeds ] ; the
 
 fi
 
+# Install the alpha testing feeds (disabled by default)
+
 if [ -f /var/preferences/org.webosinternals.preware/enable-alpha-feeds ] ; then
 
   # Install alpha optware feeds
-  echo "src/gz alpha-optware http://ipkg.preware.org/alpha/optware/all" > $APPS/etc/ipkg/alpha-optware.conf
-  echo "src/gz alpha-optware-`/bin/uname -m` http://ipkg.preware.org/alpha/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/alpha-optware.conf
-  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/alpha-optware.conf
-  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/alpha-optware.conf
+  echo "src/gz alpha-optware http://ipkg.preware.org/alpha/optware/all" > $APPS/etc/ipkg/alpha-optware.conf.new
+  echo "src/gz alpha-optware-`/bin/uname -m` http://ipkg.preware.org/alpha/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/alpha-optware.conf.new
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/alpha-optware.conf.new
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/alpha-optware.conf.new
 
   # Install alpha apps feeds
-  echo "src/gz alpha-apps http://ipkg.preware.org/alpha/apps/all" > $APPS/etc/ipkg/alpha-apps.conf
-  echo "src/gz alpha-apps-`/bin/uname -m` http://ipkg.preware.org/alpha/apps/`/bin/uname -m`" >> $APPS/etc/ipkg/alpha-apps.conf
-  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/alpha-apps.conf
-  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/alpha-apps.conf
+  echo "src/gz alpha-apps http://ipkg.preware.org/alpha/apps/all" > $APPS/etc/ipkg/alpha-apps.conf.new
+  echo "src/gz alpha-apps-`/bin/uname -m` http://ipkg.preware.org/alpha/apps/`/bin/uname -m`" >> $APPS/etc/ipkg/alpha-apps.conf.new
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/alpha-apps.conf.new
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/alpha-apps.conf.new
 
   # Install alpha patches feed
-  echo "src/gz alpha-patches http://ipkg.preware.org/alpha/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-patches.conf
+  echo "src/gz alpha-patches http://ipkg.preware.org/alpha/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-patches.conf.new
 
   # Install alpha kernels feed
-  echo "src/gz alpha-kernels http://ipkg.preware.org/alpha/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-kernels.conf
+  echo "src/gz alpha-kernels http://ipkg.preware.org/alpha/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-kernels.conf.new
+
+  # Remove the obsolete testing feeds
+  rm -f $APPS/etc/ipkg/optware-testing*.conf*
+  rm -f $APPS/etc/ipkg/webos-internals-testing*.conf*
+  rm -f $APPS/etc/ipkg/webos-patches-testing*.conf*
+  rm -f $APPS/etc/ipkg/webos-kernels-testing*.conf*
 
 fi
+
+# Install the beta testing feeds (disabled by default)
 
 if [ -f /var/preferences/org.webosinternals.preware/enable-beta-feeds ] ; then
 
   # Install beta optware feeds
-  echo "src/gz beta-optware http://ipkg.preware.org/beta/optware/all" > $APPS/etc/ipkg/beta-optware.conf
-  echo "src/gz beta-optware-`/bin/uname -m` http://ipkg.preware.org/beta/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/beta-optware.conf
-  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/beta-optware.conf
-  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/beta-optware.conf
+  echo "src/gz beta-optware http://ipkg.preware.org/beta/optware/all" > $APPS/etc/ipkg/beta-optware.conf.new
+  echo "src/gz beta-optware-`/bin/uname -m` http://ipkg.preware.org/beta/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/beta-optware.conf.new
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/beta-optware.conf.new
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/beta-optware.conf.new
 
   # Install beta apps feeds
-  echo "src/gz beta-apps http://ipkg.preware.org/beta/apps/all" > $APPS/etc/ipkg/beta-apps.conf
-  echo "src/gz beta-apps-`/bin/uname -m` http://ipkg.preware.org/beta/apps/`/bin/uname -m`" >> $APPS/etc/ipkg/beta-apps.conf
-  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/beta-apps.conf
-  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/beta-apps.conf
+  echo "src/gz beta-apps http://ipkg.preware.org/beta/apps/all" > $APPS/etc/ipkg/beta-apps.conf.new
+  echo "src/gz beta-apps-`/bin/uname -m` http://ipkg.preware.org/beta/apps/`/bin/uname -m`" >> $APPS/etc/ipkg/beta-apps.conf.new
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/beta-apps.conf.new
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/beta-apps.conf.new
 
   # Install beta patches feed
-  echo "src/gz beta-patches http://ipkg.preware.org/beta/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-patches.conf
+  echo "src/gz beta-patches http://ipkg.preware.org/beta/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-patches.conf.new
 
   # Install beta kernels feed
-  echo "src/gz beta-kernels http://ipkg.preware.org/beta/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-kernels.conf
+  echo "src/gz beta-kernels http://ipkg.preware.org/beta/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-kernels.conf.new
+
+  # Remove the old testing feeds
+  rm -f $APPS/etc/ipkg/optware-testing*.conf*
+  rm -f $APPS/etc/ipkg/webos-internals-testing*.conf*
+  rm -f $APPS/etc/ipkg/webos-patches-testing*.conf*
+  rm -f $APPS/etc/ipkg/webos-kernels-testing*.conf*
 
 fi
 

@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.8.1', log: [ 'Remove the obsolete testing feeds when adding alpha or beta feeds' ] },
 	 {	 version: '1.8.0', log: [ 'Disabled support for adding obsolete testing feeds' ] },
 	 {	 version: '1.7.7', log: [ 'Enabled support for alpha and beta testing feeds' ] },
      {   version: '1.7.6', log: [ 'Larger screenshots on the TouchPad',
