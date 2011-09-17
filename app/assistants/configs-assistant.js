@@ -293,7 +293,7 @@ ConfigsAssistant.prototype.confDeleted = function(event)
 ConfigsAssistant.prototype.newConfButton = function()
 {
 	var newUrl = this.controller.get('newUrl').mojo.getValue();
-	if (newUrl.indexOf("http://ipkg.preware.org/alpha/") == 0)
+	if (newUrl.indexOf("http://ipkg.preware.org/alpha") == 0)
 	{
 		this.controller.showAlertDialog(
 		{
@@ -302,8 +302,9 @@ ConfigsAssistant.prototype.newConfButton = function()
 		    message:			$L("You may not add alpha testing feeds here. See http://testing.preware.org/"),
 		    choices:			[{label:$L("Ok"), value:'ok'}],
 		});
+		this.controller.get('newButton').mojo.deactivate();
 	}
-	else if (newUrl.indexOf("http://ipkg.preware.org/beta/") == 0)
+	else if (newUrl.indexOf("http://ipkg.preware.org/beta") == 0)
 	{
 		this.controller.showAlertDialog(
 		{
@@ -312,8 +313,9 @@ ConfigsAssistant.prototype.newConfButton = function()
 		    message:			$L("You may not add beta testing feeds here. See http://testing.preware.org/"),
 		    choices:			[{label:$L("Ok"), value:'ok'}],
 		});
+		this.controller.get('newButton').mojo.deactivate();
 	}
-	else if ((newUrl.indexOf("http://ipkg.preware.org/feeds/") == 0) &&
+	else if ((newUrl.indexOf("http://ipkg.preware.org/feeds") == 0) &&
 			 (newUrl.indexOf("/testing/") > 0))
 	{
 		this.controller.showAlertDialog(
@@ -323,6 +325,7 @@ ConfigsAssistant.prototype.newConfButton = function()
 		    message:			$L("The instructions you are following are obsolete. See http://testing.preware.org/"),
 		    choices:			[{label:$L("Ok"), value:'ok'}],
 		});
+		this.controller.get('newButton').mojo.deactivate();
 	}
 	else if (newUrl.indexOf("http://preware.is.awesome.com") == 0)
 	{
@@ -333,6 +336,7 @@ ConfigsAssistant.prototype.newConfButton = function()
 		    message:			$L("The instructions you are following are obsolete. See http://testing.preware.org/"),
 		    choices:			[{label:$L("Ok"), value:'ok'}],
 		});
+		this.controller.get('newButton').mojo.deactivate();
 	}
 	else if (this.controller.get('newName').mojo.getValue() != '' &&
 			 newUrl != '' && newUrl != 'http://')
