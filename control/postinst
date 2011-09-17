@@ -142,10 +142,9 @@ if [ -f /var/preferences/org.webosinternals.preware/enable-alpha-feeds ] ; then
   echo "src/gz alpha-kernels http://ipkg.preware.org/alpha/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-kernels.conf.new
 
   # Remove the obsolete testing feeds
+  rm -f $APPS/etc/ipkg/webos-testing*.conf*
   rm -f $APPS/etc/ipkg/optware-testing*.conf*
-  rm -f $APPS/etc/ipkg/webos-internals-testing*.conf*
-  rm -f $APPS/etc/ipkg/webos-patches-testing*.conf*
-  rm -f $APPS/etc/ipkg/webos-kernels-testing*.conf*
+  rm -f $APPS/etc/ipkg/webos-*-testing*.conf*
 
 fi
 
@@ -172,10 +171,9 @@ if [ -f /var/preferences/org.webosinternals.preware/enable-beta-feeds ] ; then
   echo "src/gz beta-kernels http://ipkg.preware.org/beta/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-kernels.conf.new
 
   # Remove the old testing feeds
+  rm -f $APPS/etc/ipkg/webos-testing*.conf*
   rm -f $APPS/etc/ipkg/optware-testing*.conf*
-  rm -f $APPS/etc/ipkg/webos-internals-testing*.conf*
-  rm -f $APPS/etc/ipkg/webos-patches-testing*.conf*
-  rm -f $APPS/etc/ipkg/webos-kernels-testing*.conf*
+  rm -f $APPS/etc/ipkg/webos-*-testing*.conf*
 
 fi
 
