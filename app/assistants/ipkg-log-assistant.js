@@ -23,7 +23,7 @@ IpkgLogAssistant.prototype.setup = function()
 	this.controller.get('title').innerHTML = $L("IPKG Log");
 
 	// setup back tap
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+	if (Mojo.Environment.DeviceInfo.modelNameAscii.indexOf('TouchPad') == 0 ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
 		this.backElement = this.controller.get('back');
 	else

@@ -237,7 +237,7 @@ MainAssistant.prototype.generalKey = function(event)
 	}
 	else if (this.searchText == '')
 	{
-	    if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad') {
+	    if (Mojo.Environment.DeviceInfo.modelNameAscii.indexOf('TouchPad') == 0) {
             // the TouchPad uses a virtual keyboard, so avoid hiding the keyboard at this point, since
             // they might just want to search for something else. instead, if they want to hide the
             // search field, they can just tap somewhere else on the screen to blur it (and hide it).

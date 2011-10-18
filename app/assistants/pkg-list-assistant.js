@@ -133,7 +133,7 @@ PkgListAssistant.prototype.setup = function()
 		this.searchFunction =		this.filter.bind(this);
 		
 		// setup back tap
-		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+		if (Mojo.Environment.DeviceInfo.modelNameAscii.indexOf('TouchPad') == 0 ||
 			Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
 			this.backElement = this.controller.get('back');
 		else
@@ -293,7 +293,7 @@ PkgListAssistant.prototype.setupList = function()
 		onItemRendered: this.itemRendered.bind(this)
 	};
 
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+	if (Mojo.Environment.DeviceInfo.modelNameAscii.indexOf('TouchPad') == 0 ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator') {
 		this.listAttributes.renderLimit = 32; // show all rows on TouchPad
 	}

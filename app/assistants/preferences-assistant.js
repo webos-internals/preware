@@ -482,7 +482,7 @@ PreferencesAssistant.prototype.themeChanged = function(event)
 	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
 		deviceTheme += ' small-device';
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+	if (Mojo.Environment.DeviceInfo.modelNameAscii.indexOf('TouchPad') == 0 ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
 		deviceTheme += ' no-gesture';
 	this.controller.document.body.className = event.value + deviceTheme;

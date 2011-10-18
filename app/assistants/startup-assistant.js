@@ -538,7 +538,7 @@ StartupAssistant.prototype.setup = function()
 	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'Pixi' ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Veer')
 		deviceTheme += ' small-device';
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+	if (Mojo.Environment.DeviceInfo.modelNameAscii.indexOf('TouchPad') == 0 ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
 		deviceTheme += ' no-gesture';
     this.controller.document.body.className = prefs.get().theme + deviceTheme;
@@ -547,7 +547,7 @@ StartupAssistant.prototype.setup = function()
     this.titleContainer = this.controller.get('title');
     this.dataContainer =  this.controller.get('data');
 
-	if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
+	if (Mojo.Environment.DeviceInfo.modelNameAscii.indexOf('TouchPad') == 0 ||
 		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
 		this.backElement = this.controller.get('back');
 	else

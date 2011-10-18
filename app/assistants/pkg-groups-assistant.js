@@ -61,11 +61,11 @@ PkgGroupsAssistant.prototype.setup = function()
 	this.listTapHandler =	this.listTap.bindAsEventListener(this);
 	
 	// setup back tap
-		if (Mojo.Environment.DeviceInfo.modelNameAscii == 'TouchPad' ||
-			Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
-			this.backElement = this.controller.get('back');
-		else
-			this.backElement = this.controller.get('header');
+	if (Mojo.Environment.DeviceInfo.modelNameAscii.indexOf('TouchPad') == 0 ||
+		Mojo.Environment.DeviceInfo.modelNameAscii == 'Emulator')
+		this.backElement = this.controller.get('back');
+	else
+		this.backElement = this.controller.get('header');
 	this.backTapHandler = this.backTap.bindAsEventListener(this);
 	this.controller.listen(this.backElement, Mojo.Event.tap, this.backTapHandler);
 
