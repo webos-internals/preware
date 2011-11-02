@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.8.5', log: [ 'Fixed missing package information bug' ] },
 	 {	 version: '1.8.4', log: [ 'Added some additional Second Line preference options' ] },
 	 {	 version: '1.8.3', log: [ 'Please read http://testing.preware.org/ if you use the testing feeds' ] },
 	 {	 version: '1.8.2', log: [ 'Fixed the removal of obsolete testing feeds' ] },
