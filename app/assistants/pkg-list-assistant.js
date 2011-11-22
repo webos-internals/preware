@@ -353,18 +353,24 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 			if (b.date) bTime = b.date;
 			toReturn = bTime - aTime;
 			
-			if (toReturn == 0)
-			{	// if date is the same, sort by title so things aren't jumbled
-				aTitle = a.title.toLowerCase();
-				bTitle = b.title.toLowerCase();
-				toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+			try {
 				if (toReturn == 0)
-				{	// if the titles are also the exact same!
-					aId = a.pkg;
-					bId = b.pkg;
-					toReturn = ((aId < bId) ? -1 : ((aId > bId) ? 1 : 0));
-					// if its still 0 at this point, screw it
-				}
+					{	// if date is the same, sort by title so things aren't jumbled
+						aTitle = a.title.toLowerCase();
+						bTitle = b.title.toLowerCase();
+						toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+						if (toReturn == 0)
+							{	// if the titles are also the exact same!
+								aId = a.pkg;
+								bId = b.pkg;
+								toReturn = ((aId < bId) ? -1 : ((aId > bId) ? 1 : 0));
+								// if its still 0 at this point, screw it
+								}
+					}
+			}
+			catch (e) {
+				Mojo.Log.logException(e, 'pkg-list#updateList/'+a.pkg+'/'+b.pkg);
+				toReturn = 0;
 			}
 			
 			return toReturn
@@ -382,18 +388,24 @@ PkgListAssistant.prototype.updateList = function(skipUpdate)
 			if (b.price) bPrice = b.price;
 			toReturn = aPrice - bPrice;
 			
-			if (toReturn == 0)
-			{	// if price is the same, sort by title so things aren't jumbled
-				aTitle = a.title.toLowerCase();
-				bTitle = b.title.toLowerCase();
-				toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+			try {
 				if (toReturn == 0)
-				{	// if the titles are also the exact same!
-					aId = a.pkg;
-					bId = b.pkg;
-					toReturn = ((aId < bId) ? -1 : ((aId > bId) ? 1 : 0));
-					// if its still 0 at this point, screw it
-				}
+					{	// if price is the same, sort by title so things aren't jumbled
+						aTitle = a.title.toLowerCase();
+						bTitle = b.title.toLowerCase();
+						toReturn = ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+						if (toReturn == 0)
+							{	// if the titles are also the exact same!
+								aId = a.pkg;
+								bId = b.pkg;
+								toReturn = ((aId < bId) ? -1 : ((aId > bId) ? 1 : 0));
+								// if its still 0 at this point, screw it
+							}
+					}
+			}
+			catch (e) {
+				Mojo.Log.logException(e, 'pkg-list#updateList/'+a.pkg+'/'+b.pkg);
+				toReturn = 0;
 			}
 			
 			return toReturn
