@@ -449,8 +449,8 @@ packagesModel.prototype.loadPackage = function(infoObj, url)
 	}
 	
 	// Filter out apps with a specified devices that dont match the current
-	if (newPkg.deviceCompatibility && newPkg.deviceCompatibility.length > 0 &&
-		!newPkg.deviceCompatibility.include(Mojo.Environment.DeviceInfo.modelNameAscii)) {
+	if (newPkg.devices && newPkg.devices.length > 0 &&
+		!newPkg.devices.include(Mojo.Environment.DeviceInfo.modelNameAscii)) {
 		//alert('+ 4');
 		return;
 	}

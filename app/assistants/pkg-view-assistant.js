@@ -179,6 +179,12 @@ PkgViewAssistant.prototype.setupData = function()
 			data += Mojo.View.render({object: {title: $L('Description'), data: this.item.description}, template: dataTemplate2});
 		}
 		
+		// add changelog
+		if (this.item.changelog)
+		{
+			data += Mojo.View.render({object: {title: $L('Changelog'), data: this.item.changelog}, template: dataTemplate2});
+		}
+		
 		// add homepage
 		if (this.item.homepage)
 		{
@@ -267,6 +273,12 @@ PkgViewAssistant.prototype.setupData = function()
 		
 		// add package category
 		data += Mojo.View.render({object: {title: $L('Category'), data: this.item.category}, template: dataTemplate});
+		
+		// add package device
+		if (this.item.devices.length) 
+		{
+		    data += Mojo.View.render({object: {title: (this.item.devices.length>1?$L('Devices'):$L('Device')), data: this.item.deviceString}, template: dataTemplate});
+		}
 		
 		// add package country
 		if (this.item.countries.length) 

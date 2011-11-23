@@ -38,7 +38,7 @@ function packageModel(infoString, infoObj)
 		this.homepage =				false;
 		this.license =				false;
 		this.description =			false;
-		this.changeLog =			false;
+		this.changelog =			false;
 		this.screenshots =			[];
 		this.depends =				[];
 		this.flags =				{install:	{RestartLuna:false, RestartJava:false, RestartDevice:false},
@@ -51,7 +51,8 @@ function packageModel(infoString, infoObj)
 		this.isInSavedList =		false;
 		this.minWebOSVersion =		'1.0.0';
 		this.maxWebOSVersion =		'99.9.9';
-		this.deviceCompatibility =	[];
+		this.devices =				[];
+		this.deviceString =			false;
 		this.preInstallMessage =	false;
 		this.preUpdateMessage =		false;
 		this.preRemoveMessage =		false;
@@ -231,7 +232,7 @@ packageModel.prototype.infoLoad = function(info)
 			if (!this.location &&			sourceJson.Location)			this.location =				sourceJson.Location;
 			if (!this.license &&			sourceJson.License)				this.license =				sourceJson.License;
 			if (!this.description &&		sourceJson.FullDescription)		this.description =			sourceJson.FullDescription;
-			if (!this.changeLog &&			sourceJson.Changelog)			this.changeLog =			sourceJson.Changelog;
+			if (!this.changelog &&			sourceJson.Changelog)			this.changelog =			sourceJson.Changelog;
 			if (!this.preInstallMessage &&	sourceJson.PreInstallMessage)	this.preInstallMessage =	sourceJson.PreInstallMessage;
 			if (!this.preUpdateMessage &&	sourceJson.PreUpdateMessage)	this.preUpdateMessage =		sourceJson.PreUpdateMessage;
 			if (!this.preRemoveMessage &&	sourceJson.PreRemoveMessage)	this.preRemoveMessage =		sourceJson.PreRemoveMessage;
@@ -254,7 +255,8 @@ packageModel.prototype.infoLoad = function(info)
 			
 			if (sourceJson.DeviceCompatibility) 
 			{
-				this.deviceCompatibility = sourceJson.DeviceCompatibility;
+				this.devices = sourceJson.DeviceCompatibility;
+				this.deviceString = sourceJson.DeviceCompatibility.join(", ");
 			}
 			
 			if (sourceJson.Feed) 
@@ -411,7 +413,7 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 		if (!this.homepage)					this.homepage =				pkg.homepage;
 		if (!this.license)					this.license =				pkg.license;
 		if (!this.description)				this.description =			pkg.description;
-		if (!this.changeLog)				this.changeLog =			pkg.changeLog;
+		if (!this.changelog)				this.changelog =			pkg.changelog;
 		if (!this.isInstalled)				this.isInstalled =			pkg.isInstalled;
 		if (!this.hasUpdate)				this.hasUpdate =			pkg.hasUpdate;
 		if (!this.dateInstalled && pkg.dateInstalled && isNumeric(pkg.dateInstalled)) this.dateInstalled =		pkg.dateInstalled;
@@ -441,6 +443,26 @@ packageModel.prototype.infoLoadFromPkg = function(pkg)
 				{
 					this.feeds.push(pkg.feeds[f]);
 					this.feedString += ', ' + pkg.feeds[f];
+				}
+			}
+		}
+		*/
+		
+		// join devices
+		if (this.devices.length == 0) 
+		{
+			this.devices = pkg.devices;
+			this.deviceString = pkg.deviceString;
+		}
+		/*
+		else if (pkg.devices.length != 0)
+		{
+			for (var f = 0; f < pkg.devices.length; f++) 
+			{
+				if (!this.inDevice(pkg.devices[f])) 
+				{
+					this.devices.push(pkg.devices[f]);
+					this.deviceString += ', ' + pkg.devices[f];
 				}
 			}
 		}
@@ -577,10 +599,12 @@ packageModel.prototype.infoSave = function()
 		
 		// %%% Missing information below: %%%
 		// this.screenshots = sourceJson.Screenshots;
+		// this.devices = sourceJson.DeviceCompatibility;
+		// this.deviceString = sourceJson.DeviceCompatibility.join(",");
 		// this.countries = sourceJson.Countries;
-		// this.countryString = sourceJson.Countries.join(", ");
+		// this.countryString = sourceJson.Countries.join(",");
 		// this.languages = sourceJson.Languages;
-		// this.languageString = sourceJson.Languages.join(", ");
+		// this.languageString = sourceJson.Languages.join(",");
 		// this.maintainer = info.Maintainer.split(',');
 
 		var fields = [];
@@ -597,7 +621,7 @@ packageModel.prototype.infoSave = function()
 		if (this.homepage) fields.push('"Homepage": "' + this.homepage + '"');
 		if (this.license) fields.push('"License": "' + this.license + '"');
 		if (this.description) fields.push('"FullDescription": "' + this.description + '"');
-		if (this.changelog) fields.push('"ChangeLog": "' + this.changeLog + '"');
+		if (this.changelog) fields.push('"Changelog": "' + this.changelog + '"');
 		info.Source = '{ ' + fields.join(", ") + ' }';
 		//alert('info.Source: ' + info.Source);
 
@@ -915,6 +939,15 @@ packageModel.prototype.getForList = function(item)
 					
 				case 'feed':
 					listObj.sub += this.feedString;
+					break;
+					
+				case 'device':
+					if (this.deviceString) {
+					    listObj.sub += this.deviceString;
+					}
+					else {
+						listObj.sub += "<i>All Devices</i>";
+					}
 					break;
 					
 				case 'country':
@@ -1260,7 +1293,7 @@ packageModel.prototype.doRedirect = function()
 		method: 'open',
 		parameters: 
 		{
-			target: this.homepage
+			target: this.location
 		}
 	});
 };
