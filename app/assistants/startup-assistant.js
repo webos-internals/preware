@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.8.7', log: [ 'Hide authentication information in the Manage Feeds display' ] },
 	 {	 version: '1.8.6', log: [ 'Added support for displaying the Changelog and DeviceCompatibility fields' ] },
 	 {	 version: '1.8.5', log: [ 'Fixed missing package information bug' ] },
 	 {	 version: '1.8.4', log: [ 'Added some additional Second Line preference options' ] },

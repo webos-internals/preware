@@ -221,7 +221,7 @@ ConfigsAssistant.prototype.doneLoading = function()
 				var urls = '';
 				for (var u = 0; u < this.feeds[f].urls.length; u++)
 				{
-					urls += '<div class="truncating-text">' + this.feeds[f].urls[u].replace(/http:\/\//, '').replace(/www./, '') + '</div>';
+					urls += '<div class="truncating-text">' + this.feeds[f].urls[u].replace(/http:\/\//, '').replace(/www./, '').replace(/.*@/, '').replace(/:.*\//, '/') + '</div>';
 				}
 				
 				
