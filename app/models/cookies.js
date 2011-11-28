@@ -24,6 +24,8 @@ preferenceCookie.prototype.get = function(reload)
 				// Actions Group
 				//rescanLauncher: true, // no longer in use
 				avoidBugs: true,
+				useTuckerbox: false,
+				ignoreDevices: false,
 				
 				// Main Scene Group
 				showAvailableTypes: false,

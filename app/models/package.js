@@ -1253,7 +1253,7 @@ packageModel.prototype.matchItem = function(item)
 	}
 	else if (item.pkgList == 'updates' && this.hasUpdate) matchIt = true;
 	else if (item.pkgList == 'installed' && this.isInstalled) matchIt = true;
-	else if (item.pkgList == 'saved' && this.isInSavedList && !this.appCatalog) matchIt = true;
+	else if (item.pkgList == 'saved' && this.isInSavedList && (!this.appCatalog || prefs.get().useTuckerbox)) matchIt = true;
 	
 	// check type and dont push if not right
 	if (item.pkgType != 'all' && item.pkgType != '' && item.pkgType != this.type) matchIt = false;
@@ -1293,7 +1293,7 @@ packageModel.prototype.doRedirect = function()
 		method: 'open',
 		parameters: 
 		{
-			target: this.location
+			target: "http://developer.palm.com/appredirect/?packageid="+this.pkg
 		}
 	});
 };

@@ -17,6 +17,9 @@ var rh = new resourceHandler(
 	activeMessage:	'Preware is not currently the default application for handling .ipk files.<br>Current Default: #{active}<br><br><b>Would you like to make Preware the default application?</b>',
 });
 
+var DeviceProfile =  new deviceProfile();
+var PalmProfile =  new palmProfile();
+
 // stage names
 var mainStageName = 'preware-main';
 var installStageName = 'preware-install';

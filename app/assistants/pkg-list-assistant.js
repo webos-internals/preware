@@ -783,7 +783,7 @@ PkgListAssistant.prototype.handleCommand = function(event)
 					}
 					else
 					{
-						if (!this.packages[p].appCatalog)
+						if (!this.packages[p].appCatalog || prefs.get().useTuckerbox)
 						{
 							var deps = packages.packages[this.packages[p].pkgNum].getDependenciesRecursive(true);
 							if (deps.length > 0) 
@@ -836,7 +836,7 @@ PkgListAssistant.prototype.handleCommand = function(event)
 				for (var p = 0; p < this.packages.length; p++) {
 				    var gblPkg = packages.packages[this.packages[p].pkgNum];
 				    if (!gblPkg.isInstalled) {
-					if (!gblPkg.appCatalog) {
+					if (!gblPkg.appCatalog || prefs.get().useTuckerbox) {
 					    var deps = gblPkg.getDependenciesRecursive(true);
 					    if (deps.length > 0) {
 						for (var d = 0; d < deps.length; d++) {

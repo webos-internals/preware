@@ -36,8 +36,8 @@ PreferencesAssistant.prototype.setup = function()
 		this.controller.get('lastUpdate').innerHTML = $L("Never");
 		this.controller.get('scan-unknown-packages').innerHTML = $L("Scan Unknown Packages");
 		this.controller.get('check-ipk-association').innerHTML = $L("Check .ipk Association");
-		this.controller.get('avoid-bugs').innerHTML = $L("Avoid webOS Bugs");
-		this.controller.get('avoid-bugs-note').innerHTML = $L("* May not work in future webOS versions.");
+		this.controller.get('use-tuckerbox').innerHTML = $L("Use App Tuckerbox");
+		this.controller.get('ignore-devices').innerHTML = $L("Ignore Device Compat.");
 		this.controller.get('main-scene-title').innerHTML = $L("Main Scene");
 		this.controller.get('show-available-types').innerHTML = $L("Show Available Types");
 		this.controller.get('show-applications').innerHTML = $L("Show Applications");
@@ -160,21 +160,34 @@ PreferencesAssistant.prototype.setup = function()
 		// Actions Group
 		this.controller.setupWidget
 		(
-			'avoidBugs',
+			'useTuckerbox',
 			{
 	  			trueLabel:  $L("Yes"),
 	 			falseLabel: $L("No"),
-	  			fieldName:  'avoidBugs'
+	  			fieldName:  'useTuckerbox'
 			},
 			{
-				value : this.prefs.avoidBugs,
+				value: this.prefs.useTuckerbox,
 	 			disabled: false
 			}
 		);
-
-		this.controller.listen('avoidBugs',     Mojo.Event.propertyChange, this.toggleChangeHandler);
-
-
+		
+		this.controller.setupWidget
+		(
+			'ignoreDevices',
+			{
+	  			trueLabel:  $L("Yes"),
+	 			falseLabel: $L("No"),
+	  			fieldName:  'ignoreDevices'
+			},
+			{
+				value: this.prefs.ignoreDevices,
+	 			disabled: false
+			}
+		);
+		
+		this.controller.listen('useTuckerbox', Mojo.Event.propertyChange, this.toggleChangeHandler);
+		this.controller.listen('ignoreDevices', Mojo.Event.propertyChange, this.toggleChangeHandler);
 		
 		// Main Scene Group
 		this.controller.setupWidget
@@ -492,6 +505,10 @@ PreferencesAssistant.prototype.toggleChanged = function(event)
 {
 	this.prefs[event.target.id] = event.value;
 	this.cookie.put(this.prefs);
+	if (event.target.id == "ignoreDevices") {
+		packages.soiledPackages = true;
+	}
+
 };
 PreferencesAssistant.prototype.toggleShowTypesChanged = function(event)
 {

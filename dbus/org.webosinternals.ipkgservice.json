@@ -1,7 +1,7 @@
 {
   "role": {
      "exeName":"/var/usr/sbin/org.webosinternals.ipkgservice",
-     "type": "regular",
+     "type": "privileged",
      "allowedNames": ["org.webosinternals.ipkgservice"]
   },
   "permissions": [

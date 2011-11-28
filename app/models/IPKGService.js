@@ -28,6 +28,40 @@ IPKGService.getMachineName = function(callback)
 	return request;
 };
 
+IPKGService.impersonate = function(callback, id, service, method, params)
+{
+    var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+	    method: 'impersonate',
+		parameters:
+		{
+			"id": id,
+			"service": service,
+			"method": method,
+			"params": params,
+			"subscribe": params.subscribe? true : false
+		},
+	    onSuccess: callback,
+	    onFailure: callback
+	});
+    return request;
+};
+
+IPKGService.setAuthParams = function(callback, deviceId, token)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'setAuthParams',
+		parameters: {
+			"deviceId":deviceId,
+			"token":token
+		},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+};
+
 IPKGService.list_configs = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,

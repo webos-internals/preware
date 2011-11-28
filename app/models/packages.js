@@ -449,7 +449,7 @@ packagesModel.prototype.loadPackage = function(infoObj, url)
 	}
 	
 	// Filter out apps with a specified devices that dont match the current
-	if (newPkg.devices && newPkg.devices.length > 0 &&
+	if (!prefs.get().ignoreDevices && newPkg.devices && newPkg.devices.length > 0 &&
 		!newPkg.devices.include(Mojo.Environment.DeviceInfo.modelNameAscii)) {
 		//alert('+ 4');
 		return;
@@ -610,7 +610,7 @@ packagesModel.prototype.loadSavedGetOK = function(savedPackageList)
 				{
 					var pkgNum = this.packageInList(savedPkg.pkg);
 					var gblPkg = this.packages[pkgNum];
-					if (gblPkg && !gblPkg.appCatalog)
+					if (gblPkg && (!gblPkg.appCatalog || prefs.get().useTuckerbox))
 					{
 						gblPkg.isInSavedList = true;
 					}
@@ -636,7 +636,7 @@ packagesModel.prototype.loadSavedDefault = function(callback)
 	try
 	{
 		for (var p = 0; p < this.packages.length; p++) {
-			if (this.packages[p].isInstalled && !this.packages[p].appCatalog) {
+			if (this.packages[p].isInstalled && (!this.packages[p].appCatalog || prefs.get().useTuckerbox)) {
 				//alert('Default ' + this.packages[p].pkg);
 				//alert("isInstalled: " + this.packages[p].isInstalled);
 				//alert("appCatalog: " + this.packages[p].appCatalog);
@@ -1270,7 +1270,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 		// call install for dependencies
 		if (number < this.multiPkgs.length) 
 		{
-			if (this.packages[this.multiPkgs[number]].appCatalog) {
+			if (this.packages[this.multiPkgs[number]].appCatalog && !prefs.get().useTuckerbox) {
 				this.doMyApps = true;
 				this.doMultiInstall(number+1);
 			}
@@ -1308,7 +1308,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 		// call install for package
 		else if (number == this.multiPkgs.length && this.multiPkg) 
 		{
-			if (this.multiPkg.appCatalog) {
+			if (this.multiPkg.appCatalog && !prefs.get().useTuckerbox) {
 				this.doMyApps = true;
 				this.doMultiInstall(number+1);
 			}

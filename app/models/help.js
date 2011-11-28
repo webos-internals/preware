@@ -49,15 +49,17 @@ helpData.lookup =
 		data: $L('When this is on, Preware will check to see if it is the default handler for ipkg files, and will ask the user to rectify that if it is not.')
 	},
 	
-	
-	
-	'avoidBugs':
+	'useTuckerbox':
 	{
-		title: $L('Avoid webOS Bugs'),
-		data: $L('Preware initially used ipkg to install packages, and would use a method called "rescan" to update the launcher with new application icons. This method had since been abandoned by Palm and started to cause unintended consequences (like causing email to think you have nothing setup, or no notifications for new SMS messages). When "Avoid webOS Bugs" is on, the default, Preware will use webOS package install service methods which do not cause the same problems that rescan does. But Palm may block us from using this in the future, so this fallback option is here.')
+		title: $L('Use App Tuckerbox'),
+		data: $L('App Tuckerbox is an application that allows you to register your device for direct access to information gathered from the HP App Catalog, Web and Beta feeds. When this option is on, Preware will install applications directly using information from those App Tuckerbox feeds where possible. Note that your device must be registered before accessing the feeds, and you must turn this off before you attempt to purchase an application.')
 	},
 	
-	
+	'ignoreDevices':
+	{
+		title: $L('Ignore Device Compat.'),
+		data: $L('Preware normally only shows apps that are compatible with your device.  When this option is on, Preware will show all apps, regardless of device compatibility. Note that devices that are not compatible with your device may not operate correctly.')
+	},
 	
 	'showAvailableTypes':
 	{

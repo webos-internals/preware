@@ -10,6 +10,8 @@
     {"source": "app/models/help.js"},
     {"source": "app/models/filePicker.js"},
     {"source": "app/models/resourceHandler.js"},
+    {"source": "app/models/deviceProfile.js"},
+    {"source": "app/models/palmProfile.js"},
     {"source": "app/assistants/app-assistant.js"},
     {
         "scenes": "startup",

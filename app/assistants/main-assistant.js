@@ -58,6 +58,9 @@ function MainAssistant()
 			}
 		]
 	};
+
+	this.deviceProfile = false;
+	this.palmProfile = false;
 };
 
 MainAssistant.prototype.setup = function()
@@ -146,7 +149,9 @@ MainAssistant.prototype.setup = function()
 	// setup widget
 	this.controller.setupWidget('mainList', { itemTemplate: "main/rowTemplate", swipeToDelete: false, reorderable: false }, this.mainModel);
 	this.controller.listen(this.listElement, Mojo.Event.listTap, this.listTapHandler);
+
 };
+
 MainAssistant.prototype.activate = function(event)
 {
 	if (this.firstActivate)
@@ -178,13 +183,58 @@ MainAssistant.prototype.activate = function(event)
 	else
 	{
 		this.searchElement = this.searchWidget.querySelector('[name=searchElement]');
-		if (prefs.get().resourceHandlerCheck)
-		{
+		if (prefs.get().resourceHandlerCheck) {
 			rh.doIt(this);
+		}
+		if (prefs.get().useTuckerbox) {
+			this.loadAuthParams();
 		}
 	}
 	this.firstActivate = true;
 };
+
+MainAssistant.prototype.loadAuthParams = function()
+{
+	DeviceProfile.getDeviceProfile(this.getDeviceProfile.bind(this), this.reloadDeviceProfile);
+};
+
+MainAssistant.prototype.getDeviceProfile = function(returnValue, deviceProfile, errorText)
+{
+	if (returnValue === false) {
+		// Not yet reporting errors
+		return;
+	}
+
+	this.deviceProfile = deviceProfile;
+
+	if (this.deviceProfile) {
+		this.palmProfile = false;
+		PalmProfile.getPalmProfile(this.getPalmProfile.bind(this), this.reloadPalmProfile);
+	}
+};
+
+MainAssistant.prototype.getPalmProfile = function(returnValue, palmProfile, errorText)
+{
+	if (returnValue === false) {
+		// Not yet reporting errors
+		return;
+	}
+
+	this.palmProfile = palmProfile;
+
+	if (this.palmProfile) {
+		IPKGService.setAuthParams(this.authParamsSet.bind(this),
+								  this.deviceProfile.deviceId,
+								  this.palmProfile.token);
+	}
+};
+
+MainAssistant.prototype.authParamsSet = function(payload)
+{
+	// Not yet checking status or reporting errors
+	return;
+};
+
 MainAssistant.prototype.dirtyFeedsResponse = function(value)
 {
 	if (value == "ok")
@@ -196,6 +246,7 @@ MainAssistant.prototype.dirtyFeedsResponse = function(value)
 		packages.dirtyFeeds = false;
 	}
 };
+
 MainAssistant.prototype.soiledPackagesResponse = function(value)
 {
 	if (value == "ok")

@@ -28,7 +28,7 @@
 
 #define ALLOWED_CHARS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-+_"
 
-#define API_VERSION "16"
+#define API_VERSION "17"
 
 //
 // We use static buffers instead of continually allocating and deallocating stuff,
@@ -38,6 +38,26 @@ static char buffer[MAXBUFLEN];
 static char esc_buffer[MAXBUFLEN];
 static char run_command_buffer[MAXBUFLEN];
 static char read_file_buffer[CHUNKSIZE+CHUNKSIZE+1];
+
+// These are used for CDN downloads
+static char device[MAXNAMLEN];
+static char token[MAXNAMLEN];
+
+static bool access_denied(LSMessage *message) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  const char *appId = LSMessageGetApplicationID(message);
+  if (!appId || strncmp(appId, "org.webosinternals.preware", 26) || ((strlen(appId) > 26) && (*(appId+26) != ' '))) {
+    if (!LSMessageRespond(message, "{\"returnValue\": false, \"errorText\": \"Unauthorised access\"}", &lserror)) {
+      LSErrorPrint(&lserror, stderr);
+      LSErrorFree(&lserror);
+    }
+    return true;
+  }
+
+  return false;
+}
 
 //
 // Escape a string so that it can be used directly in a JSON response.
@@ -522,6 +542,46 @@ bool restart_device_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 //
 bool get_machine_name_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return simple_command(message, "/bin/cat /etc/prefs/properties/machineName 2>&1");
+}
+
+//
+// Set the authentication parameters.
+//
+bool set_auth_params_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  // Extract the deviceId argument from the message
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
+  json_t *id = json_find_first_label(object, "deviceId");
+  if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS":") != strlen(id->child->text))) {
+    if (!LSMessageRespond(message,
+			  "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing deviceId\"}",
+			  &lserror)) goto error;
+    return true;
+  }
+
+  strncpy(device, id->child->text, MAXNAMLEN);
+
+  // Extract the token argument from the message
+  id = json_find_first_label(object, "token");
+  if (!id || (id->child->type != JSON_STRING) || (strspn(id->child->text, ALLOWED_CHARS) != strlen(id->child->text))) {
+    if (!LSMessageRespond(message,
+			  "{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing token\"}",
+			  &lserror)) goto error;
+    return true;
+  }
+
+  strncpy(token, id->child->text, MAXNAMLEN);
+
+  if (!LSMessageRespond(message, "{\"returnValue\": true}", &lserror)) goto error;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
 }
 
 //
@@ -1365,10 +1425,22 @@ bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
   }
   else {
 
+    char headers[MAXLINLEN];
+
+    if (!strncmp(url, "https://", 8)) {
+      snprintf(headers, MAXLINLEN,
+	       "--user-agent Preware --insecure -H \"Device-Id: %s\" -H \"Auth-Token: %s\"",
+	       device, token);
+    }
+    else {
+      strcpy(headers, "--user-agent Preware");
+    }
+
     /* Download the package */
 
     snprintf(command, MAXLINLEN,
-	     "/usr/bin/curl --user-agent Preware --create-dirs --insecure --location --fail --show-error --output %s %s 2>&1", pathname, url);
+	     "/usr/bin/curl %s --create-dirs --location --fail --show-error --output %s %s 2>&1",
+	     headers, pathname, url);
 
     strcpy(run_command_buffer, "{\"stdOut\": [");
     if (run_command(command, message, downloadstats)) {
@@ -2062,6 +2134,92 @@ bool extract_control_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 //
+// Handler for the impersonate service.
+//
+bool impersonate_handler(LSHandle* lshandle, LSMessage *reply, void *ctx) {
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+  LSMessage* message = (LSMessage*)ctx;
+  retVal = LSMessageRespond(message, LSMessageGetPayload(reply), &lserror);
+  if (!LSMessageIsSubscription(message)) {
+    LSMessageUnref(message);
+  }
+  if (!retVal) {
+    LSErrorPrint(&lserror, stderr);
+    LSErrorFree(&lserror);
+  }
+  return retVal;
+}
+
+//
+// Impersonate a call to the requested service and return the output to webOS.
+//
+bool impersonate_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  bool retVal;
+  LSError lserror;
+  LSErrorInit(&lserror);
+  LSMessageRef(message);
+
+  if (access_denied(message)) return true;
+
+  // Extract the method argument from the message
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
+  json_t *id = json_find_first_label(object, "id");               
+  if (!id || (id->child->type != JSON_STRING)) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing id\"}",
+			&lserror)) goto error;
+    return true;
+  }
+
+  // Extract the service argument from the message
+  object = json_parse_document(LSMessageGetPayload(message));
+  json_t *service = json_find_first_label(object, "service");               
+  if (!service || (service->child->type != JSON_STRING)) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing service\"}",
+			&lserror)) goto error;
+    return true;
+  }
+
+  // Extract the method argument from the message
+  object = json_parse_document(LSMessageGetPayload(message));
+  json_t *method = json_find_first_label(object, "method");               
+  if (!method || (method->child->type != JSON_STRING)) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing method\"}",
+			&lserror)) goto error;
+    return true;
+  }
+
+  // Extract the params argument from the message
+  object = json_parse_document(LSMessageGetPayload(message));
+  json_t *params = json_find_first_label(object, "params");               
+  if (!params || (params->child->type != JSON_OBJECT)) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, \"errorText\": \"Invalid or missing params\"}",
+			&lserror)) goto error;
+    return true;
+  }
+
+  char uri[MAXLINLEN];
+  sprintf(uri, "palm://%s/%s", service->child->text, method->child->text);
+
+  char *paramstring = NULL;
+  json_tree_to_string (params->child, &paramstring);
+  if (!LSCallFromApplication(priv_serviceHandle, uri, paramstring, id->child->text,
+			     impersonate_handler, message, NULL, &lserror)) goto error;
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
+//
 // Handler for the listApps service.
 //
 bool listApps_handler(LSHandle* lshandle, LSMessage *reply, void *ctx) {
@@ -2214,6 +2372,7 @@ LSMethod luna_methods[] = {
   { "restartDevice",	restart_device_method },
 
   { "getMachineName",	get_machine_name_method },
+  { "setAuthParams",	set_auth_params_method },
 
   { "getConfigs",	get_configs_method },
   { "getListFile",	get_list_file_method },
@@ -2240,6 +2399,8 @@ LSMethod luna_methods[] = {
 
   { "remove",		remove_method },
 
+  { "impersonate",	impersonate_method },
+
   { "listApps",		listApps_method },
   { "installStatus",	installStatus_method },
 
@@ -2250,6 +2411,7 @@ LSMethod luna_methods[] = {
 };
 
 bool register_methods(LSPalmService *serviceHandle, LSError lserror) {
+  strcpy(device, "webOS"); strcpy(token, "konami");
   return LSPalmServiceRegisterCategory(serviceHandle, "/", luna_methods,
 				       NULL, NULL, NULL, &lserror);
 }

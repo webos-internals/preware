@@ -336,7 +336,7 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// if update, push button
 	if (this.item.hasUpdate && packages.can(this.item.type, 'update'))
 	{
-		if (this.item.appCatalog)
+		if (this.item.appCatalog && !prefs.get().useTuckerbox)
 		{
 			this.cmdMenuModel.items.push({label: $L('Update'), command: 'do-redirect'});
 		}
@@ -353,7 +353,7 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 	// if not, push install button
 	else
 	{
-		if (this.item.appCatalog)
+		if (this.item.appCatalog && !prefs.get().useTuckerbox)
 		{
 			this.cmdMenuModel.items.push({label: $L('Install'), command: 'do-redirect'});
 		}
@@ -361,6 +361,10 @@ PkgViewAssistant.prototype.updateCommandMenu = function(skipUpdate)
 		{
 			this.cmdMenuModel.items.push({label: $L('Install'), command: 'do-install'});
 		}
+	}
+	if (this.item.appCatalog && prefs.get().useTuckerbox)
+	{	
+		this.cmdMenuModel.items.push({label: $L('Catalog'), command: 'do-redirect'});
 	}
 	
 	// this is to put space around the icons
