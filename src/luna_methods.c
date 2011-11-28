@@ -1429,7 +1429,7 @@ bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
 
     if (!strncmp(url, "https://", 8)) {
       snprintf(headers, MAXLINLEN,
-	       "--user-agent Preware --insecure -H \"Device-Id: %s\" -H \"Auth-Token: %s\"",
+	       "--user-agent Preware -H \"Device-Id: %s\" -H \"Auth-Token: %s\"",
 	       device, token);
     }
     else {
