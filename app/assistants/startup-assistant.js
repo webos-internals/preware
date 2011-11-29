@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.9.1', log: [ 'Fixed device identification of WiFi TouchPads' ] },
 	 {	 version: '1.9.0', log: [ 'Added feed display and installation support for App Tuckerbox' ] },
 	 {	 version: '1.8.7', log: [ 'Hide authentication information in the Manage Feeds display' ] },
 	 {	 version: '1.8.6', log: [ 'Added support for displaying the Changelog and DeviceCompatibility fields' ] },

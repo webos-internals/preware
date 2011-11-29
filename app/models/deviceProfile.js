@@ -42,6 +42,9 @@ deviceProfile.prototype._gotDeviceProfile = function(payload)
     }
     else {
 	this.deviceProfile = payload.deviceInfo;
+	if (this.deviceProfile.deviceId === "") {
+	    this.deviceProfile.deviceId = this.deviceProfile.nduId;
+	}
 	if (this.deviceProfileCallback !== false) {
 	    this.deviceProfileCallback(true, this.deviceProfile, '');
 	}
