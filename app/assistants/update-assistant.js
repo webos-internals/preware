@@ -14,6 +14,9 @@ function UpdateAssistant(scene, force, var1, var2, var3)
 	this.isVisible = false;
 	this.onlyLoad  = false;
 	
+	// list of feeds
+	this.feeds = [];
+
 	// we'll need these for the subscription based update
 	this.subscription = false;
 
@@ -221,6 +224,7 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	this.subscription = IPKGService.getMachineName(this.onDeviceType.bindAsEventListener(this, onlyLoad));
 
 };
+
 UpdateAssistant.prototype.onDeviceType = function(response, onlyLoad)
 {
 
@@ -240,6 +244,7 @@ UpdateAssistant.prototype.onDeviceType = function(response, onlyLoad)
 	    onFailure: this.onConnection.bindAsEventListener(this, onlyLoad)
 	});
 };
+
 UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 {
 	var hasNet = false;
@@ -253,6 +258,7 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	this.showActionHelpTimer(2);
 	this.subscription = IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
 };
+
 UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 {
 	try 
@@ -293,7 +299,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 					// initiate update if we have a connection
 					this.displayAction($L("<strong>Downloading Feed Information</strong>"), $L("This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding."));
 					this.showActionHelpTimer(120); // 2 minutes
-					this.subscription = IPKGService.update(this.onUpdate.bindAsEventListener(this));
+					this.subscription = feeds.loadFeeds(this, this.downloadFeeds.bindAsEventListener(this));
 				}
 				else 
 				{
@@ -309,53 +315,61 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 		this.errorMessage('onVersionCheck Error', e, this.doneUpdating);
 	}
 };
-UpdateAssistant.prototype.onUpdate = function(payload)
+
+UpdateAssistant.prototype.downloadFeeds = function(feeds)
 {
-	try 
-	{
-		// log payload for display
-		IPKGService.logPayload(payload, $L("Update"));
-		
-		if (!payload) 
-		{
-			// i dont know if this will ever happen, but hey, it might
-			this.errorMessage('Preware', $L("Cannot access the service. First try restarting Preware, or reboot your device and try again."),
-					  this.doneUpdating);
-		}
-		else if (payload.errorCode != undefined)
-		{
-			// we probably dont need to check this stuff here,
-			// it would have already been checked and errored out of this process
-			if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
-			{
-				this.errorMessage('Preware', $L("The service is not running. First try restarting Preware, or reboot your device and try again."),
-						  this.doneUpdating);
-			}
-			else
-			{
-				this.errorMessage('Preware', payload.errorText + '<br>' + payload.stdErr,
+	this.feeds = feeds;
+
+	alert("downloadFeeds"+JSON.stringify(feeds));
+
+	if (this.feeds.length) {
+		this.showProgress();
+		this.downloadFeedRequest(0);
+	}
+};
+
+UpdateAssistant.prototype.downloadFeedRequest = function(num)
+{
+	// cancel the last subscription, this may not be needed
+	if (this.subscription) {
+		this.subscription.cancel();
+	}
+	
+	// update display
+	this.displayAction($L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name);
+	this.setProgress(Math.round(((num+1)/(this.feeds.length+1)) * 100));
+	
+	// subscribe to new feed
+	this.subscription = IPKGService.downloadFeed(this.downloadFeedResponse.bindAsEventListener(this, num),
+												 this.feeds[num].name, this.feeds[num].list);
+};
+
+UpdateAssistant.prototype.downloadFeedResponse = function(payload, num)
+{
+	if ((payload.returnValue === false) || (payload.stage == "failed")) {
+		this.errorMessage('Preware', payload.errorText + '<br>' + payload.stdErr,
 						  this.loadFeeds);
-			}
+	}
+	else if (payload.stage == "status") {
+		this.displayAction($L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name + "<br><br>" + payload.status);
+	}
+	else if (payload.stage == "completed") {
+		num = num + 1;
+		if (num < this.feeds.length) {
+			// start next
+			this.downloadFeedRequest(num);
 		}
-		else if (payload.stage == "status") {
-			this.displayAction($L("<strong>Downloading Feed Information</strong><br>") + payload.status);
-		}
-		else if (((payload.stage == undefined) && (payload.returnVal != undefined)) ||
-			 (payload.stage == "completed"))
-		{
-			// its returned, but we don't really care if anything was actually updated
-			//console.log(payload.returnVal);
+		else {
+			// we're done
+			this.displayAction($L("<strong>Done Downoading!</strong>"));
+			this.setProgress(0);
+			this.hideProgress();
 			
 			// well updating looks to have finished, lets log the date:
 			prefs.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
 			
 			this.loadFeeds();
 		}
-	}
-	catch (e)
-	{
-		Mojo.Log.logException(e, 'main#onUpdate');
-		this.errorMessage('onUpdate Error', e, this.doneUpdating);
 	}
 };
 

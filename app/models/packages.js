@@ -34,7 +34,7 @@ function packagesModel()
 	// stores packages staged by a multi-install option
 	this.stagedPkgs = false;
 	
-	// we'll need these for the subscription based rawlist
+	// we'll need these for the subscription based calls
 	this.subscription = false;
 	this.rawData = '';
 	this.unknownCount = 0;
@@ -172,8 +172,9 @@ packagesModel.prototype.infoStatusRequest = function()
 	this.updateAssistant.setProgress(Math.round((1/(this.feeds.length+1)) * 100));
 	
 	// request the rawdata
-	this.subscription = IPKGService.rawstatus(this.infoResponse.bindAsEventListener(this, -1));
+	this.subscription = IPKGService.getStatusFile(this.infoResponse.bindAsEventListener(this, -1));
 };
+
 packagesModel.prototype.infoListRequest = function(num)
 {
 	// cancel the last subscription, this may not be needed
@@ -183,12 +184,12 @@ packagesModel.prototype.infoListRequest = function(num)
 	}
 	
 	// update display
-	this.updateAssistant.displayAction($L("<strong>Loading Package Information</strong><br>") + this.feeds[num].substr(0, 1).toUpperCase() + this.feeds[num].substr(1));
+	this.updateAssistant.displayAction($L("<strong>Loading Package Information</strong><br>") + this.feeds[num]);
 	this.updateAssistant.setProgress(Math.round(((num+2)/(this.feeds.length+1)) * 100));
 	this.feedNum++;
 	
 	// subscribe to new feed
-	this.subscription = IPKGService.rawlist(this.infoResponse.bindAsEventListener(this, num), this.feeds[num]);
+	this.subscription = IPKGService.getListFile(this.infoResponse.bindAsEventListener(this, num), this.feeds[num]);
 };
 packagesModel.prototype.infoResponse = function(payload, num)
 {

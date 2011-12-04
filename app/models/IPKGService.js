@@ -129,7 +129,23 @@ IPKGService.getDirListing = function(callback, dir)
 	return request;
 };
 
-IPKGService.rawlist = function(callback, feed)
+IPKGService.downloadFeed = function(callback, feed, url)
+{
+	var request = new Mojo.Service.Request(IPKGService.identifier,
+	{
+		method: 'downloadFeed',
+		parameters: {
+			"subscribe":true,
+			"feed":feed,
+			"url":url
+		},
+		onSuccess: callback,
+		onFailure: callback
+	});
+	return request;
+};
+
+IPKGService.getListFile = function(callback, feed)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
@@ -143,7 +159,8 @@ IPKGService.rawlist = function(callback, feed)
 	});
 	return request;
 };
-IPKGService.rawstatus = function(callback)
+
+IPKGService.getStatusFile = function(callback)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{

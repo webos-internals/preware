@@ -1396,6 +1396,120 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
+bool do_download(LSMessage *message, char *pathname, char *url) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  struct stat info;
+  char command[MAXLINLEN];
+
+  char headers[MAXLINLEN];
+
+  if (!strncmp(url, "https://", 8)) {
+    snprintf(headers, MAXLINLEN,
+	     "--user-agent Preware -H \"Device-Id: %s\" -H \"Auth-Token: %s\"",
+	     device, token);
+  }
+  else {
+    strcpy(headers, "--user-agent Preware");
+  }
+
+  /* Download the file */
+
+  snprintf(command, MAXLINLEN,
+	   "/usr/bin/curl %s --create-dirs --location --fail --show-error --output %s %s 2>&1",
+	   headers, pathname, url);
+
+  strcpy(run_command_buffer, "{\"stdOut\": [");
+  if (run_command(command, message, downloadstats)) {
+    strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"download\"}");
+    if (!LSMessageRespond(message, run_command_buffer, &lserror)) goto error;
+  }
+  else {
+    strcat(run_command_buffer, "]");
+    if (!report_command_failure(message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
+    return false;
+  }
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
+
+void *feed_download_thread(void *arg) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  LSMessage *message = (LSMessage *)arg;
+
+  json_t *object = json_parse_document(LSMessageGetPayload(message));
+  
+  // Extract the feed argument from the message
+  json_t *feed = json_find_first_label(object, "feed");
+  if (!feed || (feed->child->type != JSON_STRING) ||
+      (strlen(feed->child->text) >= MAXNAMLEN) ||
+      (strspn(feed->child->text, ALLOWED_CHARS) != strlen(feed->child->text))) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing feed parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  // Extract the url argument from the message
+  json_t *url = json_find_first_label(object, "url");               
+  if (!url || (url->child->type != JSON_STRING) ||
+      (strlen(url->child->text) >= MAXLINLEN)) {
+    if (!LSMessageRespond(message,
+			"{\"returnValue\": false, \"errorCode\": -1, "
+			"\"errorText\": \"Invalid or missing url parameter\", "
+			"\"stage\": \"failed\"}",
+			&lserror)) goto error;
+    goto end;
+  }
+
+  char pathname[MAXNAMLEN];
+  sprintf(pathname, "/media/internal/apps/usr/ipkg/cache/%s", feed->child->text);
+
+  if (do_download(message, pathname, url->child->text)) {
+    if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
+  }
+
+ end:
+  LSMessageUnref(message);
+  return;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+  goto end;
+}
+
+bool feed_download_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+  LSError lserror;
+  LSErrorInit(&lserror);
+
+  pthread_t tid;
+
+  LSMessageRef(message);
+
+  // Report that the update operaton has begun
+  if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"begin\"}", &lserror)) goto error;
+
+  pthread_create(&tid, NULL, feed_download_thread, (void *)message);
+
+  return true;
+ error:
+  LSErrorPrint(&lserror, stderr);
+  LSErrorFree(&lserror);
+ end:
+  return false;
+}
+
 bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
   LSError lserror;
   LSErrorInit(&lserror);
@@ -2375,6 +2489,9 @@ LSMethod luna_methods[] = {
   { "setAuthParams",	set_auth_params_method },
 
   { "getConfigs",	get_configs_method },
+
+  { "downloadFeed",	feed_download_method },
+
   { "getListFile",	get_list_file_method },
   { "getControlFile",	get_control_file_method },
   { "getStatusFile",	get_status_file_method },
