@@ -1396,12 +1396,15 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
-bool do_download(LSMessage *message, char *pathname, char *url) {
+bool do_download(LSMessage *message, bool gzipped, char *feed, char *url) {
   LSError lserror;
   LSErrorInit(&lserror);
 
   struct stat info;
   char command[MAXLINLEN];
+
+  char pathname[MAXNAMLEN];
+  sprintf(pathname, "/media/cryptofs/apps/usr/lib/ipkg/cache/%s", feed);
 
   char headers[MAXLINLEN];
 
@@ -1416,9 +1419,16 @@ bool do_download(LSMessage *message, char *pathname, char *url) {
 
   /* Download the file */
 
-  snprintf(command, MAXLINLEN,
-	   "/usr/bin/curl %s --create-dirs --location --fail --show-error --output %s %s 2>&1",
-	   headers, pathname, url);
+  if (gzipped) {
+    snprintf(command, MAXLINLEN,
+	     "( /usr/bin/curl %s --create-dirs --location --fail --show-error %s/Packages.gz | /bin/gunzip > %s ) 2>&1",
+	     headers, url, pathname);
+  }
+  else {
+    snprintf(command, MAXLINLEN,
+	     "/usr/bin/curl %s --create-dirs --location --fail --show-error --output %s %s/Packages 2>&1",
+	     headers, pathname, url);
+  }
 
   strcpy(run_command_buffer, "{\"stdOut\": [");
   if (run_command(command, message, downloadstats)) {
@@ -1448,6 +1458,17 @@ void *feed_download_thread(void *arg) {
 
   json_t *object = json_parse_document(LSMessageGetPayload(message));
   
+  // Extract the gzipped argument from the message
+  json_t *gzipped = json_find_first_label(object, "gzipped");
+  if (!gzipped || ((gzipped->child->type != JSON_TRUE) && (gzipped->child->type != JSON_FALSE))) {
+    if (!LSMessageRespond(message,
+			  "{\"returnValue\": false, \"errorCode\": -1, "
+			  "\"errorText\": \"Invalid or missing gzipped parameter\", "
+			  "\"stage\": \"failed\"}",
+			  &lserror)) goto error;
+    goto end;
+  }
+
   // Extract the feed argument from the message
   json_t *feed = json_find_first_label(object, "feed");
   if (!feed || (feed->child->type != JSON_STRING) ||
@@ -1473,10 +1494,10 @@ void *feed_download_thread(void *arg) {
     goto end;
   }
 
-  char pathname[MAXNAMLEN];
-  sprintf(pathname, "/media/internal/apps/usr/ipkg/cache/%s", feed->child->text);
-
-  if (do_download(message, pathname, url->child->text)) {
+  if (do_download(message,
+		  (gzipped->child->type == JSON_TRUE) ? true : false,
+		  feed->child->text,
+		  url->child->text)) {
     if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"completed\"}", &lserror)) goto error;
   }
 

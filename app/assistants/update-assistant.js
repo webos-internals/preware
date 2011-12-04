@@ -341,7 +341,7 @@ UpdateAssistant.prototype.downloadFeedRequest = function(num)
 	
 	// subscribe to new feed
 	this.subscription = IPKGService.downloadFeed(this.downloadFeedResponse.bindAsEventListener(this, num),
-												 this.feeds[num].name, this.feeds[num].list);
+												 this.feeds[num].gzipped, this.feeds[num].name, this.feeds[num].url);
 };
 
 UpdateAssistant.prototype.downloadFeedResponse = function(payload, num)

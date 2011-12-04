@@ -73,7 +73,6 @@ feedsModel.prototype.onConfigs = function(payload, callback)
 							feedObj.gzipped = (tmpSplit2[0] == "src/gz" ? true : false);
 							feedObj.name = tmpSplit2[1];
 							feedObj.url = tmpSplit2[2];
-							feedObj.list = feedObj.url+"/"+(feedObj.gzipped ? "Packages.gz" : "Packages");
 							// alert("Adding feed '"+feedObj.name+"' at '"+feedObj.url+"'");
 							this.feeds.push(feedObj);
 						}

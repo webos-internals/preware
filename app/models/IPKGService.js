@@ -129,13 +129,14 @@ IPKGService.getDirListing = function(callback, dir)
 	return request;
 };
 
-IPKGService.downloadFeed = function(callback, feed, url)
+IPKGService.downloadFeed = function(callback, gzipped, feed, url)
 {
 	var request = new Mojo.Service.Request(IPKGService.identifier,
 	{
 		method: 'downloadFeed',
 		parameters: {
 			"subscribe":true,
+			"gzipped":gzipped,
 			"feed":feed,
 			"url":url
 		},
