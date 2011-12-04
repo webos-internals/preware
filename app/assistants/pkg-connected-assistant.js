@@ -310,7 +310,7 @@ PkgConnectedAssistant.prototype.simpleMessage = function(message)
 	    title:				$L("Connected Packages"),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
-	    message:			message,
+		message:			removeAuth(message),
 	    choices:			[{label:$L("Ok"), value:'ok'}],
 		onChoose:			this.simpleMessageOK.bindAsEventListener(this)
     });
@@ -330,7 +330,7 @@ PkgConnectedAssistant.prototype.actionMessage = function(message, choices, actio
 	    title:				$L("Connected Packages"),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
-	    message:			message,
+	    message:			removeAuth(message),
 	    choices:			choices,
 	    onChoose:			actions
     });

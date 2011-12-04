@@ -345,7 +345,7 @@ PkgGroupsAssistant.prototype.alertMessage = function(message)
 	{
 	    title:				'Preware',
 		allowHTMLMessage:	true,
-	    message:			message,
+	    message:			removeAuth(message),
 	    choices:			[{label:$L("Ok"), value:''}],
 		onChoose:			function(value){}
     });

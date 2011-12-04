@@ -347,7 +347,7 @@ UpdateAssistant.prototype.downloadFeedRequest = function(num)
 UpdateAssistant.prototype.downloadFeedResponse = function(payload, num)
 {
 	if ((payload.returnValue === false) || (payload.stage == "failed")) {
-		this.errorMessage('Preware', payload.errorText + '<br>' + payload.stdErr,
+		this.errorMessage('Preware', payload.errorText + '<br>' + payload.stdErr.join("<br>"),
 						  this.loadFeeds);
 	}
 	else if (payload.stage == "status") {
@@ -521,8 +521,8 @@ UpdateAssistant.prototype.errorMessage = function(title, message, okFunction)
 	{
 		allowHTMLMessage:	true,
 		preventCancel:		true,
-	    title:			title,
-	    message:			message,
+	    title:				title,
+		message:			removeAuth(message),
 	    choices:			[{label:$L("Ok"), value:'ok'}],
 	    onChoose:			okFunction.bindAsEventListener(this)
     });

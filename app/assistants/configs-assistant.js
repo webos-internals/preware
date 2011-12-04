@@ -425,7 +425,7 @@ ConfigsAssistant.prototype.alertMessage = function(title, message)
 	    onChoose: function(value) {},
 		allowHTMLMessage: true,
 	    title: title,
-	    message: message,
+	    message: removeAuth(message),
 	    choices:[{label:$L("Ok"), value:""}]
     });
 };

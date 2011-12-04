@@ -323,7 +323,7 @@ PkgInstallAssistant.prototype.simpleMessage = function(message)
 	{
 	    title:				$L('Package'),
 		allowHTMLMessage:	true,
-	    message:			message,
+	    message:			removeAuth(message),
 	    choices:			[{label:$L('Ok'), value:''}],
 		onChoose:			function(value){}
     });
@@ -335,7 +335,7 @@ PkgInstallAssistant.prototype.actionMessage = function(message, choices, actions
 	    title:				$L('Package'),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
-	    message:			message,
+	    message:			removeAuth(message),
 	    choices:			choices,
 	    onChoose:			actions
     });

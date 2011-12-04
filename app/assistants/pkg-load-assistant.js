@@ -348,8 +348,8 @@ PkgLoadAssistant.prototype.errorMessage = function(title, message, okFunction)
 	{
 		allowHTMLMessage:	true,
 		preventCancel:		true,
-	    title:			title,
-	    message:			message,
+	    title:				title,
+		message:			removeAuth(message),
 	    choices:			[{label:$L("Ok"), value:'ok'}],
 	    onChoose:			okFunction.bindAsEventListener(this)
     });

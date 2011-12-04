@@ -52,13 +52,13 @@ helpData.lookup =
 	'useTuckerbox':
 	{
 		title: $L('Use App Tuckerbox'),
-		data: $L('App Tuckerbox is an application that allows you to register your device for direct access to information gathered from the HP App Catalog, Web and Beta feeds. When this option is on, Preware will install applications directly using information from those App Tuckerbox feeds where possible. Note that your device must be registered before accessing the feeds, and you must turn this off before you attempt to purchase an application.')
+		data: $L('App Tuckerbox is a homebrew app that allows you to register your device for direct access to information gathered from the HP App Catalog, Web and Beta feeds. When this option is on, Preware will install apps directly from the HP servers using information from these App Tuckerbox feeds. This may allow you to bypass device, region and carrier restrictions for free and previously purchased apps. This does not bypass purchase, and Preware cannot purchase apps. Note that your device must be registered with App Tuckerbox to access these feeds.')
 	},
 	
 	'ignoreDevices':
 	{
 		title: $L('Ignore Device Compat.'),
-		data: $L('Preware normally only shows apps that are compatible with your device.  When this option is on, Preware will show all apps, regardless of device compatibility. Note that devices that are not compatible with your device may not operate correctly.')
+		data: $L('Preware normally only shows apps that are compatible with your device. When this option is on, Preware will show all apps, regardless of device compatibility. Note that apps that are not compatible with your device may not operate correctly.')
 	},
 	
 	'showAvailableTypes':

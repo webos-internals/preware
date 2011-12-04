@@ -585,7 +585,7 @@ PkgViewAssistant.prototype.simpleMessage = function(message)
 	{
 	    title:				$L(this.item.type),
 		allowHTMLMessage:	true,
-	    message:			message,
+	    message:			removeAuth(message),
 	    choices:			[{label:$L('Ok'), value:''}],
 		onChoose:			function(value){}
     });
@@ -597,7 +597,7 @@ PkgViewAssistant.prototype.actionMessage = function(message, choices, actions)
 	    title:				$L(this.item.type),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
-	    message:			message,
+	    message:			removeAuth(message),
 	    choices:			choices,
 	    onChoose:			actions
     });

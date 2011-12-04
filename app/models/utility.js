@@ -64,6 +64,16 @@ getDomain = function(url)
 	return 'Link';
 };
 
+// removeAuth function
+removeAuth = function(str)
+{
+	return str
+	.replace(new RegExp('http://[^@/]+@','gm'), 'http://user:pass')
+	.replace(new RegExp('-H "Device-Id: [^"]+" ','gm'), "")
+	.replace(new RegExp('-H "Auth-Token: [^"]+" ','gm'), "")
+	;
+};
+
 // trim function
 trim = function(str)
 {

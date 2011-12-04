@@ -900,7 +900,7 @@ PkgListAssistant.prototype.alertMessage = function(message)
 	{
 	    title:				'Preware',
 		allowHTMLMessage:	true,
-	    message:			message,
+	    message:			removeAuth(message),
 	    choices:			[{label:$L("Ok"), value:''}],
 		onChoose:			function(value){}
     });
@@ -966,7 +966,7 @@ PkgListAssistant.prototype.simpleMessage = function(message)
 	    title:				$L("Packages"),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
-	    message:			message,
+		message:			removeAuth(message),
 	    choices:			[{label:$L("Ok"), value:'ok'}],
 		onChoose:			this.simpleMessageOK.bindAsEventListener(this)
     });
@@ -986,7 +986,7 @@ PkgListAssistant.prototype.actionMessage = function(message, choices, actions)
 	    title:				$L("Packages"),
 		allowHTMLMessage:	true,
 		preventCancel:		true,
-	    message:			message,
+	    message:			removeAuth(message),
 	    choices:			choices,
 	    onChoose:			actions
     });

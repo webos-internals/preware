@@ -38,7 +38,7 @@ IpkgLogAssistant.prototype.setup = function()
 	}
 	else 
 	{
-		this.controller.get('logData').innerHTML = IPKGService.log;
+		this.controller.get('logData').innerHTML = removeAuth(IPKGService.log);
 	}
 	
 	this.controller.setupWidget
