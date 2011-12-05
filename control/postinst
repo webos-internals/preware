@@ -60,7 +60,7 @@ cp $APPS/usr/palm/applications/${PID}/upstart/${SID} /var/palm/event.d/${SID}
 /sbin/start ${SID}
 
 # Create the ipkg config and database areas
-mkdir -p $APPS/etc/ipkg $APPS/usr/lib/ipkg
+mkdir -p $APPS/etc/ipkg $APPS/usr/lib/ipkg/cache
 
 # Remove all list database cache files
 rm -f $APPS/usr/lib/ipkg/lists/*
