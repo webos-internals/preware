@@ -22,14 +22,6 @@ HelpDataAssistant.prototype.backTap = function(event)
 	this.controller.stageController.popScene();
 };
 
-HelpDataAssistant.prototype.activate = function(event)
-{
-	if (this.controller.stageController.setWindowOrientation)
-	{
-    	this.controller.stageController.setWindowOrientation("up");
-	}
-};
-HelpDataAssistant.prototype.deactivate = function(event) {};
 HelpDataAssistant.prototype.cleanup = function(event) {
 	this.controller.stopListening(this.backElement,  Mojo.Event.tap, this.backTapHandler);
 };
