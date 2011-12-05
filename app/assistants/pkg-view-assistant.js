@@ -413,15 +413,15 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			
 			// install
 			case 'do-install':
-				if (this.item.preInstallMessage)
-				{
+				if (prefs.get().ignoreDevices && this.item.devices && this.item.devices.length > 0 &&
+					!this.item.devices.include(Mojo.Environment.DeviceInfo.modelNameAscii)) {
 					this.controller.showAlertDialog(
 					{
-					    title:				this.item.title,
+					    title:				$L("Incompatible Device"),
 						allowHTMLMessage:	true,
-					    message:			this.item.preInstallMessage,
+						message:			$L("This app is marked as incompatible with this device. You are installing it at your own risk and give up all moral and legal rights to developer support for this installation. Community support may be available at <a href=http://forums.precentral.net>forums.precentral.net</a>."),
 					    choices:			[{label:$L('Ok'), value:'install'}, {label:$L('Cancel'), value:'cancel'}],
-						onChoose:			this.doGetAppCatInstallStatus.bindAsEventListener(this)
+						onChoose:			this.doGetAppCatInstallStatus.bindAsEventListener(this, 'install')
 				    });
 				}
 				else
@@ -432,15 +432,15 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			
 			// update
 			case 'do-update':
-				if (this.item.preUpdateMessage)
-				{
+				if (prefs.get().ignoreDevices && this.item.devices && this.item.devices.length > 0 &&
+					!this.item.devices.include(Mojo.Environment.DeviceInfo.modelNameAscii)) {
 					this.controller.showAlertDialog(
 					{
-					    title:				this.item.title,
+					    title:				$L("Incompatible Device"),
 						allowHTMLMessage:	true,
-					    message:			this.item.preUpdateMessage,
-					    choices:			[{label:$L('Ok'), value:'update'}, {label:$L('Cancel'), value:'cancel'}],
-						onChoose:			this.doGetAppCatInstallStatus.bindAsEventListener(this)
+						message:			$L("This app is marked as incompatible with this device. You are updating it at your own risk and give up all moral and legal rights to developer support for this installation. Community support may be available at <a href=http://forums.precentral.net>forums.precentral.net</a>."),
+					    choices:			[{label:$L('Ok'), value:'install'}, {label:$L('Cancel'), value:'cancel'}],
+						onChoose:			this.doGetAppCatInstallStatus.bindAsEventListener(this, 'update')
 				    });
 				}
 				else
@@ -451,21 +451,7 @@ PkgViewAssistant.prototype.handleCommand = function(event)
 			
 			// remove
 			case 'do-remove':
-				if (this.item.preRemoveMessage)
-				{
-					this.controller.showAlertDialog(
-					{
-					    title:				this.item.title,
-						allowHTMLMessage:	true,
-					    message:			this.item.preRemoveMessage,
-					    choices:			[{label:$L('Ok'), value:'remove'}, {label:$L('Cancel'), value:'cancel'}],
-						onChoose:			this.doGetAppCatInstallStatus.bindAsEventListener(this)
-				    });
-				}
-				else
-				{
-					this.doGetAppCatInstallStatus('remove');
-				}
+				this.doGetAppCatInstallStatus('remove');
 				break;
 			
 			// install
