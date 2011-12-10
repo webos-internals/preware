@@ -195,7 +195,7 @@ MainAssistant.prototype.activate = function(event)
 
 MainAssistant.prototype.loadAuthParams = function()
 {
-	DeviceProfile.getDeviceProfile(this.getDeviceProfile.bind(this), this.reloadDeviceProfile);
+	DeviceProfile.getDeviceProfile(this.getDeviceProfile.bind(this), false);
 };
 
 MainAssistant.prototype.getDeviceProfile = function(returnValue, deviceProfile, errorText)
@@ -209,7 +209,7 @@ MainAssistant.prototype.getDeviceProfile = function(returnValue, deviceProfile, 
 
 	if (this.deviceProfile) {
 		this.palmProfile = false;
-		PalmProfile.getPalmProfile(this.getPalmProfile.bind(this), this.reloadPalmProfile);
+		PalmProfile.getPalmProfile(this.getPalmProfile.bind(this), false);
 	}
 };
 

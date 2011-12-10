@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.9.6', log: [ 'Added support for secure feed downloads' ] },
 	 {	 version: '1.9.5', log: [ 'Fixed the window orientation for the blue question mark help items' ] },
 	 {	 version: '1.9.4', log: [ 'Added disclaimer when installing apps marked incompatible with current device' ] },
 	 {	 version: '1.9.2', log: [ 'Revamped feed downloading to give better error and status reporting' ] },

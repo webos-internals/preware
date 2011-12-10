@@ -117,23 +117,25 @@ UpdateAssistant.prototype.setup = function()
 	// call for feed update depending on update interval
 	if (this.force === true)
 	{
+		this.onlyLoad = false;
 		this.updateFeeds();
 	}
 	else if (this.force === 'load')
 	{
-		this.updateFeeds(true);
 		this.onlyLoad = true;
+		this.updateFeeds();
 	}
 	else if (prefs.get().updateInterval == 'launch')
 	{
 		// we should update then load
+		this.onlyLoad = false;
 		this.updateFeeds();
 	}
 	else if (prefs.get().updateInterval == 'manual')
 	{
 		// straight to loading
-		this.updateFeeds(true);
 		this.onlyLoad = true;
+		this.updateFeeds();
 	}
 	else if (prefs.get().updateInterval == 'daily')
 	{
@@ -142,13 +144,14 @@ UpdateAssistant.prototype.setup = function()
 		if (now - prefs.get().lastUpdate > 86400)
 		{
 			// we should update then load
+			this.onlyLoad = false;
 			this.updateFeeds();
 		}
 		else
 		{
 			// straight to loading
-			this.updateFeeds(true);
 			this.onlyLoad = true;
+			this.updateFeeds();
 		}
 	}
 	else if (prefs.get().updateInterval == 'ask')
@@ -180,6 +183,7 @@ UpdateAssistant.prototype.setup = function()
 	else
 	{
 		// this really shouldn't happen, but if it does, lets update
+		this.onlyLoad = false;
 		this.updateFeeds();
 	}
 };
@@ -187,19 +191,18 @@ UpdateAssistant.prototype.setup = function()
 UpdateAssistant.prototype.yesTap = function(event)
 {
 	// we should update then load
+	this.onlyLoad = false;
 	this.updateFeeds();
 };
 UpdateAssistant.prototype.noTap = function(event)
 {
 	// straight to loading
-	this.updateFeeds(true);
 	this.onlyLoad = true;
+	this.updateFeeds();
 };
 
-UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
+UpdateAssistant.prototype.updateFeeds = function()
 {
-	// the onlyLoad specifies if we should go straight to loading or not
-	// even if there is an internet connection
 	this.spinnerElement.style.display = "";
 	this.questionContainer.style.display = "none";
 	
@@ -221,11 +224,59 @@ UpdateAssistant.prototype.updateFeeds = function(onlyLoad)
 	this.displayAction($L("<strong>Checking Device Type</strong>"), $L("This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your device and try again."));
 	this.showActionHelpTimer(2);
 	this.hideProgress();
-	this.subscription = IPKGService.getMachineName(this.onDeviceType.bindAsEventListener(this, onlyLoad));
 
+	this.loadAuthParams();
 };
 
-UpdateAssistant.prototype.onDeviceType = function(response, onlyLoad)
+UpdateAssistant.prototype.loadAuthParams = function()
+{
+	DeviceProfile.getDeviceProfile(this.getDeviceProfile.bind(this), false);
+};
+
+UpdateAssistant.prototype.getDeviceProfile = function(returnValue, deviceProfile, errorText)
+{
+	if (returnValue === false) {
+		this.subscription = IPKGService.getMachineName(this.onDeviceType.bindAsEventListener(this));
+		return;
+	}
+
+	this.deviceProfile = deviceProfile;
+
+	if (this.deviceProfile) {
+		this.palmProfile = false;
+		PalmProfile.getPalmProfile(this.getPalmProfile.bind(this), false);
+	}
+	else {
+		this.subscription = IPKGService.getMachineName(this.onDeviceType.bindAsEventListener(this));
+	}
+};
+
+UpdateAssistant.prototype.getPalmProfile = function(returnValue, palmProfile, errorText)
+{
+	if (returnValue === false) {
+		this.subscription = IPKGService.getMachineName(this.onDeviceType.bindAsEventListener(this));
+		return;
+	}
+
+	this.palmProfile = palmProfile;
+
+	if (this.palmProfile) {
+		IPKGService.setAuthParams(this.authParamsSet.bind(this),
+								  this.deviceProfile.deviceId,
+								  this.palmProfile.token);
+	}
+	else {
+		this.subscription = IPKGService.getMachineName(this.onDeviceType.bindAsEventListener(this));
+	}
+};
+
+UpdateAssistant.prototype.authParamsSet = function(payload)
+{
+	// Not yet checking status or reporting errors
+	this.subscription = IPKGService.getMachineName(this.onDeviceType.bindAsEventListener(this));
+};
+
+UpdateAssistant.prototype.onDeviceType = function(response)
 {
 
 	if (response && response.returnValue === true) {
@@ -240,12 +291,12 @@ UpdateAssistant.prototype.onDeviceType = function(response, onlyLoad)
 	this.hideProgress();
 	this.controller.serviceRequest('palm://com.palm.connectionmanager', {
 	    method: 'getstatus',
-	    onSuccess: this.onConnection.bindAsEventListener(this, onlyLoad),
-	    onFailure: this.onConnection.bindAsEventListener(this, onlyLoad)
+	    onSuccess: this.onConnection.bindAsEventListener(this),
+	    onFailure: this.onConnection.bindAsEventListener(this)
 	});
 };
 
-UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
+UpdateAssistant.prototype.onConnection = function(response)
 {
 	var hasNet = false;
 	if (response && response.returnValue === true && (response.isInternetConnectionAvailable === true || response.wifi.state == "connected"))
@@ -256,10 +307,10 @@ UpdateAssistant.prototype.onConnection = function(response, onlyLoad)
 	// run version check
 	this.displayAction($L("<strong>Checking Service Access</strong>"), $L("This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your device and try again."));
 	this.showActionHelpTimer(2);
-	this.subscription = IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet, onlyLoad));
+	this.subscription = IPKGService.version(this.onVersionCheck.bindAsEventListener(this, hasNet));
 };
 
-UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
+UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet)
 {
 	try 
 	{
@@ -294,7 +345,7 @@ UpdateAssistant.prototype.onVersionCheck = function(payload, hasNet, onlyLoad)
 			}
 			else 
 			{
-				if (hasNet && !onlyLoad) 
+				if (hasNet && !this.onlyLoad) 
 				{
 					// initiate update if we have a connection
 					this.displayAction($L("<strong>Downloading Feed Information</strong>"), $L("This should take less than a couple of minutes even on a slow connection.<br>If it takes longer than that, first check your network connection, then try disabling feeds one at a time until you find which of the feeds are not responding."));
@@ -514,8 +565,8 @@ UpdateAssistant.prototype.handleCommand = function(event)
 };
 UpdateAssistant.prototype.errorMessage = function(title, message, okFunction)
 {
-	this.displayAction($L("<strong>ERROR!</strong>"));
-	this.hideProgress();
+	// this.displayAction($L("<strong>ERROR!</strong>"));
+	// this.hideProgress();
 	
 	this.controller.showAlertDialog(
 	{

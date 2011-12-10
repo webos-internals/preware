@@ -68,7 +68,8 @@ getDomain = function(url)
 removeAuth = function(str)
 {
 	return str
-	.replace(new RegExp('http://[^@/]+@','gm'), 'http://user:pass@')
+	.replace(new RegExp('http://[^@/]+@','gm'), 'http://')
+	.replace(new RegExp('https://[^@/]+@','gm'), 'https://')
 	.replace(new RegExp('-H "Device-Id: [^"]+" ','gm'), "")
 	.replace(new RegExp('-H "Auth-Token: [^"]+" ','gm'), "")
 	;

@@ -247,6 +247,24 @@ static bool downloadstats(char *message) {
 }
 
 //
+// Parse progress messages from curl --verbose and format for display in webOS.
+// curl provides a correct command return status value, so we always return true.
+//
+static bool verifyheader(char *message) {
+
+  // Check for curl progress messages, and extract the relevant data
+  if (!strncmp(message, "error:", 6)) {
+    return false;
+  }
+
+  // Nullify any other messages except the HTTP status line
+  if (strncmp(message, "HTTP/", 5)) {
+    strcpy(message, "");
+  }
+  return true;
+}
+
+//
 // Parse progress messages from the com.palm.appinstaller service and format for display in webOS.
 // We also need to force a termination on install failures (since luna-send will hang early).
 // Messages are of the form:
@@ -1415,6 +1433,30 @@ bool do_download(LSMessage *message, bool gzipped, char *feed, char *url) {
   }
   else {
     strcpy(headers, "--user-agent Preware");
+  }
+
+  /* Verify access to the file */
+
+  if (gzipped) {
+    snprintf(command, MAXLINLEN,
+	     "/usr/bin/curl -s -I %s --location --fail --show-error %s/Packages.gz 2>&1",
+	     headers, url);
+  }
+  else {
+    snprintf(command, MAXLINLEN,
+	     "/usr/bin/curl -s -I %s --location --fail --show-error %s/Packages 2>&1",
+	     headers, url);
+  }
+
+  strcpy(run_command_buffer, "{\"stdOut\": [");
+  if (run_command(command, message, verifyheader)) {
+    strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"verify\"}");
+    if (!LSMessageRespond(message, run_command_buffer, &lserror)) goto error;
+  }
+  else {
+    strcat(run_command_buffer, "]");
+    if (!report_command_failure(message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
+    return false;
   }
 
   /* Download the file */
