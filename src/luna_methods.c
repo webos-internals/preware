@@ -1613,6 +1613,23 @@ bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
       strcpy(headers, "--user-agent Preware");
     }
 
+  /* Verify access to the file */
+
+    snprintf(command, MAXLINLEN,
+	     "/usr/bin/curl -s -I %s --location --fail --show-error %s 2>&1",
+	     headers, url);
+
+  strcpy(run_command_buffer, "{\"stdOut\": [");
+  if (run_command(command, message, verifyheader)) {
+    strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"verify\"}");
+    if (!LSMessageRespond(message, run_command_buffer, &lserror)) goto error;
+  }
+  else {
+    strcat(run_command_buffer, "]");
+    if (!report_command_failure(message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
+    return false;
+  }
+
     /* Download the package */
 
     snprintf(command, MAXLINLEN,
@@ -2265,10 +2282,39 @@ bool extract_control_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   }
   else {
 
+    char headers[MAXLINLEN];
+
+    if (!strncmp(url, "https://", 8)) {
+      snprintf(headers, MAXLINLEN,
+	       "--user-agent Preware -H \"Device-Id: %s\" -H \"Auth-Token: %s\"",
+	       device, token);
+    }
+    else {
+      strcpy(headers, "--user-agent Preware");
+    }
+
+  /* Verify access to the file */
+
+    snprintf(command, MAXLINLEN,
+	     "/usr/bin/curl -s -I %s --location --fail --show-error %s 2>&1",
+	     headers, url);
+
+    strcpy(run_command_buffer, "{\"stdOut\": [");
+    if (run_command(command, message, verifyheader)) {
+      strcat(run_command_buffer, "], \"returnValue\": true, \"stage\": \"verify\"}");
+      if (!LSMessageRespond(message, run_command_buffer, &lserror)) goto error;
+    }
+    else {
+      strcat(run_command_buffer, "]");
+      if (!report_command_failure(message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
+      return false;
+    }
+
     /* Download the package */
 
     snprintf(command, MAXLINLEN,
-	     "/usr/bin/curl --user-agent Preware --create-dirs --insecure --location --fail --show-error --output %s %s 2>&1", filename, url);
+	     "/usr/bin/curl %s --create-dirs --location --fail --show-error --output %s %s 2>&1",
+	     headers, filename, url);
 
     strcpy(run_command_buffer, "{\"stdOut\": [");
     if (run_command(command, message, downloadstats)) {
