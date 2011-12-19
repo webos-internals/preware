@@ -20,7 +20,7 @@ helpData.lookup =
 	'theme':
 	{
 		title: $L('Theme'),
-		data: $L('This changes the entire look of the app. The options themselves should be self-explanatory')
+		data: $L('This changes the entire look of the app. The options themselves should be self-explanatory.')
 	},
 	
 	
@@ -40,7 +40,7 @@ helpData.lookup =
 	'fixUnknown':
 	{
 		title: $L('Scan Unknown Packages'),
-		data: $L('This will scan the "appinfo.js" file for installed apps that are not in any of the feeds. This way you still get some information about the app. This stops "This is a webOS application." from being listed as installed.')
+		data: $L('This will scan the \"appinfo.js\" file for installed apps that are not in any of the feeds. This way you still get some information about the app. This stops \"This is a webOS application.\" from being listed as installed.')
 	},
 	
 	'resourceHandlerCheck':
@@ -64,31 +64,31 @@ helpData.lookup =
 	'showAvailableTypes':
 	{
 		title: $L('Show Available Types'),
-		data: $L('When on, Only shows "Available Packages" on the main scene, and allows you to branch into the different types from there.<br>When off, it will open up the options to choose which package types are linked directly from the main scene.')
+		data: $L('When off, only shows \"Available Packages\" on the main scene, and allows you to branch into the different types from there.<br>When oo, it will open up the options to choose which package types are linked directly from the main scene.')
 	},
 	
 	'showTypeApplication':
 	{
 		title: $L('Show Applications'),
-		data: $L('When on, "Available Applications" will appear on the main scene.')
+		data: $L('When on, \"Available Applications\" will appear on the main scene.')
 	},
 	
 	'showTypeTheme':
 	{
 		title: $L('Show Themes'),
-		data: $L('When on, "Available Themes" will appear on the main scene.')
+		data: $L('When on, \"Available Themes\" will appear on the main scene.')
 	},
 	
 	'showTypePatch':
 	{
 		title: $L('Show Patches'),
-		data: $L('When on, "Available Patches" will appear on the main scene.')
+		data: $L('When on, \"Available Patches\" will appear on the main scene.')
 	},
 	
 	'showTypeOther':
 	{
 		title: $L('Show Other Types'),
-		data: $L('When on, "Available Other" will appear on the main scene. It will include anything which doesn\'t fit into any of the other categories (like kernels, linux apps, etc.)')
+		data: $L('When on, \"Available Other\" will appear on the main scene. It will include anything which doesn\'t fit into any of the other categories (like kernels, linux apps, etc.).')
 	},
 	
 	
@@ -114,7 +114,7 @@ helpData.lookup =
 	'listInstalled':
 	{
 		title: $L('Installed Is Available'),
-		data: $L('When this option is on, packages that are installed appear in the "Available Packages" and lists like it. With it off, they only appear in the installed list or updates when applicable.')
+		data: $L('When this option is on, packages that are installed appear in the \"Available Packages\" and lists like it. With it off, they only appear in the installed list or updates when applicable.')
 	},
 	
 	'onlyShowFree':
