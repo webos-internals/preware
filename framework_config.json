@@ -1,0 +1,8 @@
+{
+	"logLevel": 99,
+	"debuggingEnabled": false,
+	"timingEnabled": true,
+	"logEvents": true,
+	"escapeHTMLInTemplates" : false,
+        "languages" : ["de"]
+}
