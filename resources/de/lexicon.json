@@ -1,7 +1,7 @@
 {
  "IPKGService.js": {
-  "(offline root mode: not running": "", 
-  "<div class=\\\"msg\\\">Nothing Interesting.</div>": ""
+  "(offline root mode: not running": "(offline root mode: not running", 
+  "<div class=\\\"msg\\\">Nothing Interesting.</div>": "<div class=\\\"msg\\\">Nichts von Interesse.</div>"
  }, 
  "configs-assistant.js": {
   "Add Feed": "Feed hinzuf\u00fcgen", 
@@ -10,18 +10,18 @@
   "Is Compressed": "Komprimiert", 
   "Name": "Name", 
   "New Feed": "Neuer Feed", 
-  "The instructions you are following are obsolete. See http://testing.preware.org/": "", 
+  "The instructions you are following are obsolete. See http://testing.preware.org/": "Die Anleitung, die Sie befolgen, ist veraltet. Siehe http://testing.preware.org/", 
   "URL": "URL", 
-  "You may not add alpha testing feeds here. See http://testing.preware.org/": "", 
-  "You may not add beta testing feeds here. See http://testing.preware.org/": "", 
+  "You may not add alpha testing feeds here. See http://testing.preware.org/": "Sie d\u00fcrfen hier keine \\\"Alpha-Testing-Feeds\\\" hinzuf\u00fcgen. Siehe http://testing.preware.org/", 
+  "You may not add beta testing feeds here. See http://testing.preware.org/": "Sie d\u00fcrfen hier keine \\\"Beta-Testing-Feeds\\\" hinzuf\u00fcgen. Siehe http://testing.preware.org/", 
   "You need to fill in all fields for a new feed.": "F\u00fcr den neuen Feed m\u00fcssen Sie alle Felder ausf\u00fcllen."
  }, 
  "configs-assistant.js, pkg-view-assistant.js": {
   "Installed": "Installiert"
  }, 
  "feeds.js, luna-assistant.js, pkg-load-assistant.js, update-assistant.js, configs-assistant.js": {
-  "Cannot access the service. First try restarting Preware, or reboot your device and try again.": "", 
-  "The service is not running. First try restarting Preware, or reboot your device and try again.": ""
+  "Cannot access the service. First try restarting Preware, or reboot your device and try again.": "Kann den Service nicht ansprechen. Starten Sie zun\u00e4chst Preware neu oder Ihr Ger\u00e4t und versuchen es dann erneut.", 
+  "The service is not running. First try restarting Preware, or reboot your device and try again.": "Der Service l\u00e4uft nicht. Starten Sie zun\u00e4chst Preware neu oder Ihr Ger\u00e4t und versuchen es dann erneut."
  }, 
  "file-picker-assistant.js": {
   "Select A File": "W\u00e4hlen Sie eine Datei aus"
@@ -33,7 +33,7 @@
   "IRC Channel": "IRC-Kanal", 
   "Support": "Support", 
   "Wiki Page": "Wiki-Seite", 
-  "by WebOS Internals": ""
+  "by WebOS Internals": "von webOS Internals"
  }, 
  "help.js": {
   "App Tuckerbox is a homebrew app that allows you to register your device for direct access to information gathered from the HP App Catalog, Web and Beta feeds. When this option is on, Preware will install apps directly from the HP servers using information from these App Tuckerbox feeds. This may allow you to bypass device, region and carrier restrictions for free and previously purchased apps. This does not bypass purchase, and Preware cannot purchase apps. Note that your device must be registered with App Tuckerbox to access these feeds.": "App Tuckerbox ist eine Homebrew Anwendung, die es dem Nutzer erlaubt sein webOS Ger\u00e4t bei dem App Tuckerbox Server zu registrieren. Dies erm\u00f6glicht den direkten Zugriff auf Informationen des HP Palm-Catalog, Palm-Beta und Palm-Web Feed. Wenn diese Option aktiviert ist, wird Preware Apps direkt von den HP Servern mit Hilfe des App Tuckerbox Feeds auf dein webOS Ger\u00e4t installieren. Dies erm\u00f6glicht dir den Zugriff auf alle kostenlosen und  bereits von dir bezahlten Apps ohne Beschr\u00e4nkungen bzgl. des Ger\u00e4tetyps, der L\u00e4ndereinstellung und des Mobilfunkanbieters. Diese Option erm\u00f6glicht es nicht, das Bezahlen von Apps zu umgehen. Apps k\u00f6nnen nicht mittels Preware gekauft werden. Beachte bitte, dass dein webOS Ger\u00e4t vorher registriert werden muss, damit du Zugriff auf App Tuckerbox nehmen kannst.", 
@@ -60,7 +60,7 @@
   "With this turned on, package searches performed in preware (usually by just starting to type in list scenes or the main scene) will also search descriptions for what you typed in. It takes a little longer, but sometimes gets you better results.": "Wenn diese Option aktiviert ist, wird bei einer Suche in Preware auch in der Beschreibung der Pakete gesucht. Eine Suche in Preware kann dadurch gestartet werden, dass man einfach auf der Startseite oder in einer Liste drauflos tippt (beim TouchPad gibt es oben rechts ein Lupensymbol). Die Suche dauert dann ein bisschen l\u00e4nger, bringt aber meist bessere Ergebnisse."
  }, 
  "ipkg-log-assistant.js": {
-  "<div class=\\\"noData\\\">The log is empty.</div>": "", 
+  "<div class=\\\"noData\\\">The log is empty.</div>": "<div class=\\\"noData\\\">Das Log ist leer.</div>", 
   "Email IPKG Log": "IPKG-Log mailen"
  }, 
  "luna-assistant.js": {
@@ -68,14 +68,14 @@
   "Rescan": "Aktualisieren", 
   "Restart Java": "Java neu starten", 
   "Restart Luna": "Luna neu starten", 
-  "This will cause your device to lose network connections and be pretty slow until it's done restarting.": "", 
+  "This will cause your device to lose network connections and be pretty slow until it's done restarting.": "Ihr Ger\u00e4t wird bis zum Ende des Java-Neustarts die Netzwerkverbindung verlieren und ziemlich tr\u00e4ge reagieren.", 
   "This will close all the applications you have open when it restarts.": "Bei einem Luna-Neustart werden alle offenen Applikationen geschlossen."
  }, 
  "luna-assistant.js, pkg-load-assistant.js, update-assistant.js": {
-  "The service version is too old. First try rebooting your device, or reinstall Preware and try again.": ""
+  "The service version is too old. First try rebooting your device, or reinstall Preware and try again.": "Die Service-Version ist zu alt. Starten Sie zun\u00e4chst Ihr Ger\u00e4t neu oder re-installieren Sie Preware und versuchen es dann erneut."
  }, 
  "main-assistant.js": {
-  "<a href=\\\"http://donate.webos-internals.org/\\\">Donated</a> To WebOS Internals Lately?": "", 
+  "<a href=\\\"http://donate.webos-internals.org/\\\">Donated</a> To WebOS Internals Lately?": "Schon an WebOS Internals <a href=\\\"http://donate.webos-internals.org/\\\">gespendet</a>?", 
   "Accessing All Open Standard Feeds": "Zugriff auf alle offenen Standard-Feeds", 
   "Applications, Themes and Patches": "Applikationen, Themes und Patches", 
   "Available Applications": "Verf\u00fcgbare Apps", 
@@ -84,7 +84,7 @@
   "Available Patches": "Verf\u00fcgbare Patches", 
   "Available Themes": "Verf\u00fcgbare Themes", 
   "Do It Now": "Jetzt durchf\u00fchren", 
-  "Happy Birthday to me!": "", 
+  "Happy Birthday to me!": "Happy Birthday to me!", 
   "Installed Packages": "Installierte Pakete", 
   "List of Everything": "Komplette Liste", 
   "Now With More Cowbell": "Jetzt mit mehr Kuhglocken", 
@@ -97,17 +97,17 @@
   "The Open Source Installer": "Der Open-Source-Installer", 
   "The Open Standard Installer": "Der offene Standard-Installer", 
   "The Universal Application Installer": "Der universelle Paketmanager", 
-  "The w Isn't Capitalized": "", 
+  "The w Isn't Capitalized": "Das w wird nicht gro\u00dfgeschrieben", 
   "We Know Palm Loves Preware": "Wir wissen, dass Palm Preware liebt.", 
   "You have recently changed the feeds. You should update the package list.": "Sie haben die Feeds k\u00fcrzlich angepasst. Die Paketliste sollte aktualisiert werden.", 
-  "You have recently changed your blacklist. You should reload the package list.": "", 
+  "You have recently changed your blacklist. You should reload the package list.": "Sie haben k\u00fcrzlich die Schwarze Liste ge\u00e4ndert. Sie sollten die Paketliste neu laden", 
   "v0.0.0": "v0.0.0"
  }, 
  "main-assistant.js, update-assistant.js, pkg-install-assistant.js": {
   "Install Package": "Paket installieren"
  }, 
  "package.js": {
-  "<b>Device Restart Is Required</b><br /><i>You will need to restart your device to be able to use the package that you just installed.</i><br />": "", 
+  "<b>Device Restart Is Required</b><br /><i>You will need to restart your device to be able to use the package that you just installed.</i><br />": "<b>Ger\u00e4teneustart erforderlich</b><br /><i>Sie m\u00fcssen Ihr Ger\u00e4t neu starten bevor Sie das eben installierte Paket benutzen k\u00f6nnen.</i><br />", 
   "Checking Dependencies": "Pr\u00fcfe Abh\u00e4ngigkeiten", 
   "Downloading / Installing": "Lade / Installiere", 
   "Downloading / Installing<br />": "Lade / Installiere<br />", 
@@ -124,29 +124,29 @@
   "Error Updating: No Further Information": "Aktualisierungsfehler: Keine weitere Information", 
   "Error Updating: See IPKG Log": "Aktualisierungsfehler: Siehe IPKG-Log", 
   "Removing": "Entferne", 
-  "Removing<br />": "", 
-  "installed": "", 
-  "removal probably failed": "", 
-  "removed": "", 
-  "updated": ""
+  "Removing<br />": "Entferne<br />", 
+  "installed": "installiert", 
+  "removal probably failed": "Entfernen m\u00f6glicherweise fehlgeschlagen", 
+  "removed": "entfernt", 
+  "updated": "aktualisiert"
  }, 
  "package.js, main-assistant.js, packages.js": {
   "Later": "Nachher"
  }, 
  "package.js, packages.js": {
-  "<b>Java Restart Is Required</b><br /><i>Once you press Ok your device will lose network connection and be unresponsive until it is done restarting.</i><br />": "", 
+  "<b>Java Restart Is Required</b><br /><i>Once you press Ok your device will lose network connection and be unresponsive until it is done restarting.</i><br />": "<b>Java-Neustart erforderlich</b><br /><i>Sobald Sie Ok w\u00e4hlen, wird Ihr Ger\u00e4t die Netzwerkverbindung verlieren und es kann m\u00f6glicherweise bis zum Anschluss des Java-Neustarts nicht mehr reagieren.</i><br />", 
   "<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />": "<b>Luna-Neustart erforderlich</b><br /><i>Wenn Sie Ok dr\u00fccken, werden alle offenen Applikationen w\u00e4hrend des Neustarts von Luna geschlossen.</i><br />"
  }, 
  "packages.js": {
   "</b> other package": "</b> Paket(en)", 
-  "<b>Device Restart Is Required</b><br /><i>You will need to restart your device to be able to use the packages that were just installed.</i><br />": "", 
+  "<b>Device Restart Is Required</b><br /><i>You will need to restart your device to be able to use the packages that were just installed.</i><br />": "<b>Ger\u00e4teneustart erforderlich</b><br /><i>Sie m\u00fcssen Ihr Ger\u00e4t neu starten bevor Sie die eben installierten Pakete benutzen k\u00f6nnen.</i><br />", 
   "<strong>Complete!</strong>": "<strong>Fertig!</strong>", 
-  "<strong>Done Fixing!</strong>": "", 
-  "<strong>Done Loading!</strong>": "", 
+  "<strong>Done Fixing!</strong>": "Reparatur beendet!", 
+  "<strong>Done Loading!</strong>": "Laden beendet!", 
   "<strong>Fixing Unknown Packages</strong><br />": "<strong> Repariere unbekannte Pakete</strong><br />", 
   "<strong>Loading Package Information</strong><br>": "<strong>Lade Paket-Informationen</strong><br>", 
   "<strong>Loading Package Information</strong><br>Status": "<strong>Lade Paket-Informationen</strong><br>Status", 
-  "<strong>Reading Saved Package List</strong>": "", 
+  "<strong>Reading Saved Package List</strong>": "Lese Liste gespeicherte Pakete", 
   "<strong>Scanning Unknown Packages</strong><br />": "<strong>Pr\u00fcfe unbekannte Pakete</strong><br />", 
   "Install / Update": "Installieren / Aktualisieren", 
   "Installing / Updating": "Installiere / Aktualisiere", 
@@ -161,7 +161,7 @@
   "This package depends on <b>": "Dieses Paket h\u00e4ngt ab von <b>", 
   "This package has <b>#{num}</b> other installed #{package} that #{depend} on it. <br /><br />Removing this package may cause #{them} to no longer function.": "Dieses Paket hat <b>#{num}</b> andere/s installierte/s #{package} das/die von ihm #{depend}. <br /><br />Entfernen des Pakets kann dazu f\u00fchren, dass es nicht mehr funktioniert.", 
   "Unable to open saved packages database:": "", 
-  "View": "", 
+  "View": "Ansehen", 
   "View All": "Alle ansehen", 
   "depend": "abh\u00e4ngen", 
   "depends": "abh\u00e4ngt", 
@@ -190,8 +190,8 @@
   "<b>Note:</b><br />If this package needs a luna restart or device restart after installation, you will need to manually perform it when the installation is complete.": "<b>Hinweis:</b><br />Wenn dieses Paket einen Luna- oder Ger\u00e4teneustart erfordert, m\u00fcssen Sie diesen nach der Paketinstallation manuell durchf\u00fchren.", 
   "Browse": "Durchsuchen", 
   "File": "Datei", 
-  "Get Info": "", 
-  "Package": "", 
+  "Get Info": "Informationen", 
+  "Package": "Paket", 
   "http:// or file:// or ftp://": "http:// oder file:// oder ftp://"
  }, 
  "pkg-install-assistant.js, pkg-view-assistant.js": {
@@ -211,45 +211,45 @@
   "Update Feeds": "Feeds aktualisieren"
  }, 
  "pkg-list-assistant.js, pkg-groups-assistant.js, main-assistant.js, luna-assistant.js, startup-assistant.js, update-assistant.js": {
-  "Luna Manager": "Luna Manager"
+  "Luna Manager": "Luna-Manager"
  }, 
  "pkg-list-assistant.js, pkg-view-assistant.js": {
   "Update": "Aktualisieren"
  }, 
  "pkg-load-assistant.js": {
-  "<strong>ERROR!</strong><br />Unknown feed?": "", 
-  "<strong>Loading Package</strong>": ""
+  "<strong>ERROR!</strong><br />Unknown feed?": "<strong>FEHLER!</strong><br />Unbekannter Feed?", 
+  "<strong>Loading Package</strong>": "<strong>Lade Paket</strong>"
  }, 
  "pkg-load-assistant.js, update-assistant.js": {
-  "<strong>Checking Device Type</strong>": "", 
-  "<strong>Checking Service Access</strong>": "<strong>Pr\u00fcfe Service Verf\u00fcgbarkeit</strong>", 
+  "<strong>Checking Device Type</strong>": "<strong>Pr\u00fcfe Ger\u00e4tetyp</strong>", 
+  "<strong>Checking Service Access</strong>": "<strong>Pr\u00fcfe Service-Verf\u00fcgbarkeit</strong>", 
   "<strong>Done!</strong>": "<strong>Fertig!</strong>", 
   "<strong>ERROR!</strong>": "<strong>FEHLER!</strong>", 
   "Starting": "Starte", 
-  "This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your device and try again.": ""
+  "This action should be immediate.  If it takes longer than that, it is probably due to interrupting an update or a download. You should reboot your device and try again.": "Diese Aktion sollte ohne Verz\u00f6gerung ablaufen. Wenn es l\u00e4nger dauert, dann ist m\u00f6glicherweise eine Aktualisierung oder eine Ladevorgang abgebrochen. Sie sollten dann Ihr Ger\u00e4t neu starten und es dann erneut versuchen."
  }, 
  "pkg-load-assistant.js, update-assistant.js, packages.js": {
   "<strong>Loading Package Information</strong>": "<strong>Lade Paket-Informationen</strong>"
  }, 
  "pkg-view-assistant.js": {
-  "Catalog": "", 
+  "Catalog": "Katalog", 
   "Countries": "L\u00e4nder", 
-  "Device": "", 
-  "Devices": "", 
+  "Device": "Ger\u00e4t", 
+  "Devices": "Ger\u00e4te", 
   "Download Size": "Download", 
   "Homepage": "Homepage", 
   "Id": "Id", 
-  "Incompatible Device": "", 
-  "Info": "", 
+  "Incompatible Device": "Inkompatibles Ger\u00e4t", 
+  "Info": "Info", 
   "Installed Size": "Installiert", 
   "Installed Version": "Installierte Version", 
-  "Language": "Language", 
-  "Languages": "Languages", 
+  "Language": "Sprache", 
+  "Languages": "Sprachen", 
   "Launch": "Starten", 
   "Maintainers": "Betreuer", 
   "Remove": "Entfernen", 
-  "This app is marked as incompatible with this device. You are installing it at your own risk and give up all moral and legal rights to developer support for this installation. Community support may be available at <a href=http://forums.precentral.net>forums.precentral.net</a>.": "", 
-  "This app is marked as incompatible with this device. You are updating it at your own risk and give up all moral and legal rights to developer support for this installation. Community support may be available at <a href=http://forums.precentral.net>forums.precentral.net</a>.": "", 
+  "This app is marked as incompatible with this device. You are installing it at your own risk and give up all moral and legal rights to developer support for this installation. Community support may be available at <a href=http://forums.precentral.net>forums.precentral.net</a>.": "Diese App ist als inkompatibel mit diesem Ger\u00e4t markiert. Sie installieren sie auf eigene Gefahr und begeben sich aller moralischen und gesetzlichen Rechte auf Unterst\u00fctzung durch den Entwickler. M\u00f6glicheweise hilft Ihnen die Community auf <a href=http://forums.precentral.net>forums.precentral.net</a>.", 
+  "This app is marked as incompatible with this device. You are updating it at your own risk and give up all moral and legal rights to developer support for this installation. Community support may be available at <a href=http://forums.precentral.net>forums.precentral.net</a>.": "Diese App ist als inkompatibel mit diesem Ger\u00e4t markiert. Sie aktualisieren sie auf eigene Gefahr und begeben sich aller moralischen und gesetzlichen Rechte auf Unterst\u00fctzung durch den Entwickler. M\u00f6glicheweise hilft Ihnen die Community auf <a href=http://forums.precentral.net>forums.precentral.net</a>.", 
   "Type": "Typ"
  }, 
  "pkg-view-assistant.js, configs-assistant.js, packages.js, file-picker-assistant.js": {
@@ -259,8 +259,8 @@
   "Actions": "Aktionen", 
   "Add": "Hinzuf\u00fcgen", 
   "Alphabetically": "Alphabetisch", 
-  "App Catalog Blue": "", 
-  "App Catalog Green": "", 
+  "App Catalog Blue": "Blauer App-Katalog", 
+  "App Catalog Green": "Gr\u00fcnerApp-Katalog", 
   "Ask At Launch": "Beim Start fragen", 
   "Automatically Install": "Automatically Install", 
   "Background": "Background", 
@@ -274,28 +274,28 @@
   "Manually Only": "Nur manuell", 
   "Modified Date": "Aktualisiert am", 
   "Never": "Nie", 
-  "Off": "", 
-  "On": "", 
+  "Off": "Aus", 
+  "On": "An", 
   "Once Daily": "Einmal t\u00e4glich", 
   "Package ID": "Paket-ID", 
-  "Palm Dark": "Palm Dark", 
-  "Palm Default": "Palm Default", 
+  "Palm Dark": "Palm Dunkel", 
+  "Palm Default": "Palm Vorgabe", 
   "Price & Country": "Preis & Land", 
   "Price & Feed": "Preis & Feed", 
   "Price & License": "Preis & Lizenz", 
   "Price, Vers. & Date": "Preis, Vers. & Datum", 
   "Price, Vers. & Feed": "Preis, Vers. & Feed", 
   "Price, Vers. & Maint.": "Preis, Vers. & Betr.", 
-  "Rod Mode": "", 
+  "Rod Mode": "Rod-Modus", 
   "Search Field": "Suchfeld", 
   "Secret Stuff": "Secret Stuff", 
   "Startup": "Beim Start", 
   "This version has no secret options.": "This version has no secret options.", 
-  "Vers, Date & Feed": "", 
-  "Vers, Date & Lic.": "", 
-  "Vers, Maint. & Feed": "", 
+  "Vers, Date & Feed": "Vers., Datum & Feed", 
+  "Vers, Date & Lic.": "Vers., Datum & Liz.", 
+  "Vers, Maint. & Feed": "Vers., Betr. & Feed", 
   "Version & Date": "Version & Datum", 
-  "Version & Feed": "", 
+  "Version & Feed": "Version & Feed", 
   "Version & ID": "Version & Paket-ID", 
   "Version & Maint.": "Version & Betreuer"
  }, 
@@ -349,31 +349,31 @@
   "Description": "Beschreibung"
  }, 
  "resourceHandler.js": {
-  "A few months ago, we released a beta version of preware. A version that was only in the beta feeds for about 6 hours. And you were fortunate enough to get that very special and totally awesome version of preware...<br><br>Unfortunately, that version had a bug. A bug which incorrectly registered itself to handle .ipk files. And now, that bug has the possibility to cause you some unanticipated problems. And we're very sorry about that.<br><br>Fortunately, we have a fix.": "", 
+  "A few months ago, we released a beta version of preware. A version that was only in the beta feeds for about 6 hours. And you were fortunate enough to get that very special and totally awesome version of preware...<br><br>Unfortunately, that version had a bug. A bug which incorrectly registered itself to handle .ipk files. And now, that bug has the possibility to cause you some unanticipated problems. And we're very sorry about that.<br><br>Fortunately, we have a fix.": "Vor einigen Monaten haben wir eine Beta-Version von Preware freigegeben. Eine Version, die nur f\u00fcr ca. 6 Stunden in den Beta-Feeds war. Und Sie waren gl\u00fccklich genug, um diese besondere und \u00fcberaus tolle Version von Preware zu erhalten ...<br><br>Leider hatte diese Version einen Bug. Einen Bug, der sich f\u00e4schlicherweise selbst als zust\u00e4ndig f\u00fcr .ipk-Dateien eingetragen hat. Und nun kann dieser Bug einige unerwartete Probleme bringen. Da tut uns sehr leid.<br><br>Zum Gl\u00fcck haben wir eine L\u00f6sung.", 
   "Always perform check": "Immer \u00fcberpr\u00fcfen", 
   "FileType Association": "Dateitypzuordnung", 
   "Make active handler": "Zuordnung aktivieren", 
-  "Preware <3s You": "", 
-  "Take me to it!": "", 
+  "Preware <3s You": "Preware <3 dich", 
+  "Take me to it!": "Bring mich hin", 
   "Unknown": "Unbekannt", 
-  "We couldn't find it! Make sure you have the right feeds turned on.": ""
+  "We couldn't find it! Make sure you have the right feeds turned on.": "Wir konnten es nicht finden! Stellen Sie sicher, dass die richtigen Feeds eingeschaltet sind."
  }, 
  "resourceHandler.js, main-assistant.js": {
   "Preware": "Preware"
  }, 
  "startup-assistant.js": {
-  "Here are some tips for first-timers:<ul><li>Preware will take some time to download the data for all your enabled package feeds</li><li>Select the \\\"Preferences\\\" menu item to change how often the feeds are updated</li><li>Customize the main screen using the \\\"Show Available Types\\\" preference options</li><li>Select the \\\"Manage Feeds\\\" menu item to enable just your desired package feeds</li><li>To search, just start typing</li></ul>": "", 
+  "Here are some tips for first-timers:<ul><li>Preware will take some time to download the data for all your enabled package feeds</li><li>Select the \\\"Preferences\\\" menu item to change how often the feeds are updated</li><li>Customize the main screen using the \\\"Show Available Types\\\" preference options</li><li>Select the \\\"Manage Feeds\\\" menu item to enable just your desired package feeds</li><li>To search, just start typing</li></ul>": "Hier sind einige Tipps f\u00fcr Einsteiger:<ul><li>Preware ben\u00f6tigt einige Zeit um die Daten zu allen aktiven Paket-Feeds zu laden</li><li>W\u00e4hlen Sie im Men\u00fc \\\"Einstellungen\\\", wie h\u00e4ufig die Feeds aktualisiert werden sollen</li><li>Gestalten Sie den Haupt-Schirm mit der Einstellung \\\"Verf\u00fcgbare Typen\\\"</li><li>W\u00e4hlen Sie \\\"Feeds verwalten\\\", um nur die gew\u00fcnschten Paket-Feeds zu aktivieren</li><li>Um zu suchen, einfach lostippen</li></ul>", 
   "Ok, I've read this. Let's continue ...": "Ok, ich habe es gelesen. Fortfahren ... ", 
   "Preware Changelog": "Preware-Neuerungen", 
-  "We hope you enjoy all of the many Applications, Themes and Patches that Preware makes available.<br>Please consider making a <a href=\\\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DCSMTCCGMH5NA\\\">donation</a> if you wish to show your appreciation.": "", 
+  "We hope you enjoy all of the many Applications, Themes and Patches that Preware makes available.<br>Please consider making a <a href=\\\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DCSMTCCGMH5NA\\\">donation</a> if you wish to show your appreciation.": "Wir hoffen, dass Sie an den vielen Applikationen, Themen und Patches Freude haben.<br>Bitte ziehen Sie eine <a href=\\\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DCSMTCCGMH5NA\\\">Spende</a> in Erw\u00e4gung, wenn Sie Ihre Anerkennung zeigen wollen.", 
   "Welcome To Preware": "Willkommen bei Preware"
  }, 
  "startup-assistant.js, help-assistant.js, pkg-view-assistant.js": {
-  "Changelog": ""
+  "Changelog": "Neuerungen"
  }, 
  "update-assistant.js": {
   "<strong>Checking Internet Connection</strong>": "<strong>Pr\u00fcfe Internet-Verbindung</strong>", 
-  "<strong>Done Downoading!</strong>": "", 
+  "<strong>Done Downloading!</strong>": "<strong>Download erledigt!</strong>", 
   "<strong>Downloading Feed Information</strong>": "<strong>Lade Feed-Informationen</strong>", 
   "<strong>Downloading Feed Information</strong><br>": "<strong>Lade Feed-Informationen</strong><br>", 
   "Preware: Done Loading Feeds": "Preware: Feeds heruntergeladen", 
@@ -386,8 +386,8 @@
   "Manage Feeds": "Feeds verwalten"
  }, 
  "utility.js": {
-  "B": "", 
-  "KB": "", 
-  "MB": ""
+  " B": " B", 
+  " KB": " KB", 
+  " MB": " MB"
  }
 }
