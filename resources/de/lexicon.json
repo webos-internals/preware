@@ -1,6 +1,6 @@
 {
  "IPKGService.js": {
-  "(offline root mode: not running": "(offline root mode: not running", 
+  "(offline root mode: not running ": "(offline root mode: not running ", 
   "<div class=\\\"msg\\\">Nothing Interesting.</div>": "<div class=\\\"msg\\\">Nichts von Interesse.</div>"
  }, 
  "configs-assistant.js": {
@@ -30,10 +30,10 @@
   "Menu": ""
  }, 
  "help-assistant.js": {
+  " by WebOS Internals": " von webOS Internals", 
   "IRC Channel": "IRC-Kanal", 
   "Support": "Support", 
-  "Wiki Page": "Wiki-Seite", 
-  "by WebOS Internals": "von webOS Internals"
+  "Wiki Page": "Wiki-Seite"
  }, 
  "help.js": {
   "App Tuckerbox is a homebrew app that allows you to register your device for direct access to information gathered from the HP App Catalog, Web and Beta feeds. When this option is on, Preware will install apps directly from the HP servers using information from these App Tuckerbox feeds. This may allow you to bypass device, region and carrier restrictions for free and previously purchased apps. This does not bypass purchase, and Preware cannot purchase apps. Note that your device must be registered with App Tuckerbox to access these feeds.": "App Tuckerbox ist eine Homebrew Anwendung, die es dem Nutzer erlaubt sein webOS Ger\u00e4t bei dem App Tuckerbox Server zu registrieren. Dies erm\u00f6glicht den direkten Zugriff auf Informationen des HP Palm-Catalog, Palm-Beta und Palm-Web Feed. Wenn diese Option aktiviert ist, wird Preware Apps direkt von den HP Servern mit Hilfe des App Tuckerbox Feeds auf dein webOS Ger\u00e4t installieren. Dies erm\u00f6glicht dir den Zugriff auf alle kostenlosen und  bereits von dir bezahlten Apps ohne Beschr\u00e4nkungen bzgl. des Ger\u00e4tetyps, der L\u00e4ndereinstellung und des Mobilfunkanbieters. Diese Option erm\u00f6glicht es nicht, das Bezahlen von Apps zu umgehen. Apps k\u00f6nnen nicht mittels Preware gekauft werden. Beachte bitte, dass dein webOS Ger\u00e4t vorher registriert werden muss, damit du Zugriff auf App Tuckerbox nehmen kannst.", 
@@ -107,6 +107,10 @@
   "Install Package": "Paket installieren"
  }, 
  "package.js": {
+  " installed": " installiert", 
+  " removal probably failed": " Entfernen m\u00f6glicherweise fehlgeschlagen", 
+  " removed": " entfernt", 
+  " updated": " aktualisiert", 
   "<b>Device Restart Is Required</b><br /><i>You will need to restart your device to be able to use the package that you just installed.</i><br />": "<b>Ger\u00e4teneustart erforderlich</b><br /><i>Sie m\u00fcssen Ihr Ger\u00e4t neu starten bevor Sie das eben installierte Paket benutzen k\u00f6nnen.</i><br />", 
   "Checking Dependencies": "Pr\u00fcfe Abh\u00e4ngigkeiten", 
   "Downloading / Installing": "Lade / Installiere", 
@@ -124,11 +128,7 @@
   "Error Updating: No Further Information": "Aktualisierungsfehler: Keine weitere Information", 
   "Error Updating: See IPKG Log": "Aktualisierungsfehler: Siehe IPKG-Log", 
   "Removing": "Entferne", 
-  "Removing<br />": "Entferne<br />", 
-  "installed": "installiert", 
-  "removal probably failed": "Entfernen m\u00f6glicherweise fehlgeschlagen", 
-  "removed": "entfernt", 
-  "updated": "aktualisiert"
+  "Removing<br />": "Entferne<br />"
  }, 
  "package.js, main-assistant.js, packages.js": {
   "Later": "Nachher"
@@ -138,6 +138,7 @@
   "<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />": "<b>Luna-Neustart erforderlich</b><br /><i>Wenn Sie Ok dr\u00fccken, werden alle offenen Applikationen w\u00e4hrend des Neustarts von Luna geschlossen.</i><br />"
  }, 
  "packages.js": {
+  " to be installed or updated.": " zu installieren oder zu aktualisieren", 
   "</b> other package": "</b> Paket(en)", 
   "<b>Device Restart Is Required</b><br /><i>You will need to restart your device to be able to use the packages that were just installed.</i><br />": "<b>Ger\u00e4teneustart erforderlich</b><br /><i>Sie m\u00fcssen Ihr Ger\u00e4t neu starten bevor Sie die eben installierten Pakete benutzen k\u00f6nnen.</i><br />", 
   "<strong>Complete!</strong>": "<strong>Fertig!</strong>", 
@@ -149,27 +150,27 @@
   "<strong>Reading Saved Package List</strong>": "Lese Liste gespeicherte Pakete", 
   "<strong>Scanning Unknown Packages</strong><br />": "<strong>Pr\u00fcfe unbekannte Pakete</strong><br />", 
   "Install / Update": "Installieren / Aktualisieren", 
+  "Install / Update ": "Installieren / Aktualisieren ", 
   "Installing / Updating": "Installiere / Aktualisiere", 
-  "It": " ", 
+  "It": "", 
   "Packages installed": "Pakete installiert", 
   "Packages installed:<br /><br />": "Installierte Pakete:<br /><br />", 
-  "Preware: Error writing Saved Package List": "", 
-  "Remove Anyways": "", 
+  "Preware: Error writing Saved Package List": "Preware: Fehler beim Schreiben der Liste gepeicherter Pakete", 
+  "Remove Anyways": "Trotzdem entfernen", 
   "The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your device and not launching Preware until you have a stable network connection available.": "", 
-  "Them": " ", 
+  "Them": "", 
   "These packages have dependencies that need to be installed or updated.": "Diese Pakete haben Abh\u00e4ngigkeiten, die installiert oder aktualisiert werden m\u00fcssen.", 
   "This package depends on <b>": "Dieses Paket h\u00e4ngt ab von <b>", 
   "This package has <b>#{num}</b> other installed #{package} that #{depend} on it. <br /><br />Removing this package may cause #{them} to no longer function.": "Dieses Paket hat <b>#{num}</b> andere/s installierte/s #{package} das/die von ihm #{depend}. <br /><br />Entfernen des Pakets kann dazu f\u00fchren, dass es nicht mehr funktioniert.", 
-  "Unable to open saved packages database:": "", 
-  "View": "Ansehen", 
+  "Unable to open saved packages database: ": "Kann die Datenbank der gespeicherten Pakete nicht öffnen: ", 
+  "View ": "Ansehen", 
   "View All": "Alle ansehen", 
   "depend": "abh\u00e4ngen", 
   "depends": "abh\u00e4ngt", 
   "it": "", 
   "package": "Paket", 
   "packages": "Pakete", 
-  "them": "", 
-  "to be installed or updated.": ""
+  "them": ""
  }, 
  "pkg-connected-assistant.js": {
   "Connected Packages": "Verbundene Pakete", 
@@ -288,7 +289,7 @@
   "Price, Vers. & Maint.": "Preis, Vers. & Betr.", 
   "Rod Mode": "Rod-Modus", 
   "Search Field": "Suchfeld", 
-  "Secret Stuff": "Secret Stuff", 
+  "Secret Stuff": "Geheimsache", 
   "Startup": "Beim Start", 
   "This version has no secret options.": "This version has no secret options.", 
   "Vers, Date & Feed": "Vers., Datum & Feed", 
@@ -317,7 +318,7 @@
   "Show Patches": "Patches anzeigen", 
   "Show Themes": "Themes anzeigen", 
   "Theme": "Thema", 
-  "Use App Tuckerbox": "App Tuckerbox nutzen"
+  "Use App Tuckerbox": "App-Tuckerbox nutzen"
  }, 
  "preferences-assistant.js, pkg-view-assistant.js": {
   "Country": "Land", 
