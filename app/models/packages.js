@@ -125,6 +125,18 @@ function packagesModel()
 			update: true,
 			showDependents: true
 		},
+		'OS Application':
+		{
+			update: true,
+			updateAsReplace: true,
+			showDependents: true
+		},
+		'OS Daemon':
+		{
+			update: true,
+			updateAsReplace: true,
+			showDependents: true
+		},
 		
 		// unknown (used by actual unknown type, and any other type without values)
 		'Unknown': {},

@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.9.12', log: [ 'Added support for WebOS Community Edition (WOCE) feeds by the WebOS Ports team from WebOS Internals' ] },
 	 {	 version: '1.9.10', log: [ 'Updated German translations (courtesy of DiplPhy)' ] },
 	 {	 version: '1.9.9', log: [ 'Added Traditional Chinese translations (courtesy of tonyw)' ] },
 	 {	 version: '1.9.8', log: [ 'Updated German translations (courtesy of DocZet)' ] },
