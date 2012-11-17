@@ -1,0 +1,13 @@
+enyo.depends(
+	"langTest.js",
+	"KindTest.js",
+	"JsonTest.js",
+	"AsyncTest.js",
+	"AjaxTest.js",
+	"ComponentTest.js",
+	"ComponentDispatchTest.js",
+	"ComponentHandlersTest.js",
+	"ControlTest.js",
+	"ControlPropsTest.js",
+	"DecodePackagePathTest.js"
+);
