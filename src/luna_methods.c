@@ -23,6 +23,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+#include <json.h>
+
 #include "luna_service.h"
 #include "luna_methods.h"
 
