@@ -1,14 +1,10 @@
+/*global enyo, preware, $L */
+
 enyo.singleton({
   name: "preware.IPKGService",
   identifier: 'palm://org.webosinternals.ipkgservice',
   log: "",
   logNum: 1,
-  events: {
-    onVersion: "",
-    onGetMachineName: "",
-    onImpersonate: "",
-    
-  }
   generalSuccess: function(callback, inSender, inResponse) {
     if (callback) {
       callback(inResponse);
@@ -20,411 +16,212 @@ enyo.singleton({
       callback(inError);
     }
   },
-  version: function(callback) {
+  _serviceCall: function(callback, method, parameters) {
     var request = new enyo.webOS.ServiceRequest({
                                 service: this.identifier,
-                                method: "version"
+                                method: method
     });
     request.response(this.generalSuccess.bind(this, callback));
     request.error(this.generalFailure.bind(this, callback));
-    request.go({});
+    request.go(parameters || {}); //parameters to the service go as parameters to the go method.
     return request;
+  },
+  version: function(callback) {
+    return this._serviceCall(callback, "version");
   },
   getMachineName: function(callback) {
-    var request = new enyo.webOS.ServiceRequest({
-                                service: this.identifier,
-                                method: "getMachineName"
-    });
-    request.response(this.generalSuccess.bind(this, callback));
-    request.error(this.generalFailure.bind(this, callback));
-    request.go({});
-    return request;
+    return this._serviceCall(callback, "getMachineName");
   },
   impersonate: function(callback, id, service, method, params) {
-    var request = new enyo.webOS.ServiceRequest({
-      method: "impersonate",
-    });
-    request.response(this.generalSuccess.bind(this, callback));
-    request.error(this.generalFailure.bind(this, callback));
-    request.go({ //parameters to the service go as parameters to the go method.
+    var parameter = { 
         id: id,
         service: service,
         method: method,
         params: params,
         subscribe: params.subscribe ? true : false
-      });
+    };
+    return this._serviceCall(callback, "impersonate", parameter);
   },
+  setAuthParams: function(callback, deviceId, token) {
+    var params = { //parameters to the service go as parameters to the go method.
+        deviceId: deviceId,
+        token: token
+    };
+    return this._serviceCall(callback, "setAuthParams", params);
+  },
+  list_configs: function(callback) {
+    return this._serviceCall(callback, "getConfigs");
+  },
+  setConfigState: function(callback, config, enabled) {
+    var params = {
+      config: config,
+      enabled: enabled
+    };
+    return this._serviceCall(callback, "setConfigState", params);
+  },
+  extractControl: function(callback, filename, url) {
+    var params = {
+      filename: filename,
+      url: url
+    };
+    return this._serviceCall(callback, "extractControl", params);
+  },
+  update: function(callback) {
+    return this._serviceCall(callback, "update", {subscribe: true});
+  },
+  getDirListing: function(callback, dir) {
+    return this._serviceCall(callback, "getDirListing", {directory: dir});
+  },
+  downloadFeed: function(callback, gzipped, feed, url) {
+    var params = {
+      subscribe: true,
+      gzipped: gzipped,
+      feed: feed,
+      url: url
+    };
+    return this._serviceCall(callback, "downloadFeed", params);
+  },
+  getListFile: function(callback, feed) {
+    var params = {
+      subscribe: true,
+      feed: feed
+    };
+    return this._serviceCall(callback, "getListFile", params);
+  },
+  getStatusFile: function(callback) {
+    var params = {
+      subscribe: true
+    };
+    return this._serviceCall(callback, "getStatusFile", params);
+  },
+  install: function(callback, filename, url) {
+    var params = {
+      subscribe: true,
+      filename: filename,
+      url: url
+    };
+    return this._serviceCall(callback, preware.PrefCookie.get().avoidBugs ? "installSvc" : "installCli", params);
+  },
+  replace: function(callback, pkg, filename, url) {
+    var params = {
+      "package": pkg,
+      subscribe: true,
+      filename: filename,
+      url: url
+    };
+    return this._serviceCall(callback, preware.PrefCookie.get().avoidBugs ? "replaceSvc" : "replaceCli", params);
+  },
+  remove: function(callback, pkg) {
+    var params = {
+      "package": pkg,
+      subscribe: true
+    };
+    return this._serviceCall(callback, "remove", params);
+  },
+  rescan: function(callback) {
+    return this._serviceCall(callback, "rescan");
+  },
+  restartLuna: function(callback) {
+    return this._serviceCall(callback, "restartLuna");
+  },
+  restartjava: function(callback) {
+    return this._serviceCall(callback, "restartjava");
+  },
+  restartDevice: function(callback) {
+    return this._serviceCall(callback, "restartDevice");
+  },
+  getAppinfoFile: function(callback, pkg) {
+    var params = {
+      "package": pkg
+    };
+    return this._serviceCall(callback, "getAppinfoFile", params);
+  },
+  getControlFile: function(callback, pkg) {
+    var params = {
+      "package": pkg
+    };
+    return this._serviceCall(callback, "getControlFile", params);
+  },
+  getPackageInfo: function(callback, pkg) {
+    var params = {
+      "package": pkg,
+      subscribe: true
+    };
+    return this._serviceCall(callback, "getPackageInfo", params);
+  },
+  addConfig: function(callback, config, name, url, gzip) {
+    var params = {
+      subscribe: true,
+      config: config,
+      name: name,
+      url: url,
+      gzip: gzip
+    };
+    return this._serviceCall(callback, "addConfig", params);
+  },
+  deleteConfig: function(callback, config, name) {
+    var params = {
+      subscribe: true,
+      config: config,
+      name: name
+    };
+    return this._serviceCall(callback, "deleteConfig", params);
+  },
+  installStatus: function(callback) {
+    return this._serviceCall(callback, "installStatus");
+  },
+  logClear: function() {
+    this.log = "";
+    this.logNum = 1;
+  },
+  logPayload: function(payload, stage) {
+    if ((payload.stage && (payload.stage !== "status")) || stage) {
+      var s, stdPlus;
+      this.log += '<div class="container ' + (this.logNum%2 ? 'one' : 'two') + '">';
+      
+      if (payload.stage) {
+        this.log += '<div class="title">' + payload.stage + '</div>';
+      } else if (stage) {
+        this.log += '<div class="title">' + stage + '</div>';
+      }
+      
+      stdPlus = false;
+      
+      if (payload.errorCode || payload.errorText) {
+        stdPlus = true;
+        this.log += '<div class="stdErr">';
+        this.log += '<b>' + payload.errorCode + '</b>: ';
+        this.log += payload.errorText;
+        this.log += '</div>';
+      }
+      
+      if (payload.stdOut && payload.stdOut.length > 0) {
+        stdPlus = true;
+        this.log += '<div class="stdOut">';
+        for (s = 0; s < payload.stdOut.length; s += 1) {
+          this.log += '<div>' + payload.stdOut[s] + '</div>';
+        }
+        this.log += '</div>';
+      }
+      
+      if (payload.stdErr && payload.stdErr.length > 0) {
+        stdPlus = true;
+        this.log += '<div class="stdErr">';
+        for (s = 0; s < payload.stdErr.length; s += 1) {
+          // These messages just confuse users
+          if (!payload.stdErr[s].include($L("(offline root mode: not running "))) {      
+            this.log += '<div>' + payload.stdErr[s] + '</div>';
+          }
+        }
+        this.log += '</div>';
+      }
+      
+      if (!stdPlus) {
+        this.log += $L("<div class=\"msg\">Nothing Interesting.</div>");
+      }
+      
+      this.log += '</div>';
+      this.logNum += 1;
+    }
+  }
 });
-
-IPKGService.impersonate = function(callback, id, service, method, params)
-{
-    var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-	    method: 'impersonate',
-		parameters:
-		{
-			"id": id,
-			"service": service,
-			"method": method,
-			"params": params,
-			"subscribe": params.subscribe? true : false
-		},
-	    onSuccess: callback,
-	    onFailure: callback
-	});
-    return request;
-};
-
-IPKGService.setAuthParams = function(callback, deviceId, token)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'setAuthParams',
-		parameters: {
-			"deviceId":deviceId,
-			"token":token
-		},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.list_configs = function(callback)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'getConfigs',
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-IPKGService.setConfigState = function(callback, config, enabled)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'setConfigState',
-		parameters: {
-			"config":config,
-			"enabled":enabled
-		},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.extractControl = function(callback, filename, url)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'extractControl',
-		parameters:
-		{
-			'filename':	filename,
-			'url':		url
-		},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.update = function(callback)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'update',
-		parameters: {
-			"subscribe":true
-		},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.getDirListing = function(callback, dir)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'getDirListing',
-		parameters: {"directory": dir},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.downloadFeed = function(callback, gzipped, feed, url)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'downloadFeed',
-		parameters: {
-			"subscribe":true,
-			"gzipped":gzipped,
-			"feed":feed,
-			"url":url
-		},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.getListFile = function(callback, feed)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'getListFile',
-		parameters: {
-			"subscribe":true,
-			"feed":feed
-		},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.getStatusFile = function(callback)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'getStatusFile',
-		parameters: {
-			"subscribe":true,
-		},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.install = function(callback, filename, url)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: (prefs.get().avoidBugs ? 'installSvc' : 'installCli'),
-		parameters: {"filename":filename, "url":url, "subscribe":true},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-IPKGService.replace = function(callback, pkg, filename, url)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: (prefs.get().avoidBugs ? 'replaceSvc' : 'replaceCli'),
-		parameters: {"package":pkg, "filename":filename, "url":url, "subscribe":true},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-IPKGService.remove = function(callback, pkg)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'remove',
-		parameters: {"package":pkg, "subscribe":true},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.rescan = function(callback)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'rescan',
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-IPKGService.restartluna = function(callback)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'restartLuna',
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-IPKGService.restartjava = function(callback)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'restartJava',
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-IPKGService.restartdevice = function(callback)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'restartDevice',
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.getAppinfoFile = function(callback, pkg)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'getAppinfoFile',
-		parameters: {"package":pkg},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-IPKGService.getControlFile = function(callback, pkg)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'getControlFile',
-		parameters: {"package":pkg},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-IPKGService.getPackageInfo = function(callback, pkg)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'getPackageInfo',
-		parameters: {
-			"subscribe":true,
-			"package":pkg
-		},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.addConfig = function(callback, config, name, url, gzip)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'addConfig',
-		parameters:
-		{
-			'subscribe': true,
-			'config': config,
-			'name': name,
-			'url': url,
-			'gzip': gzip
-		},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-IPKGService.deleteConfig = function(callback, config, name)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'deleteConfig',
-		parameters:
-		{
-			'subscribe': true,
-			'config': config,
-			'name': name
-		},
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-IPKGService.installStatus = function(callback)
-{
-	var request = new Mojo.Service.Request(IPKGService.identifier,
-	{
-		method: 'installStatus',
-		onSuccess: callback,
-		onFailure: callback
-	});
-	return request;
-};
-
-IPKGService.logClear = function()
-{
-	this.log = '';
-	this.logNum = 1;
-};
-IPKGService.logPayload = function(payload, stage)
-{
-	if ((payload.stage && (payload.stage != "status")) || stage)
-	{
-		this.log += '<div class="container '+(this.logNum%2?'one':'two')+'">';
-		
-		if (payload.stage) this.log += '<div class="title">' + payload.stage + '</div>';
-		else if (stage) this.log += '<div class="title">' + stage + '</div>';
-		
-		var stdPlus = false;
-		
-		if (payload.errorCode || payload.errorText)
-		{
-			stdPlus = true;
-			this.log += '<div class="stdErr">';
-			this.log += '<b>' + payload.errorCode + '</b>: '
-			this.log += payload.errorText;
-			this.log += '</div>';
-		}
-		
-		if (payload.stdOut && payload.stdOut.length > 0)
-		{
-			stdPlus = true;
-			this.log += '<div class="stdOut">';
-			for (var s = 0; s < payload.stdOut.length; s++)
-			{
-				this.log += '<div>' + payload.stdOut[s] + '</div>';
-			}
-			this.log += '</div>';
-		}
-		
-		if (payload.stdErr && payload.stdErr.length > 0)
-		{
-			stdPlus = true;
-			this.log += '<div class="stdErr">';
-			for (var s = 0; s < payload.stdErr.length; s++)
-			{
-				// These messages just confuse users
-				if (!payload.stdErr[s].include($L("(offline root mode: not running ")))
-				{      
-					this.log += '<div>' + payload.stdErr[s] + '</div>';
-				}
-			}
-			this.log += '</div>';
-		}
-		
-		if (!stdPlus)
-		{
-			this.log += $L("<div class=\"msg\">Nothing Interesting.</div>");
-		}
-		
-		this.log += '</div>';
-		this.logNum++;
-	}
-	/*
-	// debug display
-	alert('--- IPKG Log ---');
-	for (p in payload)
-	{
-		alert(p + ': ' + payload[p]);
-	}
-	*/
-};
