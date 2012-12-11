@@ -1,0 +1,10 @@
+enyo.depends(
+  "cookie.js",
+  "db8Storage.js",
+  "deviceProfile.js",
+  "feeds.js",
+  "filePicker.js",
+  "help.js",
+  "IPKGService.js",
+  "globals.js"
+);
