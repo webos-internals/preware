@@ -7,9 +7,9 @@ enyo.singleton({
   /*events: {
     onLoadFeedsFinished: "" //inEvent will have feeds with array of feeds, succes with true/false, message: string
   },*/
-  doLoadFeedsFinished: function(feeds) {
+  doLoadFeedsFinished: function(data) {
     if (this.callback) {
-      this.callback({}, feeds);
+      this.callback({}, data.feeds);
     }
   },
   loadFeeds: function(callback) {
@@ -56,8 +56,8 @@ enyo.singleton({
         //load feeds
         for (x = 0; x < payload.configs.length; x += 1) {
           if (payload.configs[x].enabled && payload.configs[x].contents) {
-            tmpSplit1 = payload.configs[x].content.split("<br>");
-            for (c = 0; c < tmpSplit1.lenght; c += 1) {
+            tmpSplit1 = payload.configs[x].contents.split("<br>");
+            for (c = 0; c < tmpSplit1.length; c += 1) {
               if (tmpSplit1[c]) {
                 tmpSplit2 = tmpSplit1[c].split(' ');
                 feedObj = {};
