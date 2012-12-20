@@ -104,15 +104,19 @@ enyo.kind({
 	
     // start with checking the internet connection
     this.log("request connection status.");
+    
     var request = new enyo.webOS.ServiceRequest({
-                                service: 'palm://com.palm.connectionmanager',
-                                method: 'getstatus'
-    });
-    request.response(this.onConnection.bind(this));
-    request.error(this.onConnection.bind(this));
-    request.go({}); //parameters to the service go as parameters to the go method.
+        service: "palm://com.palm.connectionmanager",
+        method: "getstatus"
+      });
+      request.response(this, "onConnection");
+      request.error(this, "onConnectionFailure");
+      request.go({});
   },
-  onConnection: function(response) {
+  onConnectionFailure: function(sender,response) {
+      console.log("failure:response="+JSON.stringify(response));
+  },
+  onConnection: function(sender,response) {
     var hasNet = false;
     if (response && response.returnValue === true && (response.isInternetConnectionAvailable === true || response.wifi.state === "connected"))	{
       hasNet = true;
@@ -147,7 +151,7 @@ enyo.kind({
           if (hasNet && !this.onlyLoad) {
             // initiate update if we have a connection
             this.log("start loading feeds.");
-            this.subscription = preware.feedsModel.loadFeeds(this, this.downloadFeeds.bind(this));
+            this.subscription = preware.feedsModel.loadFeeds(this.downloadFeeds.bind(this));
             this.log("...");
           } else {
             // if not, go right to loading the pkg info
@@ -162,7 +166,7 @@ enyo.kind({
   },
   downloadFeeds: function(inSender, inEvent) {
     this.log("loaded feeds: " + JSON.stringify(inEvent));
-    this.feeds = inEvent.feeds;
+    this.feeds = inEvent;
     
     if (this.feeds.length) {
       this.downloadFeedRequest(0);
