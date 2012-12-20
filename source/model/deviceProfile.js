@@ -1,16 +1,27 @@
 /*global enyo, IPKGService */
 
-enyo.kind({
+enyo.singleton({
   name: "preware.DeviceProfile",
   deviceProfile: false,
   deviceId: false,
   requestDeviceProfile: false,
   requestDeviceId: false,
-  events: {
+  /*events: {
     onDeviceProfileReady: "", //inEvent will have deviceProfile: obj, succes: boolean, message: string.
     onDeviceIdReady: "" //inEvent will have deviceId: obj, success: boolean, message: string
+  },*/
+  doDeviceProfileReady: function(payload) {
+    if (this.callback) {
+      this.callback(null, payload);
+    }
   },
-  getDeviceProfile: function(reload) {
+  doDeviceIdReady: function(payload) {
+    if (this.callback) {
+      this.callback(null, payload);
+    }
+  },
+  getDeviceProfile: function(callback, reload) {
+    this.callback = callback;
     if (this.deviceProfile && !reload) {
       this.doDeviceProfileReady({deviceProfile: this.deviceProfile, success: true, message: ""});
     } else {
@@ -42,7 +53,8 @@ enyo.kind({
       this.doDeviceProfileReady({deviceProfile: this.deviceProfile, success: true, message: ""});
     }
   },
-  getDeviceId: function(reload) {
+  getDeviceId: function(callback, reload) {
+    this.callback = callback;
     if (this.deviceId && !reload) {
       this.doDeviceIdRead({deviceId: this.deviceId, success: true, message: ""});
     } else {

@@ -6,5 +6,7 @@ enyo.depends(
   "filePicker.js",
   "help.js",
   "IPKGService.js",
+  //"packageModel.js",
+  "palmProfile.js",
   "globals.js"
 );

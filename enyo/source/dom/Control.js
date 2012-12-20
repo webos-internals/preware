@@ -5,6 +5,9 @@
 	obviously controls, in Enyo, a control may become as complex as an entire
 	application.
 
+	If you make changes to _enyo.Control_, be sure to add or update the	appropriate
+	[unit tests](https://github.com/enyojs/enyo/tree/master/tools/test/core/tests).
+
 	For more information, see the documentation on
 	<a href="https://github.com/enyojs/enyo/wiki/Creating-Controls">Controls</a>
 	in the Enyo Developer Guide.
@@ -387,9 +390,11 @@ enyo.kind({
 		the css rule -webkit-overflow-scrolling: touch, as it is
 		not supported in Android and leads to overflow issues
 		(ENYO-900 and ENYO-901)
+		Similarly, BB10 has issues repainting out-of-viewport content
+		when -webkit-overflow-scrolling is used (ENYO-1396)
 	*/
 	setupOverflowScrolling: function() {
-		if(enyo.platform.android || enyo.platform.androidChrome)
+		if(enyo.platform.android || enyo.platform.androidChrome || enyo.platform.blackberry)
 			return;
 		document.getElementsByTagName("body")[0].className += " webkitOverflowScrolling";
 	},
@@ -434,6 +439,8 @@ enyo.kind({
 		} else if (this.fit) {
 			this.addClass("enyo-fit enyo-clip");
 		}
+		// for IE10 support, we want full support over touch actions in Enyo-rendered areas
+		this.addClass("enyo-no-touch-action");
 		// add css to enable hw-accelerated scrolling on non-Android platforms (ENYO-900, ENYO-901)
 		this.setupOverflowScrolling();
 		// generate our HTML
@@ -457,6 +464,8 @@ enyo.kind({
 		if (this.fit) {
 			this.setupBodyFitting();
 		}
+		// for IE10 support, we want full support over touch actions in Enyo-rendered areas
+		this.addClass("enyo-no-touch-action");
 		// add css to enable hw-accelerated scrolling on non-Android platforms (ENYO-900, ENYO-901)
 		this.setupOverflowScrolling();
 		document.write(this.generateHtml());

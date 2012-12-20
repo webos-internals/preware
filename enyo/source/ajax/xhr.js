@@ -1,20 +1,24 @@
 //* @protected
+/**
+	If you make changes to _enyo.xhr_, be sure to add or update the appropriate
+	[unit tests](https://github.com/enyojs/enyo/tree/master/tools/test/ajax/tests).
+*/
 enyo.xhr = {
 	/**
 		<code>inParams</code> is an Object that may contain these properties:
 
 		- _url_: The URL to request (required).
 		- _method_: The HTTP method to use for the request. Defaults to GET.
-		- _callback_: Called when request is completed.
-		- _body_: Specific contents for the request body for POST method.
-		- _headers_: Request headers.
+		- _callback_: Called when request is completed. (Optional)
+		- _body_: Specific contents for the request body for POST method. (Optional)
+		- _headers_: Additional request headers. (Optional)
 		- _username_: The optional user name to use for authentication purposes.
 		- _password_: The optional password to use for authentication purposes.
 		- _xhrFields_: Optional object containing name/value pairs to mix directly into the generated xhr object.
 		- _mimeType_: Optional string to override the MIME-Type.
 	*/
 	request: function(inParams) {
-		var xhr = this.getXMLHttpRequest(inParams.url);
+		var xhr = this.getXMLHttpRequest(inParams);
 		//
 		var method = inParams.method || "GET";
 		var async = !inParams.sync;
@@ -30,13 +34,18 @@ enyo.xhr = {
 		if (inParams.callback) {
 			this.makeReadyStateHandler(xhr, inParams.callback);
 		}
-		if (inParams.headers) {
+		if (inParams.headers && xhr.setRequestHeader) {
 			for (var key in inParams.headers) {
 				xhr.setRequestHeader(key, inParams.headers[key]);
 			}
 		}
+		// work around iOS 6 bug where non-GET requests are cached
+		// see http://www.einternals.com/blog/web-development/ios6-0-caching-ajax-post-requests
+		if (method !== "GET") {
+			xhr.setRequestHeader("cache-control", "no-cache");
+		}
 		//
-		if(typeof(xhr.overrideMimeType) == "function" && inParams.mimeType) {
+		if((typeof xhr.overrideMimeType == "function") && inParams.mimeType) {
 			xhr.overrideMimeType(inParams.mimeType);
 		}
 		//
@@ -63,12 +72,20 @@ enyo.xhr = {
 	makeReadyStateHandler: function(inXhr, inCallback) {
 		if (window.XDomainRequest && inXhr instanceof XDomainRequest) {
 			inXhr.onload = function() {
-				inCallback.apply(null, [inXhr.responseText, inXhr]);
+				var text;
+				if (typeof inXhr.responseText === "string") {
+					text = inXhr.responseText;
+				}
+				inCallback.apply(null, [text, inXhr]);
 			};
 		}
 		inXhr.onreadystatechange = function() {
 			if (inXhr.readyState == 4) {
-				inCallback.apply(null, [inXhr.responseText, inXhr]);
+				var text;
+				if (typeof inXhr.responseText === "string") {
+					text = inXhr.responseText;
+				}
+				inCallback.apply(null, [text, inXhr]);
 			}
 		};
 	},
@@ -85,9 +102,12 @@ enyo.xhr = {
 		}
 		return result;
 	},
-	getXMLHttpRequest: function(inUrl) {
+	getXMLHttpRequest: function(inParams) {
 		try {
-			if (window.XDomainRequest && !this.inOrigin(inUrl) && !/^file:\/\//.test(window.location.href)) {
+			// only use XDomainRequest when it exists, no extra headers were set, and the
+			// target URL maps to a domain other than the document origin.
+			if (enyo.platform.ie < 10 && window.XDomainRequest && !inParams.headers &&
+				!this.inOrigin(inParams.url) && !/^file:\/\//.test(window.location.href)) {
 				return new XDomainRequest();
 			}
 		} catch(e) {}
