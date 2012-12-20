@@ -10,8 +10,6 @@ enyo.kind({
   // required ipkgservice
 	ipkgServiceVersion: 14,
 	components:[
-    //feeds model:
-    { kind: "preware.FeedsModel", onLoadFeedsFinished: "loadFeedsFinished" },
     //initialize preware toolbare with preware in it and a search field + button.
      {kind: "onyx.MoreToolbar", components: [
        {content: "Preware" },
@@ -111,7 +109,7 @@ enyo.kind({
                                 method: 'getstatus'
     });
     request.response(this.onConnection.bind(this));
-    request.error(this.generalFailure.bind(this));
+    request.error(this.onConnection.bind(this));
     request.go({}); //parameters to the service go as parameters to the go method.
   },
   onConnection: function(response) {
