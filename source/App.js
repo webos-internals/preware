@@ -1,5 +1,5 @@
 // Preware App kind and main window.
-/*global enyo, onyx, preware */
+/*global enyo, onyx, preware, $L */
 
 enyo.kind({
 	name: "preware.App",
@@ -7,6 +7,8 @@ enyo.kind({
   kind: enyo.Control,
   layoutKind: "FittableRowsLayout",
   classes: "onyx", 
+  // required ipkgservice
+	ipkgServiceVersion: 14,
 	components:[
     //feeds model:
     { kind: "preware.FeedsModel", onLoadFeedsFinished: "loadFeedsFinished" },
@@ -28,7 +30,7 @@ enyo.kind({
           { kind: onyx.Button, content: "getVersion", ontap: "versionTap" },
           { kind: onyx.Button, content: "getMachineName", ontap: "machineName" },
           { kind: onyx.Button, content: "downloadWOCEFeed", ontap: "downloadFeed" },
-          { kind: onyx.Button, content: "loadFeeds", ontap: "loadFeeds" },
+          { kind: onyx.Button, content: "loadFeeds", ontap: "startLoadFeeds" },
           { kind: enyo.Scroller, components: [
             { name: "out", content: "press button...<br>", allowHtml: true}
           ]}
@@ -60,7 +62,7 @@ enyo.kind({
     this.log("Got feed!");
     this.log(JSON.stringify(feed));
   },
-  loadFeeds: function() {
+  startLoadFeeds: function() {
     this.log("starting to load feeds.");
     preware.DeviceProfile.getDeviceProfile(this.gotDeviceProfile.bind(this), false);
     this.log("...");
@@ -103,6 +105,7 @@ enyo.kind({
     }*/ //hm.. all this calls feel a bit like wasted time, now. :(
 	
     // start with checking the internet connection
+    this.log("request connection status.");
     var request = new enyo.webOS.ServiceRequest({
                                 service: 'palm://com.palm.connectionmanager',
                                 method: 'getstatus'
@@ -111,8 +114,94 @@ enyo.kind({
     request.error(this.generalFailure.bind(this));
     request.go({}); //parameters to the service go as parameters to the go method.
   },
-  loadFeedsFinished: function(inSender, inEvent) {
-    this.log("loadFeedsFinished event received.");
-    this.log("result: " + JSON.stringify(inEvent));
+  onConnection: function(response) {
+    var hasNet = false;
+    if (response && response.returnValue === true && (response.isInternetConnectionAvailable === true || response.wifi.state === "connected"))	{
+      hasNet = true;
+    }
+    this.log("got connection status. connection: " + hasNet);
+    this.log("Response: " + JSON.stringify(response));
+    // run version check
+    this.log("Run version check");
+    this.subscription = preware.IPKGService.version(this.onVersionCheck.bind(this, hasNet));
+  },
+  onVersionCheck: function(hasNet, payload)
+  {
+    this.log("version check returned: " + JSON.stringify(payload));
+    try {
+      // log payload for display
+      preware.IPKGService.logPayload(payload, 'VersionCheck');
+
+      if (!payload) {
+        // i dont know if this will ever happen, but hey, it might
+        this.log($L("Cannot access the service. First try restarting Preware, or reboot your device and try again."));
+      } else if (payload.errorCode !== undefined) {
+        if (payload.errorText === "org.webosinternals.ipkgservice is not running.") {
+          this.log($L("The service is not running. First try restarting Preware, or reboot your device and try again."));
+        } else {
+          this.log(payload.errorText);
+        }
+      } else {
+        if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) {
+          // this is if this version is too old for the version number stuff
+          this.log($L("The service version is too old. First try rebooting your device, or reinstall Preware and try again."));
+        } else {
+          if (hasNet && !this.onlyLoad) {
+            // initiate update if we have a connection
+            this.log("start loading feeds.");
+            this.subscription = preware.feedsModel.loadFeeds(this, this.downloadFeeds.bind(this));
+            this.log("...");
+          } else {
+            // if not, go right to loading the pkg info
+            this.loadFeeds();
+          }
+        }
+      }
+    } catch (e) {
+      enyo.error("feedsModel#loadFeeds", e);
+      this.log("exception caught: " + JSON.stringify(e));
+    }
+  },
+  downloadFeeds: function(inSender, inEvent) {
+    this.log("loaded feeds: " + JSON.stringify(inEvent));
+    this.feeds = inEvent.feeds;
+    
+    if (this.feeds.length) {
+      this.downloadFeedRequest(0);
+    }
+  },
+  downloadFeedRequest: function(num) {
+    // cancel the last subscription, this may not be needed
+    if (this.subscription) {
+      this.subscription.cancel();
+    }
+	
+    // update display
+    this.log($L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name);
+	
+    // subscribe to new feed
+    this.subscription = preware.IPKGService.downloadFeed(this.downloadFeedResponse.bind(this, num),
+												 this.feeds[num].gzipped, this.feeds[num].name, this.feeds[num].url);
+  },
+  downloadFeedResponse: function(num, payload) {
+    if ((payload.returnValue === false) || (payload.stage === "failed")) {
+      this.log(payload.errorText + '<br>' + payload.stdErr.join("<br>"));
+    } else if (payload.stage === "status") {
+      this.log($L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name + "<br><br>" + payload.status);
+    } else if (payload.stage === "completed") {
+      num = num + 1;
+      if (num < this.feeds.length) {
+        // start next
+        this.downloadFeedRequest(num);
+      } else {
+        // we're done
+        this.log($L("<strong>Done Downoading!</strong>"));
+        
+        // well updating looks to have finished, lets log the date:
+        preware.PrefCookie.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
+        
+        this.loadFeeds();
+      }
+    }
   }
 });
