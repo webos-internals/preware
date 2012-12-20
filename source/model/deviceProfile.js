@@ -1,4 +1,4 @@
-/*global enyo, IPKGService */
+/*global enyo, preware */
 
 enyo.singleton({
   name: "preware.DeviceProfile",
@@ -31,7 +31,7 @@ enyo.singleton({
       if (this.requestDeviceProfile) {
         this.requestDeviceProfile.cancel();
       }
-      this.requestDeviceProfile = IPKGService.impersonate(this._gotDeviceProfile.bind(this),
+      this.requestDeviceProfile = preware.IPKGService.impersonate(this._gotDeviceProfile.bind(this),
 							"com.palm.configurator",
 							"com.palm.deviceprofile",
 							"getDeviceProfile", {});
@@ -62,7 +62,7 @@ enyo.singleton({
       if (this.requestDeviceId) {
         this.requestDeviceId.cancel();
       }
-      this.requestDeviceId = IPKGService.impersonate(this._gotDeviceId.bind(this),
+      this.requestDeviceId = preware.IPKGService.impersonate(this._gotDeviceId.bind(this),
 						   "com.palm.configurator",
 						   "com.palm.deviceprofile",
 						   "getDeviceId", {});
