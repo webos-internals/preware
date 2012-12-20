@@ -1,13 +1,19 @@
 /*global enyo, IPKGService, $L */
 
-enyo.kind({
+enyo.singleton({
   name: "preware.FeedsModel",
   feeds: [], // for storing all the feed information
   subscription: false, // we'll need these for the subscription based methods
-  events: {
+  /*events: {
     onLoadFeedsFinished: "" //inEvent will have feeds with array of feeds, succes with true/false, message: string
+  },*/
+  doLoadFeedsFinished: function(feeds) {
+    if (this.callback) {
+      this.callback({}, feeds);
+    }
   },
-  loadFeeds: function() {
+  loadFeeds: function(callback) {
+    this.callback = callback;
     try {
       // clear out our current data (incase this is a re-update)
       this.feeds = [];
