@@ -1,4 +1,4 @@
-/*global enyo, Globals */
+/*global enyo, preware */
 
 enyo.singleton({
   name: "preware.PrefCookie",
