@@ -1,6 +1,6 @@
 enyo.depends(
   "cookie.js",
-  "db8Storage.js",
+  "db8storage.js",
   "deviceProfile.js",
   "feeds.js",
   "filePicker.js",
