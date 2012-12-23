@@ -105,13 +105,11 @@ enyo.kind({
     // start with checking the internet connection
     this.log("request connection status.");
     
-    var request = new enyo.webOS.ServiceRequest({
-        service: "palm://com.palm.connectionmanager",
-        method: "getstatus"
-      });
-      request.response(this, "onConnection");
-      request.error(this, "onConnectionFailure");
-      request.go({});
+    var request = new navigator.service.Request("palm://com.palm.connectionmanager",{
+        method: "getstatus",
+        onSuccess: this.onConnection.bind(this),
+        onFailure: this.onConnectionFailure.bind(this)
+    });
   },
   onConnectionFailure: function(sender,response) {
       console.log("failure:response="+JSON.stringify(response));

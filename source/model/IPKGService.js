@@ -17,13 +17,12 @@ enyo.singleton({
     }
   },
   _serviceCall: function(callback, method, parameters) {
-    var request = new enyo.webOS.ServiceRequest({
-                                service: this.identifier,
-                                method: method
+    var request = new navigator.service.Request(this.identifier,{
+                                method: method,
+                                onSuccess: this.generalSuccess.bind(this, callback),
+                                onFailure: this.generalFailure.bind(this, callback),
+                                parameters: parameters
     });
-    request.response(this.generalSuccess.bind(this, callback));
-    request.error(this.generalFailure.bind(this, callback));
-    request.go(parameters || {}); //parameters to the service go as parameters to the go method.
     return request;
   },
   version: function(callback) {
