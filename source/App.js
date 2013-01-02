@@ -72,7 +72,7 @@ enyo.kind({
     this.log("got device profile: " + inEvent && inEvent.success);
     if (!inEvent.success || !inEvent.deviceProfile) {
       this.log("failure...");
-      this.subscription = preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
+      preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
       this.log("getting machine name.");
     } else {
       this.log("got deviceProfile: " + JSON.stringify(inEvent.deviceProfile));
@@ -83,19 +83,19 @@ enyo.kind({
   gotPalmProfile: function(inSender, inEvent) {
     if (!inEvent.success || !inEvent.palmProfile) {
       this.log("failure...");
-      this.subscription = preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
+      preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
       this.log("getting machine name.");
     } else {
       this.log("got palmProfile.");
       this.palmProfile = inEvent.palmProfile;
-      this.subsciption = preware.IPKGService.setAuthParams(this.authParamsSet.bind(this),
+      preware.IPKGService.setAuthParams(this.authParamsSet.bind(this),
                                         this.deviceProfile.deviceId,
                                         this.palmProfile.token);
     }
   },
   authParamsSet: function(inResponse) {
     this.log("got authParams: " + JSON.stringify(inResponse));
-    this.subscription = preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
+    preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
     this.log("getting machine name.");
   },
   onDeviceType: function(inEvent) {
@@ -120,7 +120,7 @@ enyo.kind({
     //this.log("Response: " + JSON.stringify(response));
     // run version check
     this.log("Run version check");
-    this.subscription = preware.IPKGService.version(this.onVersionCheck.bind(this, hasNet));
+    preware.IPKGService.version(this.onVersionCheck.bind(this, hasNet));
   },
   onVersionCheck: function(hasNet, payload)
   {
@@ -146,11 +146,11 @@ enyo.kind({
           if (hasNet && !this.onlyLoad) {
             // initiate update if we have a connection
             this.log("start loading feeds.");
-            this.subscription = preware.FeedsModel.loadFeeds(this.downLoadFeeds.bind(this));
+            preware.FeedsModel.loadFeeds(this.downLoadFeeds.bind(this));
             this.log("...");
           } else {
             // if not, go right to loading the pkg info
-            this.downLoadFeeds();
+            this.loadFeeds();
           }
         }
       }
@@ -167,17 +167,12 @@ enyo.kind({
       this.downloadFeedRequest(0);
     }
   },
-  downloadFeedRequest: function(num) {
-    // cancel the last subscription, this may not be needed
-    if (this.subscription) {
-      this.subscription.cancel();
-    }
-	
+  downloadFeedRequest: function(num) {	
     // update display
     this.log($L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name);
 	
     // subscribe to new feed
-    this.subscription = preware.IPKGService.downloadFeed(this.downloadFeedResponse.bind(this, num),
+    preware.IPKGService.downloadFeed(this.downloadFeedResponse.bind(this, num),
 												 this.feeds[num].gzipped, this.feeds[num].name, this.feeds[num].url);
   },
   downloadFeedResponse: function(num, payload) {
@@ -200,5 +195,13 @@ enyo.kind({
         this.loadFeeds();
       }
     }
+  },
+  loadFeeds: function(){	
+    // lets call the function to update the global list of pkgs
+    this.log($L("<strong>Loading Package Information</strong><br>"));
+    preware.FeedsModel.loadFeeds(this, this.parseFeeds.bind(this));
+  },
+  parseFeeds: function(feeds) {
+    packages.loadFeeds(feeds, this);
   }
 });

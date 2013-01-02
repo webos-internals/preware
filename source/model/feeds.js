@@ -1,4 +1,4 @@
-/*global enyo, IPKGService, $L */
+/*global enyo, preware, $L */
 
 enyo.singleton({
   name: "preware.FeedsModel",
@@ -7,6 +7,9 @@ enyo.singleton({
   /*events: {
     onLoadFeedsFinished: "" //inEvent will have feeds with array of feeds, succes with true/false, message: string
   },*/
+  log: function(msg) {
+    this.owner.log(msg + "<br>");
+  },
   doLoadFeedsFinished: function(data) {
     if (this.callback) {
       this.callback({}, data.feeds);
@@ -18,8 +21,9 @@ enyo.singleton({
       // clear out our current data (incase this is a re-update)
       this.feeds = [];
 
+      this.log("calling list configs");
       // init feed loading
-      this.subscription = IPKGService.list_configs(this.onConfigs.bind(this));
+      this.subscription = preware.IPKGService.list_configs(this.onConfigs.bind(this));
     } catch (e) {
       enyo.error("feedsModel#loadFeeds", e);
     }
@@ -37,6 +41,7 @@ enyo.singleton({
   },
   onConfigs: function(payload) {
     var x, c, tmpSplit1, tmpSplit2, feedObj;
+    this.log("configs returned: " + JSON.stringify(payload));
     try {
       if (!payload) {
         // i dont know if this will ever happen, but hey, it might
