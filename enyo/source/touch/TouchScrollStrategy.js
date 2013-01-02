@@ -73,6 +73,8 @@ enyo.kind({
 	components: [
 		{name: "client", classes: "enyo-touch-scroller"}
 	],
+	// flag telling us whether the list is currently reordering
+	listReordering: false,
 	create: function() {
 		this.inherited(arguments);
 		this.transform = enyo.dom.canTransform();
@@ -133,11 +135,13 @@ enyo.kind({
 	},
 	//* Whether or not the scroller is actively moving
 	isScrolling: function() {
-		return this.$.scrollMath.isScrolling();
+		var m = this.$.scrollMath;
+		return m ? m.isScrolling() : this.scrolling;
 	},
 	//* Whether or not the scroller is in overscrolling
 	isOverscrolling: function() {
-		return (this.overscroll) ? this.$.scrollMath.isInOverScroll() : false;
+		var m = this.$.scrollMath || this;
+		return (this.overscroll) ? m.isInOverScroll() : false;
 	},
 	domScroll: function() {
 		if (!this.isScrolling()) {
@@ -170,12 +174,14 @@ enyo.kind({
 		}
 	},
 	stabilize: function() {
-		this.$.scrollMath.stabilize();
+		if(this.$.scrollMath) {
+			this.$.scrollMath.stabilize();
+		}
 	},
 	//* Scrolls to specific x/y positions within the scroll area.
 	scrollTo: function(inX, inY) {
 		this.stop();
-		this.$.scrollMath.scrollTo(inY || inY === 0 ? inY : null, inX);
+		this.$.scrollMath.scrollTo(inX, inY || inY === 0 ? inY : null);
 	},
 	scrollIntoView: function() {
 		this.stop();
@@ -242,7 +248,8 @@ enyo.kind({
 	},
 	hold: function(inSender, e) {
 		if (this.isScrolling() && !this.isOverscrolling()) {
-			this.$.scrollMath.stop(e);
+			var m = this.$.scrollMath || this;
+			m.stop(e);
 			return true;
 		}
 	},
@@ -270,6 +277,10 @@ enyo.kind({
 		}
 	},
 	drag: function(inSender, inEvent) {
+		// if the list is doing a reorder, don't scroll
+		if(this.listReordering) {
+			return false;
+		}
 		if (this.dragging) {
 			inEvent.preventDefault();
 			this.$.scrollMath.drag(inEvent);
@@ -325,14 +336,16 @@ enyo.kind({
 		}
 	},
 	calcBoundaries: function() {
-		var s = this.$.scrollMath, b = this._getScrollBounds();
+		var s = this.$.scrollMath || this, b = this._getScrollBounds();
 		s.bottomBoundary = b.clientHeight - b.height;
 		s.rightBoundary = b.clientWidth - b.width;
 	},
 	syncScrollMath: function() {
 		var m = this.$.scrollMath;
-		m.setScrollX(-this.getScrollLeft());
-		m.setScrollY(-this.getScrollTop());
+		if(m) {
+			m.setScrollX(-this.getScrollLeft());
+			m.setScrollY(-this.getScrollTop());
+		}
 	},
 	effectScroll: function(inX, inY) {
 		if (this.scrollNode) {
@@ -362,7 +375,7 @@ enyo.kind({
 	},
 	//* Returns the values of _overleft_ and _overtop_, if any.
 	getOverScrollBounds: function() {
-		var m = this.$.scrollMath;
+		var m = this.$.scrollMath || this;
 		return {
 			overleft: Math.min(m.leftBoundary - m.x, 0) || Math.max(m.rightBoundary - m.x, 0),
 			overtop: Math.min(m.topBoundary - m.y, 0) || Math.max(m.bottomBoundary - m.y, 0)
@@ -394,8 +407,10 @@ enyo.kind({
 	//* Syncs and shows both the vertical and horizontal scroll indicators.
 	showThumbs: function() {
 		this.syncThumbs();
-		this.$.vthumb.show();
-		this.$.hthumb.show();
+		if (this.horizontal != "hidden")
+			this.$.hthumb.show();
+		if (this.vertical != "hidden")
+			this.$.vthumb.show();
 	},
 	//* Hides the vertical and horizontal scroll indicators.
 	hideThumbs: function() {

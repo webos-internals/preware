@@ -74,13 +74,6 @@ enyo.kind({
 		//* Fires when a scrolling action stops.
 		onScrollStop: ""
 	},
-	handlers: {
-		onscroll: "domScroll",
-		onScrollStart: "scrollStart",
-		onScroll: "scroll", 
-		onScrollStop: "scrollStop"
-	},
-	classes: "enyo-scroller",
 	/**
 		If true (the default) and a touch scroller, the scroller will overscroll
 		and bounce back at the edges
@@ -96,6 +89,13 @@ enyo.kind({
 	*/
 	preventScrollPropagation: true,
 	//* @protected
+	handlers: {
+		onscroll: "domScroll",
+		onScrollStart: "scrollStart",
+		onScroll: "scroll", 
+		onScrollStop: "scrollStop"
+	},
+	classes: "enyo-scroller",
 	statics: {
 		osInfo: [
 			{os: "android", version: 3},
@@ -130,10 +130,13 @@ enyo.kind({
 			return true;
 		},
 		getTouchStrategy: function() {
-			return enyo.platform.android >= 3 ? "TranslateScrollStrategy" : "TouchScrollStrategy";
+			return (enyo.platform.android >= 3)
+				? "TranslateScrollStrategy"
+				: (enyo.platform.ios >= 5)
+					? "TransitionScrollStrategy"
+					: "TouchScrollStrategy";
 		}
 	},
-	//* @protected
 	controlParentName: "strategy",
 	create: function() {
 		this.inherited(arguments);
@@ -260,6 +263,7 @@ enyo.kind({
 	scrollToNode: function(inNode, inAlignWithTop) {
 		this.$.strategy.scrollToNode(inNode, inAlignWithTop);
 	},
+	//* @protected
 	//* Normalizes scroll event to _onScroll_.
 	domScroll: function(inSender, e) {
 		// if a scroll event originated here, pass it to our strategy to handle
@@ -300,15 +304,20 @@ enyo.kind({
 	scrollStop: function(inSender, inEvent) {
 		return this.shouldStopScrollEvent(inEvent);
 	},
+	//* @public
+	//* Scroll to the top of the scrolling region.
 	scrollToTop: function() {
 		this.setScrollTop(0);
 	},
+	//* Scroll to the bottom of the scrolling region.
 	scrollToBottom: function() {
 		this.setScrollTop(this.getScrollBounds().maxTop);
 	},
+	//* Scroll to the right edge of the scrolling region.
 	scrollToRight: function() {
 		this.setScrollTop(this.getScrollBounds().maxLeft);
 	},
+	//* Scroll to the left edge of the scrolling region.
 	scrollToLeft: function() {
 		this.setScrollLeft(0);
 	},

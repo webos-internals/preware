@@ -13,3 +13,32 @@
 	left: 0;
 	right: 0;
 }
+
+.enyo-list-placeholder { }
+.enyo-pinned-list-placeholder {
+	border:1px solid red;
+	position:absolute;
+	top:0px; left:0px;
+	z-index:1000;
+	background:transparent;
+	overflow:hidden;
+}
+.enyo-pinned-list-placeholder button {
+	width:100px; height:100%;
+	position:absolute;
+	top:0px; right:0px;
+}
+.enyo-list-reorder-container {
+	position:absolute;
+	top:0px; left:0px;
+	z-index:1000;
+	background:transparent;
+	overflow:hidden;
+}
+
+.enyo-animatedTopAndLeft {
+	transition: top 0.1s linear, left 0.1s linear;
+	-webkit-transition: top 0.1s linear, left 0.1s linear;
+	-moz-transition: top 0.1s linear, left 0.1s linear;
+	-o-transition: top 0.1s linear, left 0.1s linear;
+}

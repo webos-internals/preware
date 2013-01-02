@@ -67,6 +67,11 @@ enyo.kind({
 
 		enyo.makeBubble(this, "focus", "blur");
 
+		//Force onchange event to be bubbled inside Enyo for IE8
+		if(enyo.platform.ie == 8){
+      		this.setAttribute("onchange", enyo.bubbler);
+      	}
+
 		this.disabledChanged();
 		if (this.defaultFocus) {
 			this.focus();
@@ -104,9 +109,15 @@ enyo.kind({
 			this.node.focus();
 		}
 	},
+	//* Returns true if the Input is focused.
+	hasFocus: function() {
+		if (this.hasNode()) {
+			return document.activeElement === this.node;
+		}
+	},
 	// note: we disallow dragging of an input to allow text selection on all platforms
 	dragstart: function() {
-		return true;
+		return this.hasFocus();
 	},
 	focused: function() {
 		if (this.selectOnFocus) {

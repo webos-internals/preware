@@ -47,12 +47,26 @@
 	background-color: #333;
 }
 .panels-sample-flickr-image {
-	min-width: 80%;
+	box-sizing: border-box;
+	max-height: 90%;
+	max-width: 90%;
 	border: solid 5px #CCC;
 	box-shadow: 1px 1px 5px #999;
+	width: auto;
+	height: auto;
+}
+
+.panels-sample-flickr-image.wide {
+	width: 100%;
+}
+
+
+@media all and (max-width: 800px) {
+	.panels-sample-flickr-image.wide {
+		width: auto;
+	}
 }
 
 .panels-sample-flickr-image.tall {
-	min-width: 0;
-	min-height: 80%;
+	height: 100%;
 }

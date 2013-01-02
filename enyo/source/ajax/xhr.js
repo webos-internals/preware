@@ -11,7 +11,7 @@ enyo.xhr = {
 		- _method_: The HTTP method to use for the request. Defaults to GET.
 		- _callback_: Called when request is completed. (Optional)
 		- _body_: Specific contents for the request body for POST method. (Optional)
-		- _headers_: Additional request headers. (Optional)
+		- _headers_: Additional request headers. (Optional).  Given headers override the ones that Enyo may set by default (`null` explictly removing the header from the AJAX request).
 		- _username_: The optional user name to use for authentication purposes.
 		- _password_: The optional password to use for authentication purposes.
 		- _xhrFields_: Optional object containing name/value pairs to mix directly into the generated xhr object.
@@ -19,14 +19,15 @@ enyo.xhr = {
 	*/
 	request: function(inParams) {
 		var xhr = this.getXMLHttpRequest(inParams);
+		var url = enyo.path.rewrite(this.simplifyFileURL(inParams.url));
 		//
 		var method = inParams.method || "GET";
 		var async = !inParams.sync;
 		//
 		if (inParams.username) {
-			xhr.open(method, enyo.path.rewrite(inParams.url), async, inParams.username, inParams.password);
+			xhr.open(method, url, async, inParams.username, inParams.password);
 		} else {
-			xhr.open(method, enyo.path.rewrite(inParams.url), async);
+			xhr.open(method, url, async);
 		}
 		//
 		enyo.mixin(xhr, inParams.xhrFields);
@@ -34,15 +35,23 @@ enyo.xhr = {
 		if (inParams.callback) {
 			this.makeReadyStateHandler(xhr, inParams.callback);
 		}
-		if (inParams.headers && xhr.setRequestHeader) {
-			for (var key in inParams.headers) {
-				xhr.setRequestHeader(key, inParams.headers[key]);
-			}
-		}
+		//
+		inParams.headers = inParams.headers || {};
 		// work around iOS 6 bug where non-GET requests are cached
 		// see http://www.einternals.com/blog/web-development/ios6-0-caching-ajax-post-requests
-		if (method !== "GET") {
-			xhr.setRequestHeader("cache-control", "no-cache");
+		// not sure (yet) wether this will be required for later ios releases
+		if (method !== "GET" && enyo.platform.ios && enyo.platform.ios >= 6) {
+			if (inParams.headers["cache-control"] !== null) {
+				inParams.headers["cache-control"] = inParams.headers['cache-control'] || "no-cache";
+			}
+		}
+		// user-set headers override any platform-default
+		if (xhr.setRequestHeader) {
+			for (var key in inParams.headers) {
+				if (inParams.headers[key]) {
+					xhr.setRequestHeader(key, inParams.headers[key]);
+				}
+			}
 		}
 		//
 		if((typeof xhr.overrideMimeType == "function") && inParams.mimeType) {
@@ -96,11 +105,23 @@ enyo.xhr = {
 		if (a.protocol === ":" ||
 				(a.protocol === window.location.protocol &&
 					a.hostname === window.location.hostname &&
-					a.port === (window.location.port || 
+					a.port === (window.location.port ||
 						(window.location.protocol === "https:" ? "443" : "80")))) {
 			result = true;
 		}
 		return result;
+	},
+	simplifyFileURL: function(inUrl) {
+		var a = document.createElement("a"), result = false;
+		a.href = inUrl;
+		// protocol is ":" for relative URLs
+		if (a.protocol === "file:" ||
+			a.protocol === ":" && window.location.protocol === "file:") {
+			// leave off search and hash parts of the URL
+			return a.protocol + '//' + a.host + a.pathname;
+		} else {
+			return inUrl;
+		}
 	},
 	getXMLHttpRequest: function(inParams) {
 		try {
