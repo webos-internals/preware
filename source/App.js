@@ -1,15 +1,19 @@
 // Preware App kind and main window.
-/*global enyo, onyx, preware, $L */
+/*global enyo, onyx, preware, $L, navigator */
+
+//to reload changes on device: luna-send -n 1 palm://com.palm.applicationManager/rescan {}
 
 enyo.kind({
 	name: "preware.App",
   //fit: true,
   kind: enyo.Control,
   layoutKind: "FittableRowsLayout",
-  classes: "onyx", 
+  classes: "onyx enyo-fit", 
   // required ipkgservice
 	ipkgServiceVersion: 14,
 	components:[
+    //catch phonegap device ready signal.
+    { kind: "Signals", ondeviceready: "deviceready" },
     //initialize preware toolbare with preware in it and a search field + button.
      {kind: "onyx.MoreToolbar", components: [
        {content: "Preware" },
@@ -27,16 +31,23 @@ enyo.kind({
          { kind: enyo.FittableRows, components: [
           { kind: onyx.Button, content: "getVersion", ontap: "versionTap" },
           { kind: onyx.Button, content: "getMachineName", ontap: "machineName" },
-          { kind: onyx.Button, content: "downloadWOCEFeed", ontap: "downloadFeed" },
           { kind: onyx.Button, content: "loadFeeds", ontap: "startLoadFeeds" },
-          { kind: enyo.Scroller, components: [
-            { name: "out", content: "press button...<br>", allowHtml: true}
+          { kind: enyo.Scroller, fit: true, components: [
+            { name: "out", content: "press button...<br>", allowHtml: true, fit: true }
           ]}
          ] }
     ]}
 	],
   log: function(msg) {
     this.$.out.addContent(msg + "<br>");
+  },
+  deviceready: function(inSender, inEvent) {
+    this.log("device ready received, yeah. :)");
+    if(!PalmServiceBridge) {
+      this.log("No PalmServiceBridge... not running on device?? :(");
+		} else {
+      this.log("PalmServiceBridge seems to exist.");
+    }
   },
   versionTap: function(inSender, inEvent) {
     preware.IPKGService.version(this.gotVersion.bind(this));
@@ -52,21 +63,13 @@ enyo.kind({
   gotMachineName: function(machineName) {
     this.log("Got machinename: " + machineName + " (" + JSON.stringify(machineName) + ")");
   },
-  downloadFeed: function() {
-    preware.IPKGService.downloadFeed(this.gotFeed.bind(this),true, "woce", "http://ipkg.preware.org/feeds/woce/");
-    this.log("started feed dl.");
-  },
-  gotFeed: function(feed) {
-    this.log("Got feed!");
-    this.log(JSON.stringify(feed));
-  },
   startLoadFeeds: function() {
     this.log("starting to load feeds.");
     preware.DeviceProfile.getDeviceProfile(this.gotDeviceProfile.bind(this), false);
     this.log("...");
   },
   gotDeviceProfile: function(inSender, inEvent) {
-    this.log("got device profile: " + JSON.stringify(inEvent));
+    this.log("got device profile: " + inEvent && inEvent.success);
     if (!inEvent.success || !inEvent.deviceProfile) {
       this.log("failure...");
       this.subscription = preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
@@ -83,7 +86,7 @@ enyo.kind({
       this.subscription = preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
       this.log("getting machine name.");
     } else {
-      this.log("got palmProfile: " + JSON.stringify(inEvent.palmProfile));
+      this.log("got palmProfile.");
       this.palmProfile = inEvent.palmProfile;
       this.subsciption = preware.IPKGService.setAuthParams(this.authParamsSet.bind(this),
                                         this.deviceProfile.deviceId,
@@ -96,31 +99,25 @@ enyo.kind({
     this.log("getting machine name.");
   },
   onDeviceType: function(inEvent) {
-    /*if (inEvent && inEvent.returnValue === true) {
-      if (inEvent.stdOut[0] == "roadrunner") {
-        Mojo.Environment.DeviceInfo.modelNameAscii = "Pre2";
-      }
-    }*/ //hm.. all this calls feel a bit like wasted time, now. :(
-	
     // start with checking the internet connection
     this.log("request connection status.");
     
-    var request = new navigator.service.Request("palm://com.palm.connectionmanager",{
+    navigator.service.Request("palm://com.palm.connectionmanager",{
         method: "getstatus",
         onSuccess: this.onConnection.bind(this),
         onFailure: this.onConnectionFailure.bind(this)
     });
   },
-  onConnectionFailure: function(sender,response) {
+  onConnectionFailure: function(response) {
       console.log("failure:response="+JSON.stringify(response));
   },
-  onConnection: function(sender,response) {
+  onConnection: function(response) {
     var hasNet = false;
     if (response && response.returnValue === true && (response.isInternetConnectionAvailable === true || response.wifi.state === "connected"))	{
       hasNet = true;
     }
     this.log("got connection status. connection: " + hasNet);
-    this.log("Response: " + JSON.stringify(response));
+    //this.log("Response: " + JSON.stringify(response));
     // run version check
     this.log("Run version check");
     this.subscription = preware.IPKGService.version(this.onVersionCheck.bind(this, hasNet));
@@ -149,20 +146,20 @@ enyo.kind({
           if (hasNet && !this.onlyLoad) {
             // initiate update if we have a connection
             this.log("start loading feeds.");
-            this.subscription = preware.feedsModel.loadFeeds(this.downloadFeeds.bind(this));
+            this.subscription = preware.FeedsModel.loadFeeds(this.downLoadFeeds.bind(this));
             this.log("...");
           } else {
             // if not, go right to loading the pkg info
-            this.loadFeeds();
+            this.downLoadFeeds();
           }
         }
       }
     } catch (e) {
       enyo.error("feedsModel#loadFeeds", e);
-      this.log("exception caught: " + JSON.stringify(e));
+      this.log("exception caught: " + e);
     }
   },
-  downloadFeeds: function(inSender, inEvent) {
+  downLoadFeeds: function(inSender, inEvent) {
     this.log("loaded feeds: " + JSON.stringify(inEvent));
     this.feeds = inEvent;
     

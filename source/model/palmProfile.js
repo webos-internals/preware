@@ -10,7 +10,6 @@
 enyo.singleton({
   name: "preware.PalmProfile",
   palmProfile: false,
-  palmProfileRequest: false,
   callback: false,
   getPalmProfile: function(callback, reload) {
     this.callback = callback;
@@ -21,23 +20,14 @@ enyo.singleton({
     
       //some cleanup
       this.palmProfile = false;
-      if (this.palmProfileRequest) {
-        this.palmProfileRequest.cancel();
-      }
-
-      this.palmProfileRequest = preware.IPKGService.impersonate(this._gotPalmProfile.bind(this),
+      preware.IPKGService.impersonate(this._gotPalmProfile.bind(this),
           "com.palm.configurator",
 					"com.palm.db",
 					"get", {"ids":["com.palm.palmprofile.token"]});
       
     }
   },
-  _gotPalmProfile: function(payload) {
-    if (this.palmProfileRequest) {
-      this.palmProfileRequest.cancel();
-    }
-    this.palmProfileRequest = false;
-    
+  _gotPalmProfile: function(payload) {    
     if (payload.returnValue === true) {
       this.palmProfile = payload.results[0];
     }

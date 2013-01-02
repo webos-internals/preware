@@ -19,7 +19,7 @@ enyo.singleton({
       this.feeds = [];
 
       // init feed loading
-      this.subscription = IPKGService.list_configs(this.onConfigs.bind(this)); //bindAsEventlistener came from Mojo.
+      this.subscription = IPKGService.list_configs(this.onConfigs.bind(this));
     } catch (e) {
       enyo.error("feedsModel#loadFeeds", e);
     }

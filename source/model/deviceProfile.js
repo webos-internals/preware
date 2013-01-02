@@ -4,8 +4,6 @@ enyo.singleton({
   name: "preware.DeviceProfile",
   deviceProfile: false,
   deviceId: false,
-  requestDeviceProfile: false,
-  requestDeviceId: false,
   /*events: {
     onDeviceProfileReady: "", //inEvent will have deviceProfile: obj, succes: boolean, message: string.
     onDeviceIdReady: "" //inEvent will have deviceId: obj, success: boolean, message: string
@@ -28,21 +26,13 @@ enyo.singleton({
       this.deviceProfile = false;
       this.deviceId = false;
       
-      if (this.requestDeviceProfile) {
-        this.requestDeviceProfile.cancel();
-      }
-      this.requestDeviceProfile = preware.IPKGService.impersonate(this._gotDeviceProfile.bind(this),
+      preware.IPKGService.impersonate(this._gotDeviceProfile.bind(this),
 							"com.palm.configurator",
 							"com.palm.deviceprofile",
 							"getDeviceProfile", {});
     }
   },
-  _gotDeviceProfile: function(payload) {
-    if (this.requestDeviceProfile) {
-      this.requestDeviceProfile.cancel();
-    }
-    this.requestDeviceProfile = false;
-    
+  _gotDeviceProfile: function(payload) {   
     if (payload.returnValue === false) {
       this.doDeviceProfileReady({deviceProfile: false, success: false, message: payload.errorText});
     } else {
@@ -59,21 +49,13 @@ enyo.singleton({
       this.doDeviceIdRead({deviceId: this.deviceId, success: true, message: ""});
     } else {
       this.deviceId = false;
-      if (this.requestDeviceId) {
-        this.requestDeviceId.cancel();
-      }
-      this.requestDeviceId = preware.IPKGService.impersonate(this._gotDeviceId.bind(this),
+      preware.IPKGService.impersonate(this._gotDeviceId.bind(this),
 						   "com.palm.configurator",
 						   "com.palm.deviceprofile",
 						   "getDeviceId", {});
     }
   },
-  _gotDeviceId: function(payload) {
-    if (this.requestDeviceId) {
-      this.requestDeviceId.cancel();
-    }
-    this.requestDeviceId = false;
-    
+  _gotDeviceId: function(payload) {   
     if (payload.returnValue === false) {
       this.doDeviceIdReady({deviceId: false, success: false, message: payload.errorText});
     } else {

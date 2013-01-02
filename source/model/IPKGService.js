@@ -1,27 +1,27 @@
-/*global enyo, preware, $L */
+/*global enyo, preware, $L, navigator */
 
 enyo.singleton({
   name: "preware.IPKGService",
   identifier: 'palm://org.webosinternals.ipkgservice',
   log: "",
   logNum: 1,
-  generalSuccess: function(callback, inSender, inResponse) {
+  generalSuccess: function(callback, inResponse) {
     if (callback) {
       callback(inResponse);
     }
   },
-  generalFailure: function(callback, inSender, inError) {
+  generalFailure: function(callback, inError) {
     enyo.error("IPKGService#generalFailure", inError);
     if (callback) {
       callback(inError);
     }
   },
   _serviceCall: function(callback, method, parameters) {
-    var request = new navigator.service.Request(this.identifier,{
+    var request = navigator.service.Request(this.identifier,{
                                 method: method,
+                                parameters: parameters,
                                 onSuccess: this.generalSuccess.bind(this, callback),
-                                onFailure: this.generalFailure.bind(this, callback),
-                                parameters: parameters
+                                onFailure: this.generalFailure.bind(this, callback)
     });
     return request;
   },
