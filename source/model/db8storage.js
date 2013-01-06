@@ -10,9 +10,6 @@ var preware2Domain = "org.webosinternals.preware2";
 //TODO: uncomment this.$.XYZ.call lines if DbService is implemented..
 enyo.singleton({
   name: "preware.db8Storage",
-  events: {
-    onDeleteAllFinished: "" //will set inEvent.success to false or true.
-  },
   kinds: [ {
               //id is set in DbService kind.
              owner: preware2Domain,
@@ -46,19 +43,23 @@ enyo.singleton({
   putArray: function(array) {
     this.$.putData.call({objects: array});
   },
-  deleteAll: function() {
+  deleteAll: function(callback) {
     //this.$.deleteAllData.call({query: {from: preware2Domain + ".justType:1"}});
     //TODO: remove this, if DbService is implemented!!!
-    enyo.error("faking delete all success!");
-    this.doDeleteAll({success: false});
+    enyo.error("db8storage.deleteAll is only a stub.");
+    this.callback = callback;
   },
-  deleteAllSuccess: function() {
+  deleteAllSuccess: function(inSender, inResponse) {
     enyo.log("Delete all success.");
-    this.doDeleteAll({success: true});
+    if (this.callback) {
+      this.callback({success: true});
+    }
   },
   deleteAllFailure: function(inSender, inError, inRequest) {
     enyo.error("delete all failure: ", inError);
-    this.doDeleteAll({success: false});
+    if (this.callback) {
+      this.callback({success: false});
+    }
   },
   dbSuccess: function(inSender, inRequest) {
     enyo.log("DB8 operation " + JSON.stringify(inRequest) + " success.");

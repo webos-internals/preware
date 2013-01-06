@@ -48,6 +48,11 @@ enyo.kind({
 		} else {
       this.log("PalmServiceBridge seems to exist.");
     }
+    this.log("Mojo.Environment.DeviceInfo.platformVersion: " + Mojo.Environment.DeviceInfo.platformVersion);
+    this.log("device.version: " + device && device.version);
+
+    this.log("Mojo.Environment.DeviceInfo.modelNameAscii: " + Mojo.Environment.DeviceInfo.modelNameAscii);
+    this.log("device.name: " + device && device.name);
   },
   versionTap: function(inSender, inEvent) {
     preware.IPKGService.version(this.gotVersion.bind(this));
