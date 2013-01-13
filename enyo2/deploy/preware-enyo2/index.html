@@ -12,22 +12,22 @@
 		<link href="build/enyo.css" rel="stylesheet"/>
 		<link href="build/app.css" rel="stylesheet"/>
 		<!-- js -->
-    <script src="cordova-2.2.0.js"></script>
+		<script src="cordova-2.2.0.js"></script>
 		<script src="build/enyo.js"></script>
 		<script src="build/app.js"></script>
 	</head>
 	<body class="enyo-unselectable">
 		<script>
-      var onDeviceReady=function() {
-        new preware.App().renderInto(document.body);
-      }
-      setTimeout(function() {
-        if (typeof navigator.device == "undefined"){
-          onDeviceReady();
-        } else {
-          document.addEventListener("deviceready", onDeviceReady, false);
-        }
-      }, 0);
+			var onDeviceReady=function() {
+				new preware.App().renderInto(document.body);
+			}
+			setTimeout(function() {
+				if (typeof navigator.device == "undefined"){
+					onDeviceReady();
+				} else {
+					document.addEventListener("deviceready", onDeviceReady, false);
+				}
+			}, 0);
 		</script>
 	</body>
 </html>

@@ -3,45 +3,45 @@
 //Nice would be db8 with _sync: true in the entries, so a backup on Palm Servers would happen. But how long will that still exist?
 
 enyo.singleton({
-  name: "preware.SavedPacketlist",
-  load: function(callback) {
-    enyo.error("preware.SavedPacketlist.load is only a stub.");
-    /*
-    try {
-      this.doDisplayStatus({msg: $L("<strong>Reading Saved Package List</strong>")});
-      this.savedDB = new Mojo.Depot
-      ({
-        name:			"packageDB",
-        version:		1,
-        estimatedSize:	1048576,
-        replace:		false
-      },
-        this.loadSavedOpenOK.bind(this),
-        this.loadSavedError.bind(this));
-    }
-    catch (e)
-    {
-      Mojo.Log.logException(e, 'packagesModel#loadSaved');
-    }
-    return;
-    */
-    if (callback) {
-      callback({success: false});
-    }
-  },
-  
-  save: function(callback) {
-    enyo.error("preware.SavedPacketlist.save is only a stub");
-    
-    //see below in the commented  code how the list was created earlier.
-    
-    if (callback) {
-      callback({success: false});
-    }
-  }
-  
-  /* more stuff from the original implementation:
-  
+	name: "preware.SavedPacketlist",
+	load: function(callback) {
+		enyo.error("preware.SavedPacketlist.load is only a stub.");
+		/*
+		try {
+			this.doDisplayStatus({msg: $L("<strong>Reading Saved Package List</strong>")});
+			this.savedDB = new Mojo.Depot
+			({
+				name:			"packageDB",
+				version:		1,
+				estimatedSize:	1048576,
+				replace:		false
+			},
+				this.loadSavedOpenOK.bind(this),
+				this.loadSavedError.bind(this));
+		}
+		catch (e)
+		{
+			Mojo.Log.logException(e, 'packagesModel#loadSaved');
+		}
+		return;
+		*/
+		if (callback) {
+			callback({success: false});
+		}
+	},
+	
+	save: function(callback) {
+		enyo.error("preware.SavedPacketlist.save is only a stub");
+		
+		//see below in the commented	code how the list was created earlier.
+		
+		if (callback) {
+			callback({success: false});
+		}
+	}
+	
+	/* more stuff from the original implementation:
+	
 loadSavedOpenOK = function()
 {
 	try
@@ -120,7 +120,7 @@ loadSavedError = function(result)
 	try
 	{
 		this.updateAssistant.errorMessage('Preware', $L("Unable to open saved packages database: ") + result,
-										  this.updateAssistant.doneUpdating);
+											this.updateAssistant.doneUpdating);
 	}
 	catch (e)
 	{
