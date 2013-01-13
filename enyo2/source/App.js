@@ -15,27 +15,27 @@ enyo.kind({
 		//catch phonegap device ready signal.
 		{ kind: "Signals", ondeviceready: "deviceready" },
 		//initialize preware toolbare with preware in it and a search field + button.
-		 {kind: "onyx.MoreToolbar", components: [
-			 {content: "Preware" },
-			 {kind: "onyx.InputDecorator", style: "position:absolute; right:0px", components: [
-	 {kind: "onyx.Input", name: "searchTerm", placeholder: "Search packet", onkeydown: "searchOnEnter"},
-	 {kind: "Image", src: "assets/search-input-search.png", ontap: "search"}
-			 ]}
+			{kind: "onyx.MoreToolbar", components: [
+				{content: "Preware" },
+				{kind: "onyx.InputDecorator", style: "position:absolute; right:0px", components: [
+		 		{kind: "onyx.Input", name: "searchTerm", placeholder: "Search packet", onkeydown: "searchOnEnter"},
+		 		{kind: "Image", src: "assets/search-input-search.png", ontap: "search"}
+			]}
 		 ]},
 		//want to have Panels that are "cards" on phones (<800px width) and sliding stuff otherwise.
 		{kind: "Panels", draggable: true, wrap: false, 
 		narrowFit: true, fit: true, 
 		arrangerKind: "CollapsingArranger", 
 		classes: "app-panels", 
-	 components: [
-	 { kind: enyo.FittableRows, components: [
-		{ kind: onyx.Button, content: "getVersion", ontap: "versionTap" },
-		{ kind: onyx.Button, content: "getMachineName", ontap: "machineName" },
-		{ kind: onyx.Button, content: "loadFeeds", ontap: "startLoadFeeds" },
-		{ kind: enyo.Scroller, fit: true, components: [
-			{ name: "out", content: "press button...<br>", allowHtml: true, fit: true }
-		]}
-	 ] }
+		components: [
+			{kind: enyo.FittableRows, components: [
+				{kind: onyx.Button, content: "getVersion", ontap: "versionTap" },
+				{kind: onyx.Button, content: "getMachineName", ontap: "machineName" },
+				{kind: onyx.Button, content: "loadFeeds", ontap: "startLoadFeeds" },
+				{kind: enyo.Scroller, fit: true, components: [
+					{name: "out", content: "press button...<br>", allowHtml: true, fit: true}
+				]}
+			]}
 		]}
 	],
 	log: function(msg) {
@@ -108,9 +108,9 @@ enyo.kind({
 		this.log("request connection status.");
 		
 		navigator.service.Request("palm://com.palm.connectionmanager",{
-	method: "getstatus",
-	onSuccess: this.onConnection.bind(this),
-	onFailure: this.onConnectionFailure.bind(this)
+			method: "getstatus",
+			onSuccess: this.onConnection.bind(this),
+			onFailure: this.onConnectionFailure.bind(this)
 		});
 	},
 	onConnectionFailure: function(response) {
@@ -130,36 +130,42 @@ enyo.kind({
 	onVersionCheck: function(hasNet, payload)
 	{
 		this.log("version check returned: " + JSON.stringify(payload));
-		try {
+		try
+		{
 			// log payload for display
 			preware.IPKGService.logPayload(payload, 'VersionCheck');
 
 			if (!payload) {
-	// i dont know if this will ever happen, but hey, it might
-	this.log($L("Cannot access the service. First try restarting Preware, or reboot your device and try again."));
-			} else if (payload.errorCode !== undefined) {
-	if (payload.errorText === "org.webosinternals.ipkgservice is not running.") {
-		this.log($L("The service is not running. First try restarting Preware, or reboot your device and try again."));
-	} else {
-		this.log(payload.errorText);
-	}
-			} else {
-	if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) {
-		// this is if this version is too old for the version number stuff
-		this.log($L("The service version is too old. First try rebooting your device, or reinstall Preware and try again."));
-	} else {
-		if (hasNet && !this.onlyLoad) {
-			// initiate update if we have a connection
-			this.log("start loading feeds.");
-			preware.FeedsModel.loadFeeds(this.downLoadFeeds.bind(this));
-			this.log("...");
-		} else {
-			// if not, go right to loading the pkg info
-			this.loadFeeds();
-		}
-	}
+				// i dont know if this will ever happen, but hey, it might
+				this.log($L("Cannot access the service. First try restarting Preware, or reboot your device and try again."));
 			}
-		} catch (e) {
+			else if (payload.errorCode !== undefined) {
+				if (payload.errorText === "org.webosinternals.ipkgservice is not running.") {
+					this.log($L("The service is not running. First try restarting Preware, or reboot your device and try again."));
+				} else {
+					this.log(payload.errorText);
+				}
+			}
+			else {
+				if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) {
+					// this is if this version is too old for the version number stuff
+					this.log($L("The service version is too old. First try rebooting your device, or reinstall Preware and try again."));
+				}
+				else {
+					if (hasNet && !this.onlyLoad) {
+						// initiate update if we have a connection
+						this.log("start loading feeds.");
+						preware.FeedsModel.loadFeeds(this.downLoadFeeds.bind(this));
+						this.log("...");
+					}
+					else {
+						// if not, go right to loading the pkg info
+						this.loadFeeds();
+					}
+				}
+			}
+		}
+		catch (e) {
 			enyo.error("feedsModel#loadFeeds", e);
 			this.log("exception caught: " + e);
 		}
@@ -178,26 +184,29 @@ enyo.kind({
 	
 		// subscribe to new feed
 		preware.IPKGService.downloadFeed(this.downloadFeedResponse.bind(this, num),
-												 this.feeds[num].gzipped, this.feeds[num].name, this.feeds[num].url);
+			this.feeds[num].gzipped, this.feeds[num].name, this.feeds[num].url);
 	},
 	downloadFeedResponse: function(num, payload) {
 		if ((payload.returnValue === false) || (payload.stage === "failed")) {
 			this.log(payload.errorText + '<br>' + payload.stdErr.join("<br>"));
-		} else if (payload.stage === "status") {
+		}
+		else if (payload.stage === "status") {
 			this.log($L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name + "<br><br>" + payload.status);
-		} else if (payload.stage === "completed") {
+		}
+		else if (payload.stage === "completed") {
 			num = num + 1;
 			if (num < this.feeds.length) {
-	// start next
-	this.downloadFeedRequest(num);
-			} else {
-	// we're done
-	this.log($L("<strong>Done Downoading!</strong>"));
+				// start next
+				this.downloadFeedRequest(num);
+			}
+			else {
+				// we're done
+				this.log($L("<strong>Done Downoading!</strong>"));
 	
-	// well updating looks to have finished, lets log the date:
-	preware.PrefCookie.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
+				// well updating looks to have finished, lets log the date:
+				preware.PrefCookie.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
 	
-	this.loadFeeds();
+				this.loadFeeds();
 			}
 		}
 	},
