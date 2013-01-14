@@ -44,6 +44,7 @@ enyo.kind({
 		style: "width: 33%",
 		components:[
 			{kind: "PortsSearch",
+			title: "Preware",
 			taglines:[
 				"I live... again...",
 				"*badly digitized 8-bit voice* RIIIISE FROM YOUR GRAAAVE!",
