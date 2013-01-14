@@ -10,7 +10,6 @@
 		<meta name="viewport" content="height=device-height, user-scalable=no"/>
 		<!-- Less.js (uncomment for client-side rendering of less stylesheets; leave commented to use only CSS) -->
 		<!-- <script src="enyo/tools/minifier/node_modules/less/dist/less-1.3.0e.min.js"></script> -->
-		<script src="cordova-2.2.0.js"></script>
 		<!-- enyo (debug) -->
 		<script src="enyo/enyo.js"></script>
 		<!-- application (debug) -->
@@ -18,21 +17,7 @@
 	</head>
 	<body class="enyo-unselectable">
 		<script>
-			/*var onDeviceReady=function() {
-				console.log("onDeviceReady received.");
-				new preware.App().renderInto(document.body);
-			}
-			setTimeout(function() {
-				if (typeof navigator.device == "undefined"){
-					console.log("no phonegap, calling onDeviceReady directry.");
-					onDeviceReady();
-				} else {
-					console.log("adding event listener for deviceReady.");
-					document.addEventListener("deviceready", onDeviceReady, false);
-					console.log("dones.");
-				}
-			}, 0);*/
-			new preware.App().renderInto(document.body);
+			new App().renderInto(document.body);
 		</script>
 	</body>
 </html>

@@ -2,18 +2,28 @@
 	Put anything you reference with "url()" in ../assets/
 	This way, you can minify your application, and just remove the "source" folder for production
 */
-
-/* set the width and some basic styling for each panel */
-.app-panels > * {
-		width: 320px;
-		background-color: #EAEAEA;
-		box-shadow: -4px -4px 4px rgba(0,0,0,0.3);
+.app-panels {
+	background-color: #000000;
 }
 
-/* on small devices, make each panel fit to the app width */
-@media all and (max-width: 800px) {
-		.app-panels > * {
-				min-width: 100%;
-				max-width: 100%;
-		}
+.app-panels > * {
+	background-color: #555;
+}
+
+.onyx-toolbar {
+	height: 54px;
+}
+
+.list-item {
+	width: inherit;
+	height: 32px;
+	padding: 10px;
+	color: white;
+	background-color: #333333;
+	border-bottom: 1px solid #0E0E0E;
+	font-size: 18px;
+}
+
+.list-item.onyx-selected {
+	background-color: MidnightBlue;
 }

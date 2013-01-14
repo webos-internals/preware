@@ -4,43 +4,88 @@
 //to reload changes on device: luna-send -n 1 palm://com.palm.applicationManager/rescan {}
 
 enyo.kind({
-	name: "preware.App",
-	//fit: true,
-	kind: enyo.Control,
-	layoutKind: "FittableRowsLayout",
-	classes: "onyx enyo-fit", 
+	name: "ListItem",
+	classes: "list-item",
+	ontap: "menuItemTapped",
+	content: "List Item",
+	handlers: {
+		onmousedown: "pressed",
+		ondragstart: "released",
+		onmouseup: "released"
+	},
+	components:[
+		{name: "ItemTitle", style: "position: absolute; margin-top: 6px;"},
+	],
+	create:  function() {
+		this.inherited(arguments);
+		this.$.ItemTitle.setContent(this.content);
+	},
+	pressed: function() {
+		this.addClass("onyx-selected");
+	},
+	released: function() {
+		this.removeClass("onyx-selected");
+	}
+});
+
+enyo.kind({
+	name: "AppPanels",
+	kind: "Panels",
+	fit: true,
+	realtimeFit: true,
+	arrangerKind: "CollapsingArranger",
+	classes: "app-panels",
 	// required ipkgservice
 	ipkgServiceVersion: 14,
 	components:[
-		//catch phonegap device ready signal.
-		{ kind: "Signals", ondeviceready: "deviceready" },
-		//initialize preware toolbare with preware in it and a search field + button.
-			{kind: "onyx.MoreToolbar", components: [
-				{content: "Preware" },
-				{kind: "onyx.InputDecorator", style: "position:absolute; right:0px", components: [
-		 		{kind: "onyx.Input", name: "searchTerm", placeholder: "Search packet", onkeydown: "searchOnEnter"},
-		 		{kind: "Image", src: "assets/search-input-search.png", ontap: "search"}
-			]}
-		 ]},
-		//want to have Panels that are "cards" on phones (<800px width) and sliding stuff otherwise.
-		{kind: "Panels", draggable: true, wrap: false, 
-		narrowFit: true, fit: true, 
-		arrangerKind: "CollapsingArranger", 
-		classes: "app-panels", 
-		components: [
-			{kind: enyo.FittableRows, components: [
+		//Menu
+		{name: "MenuPanel",
+		layoutKind: "FittableRowsLayout",
+		style: "width: 33%",
+		components:[
+			{kind: "PortsSearch",
+			taglines:[
+				"I live... again...",
+				"*badly digitized 8-bit voice* RIIIISE FROM YOUR GRAAAVE!",
+				"Installing packages, with a penguin!",
+				"How many Ports could a webOS Ports Port?",
+				"Not just for Apps anymore.",
+				"Preware, now with 100% more Enyo2!"
+			]},
+			{kind: "Scroller",
+			horizontal: "hidden",
+			classes: "enyo-fill",
+			fit: true,
+			touch: true,
+			ontap: "showDebug",
+			components:[
+				{kind: "ListItem", content: "Package Updates"},
+				{kind: "ListItem", content: "Available Packages"},
+				{kind: "ListItem", content: "Installed Packages"},
+				{kind: "ListItem", content: "List of Everything"}
+			]},
+			{kind: "onyx.Toolbar"}
+		]},
+		//Content
+		{name: "ContentPanels",
+		kind: enyo.FittableRows, components: [
+			{kind: "onyx.Toolbar", content: "Debug", components:[
+				{content: "Debug"},
+			]},
+			{kind: enyo.Scroller, style: "color: white;", touch: true, fit: true, components: [
+				{style: "padding: 20px;", components:[
+					{name: "out", content: "press button...<br>", allowHtml: true, fit: true}
+				]}
+			]},
+			{kind: "onyx.Toolbar", components:[
+				{name: "Grabber", kind: "onyx.Grabber"},
 				{kind: onyx.Button, content: "getVersion", ontap: "versionTap" },
 				{kind: onyx.Button, content: "getMachineName", ontap: "machineName" },
 				{kind: onyx.Button, content: "loadFeeds", ontap: "startLoadFeeds" },
-				{kind: enyo.Scroller, fit: true, components: [
-					{name: "out", content: "press button...<br>", allowHtml: true, fit: true}
-				]}
-			]}
-		]}
+			]},
+		]},
 	],
-	log: function(msg) {
-		this.$.out.addContent(msg + "<br>");
-	},
+	//Handlers
 	deviceready: function(inSender, inEvent) {
 		this.log("device ready received, yeah. :)");
 		if(!PalmServiceBridge) {
@@ -54,19 +99,25 @@ enyo.kind({
 		this.log("Mojo.Environment.DeviceInfo.modelNameAscii: " + Mojo.Environment.DeviceInfo.modelNameAscii);
 		this.log("device.name: " + device && device.name);
 	},
+	//Action Functions
+	showDebug: function() {
+		if(enyo.Panels.isScreenNarrow())
+			this.setIndex(1);
+	},
+	//Unsorted Functions
 	versionTap: function(inSender, inEvent) {
 		preware.IPKGService.version(this.gotVersion.bind(this));
-		this.log("getting version");
+		this.log("Getting Version");
 	},
 	gotVersion: function(version) {
-		this.log("version: " + JSON.stringify(version) + "<br>");
+		this.log("Version: " + JSON.stringify(version) + "<br>");
 	},
 	machineName: function() {
 		preware.IPKGService.getMachineName(this.gotMachineName.bind(this));
-		this.log("getting machine name.");
+		this.log("Getting Machine Name");
 	},
 	gotMachineName: function(machineName) {
-		this.log("Got machinename: " + machineName + " (" + JSON.stringify(machineName) + ")");
+		this.log("Got Machine Name: " + machineName + " (" + JSON.stringify(machineName) + ")");
 	},
 	startLoadFeeds: function() {
 		this.log("starting to load feeds.");
@@ -74,24 +125,24 @@ enyo.kind({
 		this.log("...");
 	},
 	gotDeviceProfile: function(inSender, inEvent) {
-		this.log("got device profile: " + inEvent && inEvent.success);
+		this.log("Got Device Profile: " + inEvent && inEvent.success);
 		if (!inEvent.success || !inEvent.deviceProfile) {
-			this.log("failure...");
+			this.log("Failure...");
 			preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
-			this.log("getting machine name.");
+			this.log("Getting Machine Name.");
 		} else {
-			this.log("got deviceProfile: " + JSON.stringify(inEvent.deviceProfile));
+			this.log("Got deviceProfile: " + JSON.stringify(inEvent.deviceProfile));
 			this.deviceProfile = inEvent.deviceProfile;
 			preware.PalmProfile.getPalmProfile(this.gotPalmProfile.bind(this), false);
 		}
 	},
 	gotPalmProfile: function(inSender, inEvent) {
 		if (!inEvent.success || !inEvent.palmProfile) {
-			this.log("failure...");
+			this.log("Failure...");
 			preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
 			this.log("getting machine name.");
 		} else {
-			this.log("got palmProfile.");
+			this.log("Got palmProfile.");
 			this.palmProfile = inEvent.palmProfile;
 			preware.IPKGService.setAuthParams(this.authParamsSet.bind(this),
 					this.deviceProfile.deviceId,
@@ -99,13 +150,13 @@ enyo.kind({
 		}
 	},
 	authParamsSet: function(inResponse) {
-		this.log("got authParams: " + JSON.stringify(inResponse));
+		this.log("Got authParams: " + JSON.stringify(inResponse));
 		preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
-		this.log("getting machine name.");
+		this.log("Getting machine name");
 	},
 	onDeviceType: function(inEvent) {
-		// start with checking the internet connection
-		this.log("request connection status.");
+		// start by checking the internet connection
+		this.log("Requesting Connection Status");
 		
 		navigator.service.Request("palm://com.palm.connectionmanager",{
 			method: "getstatus",
@@ -114,7 +165,7 @@ enyo.kind({
 		});
 	},
 	onConnectionFailure: function(response) {
-			console.log("failure:response="+JSON.stringify(response));
+			console.log("Failure:response="+JSON.stringify(response));
 	},
 	onConnection: function(response) {
 		var hasNet = false;
@@ -124,12 +175,12 @@ enyo.kind({
 		this.log("got connection status. connection: " + hasNet);
 		//this.log("Response: " + JSON.stringify(response));
 		// run version check
-		this.log("Run version check");
+		this.log("Run Version Check");
 		preware.IPKGService.version(this.onVersionCheck.bind(this, hasNet));
 	},
 	onVersionCheck: function(hasNet, payload)
 	{
-		this.log("version check returned: " + JSON.stringify(payload));
+		this.log("Version Check Returned: " + JSON.stringify(payload));
 		try
 		{
 			// log payload for display
@@ -217,5 +268,55 @@ enyo.kind({
 	},
 	parseFeeds: function(feeds) {
 		packages.loadFeeds(feeds, this);
+	}
+});
+
+enyo.kind({
+	name: "App",
+	layoutKind: "FittableRowsLayout",
+	components: [
+		{kind: "Signals",
+		ondeviceready: "deviceready",
+		onbackbutton: "handleBackGesture",
+		onCoreNaviDragStart: "handleCoreNaviDragStart",
+		onCoreNaviDrag: "handleCoreNaviDrag",
+		onCoreNaviDragFinish: "handleCoreNaviDragFinish",},
+		{name: "AppPanels", kind: "AppPanels", fit: true},
+		{kind: "CoreNavi", fingerTracking: true}
+	],
+	//Handlers
+	reflow: function(inSender) {
+		this.inherited(arguments);
+		if(enyo.Panels.isScreenNarrow()) {
+			this.$.AppPanels.setArrangerKind("CoreNaviArranger");
+			this.$.AppPanels.setDraggable(false);
+			this.$.AppPanels.$.ContentPanels.addStyles("box-shadow: 0");
+			this.$.AppPanels.$.Grabber.applyStyle("visibility", "hidden");
+		}
+		else {
+			this.$.AppPanels.setArrangerKind("CollapsingArranger");
+			this.$.AppPanels.setDraggable(true);
+			this.$.AppPanels.$.ContentPanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
+			this.$.AppPanels.$.Grabber.applyStyle("visibility", "visible");
+		}
+	},
+	handleBackGesture: function(inSender, inEvent) {
+		this.$.AppPanels.setIndex(0);
+	},
+	handleCoreNaviDragStart: function(inSender, inEvent) {
+		this.$.AppPanels.dragstartTransition(this.$.AppPanels.draggable == false ? this.reverseDrag(inEvent) : inEvent);
+	},
+	handleCoreNaviDrag: function(inSender, inEvent) {
+		this.$.AppPanels.dragTransition(this.$.AppPanels.draggable == false ? this.reverseDrag(inEvent) : inEvent);
+	},
+	handleCoreNaviDragFinish: function(inSender, inEvent) {
+		this.$.AppPanels.dragfinishTransition(this.$.AppPanels.draggable == false ? this.reverseDrag(inEvent) : inEvent);
+	},
+	//Utility Functions
+	reverseDrag: function(inEvent) {
+		inEvent.dx = -inEvent.dx;
+		inEvent.ddx = -inEvent.ddx;
+		inEvent.xDirection = -inEvent.xDirection;
+		return inEvent;
 	}
 });
