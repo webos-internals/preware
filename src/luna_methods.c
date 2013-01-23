@@ -191,13 +191,13 @@ bool version_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 //
-// Restart opkgservice.
+// Restart ipkgservice.
 //
 bool restart_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
   (void)LSMessageRespond(message, "{\"returnValue\": true}", &lserror);
-  (void)system("/usr/bin/killall org.webosinternals.opkgservice");
+  (void)system("/usr/bin/killall org.webosinternals.ipkgservice");
   // It's likely that this point will never be reached.
   return true;
 }
