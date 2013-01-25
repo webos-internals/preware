@@ -47,23 +47,38 @@ enyo.kind({
 			title: "Preware",
 			taglines:[
 				"I live... again...",
-				"*badly digitized 8-bit voice* RIIIISE FROM YOUR GRAAAVE!",
+				"Miss me?",
 				"Installing packages, with a penguin!",
 				"How many Ports could a webOS Ports Port?",
 				"Not just for Apps anymore.",
-				"Preware, now with 100% more Enyo2!"
+				"Now with 100% more Enyo2!"
 			]},
-			{kind: "Scroller",
-			horizontal: "hidden",
-			classes: "enyo-fill",
+			{name: "ScrollerPanel",
+			kind: "Panels",
+			arrangerKind: "CardArranger",
 			fit: true,
-			touch: true,
-			ontap: "showDebug",
-			components:[
-				{kind: "ListItem", content: "Package Updates"},
-				{kind: "ListItem", content: "Available Packages"},
-				{kind: "ListItem", content: "Installed Packages"},
-				{kind: "ListItem", content: "List of Everything"}
+			draggable: false,
+			components: [
+				{kind: "FittableRows",
+				style: "width: 100%; height: 100%; text-align: center;",
+				components:[
+					{kind: "onyx.Spinner"},
+					{name: "SpinnerText",
+					content: "foo",
+					style: "color: white;",
+					allowHtml: true}
+				]},
+				{kind: "Scroller",
+				horizontal: "hidden",
+				classes: "enyo-fill",
+				touch: true,
+				ontap: "showDebug",
+				components:[
+					{kind: "ListItem", content: "Package Updates"},
+					{kind: "ListItem", content: "Available Packages"},
+					{kind: "ListItem", content: "Installed Packages"},
+					{kind: "ListItem", content: "List of Everything"}
+				]},
 			]},
 			{kind: "onyx.Toolbar"}
 		]},
@@ -88,11 +103,10 @@ enyo.kind({
 	],
 	//Handlers
 	deviceready: function(inSender, inEvent) {
-		this.log("device ready received, yeah. :)");
 		if(!PalmServiceBridge) {
-			this.log("No PalmServiceBridge... not running on device?? :(");
+			this.log("No PalmServiceBridge found.");
 		} else {
-			this.log("PalmServiceBridge seems to exist.");
+			this.log("PalmServiceBridge found.");
 		}
 		this.log("Mojo.Environment.DeviceInfo.platformVersion: " + Mojo.Environment.DeviceInfo.platformVersion);
 		this.log("device.version: " + device && device.version);
@@ -101,6 +115,10 @@ enyo.kind({
 		this.log("device.name: " + device && device.name);
 	},
 	//Action Functions
+	log: function(text) {
+		this.inherited(arguments);
+		this.$.SpinnerText.setContent(text);
+	},
 	showDebug: function() {
 		if(enyo.Panels.isScreenNarrow())
 			this.setIndex(1);
@@ -115,22 +133,21 @@ enyo.kind({
 	},
 	machineName: function() {
 		preware.IPKGService.getMachineName(this.gotMachineName.bind(this));
-		this.log("Getting Machine Name");
+		this.log("Requesting Machine Name");
 	},
 	gotMachineName: function(machineName) {
 		this.log("Got Machine Name: " + machineName + " (" + JSON.stringify(machineName) + ")");
 	},
 	startLoadFeeds: function() {
-		this.log("starting to load feeds.");
+		this.log("Start Loading Feeds");
 		preware.DeviceProfile.getDeviceProfile(this.gotDeviceProfile.bind(this), false);
-		this.log("...");
 	},
 	gotDeviceProfile: function(inSender, inEvent) {
 		this.log("Got Device Profile: " + inEvent && inEvent.success);
 		if (!inEvent.success || !inEvent.deviceProfile) {
 			this.log("Failure...");
 			preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
-			this.log("Getting Machine Name.");
+			this.log("Getting Machine Name");
 		} else {
 			this.log("Got deviceProfile: " + JSON.stringify(inEvent.deviceProfile));
 			this.deviceProfile = inEvent.deviceProfile;
@@ -141,7 +158,7 @@ enyo.kind({
 		if (!inEvent.success || !inEvent.palmProfile) {
 			this.log("Failure...");
 			preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
-			this.log("getting machine name.");
+			this.log("Requesting Machine Name");
 		} else {
 			this.log("Got palmProfile.");
 			this.palmProfile = inEvent.palmProfile;
@@ -153,7 +170,7 @@ enyo.kind({
 	authParamsSet: function(inResponse) {
 		this.log("Got authParams: " + JSON.stringify(inResponse));
 		preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
-		this.log("Getting machine name");
+		this.log("Requesting Machine Name");
 	},
 	onDeviceType: function(inEvent) {
 		// start by checking the internet connection
@@ -166,14 +183,14 @@ enyo.kind({
 		});
 	},
 	onConnectionFailure: function(response) {
-			console.log("Failure:response="+JSON.stringify(response));
+			console.log("Failure, response="+JSON.stringify(response));
 	},
 	onConnection: function(response) {
 		var hasNet = false;
 		if (response && response.returnValue === true && (response.isInternetConnectionAvailable === true || response.wifi.state === "connected"))	{
 			hasNet = true;
 		}
-		this.log("got connection status. connection: " + hasNet);
+		this.log("Got Connection Status. Connection: " + hasNet);
 		//this.log("Response: " + JSON.stringify(response));
 		// run version check
 		this.log("Run Version Check");
@@ -219,11 +236,11 @@ enyo.kind({
 		}
 		catch (e) {
 			enyo.error("feedsModel#loadFeeds", e);
-			this.log("exception caught: " + e);
+			this.log("Exception Caught: " + e);
 		}
 	},
 	downLoadFeeds: function(inSender, inEvent) {
-		this.log("loaded feeds: " + JSON.stringify(inEvent));
+		this.log("Loaded Feeds: " + JSON.stringify(inEvent));
 		this.feeds = inEvent;
 		
 		if (this.feeds.length) {
