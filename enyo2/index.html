@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>Preware 2.0</title>
+		<link rel="shortcut icon" href="assets/favicon.ico"/>
+		<!-- -->
+		<meta http-equiv="Content-Type" content="text/html; charset=utf8"/>
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta name="viewport" content="height=device-height, user-scalable=no"/>
+		<!-- css -->
+		<link href="build/enyo.css" rel="stylesheet"/>
+		<link href="build/app.css" rel="stylesheet"/>
+		<!-- js -->
+    <script src="cordova-2.2.0.js"></script>
+		<script src="build/enyo.js"></script>
+		<script src="build/app.js"></script>
+	</head>
+	<body class="enyo-unselectable">
+		<script>
+      var onDeviceReady=function() {
+        new preware.App().renderInto(document.body);
+      }
+      setTimeout(function() {
+        if (typeof navigator.device == "undefined"){
+          onDeviceReady();
+        } else {
+          document.addEventListener("deviceready", onDeviceReady, false);
+        }
+      }, 0);
+		</script>
+	</body>
+</html>

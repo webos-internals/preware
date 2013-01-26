@@ -1,0 +1,10 @@
+{
+	"id": "org.webosinternals.preware",
+	"version": "0.0.1",
+	"vendor": "webosinternals",
+	"type": "web",
+	"main": "index.html",
+	"title": "Preware 2",
+	"icon": "icon.png",
+	"uiRevision": 2
+}
