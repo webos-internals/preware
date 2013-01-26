@@ -1,10 +1,10 @@
 APPID = org.webosinternals.preware
 
 emulator:
-	cd src && ${MAKE}
+	cd ../service/src && ${MAKE}
 
 device:
-	cd src && ${MAKE} DEVICE=1
+	cd ../service/src && ${MAKE} DEVICE=1
 
 package: clean emulator
 	palm-package .
@@ -25,4 +25,4 @@ clean:
 	rm -f ipkgtmp*.tar.gz ${APPID}_*.ipk
 
 clobber: clean
-	cd src && ${MAKE} clobber
+	cd ../service/src && ${MAKE} clobber
