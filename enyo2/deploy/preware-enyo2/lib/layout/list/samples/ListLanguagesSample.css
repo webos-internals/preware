@@ -1,0 +1,62 @@
+.list-sample-language {
+	color: white;
+}
+.list-sample-language-list {
+	background: url(assets/bg.png);
+}
+.list-sample-language-item {
+	height: 80px;
+	border-top: 1px solid #000;
+	padding: 12px 16px;
+	background-color:rgba(0,0,0,0.5);
+}
+.list-sample-contacts-item > * {
+	display: inline-block;
+	vertical-align: middle;
+}
+.list-sample-language-list .itemLabel {
+	float:left;
+	font-size:24px;
+	line-height:80px;
+	padding-left:20px;
+}
+.list-sample-contacts-avatar {
+	width: 32px;
+	height: 32px;
+	padding-right: 10px;
+}
+.list-sample-contacts-description {
+	font-size: 12px;
+	color: silver;
+}
+.list-sample-contacts-remove-button {
+	float: right;
+	display: none;
+}
+.list-sample-language-list .reorderDragger {
+	background:rgba(0,0,0,0.7);
+}
+.list-sample-language-list .swipeGreen {
+	background-color:rgba(0,160,40,0.8);
+}
+.list-sample-language-list h2 {
+	margin:0px;
+	padding:0px 0px 0px 20px;
+	font-size:24px;
+	line-height:100px;
+}
+.list-sample-language-list .dropButton {
+	width:100px;
+	height:80px;
+	position:absolute;
+	top:10px;
+	right:20px;
+}
+.list-sample-language-list .swipeTitle {
+	font-size:30px;
+	font-weight:bold;
+	text-align:center;
+	line-height:100px;
+	padding:0px;
+	margin:0px;
+}
