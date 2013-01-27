@@ -1,7 +1,7 @@
-/*global enyo, preware, IPKGService, $H, $L, device */
+/*global enyo, preware, IPKGService, $L, device */
 
 enyo.singleton({
-	name: "preware.Packages",
+	name: "preware.PackagesModel",
 	// for storing assistants when we get one for certain functions, TODO: those won't work anymore..
 	assistant: false,
 	onlyLoad: false, //moved here from updateAssistant.
@@ -15,7 +15,7 @@ enyo.singleton({
 	
 	// for storing all the package information
 	packages: [],
-	packagesReversed: $H(),
+	packagesReversed: {},
 	categories: [],
 	feeds: [],
 	urls: [],
@@ -55,8 +55,17 @@ enyo.singleton({
 		
 	//methods:
 	//this replaces link to updateAssistant with a signal.
-	doDisplayStatus: function(content) {
-		enyo.Signals.send("onPackagesStatusUpdate", content);
+	doDisplayStatus: function(obj) {
+		var msg = "";
+		if (obj.error) {
+			msg = "ERROR: ";
+		}
+		msg += obj.msg;
+		if (obj.progress) {
+			msg += " - Progress: " + obj.progValue;
+		}
+		console.error("STATUS UPDATE: " + msg);
+		enyo.Signals.send("onPackagesStatusUpdate", obj);
 	},
 	
 	doneUpdating: function() {
@@ -70,7 +79,7 @@ enyo.singleton({
 			// clear out our current data (incase this is a re-update)
 			this.loaded = false;
 			this.packages = [];
-			this.packagesReversed = $H();
+			this.packagesReversed = {};
 			this.hasPrices = false;
 			this.feeds = [];
 			this.urls = [];
@@ -263,7 +272,7 @@ enyo.singleton({
 		
 		//TODO: how to get the installed OS version?? :(
 		//I think device.version should replace Mojo.Environment.DeviceInfo.platformVersion, because we are using cordova now.
-		if (device && device.version && device.verion.match(/^[0-9:.-]+$/)) {
+		if (device && device.version && device.verion.match(/^[0-9:.\-]+$/)) {
 			// Filter out apps with a minimum webos version that is greater then current
 			if (this.versionNewer(device.version, newPkg.minWebOSVersion)) {
 				//alert('+ 2');
@@ -315,7 +324,7 @@ enyo.singleton({
 			this.packages.push(newPkg);
 			
 			// save to temp reverse lookup list
-			this.packagesReversed.set(newPkg.pkg, this.packages.length);
+			this.packagesReversed[newPkg.pkg] = this.packages.length;
 
 			return newPkg;
 		} else {
@@ -387,7 +396,7 @@ enyo.singleton({
 			this.loaded = true;
 
 			// clear out our current data (incase this is a re-update)
-			this.packagesReversed = $H(); // reset this again so we can rebuild it in alphabetical order
+			this.packagesReversed = {}; // reset this again so we can rebuild it in alphabetical order
 			this.categories = [];
 			this.feeds = [];
 			this.rawData = ''; // and clear this so its not sitting around full of data
@@ -407,7 +416,7 @@ enyo.singleton({
 				
 				// build reverse-lookup list
 				for (p = 0; p < this.packages.length; p += 1) {
-					this.packagesReversed.set(this.packages[p].pkg, p + 1);
+					this.packagesReversed[this.packages[p].pkg] = p + 1;
 				}
 			}
 			
@@ -482,4 +491,60 @@ enyo.singleton({
 	},
 	
 	
+	// Utility stuff if following.
+	versionNewer: function(one, two) {
+		if (!one) {
+			return true;
+		}
+		if (!two) {
+			return false;
+		}
+
+		// if one >= two returns false
+		// if one < two returns true
+		var e1 = one.split(':'),
+				e2 = two.split(':'),
+				v1 = e1[e1.length > 1 ? 1 : 0].split('.'),
+				v2 = e2[e2.length > 1 ? 1 : 0].split('.'),
+				diff, j, prefix1, prefix2, i1 = [], i2 = [],
+				last, suffix1, suffix2;
+
+		if(e1.length > 1 || e2.length > 1) {
+			prefix1 = e1.length > 1 ? parseInt(e1[0], 10) : 0;
+			prefix2 = e2.length > 1 ? parseInt(e2[0], 10) : 0;
+			diff = prefix2 - prefix1;
+			if (diff !== 0) {
+				return (diff > 0) ? true : false;
+			}
+		}
+
+		last = v1.length > v2.length ? v1.length : v2.length;		//	use the larger buffer
+		for(j = 0; j < last; j += 1) {
+			i1[j] = v1.length > j ? parseInt(v1[j], 10) : 0;
+			i2[j] = v2.length > j ? parseInt(v2[j], 10) : 0;
+		}
+		suffix1 = v1.length > 0 ? v1[v1.length - 1].split('-') : [];
+		suffix2 = v2.length > 0 ? v2[v2.length - 1].split('-') : [];
+		if(suffix1.length > 1 || suffix2.length > 1) {
+			last += 1;		//	we're using one more digit
+			i1[j] = (suffix1.length > 1) ? parseInt(suffix1[1], 10) : 0;
+			i2[j] = (suffix2.length > 1) ? parseInt(suffix2[1], 10) : 0;
+		}
+		for(j = 0; j < last; j += 1) {
+			diff = i2[j] - i1[j];
+			if(diff !== 0) {
+				return (diff > 0) ? true : false;
+			}
+		}
+		return false;
+	},
+	
+	packageInList: function(pkg) {
+		var pkgNum = this.packagesReversed[pkg];
+		if (pkgNum !== undefined) {
+			return pkgNum-1;
+		} else {
+			return false;
+		}
+	}
 });
