@@ -282,7 +282,7 @@ enyo.kind({
 	loadFeeds: function(){	
 		// lets call the function to update the global list of pkgs
 		this.log($L("<strong>Loading Package Information</strong><br>"));
-		preware.FeedsModel.loadFeeds(this, this.parseFeeds.bind(this));
+		preware.FeedsModel.loadFeeds(this.parseFeeds.bind(this));
 	},
 	parseFeeds: function(feeds) {
 		packages.loadFeeds(feeds, this);
