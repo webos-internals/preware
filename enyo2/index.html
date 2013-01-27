@@ -18,16 +18,7 @@
 	</head>
 	<body class="enyo-unselectable">
 		<script>
-      var onDeviceReady=function() {
-        new preware.App().renderInto(document.body);
-      }
-      setTimeout(function() {
-        if (typeof navigator.device == "undefined"){
-          onDeviceReady();
-        } else {
-          document.addEventListener("deviceready", onDeviceReady, false);
-        }
-      }, 0);
+        		new App().renderInto(document.body);
 		</script>
 	</body>
 </html>
