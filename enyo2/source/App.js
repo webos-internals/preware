@@ -282,7 +282,6 @@ enyo.kind({
 		preware.PackagesModel.loadFeeds(feeds, this.onlyLoad); //TODO: how did old preware set/unset onlyload?
 	},
 	processStatusUpdate: function(inSender, obj) {
-		this.log("GOT STATUS UPDATE!!");
 		var msg = "";
 		if (obj.error) {
 			msg = "ERROR: ";
@@ -291,7 +290,7 @@ enyo.kind({
 		if (obj.progress) {
 			msg += " - Progress: " + obj.progValue;
 		}
-		this.log("<strong>STATUS UPDATE:</strong> " + msg);
+		this.log(msg);
 	},
 	doneLoading: function() {
 		// stop and hide the spinner
