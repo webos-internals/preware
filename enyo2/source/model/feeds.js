@@ -8,7 +8,8 @@ enyo.singleton({
 		onLoadFeedsFinished: "" //inEvent will have feeds with array of feeds, succes with true/false, message: string
 	},*/
 	log: function(msg) {
-		this.owner.log(msg + "<br>");
+		enyo.error(msg);
+		this.owner.log(msg);
 	},
 	doLoadFeedsFinished: function(data) {
 		if (this.callback) {
