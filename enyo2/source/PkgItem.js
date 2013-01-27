@@ -1,12 +1,12 @@
 /*global enyo */
 enyo.kind({
-  name: "preware.PkgItem",
-  kind: enyo.Control,
-  components: [
-    { kind: enyo.Image, name: "icon" }
-  ],
-  
-  // this function will return an object ready for inclusion in the list widget
+	name: "preware.PkgItem",
+	kind: enyo.Control,
+	components: [
+		{ kind: enyo.Image, name: "icon" }
+	],
+	
+	// this function will return an object ready for inclusion in the list widget
 packageModel.prototype.getForList = function(item)
 {
 	var listObj = {};
@@ -95,7 +95,7 @@ packageModel.prototype.getForList = function(item)
 					
 				case 'device':
 					if (this.deviceString) {
-					    listObj.sub += this.deviceString;
+							listObj.sub += this.deviceString;
 					}
 					else {
 						listObj.sub += "<i>All Devices</i>";
@@ -104,7 +104,7 @@ packageModel.prototype.getForList = function(item)
 					
 				case 'country':
 					if (this.countryString) {
-					    listObj.sub += this.countryString;
+							listObj.sub += this.countryString;
 					}
 					else {
 						listObj.sub += "<i>All Countries</i>";
@@ -113,7 +113,7 @@ packageModel.prototype.getForList = function(item)
 					
 				case 'language':
 					if (this.languageString) {
-					    listObj.sub += this.languageString;
+							listObj.sub += this.languageString;
 					}
 					else {
 						listObj.sub += "<i>All Languages</i>";
@@ -187,41 +187,41 @@ packageModel.prototype.getForList = function(item)
 	return listObj;
 };
 
-  iconFill: function(target) {
-    if (this.icon) {
-      if (this.iconImg.local) {
-        //this.iconImg.loaded = true;
-        target.style.backgroundImage = 'url(images/localIcon.png)';
-        return;
-      }
-      if (this.iconImg.loaded) {
-        target.style.backgroundImage = 'url(' + this.icon + ')';
-      } else if (this.iconImg.loading) {
-        this.iconImg.target = target;
-      } else {
-        this.iconImg.target = target;
-        this.doIconFill();
-      }
-    }
-  },
+	iconFill: function(target) {
+		if (this.icon) {
+			if (this.iconImg.local) {
+				//this.iconImg.loaded = true;
+				target.style.backgroundImage = 'url(images/localIcon.png)';
+				return;
+			}
+			if (this.iconImg.loaded) {
+				target.style.backgroundImage = 'url(' + this.icon + ')';
+			} else if (this.iconImg.loading) {
+				this.iconImg.target = target;
+			} else {
+				this.iconImg.target = target;
+				this.doIconFill();
+			}
+		}
+	},
 
 
 iconInit: function() {
-    if (this.icon) {
-      this.addComponent({ kind: "enyo.Image", name: "icon", src: this.icon, onload: "iconOnLoad"});
-      this.iconImg.loading = true;
-      this.iconImg.object = this.$.icon;
-    }	
-  },
-  
-  iconOnLoad: function() {
-    this.iconImg.object.onload = undefined; // remove the listener
-    this.iconImg.loaded = true;
-    this.iconImg.loading = false;
-    if (this.iconImg.target) {
-      this.iconImg.target.style.backgroundImage = 'url(' + this.icon + ')';
-    }
-    this.iconImg.target = false;
-  },
-  
+		if (this.icon) {
+			this.addComponent({ kind: "enyo.Image", name: "icon", src: this.icon, onload: "iconOnLoad"});
+			this.iconImg.loading = true;
+			this.iconImg.object = this.$.icon;
+		}	
+	},
+	
+	iconOnLoad: function() {
+		this.iconImg.object.onload = undefined; // remove the listener
+		this.iconImg.loaded = true;
+		this.iconImg.loading = false;
+		if (this.iconImg.target) {
+			this.iconImg.target.style.backgroundImage = 'url(' + this.icon + ')';
+		}
+		this.iconImg.target = false;
+	},
+	
 });

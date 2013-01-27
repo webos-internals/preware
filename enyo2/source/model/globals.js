@@ -2,8 +2,8 @@
 /*global enyo */
 
 enyo.singleton({
-  name: "preware.Globals",
-  published: {
-    appVersion: "0.2"
-  }
+	name: "preware.Globals",
+	published: {
+		appVersion: "0.2"
+	}
 });

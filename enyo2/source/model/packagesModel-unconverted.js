@@ -1,52 +1,52 @@
 //parses information for a single package
-  parsePackage: function(rawData) {
-    var test, lineRegExp, curPkg, x, match;
-    try {
-      if (rawData) {
-        test = rawData;
-        lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
-        curPkg = false;
-        
-        for (x = 0; x < test.length; x += 1) {
-          match = lineRegExp.exec(test[x]);
-          if (match) {
-            if (match[1] === 'Package' && !curPkg) {
-              curPkg = 
-              {
-                Size: 0,
-                Status: '',
-                Architecture: '',
-                Section: '',
-                Package: '',
-                Filename: '',
-                Depends: '',
-                Maintainer: '',
-                Version: '',
-                Description: '',
-                MD5Sum: '',
-                'Installed-Time': 0,
-                'Installed-Size': 0,
-                Source: ''
-              };
-            }
-            if (match[1] && match[2]) {
-              curPkg[match[1]] = match[2];
-            }
-          } else {
-            if (curPkg) {
-              return curPkg;
-            }
-          }
-        }
-        
-        if (curPkg) {
-          return curPkg;
-        }
-      }
-    } catch (e) {
-      enyo.error('packagesModel#parsePackage', e);
-    }
-  },
+	parsePackage: function(rawData) {
+		var test, lineRegExp, curPkg, x, match;
+		try {
+			if (rawData) {
+				test = rawData;
+				lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
+				curPkg = false;
+				
+				for (x = 0; x < test.length; x += 1) {
+					match = lineRegExp.exec(test[x]);
+					if (match) {
+						if (match[1] === 'Package' && !curPkg) {
+							curPkg = 
+							{
+								Size: 0,
+								Status: '',
+								Architecture: '',
+								Section: '',
+								Package: '',
+								Filename: '',
+								Depends: '',
+								Maintainer: '',
+								Version: '',
+								Description: '',
+								MD5Sum: '',
+								'Installed-Time': 0,
+								'Installed-Size': 0,
+								Source: ''
+							};
+						}
+						if (match[1] && match[2]) {
+							curPkg[match[1]] = match[2];
+						}
+					} else {
+						if (curPkg) {
+							return curPkg;
+						}
+					}
+				}
+				
+				if (curPkg) {
+					return curPkg;
+				}
+			}
+		} catch (e) {
+			enyo.error('packagesModel#parsePackage', e);
+		}
+	},
 
 packagesModel.prototype.versionNewer = function(one, two)
 {
@@ -140,10 +140,10 @@ packagesModel.prototype.getGroups = function(item)
 		// temporary item for getting list counts
 		var itemL =
 		{
-			pkgList:  item.pkgList,
-			pkgType:  item.pkgType,
-			pkgFeed:  item.pkgFeed,
-			pkgCat:   item.pkgCat
+			pkgList:	item.pkgList,
+			pkgType:	item.pkgType,
+			pkgFeed:	item.pkgFeed,
+			pkgCat:		item.pkgCat
 		};
 		
 		for (var p = 0; p < this.packages.length; p++) 
@@ -572,7 +572,7 @@ packagesModel.prototype.doMultiInstall = function(number)
 			this.multiPkg	= false;
 			this.multiPkgs	= false;
 			this.multiFlags	= false;
-			this.doMyApps   = false;
+			this.doMyApps		= false;
 		}
 	}
 	catch (e) 
