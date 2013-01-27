@@ -10,6 +10,26 @@ enyo.kind({
 	subscription: false, // for when we're doing a subscription of some service TODO: this won't work.
 	assistant: false,		 // for storing an assistant when we get one for certain functions TODO: this won't work..
 		
+	// onPackageStatusUpdate: { //emited during install to allow status output.
+	//																 msg: "some status message", 
+	//																 progress: true/false => show progress meter true/false
+	//																 progValue: [1-100]		=> progress value
+	//																 error: true/false		=> true if an error occured.
+	//														 }
+	
+	doDisplayStatus: function(obj) {
+		var msg = "";
+		if (obj.error) {
+			msg = "ERROR: ";
+		}
+		msg += obj.msg;
+		if (obj.progress) {
+			msg += " - Progress: " + obj.progValue;
+		}
+		console.error("STATUS UPDATE: " + msg);
+		enyo.Signals.send("onPackagesStatusUpdate", obj);
+	},
+		
 	// initialize function which loads all the data from the info object
 	create: function(infoString, infoObj) {
 		this.inherited(arguments);
@@ -859,6 +879,276 @@ enyo.kind({
 					target: "http://developer.palm.com/appredirect/?packageid="+this.pkg
 				}
 			});
-	}
+	},
+	doInstall: function(multi, skipDeps) {
+		try {
+			
+			// check dependencies and do multi-install
+			if (!skipDeps) {
+				this.doDisplayStatus({msg: $L("Checking Dependencies")});
+				var deps = this.getDependenciesRecursive(true); // true to get "just needed" packages
+				if (deps.length > 0) {
+					preware.PackagesModel.checkMultiInstall(this, deps); //TODO!
+					return;
+				}
+			}
+			
+			// start action
+			if (multi !== undefined) {
+				this.doDisplayStatus({msg: $L("Downloading / Installing<br />") + this.title});
+				
+				// call install service
+				preware.IPKGService.install(this.onInstall.bind(this, multi), this.filename, this.location.replace(/ /g, "%20"));
+			} else {
+				this.doDisplayStatus({msg: $L("Downloading / Installing")});
+				
+				//TODO: what is that: this.assistant.startAction();
+				enyo.error("this.assistant.startAction() not yet replaced.");
+				
+				// call install service
+				preware.IPKGService.install(this.onInstall.bind(this), this.filename, this.location.replace(/ /g, "%20"));
+			}
+		} catch (e) {
+			enyo.error('packageModel#doInstall', e);
+		}
+	},
+	doUpdate: function(multi, skipDeps)	{
+		try {
+		
+			// check dependencies and do multi-install
+			if (!skipDeps) {
+				this.doDisplayStatus({msg: $L("Checking Dependencies")});
+				var deps = this.getDependenciesRecursive(true); // true to get "just needed" packages
+				if (deps.length > 0) {
+					preware.PackagesModel.checkMultiInstall(this, deps);
+					return;
+				}
+			}
+			
+			// start action
+			if (multi !== undefined) {
+				this.doDisplayStatus({msg: $L("Downloading / Updating<br />") + this.title});
+
+				if (packages.can(this.type, 'updateAsReplace')) { //TODO!
+					preware.IPKGService.replace(this.onUpdate.bind(this, multi), this.pkg, this.filename, this.location.replace(/ /g, "%20"));
+					this.doDisplayStatus({msg: 'Downloading / Replacing<br />' + this.title});
+				} else {
+					preware.IPKGService.install(this.onUpdate.bind(this, multi), this.filename, this.location.replace(/ /g, "%20"));
+				}
+			}	else {
+				this.doDisplayStatus({msg: $L("Downloading / Updating")});
+
+				//TODO: replace!! :(
+				//this.assistant.startAction();
+				enyo.error("this.assistant.startAction() not yet replaced.");
+			
+				if (packages.can(this.type, 'updateAsReplace')) {
+					preware.IPKGService.replace(this.onUpdate.bind(this), this.pkg, this.filename, this.location.replace(/ /g, "%20"));
+					this.doDisplayStatus({msg: $L("Downloading / Replacing")});
+				} else {
+					preware.IPKGService.install(this.onUpdate.bind(this), this.filename, this.location.replace(/ /g, "%20"));
+				}
+			}
+		} catch (e) {
+			enyo.error('packageModel#doUpdate', e);
+		}
+	},
+	doRemove: function(skipDeps) {
+		try {			
+			// check dependencies and do multi-install
+			if (!skipDeps) {
+				this.doDisplayStatus({msg: $L("Checking Dependencies")});
+				var deps = this.getDependent(true); // true to get "just installed" packages
+				if (deps.length > 0) {
+					preware.PackagesModel.checkMultiRemove(this, deps, assistant); //TODO!
+					return;
+				}
+			}
+			
+			// start action
+			this.doDisplayStatus({msg: $L("Removing")});
+			//TODO: replace this with something..
+			//this.assistant.startAction();
+			enyo.error("this.assistant.startAction() not yet replaced.");
+			
+			// call remove service
+			preware.IPKGService.remove(this.onRemove.bind(this), this.pkg);
+		} catch (e) {
+			enyo.error('packageModel#doRemove', e);
+		}
+	},
 	
+	onInstall: function(multi, payload) {
+		try {
+			// log payload for display
+			preware.IPKGService.logPayload(payload);
+			
+			if (!payload) {
+				var msg = $L("Error Installing: Communication Error");
+				var msgError = true;
+			}	else {
+				if (!payload.returnValue) {
+					var msg = $L("Error Installing: No Further Information");
+					var msgError = true;
+				}
+				if (payload.stage == "failed") {
+					var msg = $L("Error Installing: See IPKG Log");
+					var msgError = true;
+				}	else if (payload.stage == "status") {
+					this.doDisplayStatus({msg: $L("Downloading / Installing<br />") + payload.status});
+					return;
+				} else if (payload.stage == "completed") {
+					// update info
+					this.isInstalled = true;
+										
+					// message
+					var msg = this.type + $L(" installed");
+					
+					// do finishing stuff
+					if (multi !== undefined) {
+						preware.PackagesModel.doMultiInstall(multi+1); //TODO!
+						return;
+					}	else {
+						if (this.hasFlags('install')) { //TODO!
+							eyno.error("assistant.actionMessage not yet replaced.");
+						  //TODO: how to replace that?
+							//this.assistant.actionMessage(
+							//	msg + ':<br /><br />' + this.actionMessage('install'),
+							//	[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
+							//	this.actionFunction.bindAsEventListener(this, 'install')
+							//);
+							return;
+						}	else {
+							// we run this anyways to get the rescan
+							this.runFlags('install');
+						}
+					}
+				}
+				// we keep this around for services without flags that have a javarestart in their scripts
+				// of course, it might get here on accident, but thats a risk we'll have to take for now [2]
+				else if (payload.errorText === "org.webosinternals.ipkgservice is not running.")
+				{
+					// update info
+					this.isInstalled = true;
+					
+					// message
+					var msg = this.type + $L(" installed");
+					var msgError = true;
+					
+					if (multi !== undefined) {
+						preware.PackagesModel.doMultiInstall(multi + 1);
+						return;
+					}
+				}	else {
+					return;
+				}
+			}
+			
+			if (msgError) {
+				eyno.error("assistant.actionMessage not yet replaced.");
+				//TODO: this.assistant.actionMessage(
+				//	msg,
+				//	[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
+				//	this.errorLogFunction.bindAsEventListener(this)
+				//);
+			} else {
+				eyno.error("assistant.simpleMessage not yet replaced.");
+				//TODO: this.assistant.simpleMessage(msg);
+			}
+			
+			//TODO:
+			//this.assistant.endAction();
+			enyo.error("assistant.endAction not yet replaced");
+		} catch (e) {
+			enyo.error('packageModel#onInstall', e);
+		}
+	},
+	onUpdate: function(payload, multi)	{
+		try {
+			// log payload for display
+			preware.IPKGService.logPayload(payload);
+			
+			if (!payload) {
+				var msg = $L("Error Updating: Communication Error");
+				var msgError = true;
+			} else {
+				if (!payload.returnValue) {
+					var msg = $L("Error Updating: No Further Information");
+					var msgError = true;
+				}
+				if (payload.stage == "failed") {
+					var msg = $L("Error Updating: See IPKG Log");
+					var msgError = true;
+				} else if (payload.stage == "status") {
+					this.doDisplayStatus({msg: $L("Downloading / Updating<br />") + payload.status});
+					return;
+				} else if (payload.stage == "completed") {
+					// update info
+					this.hasUpdate = false;
+										
+					// message
+					var msg = this.type + $L(" updated");
+					
+					// do finishing stuff
+					if (multi !== undefined) {
+						preware.PackagesModel.doMultiInstall(multi + 1);
+						return;
+					}	else {
+						if (this.hasFlags('update')) {
+							enyo.error("assistant.actionMessage not yet replaced.");
+							//TODO: this.assistant.actionMessage(
+							//	msg + ':<br /><br />' + this.actionMessage('update'),
+							//	[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
+							//	this.actionFunction.bindAsEventListener(this, 'update')
+							//);
+							return;
+						}	else {
+							// we run this anyways to get the rescan
+							this.runFlags('update');
+						}
+					}
+				}
+				// we keep this around for services without flags that have a javarestart in their scripts
+				// of course, it might get here on accident, but thats a risk we'll have to take for now
+				else if (payload.errorText === "org.webosinternals.ipkgservice is not running.")
+				{
+					// update info
+					this.hasUpdate = false;
+										
+					// message
+					var msg = this.type + $L(" updated");
+					var msgError = true;
+					
+					if (multi !== undefined) {
+						preware.PackagesModel.doMultiInstall(multi + 1);
+						return;
+					}
+				}
+				else {
+					return;
+				}
+			}
+			
+			if (msgError) {
+				enyo.error("assistant.actionMessage not yet replaced.");
+				//TODO: this.assistant.actionMessage(
+				//	msg,
+				//	[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
+				//	this.errorLogFunction.bindAsEventListener(this)
+				//);
+			} else {
+				enyo.error("assistant.simpleMessage not yet replaced.");
+				//TODO: this.assistant.simpleMessage(msg);
+			}
+			
+			//TODO: this.assistant.endAction();
+			enyo.error("assistant.endAction not yet replaced.");
+		}	catch (e) {
+			enyo.error('packageModel#onUpdate', e);
+		}
+	},
+	
+	
+	
+	//TODO: implement onInstall & onUpdate & onRemove! Remember to shift params.
 });

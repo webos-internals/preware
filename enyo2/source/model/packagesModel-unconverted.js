@@ -48,61 +48,6 @@
 		}
 	},
 
-packagesModel.prototype.versionNewer = function(one, two)
-{
-	if (!one) return true;
-	if (!two) return false;
-
-	// if one >= two returns false
-	// if one < two returns true
-	var e1 = one.split(':');
-	var e2 = two.split(':');
-	var v1 = e1[e1.length > 1 ? 1 : 0].split('.');
-	var v2 = e2[e2.length > 1 ? 1 : 0].split('.');
-
-	var diff, j;
-	if(e1.length > 1 || e2.length > 1)
-	{
-		var prefix1 = e1.length > 1 ? parseInt(e1[0], 10) : 0;
-		var prefix2 = e2.length > 1 ? parseInt(e2[0], 10) : 0;
-		if((diff = prefix2 - prefix1))
-		{
-			return (diff > 0) ? true : false;
-		}
-	}
-
-	var i1 = [], i2 = [];
-	//var err1 = "", err2 = "";
-	var last = v1.length > v2.length ? v1.length : v2.length;		//	use the larger buffer
-	for(j = 0; j < last; j++)
-	{
-		i1[j] = v1.length > j ? parseInt(v1[j], 10) : 0;
-		i2[j] = v2.length > j ? parseInt(v2[j], 10) : 0;
-		//err1 = err1 + "," + i1[j];
-		//err2 = err2 + "," + i2[j];
-	}
-	var suffix1 = v1.length > 0 ? v1[v1.length - 1].split('-') : [];
-	var suffix2 = v2.length > 0 ? v2[v2.length - 1].split('-') : [];
-	if(suffix1.length > 1 || suffix2.length > 1)
-	{
-		last++;		//	we're using one more digit
-		i1[j] = (suffix1.length > 1) ? parseInt(suffix1[1], 10) : 0;
-		i2[j] = (suffix2.length > 1) ? parseInt(suffix2[1], 10) : 0;
-		//err1 = err1 + "," + i1[j];
-		//err2 = err2 + "," + i2[j];
-	}
-	//Mojo.Log.error("OLD:", err1);
-	//Mojo.Log.error("NEW:", err2);
-	for(j = 0; j < last; j++)
-	{
-		if((diff = i2[j] - i1[j]))
-		{
-			return (diff > 0) ? true : false;
-		}
-	}
-	return false;
-};
-
 packagesModel.prototype.can = function(type, condition)
 {
 	if (this.typeConditions[type])
@@ -114,19 +59,6 @@ packagesModel.prototype.can = function(type, condition)
 	{
 		if (this.typeConditions['Unknown'][condition]) return true;
 		else return false;
-	}
-};
-
-packagesModel.prototype.packageInList = function(pkg)
-{
-	var pkgNum = this.packagesReversed.get(pkg);
-	if (pkgNum != undefined)
-	{
-		return pkgNum-1;
-	}
-	else
-	{
-		return false;
 	}
 };
 
