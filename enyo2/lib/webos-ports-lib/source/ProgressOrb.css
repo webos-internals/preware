@@ -1,0 +1,16 @@
+.pie {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+}
+
+.pie-background {
+	background: #7d7e7d;
+	background: -webkit-radial-gradient(center, ellipse cover, #7d7e7d 30%,#0e0e0e 70%);
+}
+
+.pie-foreground {
+	background: #d0e4f7;
+	background: -webkit-radial-gradient(center, ellipse cover, #d0e4f7 30%,#73b1e7 50%,#0a77d5 70%);
+}
