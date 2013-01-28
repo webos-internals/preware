@@ -246,7 +246,7 @@ enyo.kind({
 	},
 	downloadFeedRequest: function(num) {	
 		// update display
-		this.processStatusUpdate({},{msg: $L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name});
+		this.processStatusUpdate(this, {message: $L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name});
 	
 		// subscribe to new feed
 		preware.IPKGService.downloadFeed(this.downloadFeedResponse.bind(this, num),
@@ -256,7 +256,7 @@ enyo.kind({
 		if ((payload.returnValue === false) || (payload.stage === "failed")) {
 			this.log(payload.errorText + '<br>' + payload.stdErr.join("<br>"));
 		} else if (payload.stage === "status") {
-			this.processStatusUpdate({},{msg: $L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name + "<br><br>" + payload.status});
+			this.processStatusUpdate(this, {message: $L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name + "<br><br>" + payload.status});
 		} else if (payload.stage === "completed") {
 			num = num + 1;
 			if (num < this.feeds.length) {
@@ -264,7 +264,7 @@ enyo.kind({
 				this.downloadFeedRequest(num);
 			} else {
 				// we're done
-				this.processStatusUpdate({},{msg: $L("<strong>Done Downoading!</strong>")});
+				this.processStatusUpdate(this, {message: $L("<strong>Done Downoading!</strong>")});
 				
 				// well updating looks to have finished, lets log the date:
 				preware.PrefCookie.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
@@ -275,55 +275,43 @@ enyo.kind({
 	},
 	loadFeeds: function(){	
 		// lets call the function to update the global list of pkgs
-		this.processStatusUpdate({},{msg: $L("<strong>Loading Package Information</strong><br>")});
+		this.processStatusUpdate(this, {message: $L("<strong>Loading Package Information</strong><br>")});
 		preware.FeedsModel.loadFeeds(this.parseFeeds.bind(this));
 	},
 	parseFeeds: function(feeds) {
 		preware.PackagesModel.loadFeeds(feeds, this.onlyLoad); //TODO: how did old preware set/unset onlyload?
 	},
-	processStatusUpdate: function(inSender, obj) {
-		var msg = "";
-		if (obj.error) {
-			msg = "ERROR: ";
-		}
-		msg += obj.msg;
-		if (obj.progress) {
-			msg += " - Progress: " + obj.progValue;
-		}
-		this.log(msg);
+	processStatusUpdate: function(inSender, inEvent) {
+		this.log(inEvent.message);
 	},
 	doneLoading: function() {
-		// stop and hide the spinner
-		//this.spinnerModel.spinning = false;
-		//this.controller.modelChanged(this.spinnerModel);
-	
 		// so if we're inactive we know to push a scene when we return
-		this.isLoading = false;
+		//this.isLoading = false;
 	
 		// show that we're done (while the pushed scene is going)
-		this.processStatusUpdate({msg: $L("<strong>Done!</strong>")});
+		this.processStatusUpdate(this, {message: $L("<strong>Done!</strong>")});
 		//this.hideProgress();
 	
 		// we're done loading so let the device sleep if it needs to
-		this.stayAwake.end();
+		// TODO: convert stayAwake.js to enyo, implement stayAwake.start() etc
+		//this.stayAwake.end();
 	
 		//alert(packages.packages.length);
 	
-		//TODO: this needs replacement!
-		if (false && (!this.isActive || !this.isVisible)) {	
+		if ((!this.isActive || !this.isVisible)) {	
 			// if we're not the active scene, let them know via banner:
 			if (this.onlyLoad) {
-				Mojo.Controller.getAppController().showBanner({messageText:$L("Preware: Done Loading Feeds"), icon:'miniicon.png'}, {source:'updateNotification'});
+				navigator.notification.showBanner($L("Preware: Done Loading Feeds"), {source:'updateNotification'}, 'miniicon.png');
 			} else {
-				Mojo.Controller.getAppController().showBanner({messageText:$L("Preware: Done Updating Feeds"), icon:'miniicon.png'}, {source:'updateNotification'});
+				navigator.notification.showBanner($L("Preware: Done Updating Feeds"), {source:'updateNotification'}, 'miniicon.png');
 			}
 		}
 	
-		// swap to the scene passed when we were initialized:
-		if (this.isActive) {
-			//this.controller.stageController.swapScene({name: this.swapScene, transition: Mojo.Transition.crossFade}, this.swapVar1, this.swapVar2, this.swapVar3);
-			//deactivate this whatever..
-		}
+		// show the menu
+		var storedThis = this;
+		setTimeout(function() {
+			storedThis.$.ScrollerPanel.setIndex(1);
+		}, 500);
 	}
 });
 

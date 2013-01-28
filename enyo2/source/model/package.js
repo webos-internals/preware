@@ -11,5 +11,6 @@ enyo.depends(
 	"palmProfile.js",
 	"savedPacketlist.js",
 	"typeConditions.js",
-	"globals.js"
+	"globals.js",
+	"utility.js"
 );

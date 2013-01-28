@@ -55,17 +55,18 @@ enyo.singleton({
 		
 	//methods:
 	//this replaces link to updateAssistant with a signal.
-	doDisplayStatus: function(obj) {
+	displayStatus: function(obj) {
 		var msg = "";
-		if (obj.error) {
+		if (obj.error === true) {
 			msg = "ERROR: ";
 		}
-		msg += obj.msg;
-		if (obj.progress) {
+		if (obj.msg != undefined) {
+			msg += obj.msg;
+		}
+		if (obj.progress === true) {
 			msg += " - Progress: " + obj.progValue;
 		}
-		console.error("STATUS UPDATE: " + msg);
-		enyo.Signals.send("onPackagesStatusUpdate", obj);
+		enyo.Signals.send("onPackagesStatusUpdate", {message: msg});
 	},
 	
 	doneUpdating: function() {
@@ -92,7 +93,7 @@ enyo.singleton({
 			this.onlyLoad = onlyLoad;
 			
 			// set title and show progress
-			this.doDisplayStatus({msg: $L("<strong>Loading Package Information</strong>"), progress: true, progValue: 0});
+			this.displayStatus({msg: $L("<strong>Loading Package Information</strong>"), progress: true, progValue: 0});
 			
 			// initiate status request
 			this.infoStatusRequest();
@@ -104,9 +105,11 @@ enyo.singleton({
 	//request package information from IPGKService.
 	infoStatusRequest: function() {
 		// update display
-		this.doDisplayStatus({	msg: $L("<strong>Loading Package Information</strong><br>Status"), 
-														progress: true, 
-														progValue: Math.round((1/(this.feeds.length+1)) * 100)});
+		this.displayStatus({
+			msg: $L("<strong>Loading Package Information</strong><br>Status"),
+			progress: true,
+			progValue: Math.round((1/(this.feeds.length+1)) * 100)
+		});
 
 		// request the rawdata
 		this.subscription = preware.IPKGService.getStatusFile(this.infoResponse.bind(this, -1));
@@ -115,8 +118,12 @@ enyo.singleton({
 	//request more package information from IPKGService, i.e. next feed.
 	infoListRequest: function(num) {		
 		// update display
-		this.doDisplayStatus({ msg: $L("<strong>Loading Package Information</strong><br>") + this.feeds[num],
-													 progress: true, progValue: Math.round(((num+2)/(this.feeds.length+1)) * 100) });
+		this.displayStatus({
+			msg: $L("<strong>Loading Package Information</strong><br>")
+			+ this.feeds[num],
+			progress: true,
+			progValue: Math.round(((num+2)/(this.feeds.length+1)) * 100)
+		});
 		this.feedNum += 1;
 	
 		// subscribe to new feed
@@ -135,7 +142,10 @@ enyo.singleton({
 				// we probably dont need to check this stuff here,
 				// it would have already been checked and errored out of this process
 				if (payload.errorText === "org.webosinternals.ipkgservice is not running.") {
-					this.doDisplayStatus({ error: true, msg: $L("The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your device and not launching Preware until you have a stable network connection available.") });
+					this.displayStatus({
+						error: true,
+						msg: $L("The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your device and not launching Preware until you have a stable network connection available.")
+					});
 					this.doneUpdating();
 					return;
 				} else {
@@ -194,8 +204,11 @@ enyo.singleton({
 				this.infoListRequest((num + 1));
 			} else {
 				// we're done
-				this.doDisplayStatus({msg: $L("<strong>Done Loading!</strong>"), 
-															progress: false, progValue: 0});
+				this.displayStatus({
+					msg: $L("<strong>Done Loading!</strong>"),
+					progress: false,
+					progValue: 0
+				});
 				if (preware.PrefCookie.get().fixUnknown) {
 					this.fixUnknown();
 				} else {
@@ -272,7 +285,7 @@ enyo.singleton({
 		
 		//TODO: how to get the installed OS version?? :(
 		//I think device.version should replace Mojo.Environment.DeviceInfo.platformVersion, because we are using cordova now.
-		if (device && device.version && device.verion.match(/^[0-9:.\-]+$/)) {
+		if (device && device.version && device.version.match(/^[0-9:.\-]+$/)) {
 			// Filter out apps with a minimum webos version that is greater then current
 			if (this.versionNewer(device.version, newPkg.minWebOSVersion)) {
 				//alert('+ 2');
@@ -356,8 +369,12 @@ enyo.singleton({
 			}
 			
 			if (this.unknownCount > 0) {
-				this.doDisplayStatus({ msg: $L("<strong>Scanning Unknown Packages</strong><br />") + this.packages[this.unknown[0]].pkg.substr(-32),
-																progress: true, progValue: 0});
+				this.displayStatus({
+					msg: $L("<strong>Scanning Unknown Packages</strong><br />")
+					+ this.packages[this.unknown[0]].pkg.substr(-32),
+					progress: true,
+					progValue: 0
+				});
 				this.packages[this.unknown[0]].loadAppinfoFile(this.fixUnknownDone.bind(this));
 			} else {
 				this.loadSaved();
@@ -371,11 +388,14 @@ enyo.singleton({
 		this.unknownFixed += 1;
 		
 		if (this.unknownFixed === this.unknownCount) {
-			this.doDisplayStatus({ msg: $L("<strong>Done Fixing!</strong>"), progress: false, progValue: 0});
+			this.displayStatus({msg: $L("<strong>Done Fixing!</strong>"), progress: false, progValue: 0});
 			this.loadSaved();
 		} else {
-			this.doDisplayStatus({ msg: $L("<strong>Scanning Unknown Packages</strong><br />") + this.packages[this.unknown[this.unknownFixed]].pkg.substr(-32),
-														 progValue: Math.round((this.unknownFixed/this.unknownCount) * 100), progress: true});
+			this.displayStatus({
+				msg: $L("<strong>Scanning Unknown Packages</strong><br />")
+				+ this.packages[this.unknown[this.unknownFixed]].pkg.substr(-32),
+				progValue: Math.round((this.unknownFixed/this.unknownCount) * 100), progress: true
+			});
 			this.packages[this.unknown[this.unknownFixed]].loadAppinfoFile(this.fixUnknownDone.bind(this));
 		}
 	},

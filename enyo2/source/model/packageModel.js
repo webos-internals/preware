@@ -31,7 +31,7 @@ enyo.kind({
 	},
 		
 	// initialize function which loads all the data from the info object
-	create: function(infoString, infoObj) {
+	constructor: function(infoObj) {
 		this.inherited(arguments);
 		
 		try {
@@ -80,7 +80,7 @@ enyo.kind({
 			this.blacklisted =				false;
 			
 			// load the info
-			this.infoLoad(infoString);
+			this.infoLoad(infoObj);
 			
 			// check up on what we've loaded to make sure stuff thats needed isn't blank
 			if (!this.category || this.category === 'misc') {
@@ -170,7 +170,7 @@ enyo.kind({
 			// check if is installed
 			if (info.Status && !info.Status.include('not-installed') && !info.Status.include('deinstall')) {
 				this.isInstalled = true;
-				this.dateInstalled = (info['Installed-Time'] && preware.Utility.isNumeric(info['Installed-Time']) ? info['Installed-Time'] : false);
+				this.dateInstalled = (info['Installed-Time'] && isNumeric(info['Installed-Time']) ? info['Installed-Time'] : false);
 				this.sizeInstalled = info['Installed-Size'];
 			}
 
@@ -185,17 +185,17 @@ enyo.kind({
 					if (match) {
 						//for(var m = 0; m < match.length; m++) alert(m + ' [' + match[m] + ']');
 						if (match[2]) {
-							match[2] = preware.Utility.trim(match[2]);
+							match[2] = trim(match[2]);
 						} else {
 							match[2] = false;
 						}
 						if (match[3]) {
-							match[3] = preware.Utility.trim(match[3]);
+							match[3] = trim(match[3]);
 						} else {
 						match[3] = false;
 						}
 
-						this.depends.push({pkg: preware.Utility.trim(match[1]), match: match[2], version: match[3]});
+						this.depends.push({pkg: trim(match[1]), match: match[2], version: match[3]});
 					}
 				}
 			}
@@ -234,7 +234,7 @@ enyo.kind({
 				this.preInstallMessage =	this.preInstallMessage	|| sourceJson.PreInstallMessage;
 				this.preUpdateMessage =		this.preUpdateMessage		|| sourceJson.PreUpdateMessage;
 				this.preRemoveMessage =		this.preRemoveMessage		|| sourceJson.PreRemoveMessage;
-				this.date = this.date || preware.Utility.isNumeric(sourceJson.LastUpdate) ? sourceJson.LastUpdate : undefined;
+				this.date = this.date || isNumeric(sourceJson.LastUpdate) ? sourceJson.LastUpdate : undefined;
 				if ((!this.screenshots || this.screenshots.length === 0) && sourceJson.Screenshots) {
 					this.screenshots = sourceJson.Screenshots;
 				}
@@ -302,9 +302,9 @@ enyo.kind({
 				splitRes = info.Maintainer.split(',');
 				r = new RegExp("^([^<]*)<([^>]*)>?"); // this one is win
 				for (i = 0; i < splitRes.length; i += 1) {
-					match = preware.Utility.trim(splitRes[i]).match(r);
+					match = trim(splitRes[i]).match(r);
 					if (match) {
-						tmp = {name: preware.Utility.trim(match[1]), url: match[2]};
+						tmp = {name: trim(match[1]), url: match[2]};
 						if (tmp.url.include('@')) {
 							// remove stupid default palm address for palm-package'd apps
 							if (tmp.url === 'palm@palm.com' ||		// v1.1 style
@@ -316,7 +316,7 @@ enyo.kind({
 						}
 						this.maintainer.push(tmp);
 					} else {
-						this.maintainer.push({name: preware.Utility.trim(splitRes[i]), url: false});
+						this.maintainer.push({name: trim(splitRes[i]), url: false});
 					}
 				}
 			}
@@ -379,8 +379,8 @@ enyo.kind({
 						|| (this.maintainer.length === 1 && this.maintainer[0].name === 'N/A')) {
 				this.maintainer = pkg.maintainer;
 			}
-			this.date = this.date || preware.Utility.isNumeric(pkg.date) ? pkg.date : undefined;
-			this.dateInstalled = this.dateInstalled || preware.Utility.isNumeric(pkg.dateInstalled) ? pkg.dateInstalled : undefined;
+			this.date = this.date || isNumeric(pkg.date) ? pkg.date : undefined;
+			this.dateInstalled = this.dateInstalled || isNumeric(pkg.dateInstalled) ? pkg.dateInstalled : undefined;
 			
 			this.maintUrl						=	this.maintUrl						|| pkg.maintUrl;
 			this.size								=	this.size								|| pkg.size;
@@ -527,7 +527,7 @@ enyo.kind({
 	},
 	
 	loadAppinfoFile: function(callback) {
-		this.subscription = IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bind(this, callback), this.pkg);
+		this.subscription = preware.IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bind(this, callback), this.pkg);
 	},
 	
 	loadAppinfoFileResponse: function(callback, payload) {
@@ -585,7 +585,7 @@ enyo.kind({
 	},
 	
 	loadControlFile: function(callback) {
-		this.subscription = IPKGService.getControlFile(this.loadControlFileResponse.bind(this, callback), this.pkg);
+		this.subscription = preware.IPKGService.getControlFile(this.loadControlFileResponse.bind(this, callback), this.pkg);
 	},
 	loadControlFileResponse: function(callback, payload) {
 		if (payload.returnValue === false) {
