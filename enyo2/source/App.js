@@ -4,6 +4,28 @@
 //to reload changes on device: luna-send -n 1 palm://com.palm.applicationManager/rescan {}
 
 enyo.kind({
+	name: "GrabberToolbar",
+	kind: "onyx.Toolbar",
+	components:[
+		{kind: "onyx.Grabber"}
+	],
+	reflow: function() {
+		this.children[0].applyStyle('visibility', enyo.Panels.isScreenNarrow() ? 'hidden' : 'visible');
+	}
+});
+
+enyo.kind({
+	name: "EmptyPanel",
+	kind: "FittableRows",
+	components: [
+		{kind: "onyx.Toolbar"},
+		{fit: true},
+		{kind: "GrabberToolbar"}
+	]
+	
+});
+
+enyo.kind({
 	name: "ListItem",
 	classes: "list-item",
 	ontap: "menuItemTapped",
@@ -38,10 +60,15 @@ enyo.kind({
 	// required ipkgservice
 	ipkgServiceVersion: 14,
 	components:[
+		{kind: "Signals",
+		onPackagesStatusUpdate: "processStatusUpdate",
+		onPackagesLoadFinished: "doneLoading",
+		ondeviceready: "handleDeviceReady"},
+		
 		//Menu
 		{name: "MenuPanel",
 		layoutKind: "FittableRowsLayout",
-		style: "width: 33%",
+		style: "width: 33.3%",
 		components:[
 			{kind: "PortsSearch",
 			title: "Preware",
@@ -57,14 +84,12 @@ enyo.kind({
 			kind: "Panels",
 			arrangerKind: "CardArranger",
 			fit: true,
-			draggable: false,
 			components: [
 				{kind: "FittableRows",
 				style: "width: 100%; height: 100%; text-align: center;",
 				components:[
 					{kind: "onyx.Spinner"},
 					{name: "SpinnerText",
-					content: "foo",
 					style: "color: white;",
 					allowHtml: true}
 				]},
@@ -72,7 +97,7 @@ enyo.kind({
 				horizontal: "hidden",
 				classes: "enyo-fill",
 				touch: true,
-				ontap: "showDebug",
+				ontap: "showCategories",
 				components:[
 					{kind: "ListItem", content: "Package Updates"},
 					{kind: "ListItem", content: "Available Packages"},
@@ -82,45 +107,137 @@ enyo.kind({
 			]},
 			{kind: "onyx.Toolbar"}
 		]},
-		//Content
-		{name: "ContentPanels",
-		kind: enyo.FittableRows, components: [
-			{kind: "onyx.Toolbar", content: "Debug", components:[
-				{content: "Debug"},
-				{kind: "Signals", onPackagesStatusUpdate: "processStatusUpdate",  onPackagesLoadFinished: "doneLoading" }
-			]},
-			{kind: enyo.Scroller, style: "color: white;", touch: true, fit: true, components: [
-				{style: "padding: 20px;", components:[
-					{name: "out", content: "press button...<br>", allowHtml: true, fit: true}
-				]}
-			]},
-			{kind: "onyx.Toolbar", components:[
-				{name: "Grabber", kind: "onyx.Grabber"},
-				{kind: onyx.Button, content: "loadFeeds", ontap: "startLoadFeeds" },
+		
+		//Categories
+		{name: "CategoryPanels",
+		kind: "Panels",
+		arrangerKind: "CardArranger",
+		draggable: false,
+		style: "width: 33.3%;",
+		components: [
+			{kind: "EmptyPanel"},
+			{kind: "FittableRows",
+			components: [
+				{kind: "onyx.Toolbar"},
+				{kind: "Scroller",
+				horizontal: "hidden",
+				classes: "enyo-fill",
+				touch: true,
+				fit: true,
+				ontap: "showSubcategories",
+				components:[
+					{kind: "ListItem", content: "Categories"}
+				]},
+				{kind: "GrabberToolbar"},
 			]}
-		]}
+		]},
+		
+		//Subcategories
+		{name: "SubcategoryPanels",
+		kind: "Panels",
+		arrangerKind: "CardArranger",
+		draggable: false,
+		style: "width: 33.3%;",
+		components: [
+			{kind: "EmptyPanel"},
+			{kind: "FittableRows",
+			components: [
+				{kind: "onyx.Toolbar"},
+				{kind: "Scroller",
+				horizontal: "hidden",
+				classes: "enyo-fill",
+				touch: true,
+				fit: true,
+				ontap: "showPackage",
+				components:[
+					{kind: "ListItem", content: "Subcategories"}
+				]},
+				{kind: "GrabberToolbar"},
+			]}
+		]},
+		
+		//Packages
+		{name: "PackagePanels",
+		kind: "Panels",
+		arrangerKind: "CardArranger",
+		draggable: false,
+		style: "width: 33.3%;",
+		components: [
+			{kind: "EmptyPanel"},
+			{kind: "FittableRows",
+			components: [
+				{kind: "onyx.Toolbar"},
+				{kind: "Scroller",
+				horizontal: "hidden",
+				classes: "enyo-fill",
+				touch: true,
+				fit: true,
+				ontap: "showPackage",
+				components:[
+					{kind: "ListItem", content: "Package"}
+				]},
+				{kind: "GrabberToolbar"},
+			]}
+		]},
 	],
 	//Handlers
-	deviceready: function(inSender, inEvent) {
-		if(!PalmServiceBridge) {
+	create: function(inSender, inEvent) {
+		this.inherited(arguments);
+		if(window.PalmServiceBridge == undefined) {
 			this.log("No PalmServiceBridge found.");
+			this.$.ScrollerPanel.setIndex(1);
 		} else {
 			this.log("PalmServiceBridge found.");
 		}
-		this.log("Mojo.Environment.DeviceInfo.platformVersion: " + Mojo.Environment.DeviceInfo.platformVersion);
+	},
+	handleDeviceReady: function(inSender, inEvent) {
 		this.log("device.version: " + device && device.version);
-
-		this.log("Mojo.Environment.DeviceInfo.modelNameAscii: " + Mojo.Environment.DeviceInfo.modelNameAscii);
 		this.log("device.name: " + device && device.name);
+		
+		this.startLoadFeeds();
+	},
+	reflow: function(inSender) {
+		this.inherited(arguments);
+		if(enyo.Panels.isScreenNarrow()) {
+			this.setArrangerKind("CoreNaviArranger");
+			this.setDraggable(false);
+			this.$.CategoryPanels.addStyles("box-shadow: 0");
+			this.$.SubcategoryPanels.addStyles("box-shadow: 0");
+			this.$.PackagePanels.addStyles("box-shadow: 0");
+		}
+		else {
+			this.setArrangerKind("CollapsingArranger");
+			this.setDraggable(true);
+			this.$.CategoryPanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
+			this.$.SubcategoryPanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
+			this.$.PackagePanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
+		}
 	},
 	//Action Functions
 	log: function(text) {
 		this.inherited(arguments);
 		this.$.SpinnerText.setContent(text);
 	},
-	showDebug: function() {
-		if(enyo.Panels.isScreenNarrow())
+	showCategories: function() {
+		this.$.CategoryPanels.setIndex(1);
+		
+		if(enyo.Panels.isScreenNarrow()) {
 			this.setIndex(1);
+		}
+	},
+	showSubcategories: function() {
+		this.$.SubcategoryPanels.setIndex(1);
+		
+		if(enyo.Panels.isScreenNarrow()) {
+			this.setIndex(2);
+		}
+	},
+	showPackage: function() {
+		this.$.PackagePanels.setIndex(1);
+		
+		if(enyo.Panels.isScreenNarrow()) {
+			this.setIndex(3);
+		}
 	},
 	//Unsorted Functions
 	versionTap: function(inSender, inEvent) {
@@ -320,7 +437,6 @@ enyo.kind({
 	layoutKind: "FittableRowsLayout",
 	components: [
 		{kind: "Signals",
-		ondeviceready: "deviceready",
 		onbackbutton: "handleBackGesture",
 		onCoreNaviDragStart: "handleCoreNaviDragStart",
 		onCoreNaviDrag: "handleCoreNaviDrag",
@@ -329,21 +445,6 @@ enyo.kind({
 		{kind: "CoreNavi", fingerTracking: true}
 	],
 	//Handlers
-	reflow: function(inSender) {
-		this.inherited(arguments);
-		if(enyo.Panels.isScreenNarrow()) {
-			this.$.AppPanels.setArrangerKind("CoreNaviArranger");
-			this.$.AppPanels.setDraggable(false);
-			this.$.AppPanels.$.ContentPanels.addStyles("box-shadow: 0");
-			this.$.AppPanels.$.Grabber.applyStyle("visibility", "hidden");
-		}
-		else {
-			this.$.AppPanels.setArrangerKind("CollapsingArranger");
-			this.$.AppPanels.setDraggable(true);
-			this.$.AppPanels.$.ContentPanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
-			this.$.AppPanels.$.Grabber.applyStyle("visibility", "visible");
-		}
-	},
 	handleBackGesture: function(inSender, inEvent) {
 		this.$.AppPanels.setIndex(0);
 	},
