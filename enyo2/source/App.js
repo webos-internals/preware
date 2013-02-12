@@ -30,17 +30,24 @@ enyo.kind({
 	classes: "list-item",
 	ontap: "menuItemTapped",
 	content: "List Item",
+	icon: false,
 	handlers: {
 		onmousedown: "pressed",
 		ondragstart: "released",
 		onmouseup: "released"
 	},
 	components:[
-		{name: "ItemTitle", style: "position: absolute; margin-top: 6px;"}
+		{name: "ItemIcon", kind: "Image", style: "display: none; height: 100%; margin-right: 8px;", src: "icon.png"},
+		{name: "ItemTitle", style: "display: inline-block; position: absolute; margin-top: 6px;"}
 	],
 	create:	function() {
 		this.inherited(arguments);
 		this.$.ItemTitle.setContent(this.content);
+	},
+	rendered: function() {
+		if(this.icon) {
+			this.$.ItemIcon.addStyles("display: inline-block;");
+		}
 	},
 	pressed: function() {
 		this.addClass("onyx-selected");
@@ -97,7 +104,7 @@ enyo.kind({
 				horizontal: "hidden",
 				classes: "enyo-fill",
 				touch: true,
-				ontap: "showCategories",
+				ontap: "showCategoryList",
 				components:[
 					{kind: "ListItem", content: "Package Updates"},
 					{kind: "ListItem", content: "Available Packages"},
@@ -124,7 +131,7 @@ enyo.kind({
 				classes: "enyo-fill",
 				touch: true,
 				fit: true,
-				ontap: "showSubcategories",
+				ontap: "showSubcatList",
 				components:[
 					{kind: "ListItem", content: "Categories"}
 				]},
@@ -148,7 +155,7 @@ enyo.kind({
 				classes: "enyo-fill",
 				touch: true,
 				fit: true,
-				ontap: "showPackage",
+				ontap: "showPackageList",
 				components:[
 					{kind: "ListItem", content: "Subcategories"}
 				]},
@@ -174,7 +181,9 @@ enyo.kind({
 				fit: true,
 				ontap: "showPackage",
 				components:[
-					{kind: "ListItem", content: "Package"}
+					{name: "CategoriesRepeater", kind: "Repeater", onSetupItem: "setupCategoryItem", count: 0, components: [
+						{kind: "ListItem", content: "Categories", icon: true}
+					]}
 				]},
 				{kind: "GrabberToolbar"},
 			]}
@@ -218,26 +227,20 @@ enyo.kind({
 		this.inherited(arguments);
 		this.$.SpinnerText.setContent(text);
 	},
-	showCategories: function() {
+	showCategoryList: function() {
 		this.$.CategoryPanels.setIndex(1);
-		
-		if(enyo.Panels.isScreenNarrow()) {
-			this.setIndex(1);
-		}
+		this.setIndex(1);
 	},
-	showSubcategories: function() {
+	showSubcatList: function() {
 		this.$.SubcategoryPanels.setIndex(1);
-		
-		if(enyo.Panels.isScreenNarrow()) {
-			this.setIndex(2);
-		}
+		this.setIndex(2);
+	},
+	showPackageList: function() {
+		this.$.PackagePanels.setIndex(1);
+		this.setIndex(3);
 	},
 	showPackage: function() {
-		this.$.PackagePanels.setIndex(1);
-		
-		if(enyo.Panels.isScreenNarrow()) {
-			this.setIndex(3);
-		}
+		//Stub for now
 	},
 	//Unsorted Functions
 	versionTap: function(inSender, inEvent) {
@@ -429,6 +432,15 @@ enyo.kind({
 		setTimeout(function() {
 			storedThis.$.ScrollerPanel.setIndex(1);
 		}, 500);
+
+		this.$.CategoriesRepeater.setCount(preware.PackagesModel.packages.length);
+	},
+	setupCategoryItem: function(inSender, inEvent) {
+		inEvent.item.$.listItem.$.ItemTitle.setContent(preware.PackagesModel.packages[inEvent.index].title);	
+		//FIXME: This throws 'not allowed to load local resource' errors in the emulator
+		//	 How did the original Preware load icon images?
+		inEvent.item.$.listItem.$.ItemIcon.setSrc(preware.PackagesModel.packages[inEvent.index].icon);
+		return true;
 	}
 });
 
