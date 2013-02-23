@@ -91,6 +91,7 @@ enyo.kind({
 			kind: "Panels",
 			arrangerKind: "CardArranger",
 			fit: true,
+			draggable: false,
 			components: [
 				{kind: "FittableRows",
 				style: "width: 100%; height: 100%; text-align: center;",
