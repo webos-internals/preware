@@ -1,50 +1,50 @@
 /**
-    _enyo.ImageView_ is a control that displays an image at a given scaling
-    factor, with enhanced support for double-tap/double-click to zoom, panning,
-    mousewheel zooming and pinch-zoom (on touchscreen devices that support it).
+	_enyo.ImageView_ is a control that displays an image at a given scaling
+	factor, with enhanced support for double-tap/double-click to zoom, panning,
+	mousewheel zooming and pinch-zoom (on touchscreen devices that support it).
 
-        {kind: "ImageView", src: "assets/globe.jpg", scale: "auto",
-            style: "width:500px; height:400px;"}
+		{kind: "ImageView", src: "assets/globe.jpg", scale: "auto",
+			style: "width:500px; height:400px;"}
 
-    The _onload_ and _onerror_ events bubble up from the underlying image
-    element	and an _onZoom_ event is triggered when the user changes the zoom
-    level of the image.
+	The _onload_ and _onerror_ events bubble up from the underlying image
+	element	and an _onZoom_ event is triggered when the user changes the zoom
+	level of the image.
 
-    If you wish, you may add <a href="#enyo.ScrollThumb">enyo.ScrollThumb</a>
-    indicators, disable zoom animation, allow panning overscroll (with a
-    bounce-back effect), and control the propagation of drag events, all via
-    boolean properties.
+	If you wish, you may add <a href="#enyo.ScrollThumb">enyo.ScrollThumb</a>
+	indicators, disable zoom animation, allow panning overscroll (with a
+	bounce-back effect), and control the propagation of drag events, all via
+	boolean properties.
 
-    Note that it's best to specify a size for the ImageView in order to avoid
-    complications.
+	Note that it's best to specify a size for the ImageView in order to avoid
+	complications.
 */
 
 enyo.kind({
 	name: "enyo.ImageView",
 	kind: enyo.Scroller,
 	/**
-	    If true, allows for overscrolling during panning, with a bounce-back
-	    effect. (Defaults to false.)
+		If true, allows for overscrolling during panning, with a bounce-back
+		effect. (Defaults to false.)
 	*/
 	touchOverscroll: false,
 	/**
-	    If true, a ScrollThumb is used to indicate scroll position/bounds.
-	    (Defaults to false.)
+		If true, a ScrollThumb is used to indicate scroll position/bounds.
+		(Defaults to false.)
 	*/
 	thumb: false,
 	/**
-	    If true (the default), the zoom action triggered by a double-tap (or
-	    double-click) will be animated.
+		If true (the default), the zoom action triggered by a double-tap (or
+		double-click) will be animated.
 	*/
 	animate: true,
 	/**
-	    If true (the default), allows propagation of vertical drag events when
-	    already at the top or bottom of the pannable area.
+		If true (the default), allows propagation of vertical drag events when
+		already at the top or bottom of the pannable area.
 	*/
 	verticalDragPropagation: true,
 	/**
-	    If true (the default), allows propagation of horizontal drag events when
-	    already at the left or right edge of the pannable area.
+		If true (the default), allows propagation of horizontal drag events when
+		already at the left or right edge of the pannable area.
 	*/
 	horizontalDragPropagation: true,
 	published: {
@@ -52,10 +52,13 @@ enyo.kind({
 			The scale at which the image should be displayed. It may be any
 			positive numeric value or one of the following key words (which will
 			be resolved to a value dynamically):
-	
+
 			* "auto": Fits the image to the size of the ImageView
 			* "width": Fits the image the width of the ImageView
 			* "height": Fits the image to the height of the ImageView
+			* "fit": Fits the image to the height and width of the ImageView.
+				Overflow of the larger dimension is cropped and the image is centered
+				on this axis
 		*/
 		scale: "auto",
 		//* Disables the zoom functionality
@@ -65,10 +68,10 @@ enyo.kind({
 	},
 	events: {
 		/**
-		    Fires whenever the user adjusts the zoom of the image, via
-		    double-tap/double-click, mousewheel, or pinch-zoom.
-		    
-		    _inEvent.scale_ contains the new scaling factor for the image.
+			Fires whenever the user adjusts the zoom of the image, via
+			double-tap/double-click, mousewheel, or pinch-zoom.
+
+			_inEvent.scale_ contains the new scaling factor for the image.
 		*/
 		onZoom:""
 	},
@@ -80,9 +83,13 @@ enyo.kind({
 	},
 	components:[
 		{name: "animator", kind: "Animator", onStep: "zoomAnimationStep", onEnd: "zoomAnimationEnd"},
-		{name:"viewport", style:"overflow:hidden;min-height:100%;min-width:100%;", classes:"enyo-fit", ongesturechange: "gestureTransform", ongestureend: "saveState", ontap: "singleTap", ondblclick:"doubleClick", onmousewheel:"mousewheel", components:[
-			{kind:"Image", ondown: "down"}
-		]}
+		{name:"viewport", style: "overflow:hidden;min-height:100%;min-width:100%;", classes: "enyo-fit",
+			ongesturechange: "gestureTransform", ongestureend: "saveState", ontap: "singleTap",
+			ondblclick: "doubleClick", onmousewheel: "mousewheel",
+			components: [
+				{kind:"Image", ondown: "down"}
+			]
+		}
 	],
 	create: function() {
 		this.inherited(arguments);
@@ -144,15 +151,16 @@ enyo.kind({
 	imageLoaded: function(inEvent) {
 		this.originalWidth = this.bufferImage.width;
 		this.originalHeight = this.bufferImage.height;
-		
+
 		//scale to fit before setting src, so unscaled image isn't visible
 		this.scaleChanged();
 		this.$.image.setSrc(this.bufferImage.src);
-		
+
 		//Needed to ensure scroller contents height/width is calculated correctly when contents use enyo-fit
 		enyo.dom.transformValue(this.getStrategy().$.client, "translate3d", "0px, 0px, 0");
-		
+
 		this.positionClientControls(this.scale);
+		this.alignImage();
 	},
 	resizeHandler: function() {
 		this.inherited(arguments);
@@ -177,6 +185,9 @@ enyo.kind({
 				this.scale = widthScale;
 			} else if(this.scale == "height") {
 				this.scale = heightScale;
+			} else if(this.scale == "fit") {
+				this.fitAlignment = "center";
+				this.scale = Math.max(widthScale, heightScale);
 			} else {
 				this.maxScale = Math.max(this.maxScale, this.scale);
 				this.scale = this.limitScale(this.scale);
@@ -189,6 +200,13 @@ enyo.kind({
 		enyo.error("Error loading image: " + this.src);
 		//bubble up the error event
 		this.bubble("onerror", inEvent);
+	},
+	alignImage: function() {
+		if (this.fitAlignment && this.fitAlignment === "center") {
+			var sb = this.getScrollBounds();
+			this.setScrollLeft( sb.maxLeft / 2);
+			this.setScrollTop( sb.maxTop / 2);
+		}
 	},
 	gestureTransform: function(inSender, inEvent) {
 		this.eventPt = this.calcEventLocation(inEvent);
@@ -208,10 +226,10 @@ enyo.kind({
 	},
 	transformImage: function(scale) {
 		this.tapped = false;
-		
+
 		var prevBounds = this.imageBounds || this.innerImageBounds(scale);
 		this.imageBounds = this.innerImageBounds(scale);
-		
+
 		//style cursor if needed to indicate the image is movable
 		if(this.scale>this.minScale) {
 			this.$.viewport.applyStyle("cursor", "move");
@@ -219,7 +237,7 @@ enyo.kind({
 			this.$.viewport.applyStyle("cursor", null);
 		}
 		this.$.viewport.setBounds({width: this.imageBounds.width + "px", height: this.imageBounds.height + "px"});
-		
+
 		//determine the exact ratio where on the image was tapped
 		this.ratioX = this.ratioX || (this.eventPt.x + this.getScrollLeft()) / prevBounds.width;
 		this.ratioY = this.ratioY || (this.eventPt.y + this.getScrollTop()) / prevBounds.height;
@@ -233,7 +251,7 @@ enyo.kind({
 		}
 		scrollLeft = Math.max(0, Math.min((this.imageBounds.width - this.containerWidth), scrollLeft));
 		scrollTop = Math.max(0, Math.min((this.imageBounds.height - this.containerHeight), scrollTop));
-		
+
 		if(this.canTransform) {
 			var params = {scale: scale};
 			// translate needs to be first, or scale and rotation will not be in the correct spot
@@ -249,13 +267,13 @@ enyo.kind({
 			this.$.image.setBounds({width: this.imageBounds.width + "px", height: this.imageBounds.height + "px",
 			left:this.imageBounds.left + "px", top:this.imageBounds.top + "px"});
 		}
-		
+
 		//adjust scroller to new position that keeps ratio with the new image size
 		this.setScrollLeft(scrollLeft);
 		this.setScrollTop(scrollTop);
-		
+
 		this.positionClientControls(scale);
-		
+
 		//this.stabilize();
 	},
 	limitScale: function(scale) {

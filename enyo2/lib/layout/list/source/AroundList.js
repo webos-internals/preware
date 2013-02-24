@@ -21,15 +21,12 @@ enyo.kind({
 			{name: "generator", kind: "FlyweightRepeater", canGenerate: false, components: [
 				{tag: null, name: "client"}
 			]},
+			{name: "holdingarea", allowHtml: true, classes: "enyo-list-holdingarea"},
 			{name: "page0", allowHtml: true, classes: "enyo-list-page"},
 			{name: "page1", allowHtml: true, classes: "enyo-list-page"},
 			{name: "belowClient"},
-			{name: "reorderContainer", classes: "enyo-list-reorder-container"},
-			{name: "placeholder", classes: "enyo-list-placeholder", style: "height:0px;"},
-			{name: "pinnedPlaceholder", classes: "enyo-pinned-list-placeholder", components: [
-				{name: "pinnedPlaceholderContents", allowHtml: true},
-				{name: "testButton", kind:"enyo.Button", content: "Drop", ontap: "dropPinnedRow"}
-			]}
+			{name: "placeholder"},
+			{name: "swipeableComponents", style: "position:absolute; display:block; top:-1000px; left:0px;"}
 		]}
 	],
 	//* @public

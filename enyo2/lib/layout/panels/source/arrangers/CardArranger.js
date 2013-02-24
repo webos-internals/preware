@@ -32,7 +32,6 @@ enyo.kind({
 				c.resized();
 			}
 		}
-		
 	},
 	finish: function() {
 		this.inherited(arguments);

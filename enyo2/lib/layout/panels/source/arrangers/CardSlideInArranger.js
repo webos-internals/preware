@@ -5,7 +5,7 @@
 	sliding the new control	over the current one.
 
 	Note that CardSlideInArranger always slides controls in from the right. If
-	you want an arranger that slides to the right and left, try 
+	you want an arranger that slides to the right and left, try
 	<a href="#enyo.LeftRightArranger">enyo.LeftRightArranger</a>.
 
 	For more information, see the documentation on

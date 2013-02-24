@@ -113,5 +113,5 @@ enyo.kind({
 			c.applyStyle("width", null);
 		}
 		this.inherited(arguments);
-	}	
+	}
 });

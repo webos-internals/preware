@@ -44,7 +44,14 @@ enyo.kind({
 			Used to specify custom styling for the repeater's wrapper component
 			(client). Input is identical to enyo.Control.setStyle()
 		*/
-		clientStyle: ''
+		clientStyle: '',
+		/**
+			Offset applied to row number during generation. Used to allow a
+			items to use a natural index instead of being forced to be
+			0-based.  Must be positive, as row -1 is used for undefined rows
+			in the event system.
+		*/
+		rowOffset: 0
 	},
 	events: {
 		/**
@@ -67,8 +74,6 @@ enyo.kind({
 		{kind: "Selection", onSelect: "selectDeselect", onDeselect: "selectDeselect"},
 		{name: "client"}
 	],
-	//* offset to be applied to row number when generating, must be positive
-	rowOffset: 0,
 	create: function() {
 		this.inherited(arguments);
 		this.noSelectChanged();
@@ -147,12 +152,16 @@ enyo.kind({
 	},
 	//* Renders the row specified by _inIndex_.
 	renderRow: function(inIndex) {
+		// do nothing if index is out-of-range
+		if (inIndex < this.rowOffset || inIndex >= this.count + this.rowOffset) {
+			return;
+		}
 		//this.index = null;
 		// always call the setupItem callback, as we may rely on the post-render state
 		this.setupItem(inIndex);
 		var node = this.fetchRowNode(inIndex);
 		if (node) {
-			node.innerHTML = this.$.client.generateChildHtml();
+			enyo.dom.setInnerHtml(node, this.$.client.generateChildHtml());
 			this.$.client.teardownChildren();
 			this.doRenderRow({rowIndex: inIndex});
 		}
@@ -163,7 +172,7 @@ enyo.kind({
 			return this.node.querySelector('[data-enyo-index="' + inIndex + '"]');
 		}
 	},
-	//* Fetches the DOM node for the given event.
+	//* Fetches the row number corresponding with the target of a given event.
 	rowForEvent: function(inEvent) {
 		if (!this.hasNode()) {
 			return -1;
@@ -181,6 +190,10 @@ enyo.kind({
 	//* Prepares the row specified by _inIndex_ such that changes made to the
 	//* controls inside the repeater will be rendered for the given row.
 	prepareRow: function(inIndex) {
+		// do nothing if index is out-of-range
+		if (inIndex < 0 || inIndex >= this.count) {
+			return;
+		}
 		// update row internals to match model
 		this.setupItem(inIndex);
 		var n = this.fetchRowNode(inIndex);
@@ -194,6 +207,10 @@ enyo.kind({
 	//* controls in the row will be rendered in the given row; then performs the
 	//* function _inFunc_, and, finally, locks the row.
 	performOnRow: function(inIndex, inFunc, inContext) {
+		// do nothing if index is out-of-range
+		if (inIndex < 0 || inIndex >= this.count) {
+			return;
+		}
 		if (inFunc) {
 			this.prepareRow(inIndex);
 			enyo.call(inContext || null, inFunc);

@@ -25,8 +25,8 @@
 	the	current index may be manipulated at runtime via the inherited
 	_getIndex()_ and _setIndex()_ functions.
 
-    Note that it's best to specify a size for the ImageCarousel in order to
-    avoid complications.
+	Note that it's best to specify a size for the ImageCarousel in order to
+	avoid complications.
 */
 
 enyo.kind({
@@ -34,8 +34,8 @@ enyo.kind({
 	kind: enyo.Panels,
 	arrangerKind: "enyo.CarouselArranger",
 	/**
-	    The default scale value to be applied to each ImageView. Can be "auto",
-	    "width", "height", or any positive numeric value.
+		The default scale value to be applied to each ImageView. Can be "auto",
+		"width", "height", or any positive numeric value.
 	*/
 	defaultScale: "auto",
 	//* If true, ImageView instances are created with zooming disabled.
@@ -86,11 +86,43 @@ enyo.kind({
 		this.imageCount = this.images.length;
 	},
 	loadNearby: function() {
-		if(this.images.length>0) {
-			this.loadImageView(this.index-1);
-			this.loadImageView(this.index);
-			this.loadImageView(this.index+1);
+		var range = this.getBufferRange();
+		for (var i in range) {
+			this.loadImageView(range[i]);
 		}
+	},
+	getBufferRange: function() {
+		var range = [];
+		if (this.layout.containerBounds) {
+			var prefetchRange = 1;
+			var bounds = this.layout.containerBounds;
+			var m, img, c, i, x, xEnd;
+			// get the lower range
+			i=this.index-1;
+			x=0;
+			xEnd = bounds.width * prefetchRange;
+			while (i>=0 && x<=xEnd) {
+				c = this.$["container" + i];
+				x+= c.width + c.marginWidth;
+				range.unshift(i);
+				i--;
+			}
+			// get the upper range
+			i=this.index;
+			x=0;
+			xEnd = bounds.width * (prefetchRange + 1);
+			while (i<this.images.length && x<=xEnd) {
+				c = this.$["container" + i];
+				x+= c.width + c.marginWidth;
+				range.push(i);
+				i++;
+			}
+		}
+		return range;
+	},
+	reflow: function() {
+		this.inherited(arguments);
+		this.loadNearby();
 	},
 	loadImageView: function(index) {
 		// NOTE: wrap bugged in enyo.CarouselArranger, but once fixed, wrap should work in this
@@ -114,9 +146,9 @@ enyo.kind({
 			} else {
 				if(this.$["image" + index].src != this.images[index]) {
 					this.$["image" + index].setSrc(this.images[index]);
+					this.$["image" + index].setScale(this.defaultScale);
+					this.$["image" + index].setDisableZoom(this.disableZoom);
 				}
-				this.$["image" + index].setScale(this.defaultScale);
-				this.$["image" + index].setDisableZoom(this.disableZoom);
 			}
 		}
 		return this.$["image" + index];
@@ -128,7 +160,7 @@ enyo.kind({
 	},
 	imagesChanged: function() {
 		this.initContainers();
-		this.loadNearby();		
+		this.loadNearby();
 	},
 	indexChanged: function() {
 		this.loadNearby();
@@ -142,8 +174,7 @@ enyo.kind({
 			return true; //prevent from bubbling if there's no change
 	},
 	transitionFinish: function(inSender, inEvent) {
-		this.loadImageView(this.index-1);
-		this.loadImageView(this.index+1);
+		this.loadNearby();
 		if(this.lowMemory) {
 			this.cleanupMemory();
 		}
@@ -158,15 +189,16 @@ enyo.kind({
 		return this.$["image" + index] || this.loadImageView(index);
 	},
 	/**
-	    Destroys any ImageView objects that are not in the immediate viewing
-	    area (i.e., the currently active image and the first image on either
-	    side of	it) to free up memory. If you set the Image Carousel's
-	    _lowMemory_ property to true, this function will be called automatically
-	    as needed.
+		Destroys any ImageView objects that are not in the immediate viewing
+		area (i.e., the currently active image and the first image on either
+		side of	it) to free up memory. If you set the Image Carousel's
+		_lowMemory_ property to true, this function will be called automatically
+		as needed.
 	*/
 	cleanupMemory: function() {
+		var buffer = getBufferRange();
 		for(var i=0; i<this.images.length; i++) {
-			if(i<this.index-1 || i>this.index+1) {
+			if(enyo.indexOf(i, buffer) ===-1) {
 				if(this.$["image" + i]) {
 					this.$["image" + i].destroy();
 				}

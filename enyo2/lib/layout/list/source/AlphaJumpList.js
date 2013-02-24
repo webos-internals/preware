@@ -1,7 +1,7 @@
 /**
 	A control that presents an alphabetic panel that you can select from, in
 	order to perform actions based on the item selected.
-	
+
 		{kind: "AlphaJumpList", onSetupItem: "setupItem",
 			onAlphaJump: "alphaJump",
 			components: [
@@ -9,7 +9,7 @@
 				{kind: "onyx.Item"}
 			]
 		}
-	
+
 */
 enyo.kind({
 	name: "enyo.AlphaJumpList",

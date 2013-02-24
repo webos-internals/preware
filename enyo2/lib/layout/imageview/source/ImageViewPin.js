@@ -9,8 +9,8 @@ enyo.kind({
 	kind: "enyo.Control",
 	published: {
 		/**
-		    If true, the anchor point for this pin will be highlighted in yellow,
-		    which can be useful for debugging. Defaults to false.
+			If true, the anchor point for this pin will be highlighted in yellow,
+			which can be useful for debugging. Defaults to false.
 		*/
 		highlightAnchorPoint: false,
 		/**
@@ -19,7 +19,7 @@ enyo.kind({
 			ImageView control's original size. Works like standard CSS positioning,
 			and accepts both px and percentage values. Defaults to _{top: 0px,
 			left: 0px}_.
-			
+
 			* top: distance from the parent's top edge
 			* bottom: distance from the parent's bottom edge (overrides top)
 			* left: distance from the parent's left edge
@@ -34,7 +34,7 @@ enyo.kind({
 			positioned relative to the ImageViewPin itself. Works like standard
 			CSS positioning. Only accepts px values. Defaults to _{top: 0px,
 			left: 0px}_.
-			
+
 			* top: distance from the ImageViewPin's top edge
 			* bottom: distance from the ImageViewPin's bottom edge
 			* left: distance from the ImageViewPin's left edge
@@ -68,18 +68,14 @@ enyo.kind({
 	positionClientControls: function() {
 		var controls = this.getClientControls();
 		for(var i=0;i<controls.length;i++) {
-			for(p in this.position) {
+			for(var p in this.position) {
 				controls[i].applyStyle(p, this.position[p]+"px");
 			}
 		}
 	},
 	// Update styling on anchor point
 	highlightAnchorPointChanged: function() {
-		if(this.highlightAnchorPoint) {
-		 	this.addClass("pinDebug");
-		} else {
-			this.removeClass("pinDebug");
-		}
+		this.addRemoveClass("pinDebug", this.highlightAnchorPoint);
 	},
 	// Create coords{} object for each anchor containing value and units
 	anchorChanged: function() {

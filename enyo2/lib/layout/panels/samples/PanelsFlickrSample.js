@@ -49,7 +49,7 @@ enyo.kind({
 	search: function() {
 		this.searchText = this.$.searchInput.getValue();
 		this.page = 0;
-		this.results = []
+		this.results = [];
 		this.$.searchSpinner.show();
 		this.$.flickrSearch.search(this.searchText);
 	},
@@ -58,7 +58,7 @@ enyo.kind({
 		this.$.moreSpinner.hide();
 		this.results = this.results.concat(inResults);
 		this.$.list.setCount(this.results.length);
-		if (this.page == 0) {
+		if (this.page === 0) {
 			this.$.list.reset();
 		} else {
 			this.$.list.refresh();
@@ -87,8 +87,8 @@ enyo.kind({
 		if (item.original == this.$.flickrImage.getSrc()) {
 			this.imageLoaded();
 		} else {
-	    	this.$.flickrImage.hide();			
-			this.$.flickrImage.setSrc(item.original);	
+			this.$.flickrImage.hide();
+			this.$.flickrImage.setSrc(item.original);
 		}
 	},
 	imageLoaded: function() {
@@ -105,7 +105,7 @@ enyo.kind({
 		}
 		this.$.imageSpinner.hide();
 	},
-	showList: function() {		
+	showList: function() {
 		this.setIndex(0);
 	}
 });
@@ -141,7 +141,7 @@ enyo.kind({
 	},
 	processResponse: function(inSender, inResponse) {
 		var photos = inResponse.photos ? inResponse.photos.photo || [] : [];
-		for (var i=0, p; p=photos[i]; i++) {
+		for (var i=0, p; (p=photos[i]); i++) {
 			var urlprefix = "http://farm" + p.farm + ".static.flickr.com/" + p.server + "/" + p.id + "_" + p.secret;
 			p.thumbnail = urlprefix + "_s.jpg";
 			p.original = urlprefix + ".jpg";

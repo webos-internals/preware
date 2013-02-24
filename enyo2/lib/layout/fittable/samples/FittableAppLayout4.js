@@ -1,7 +1,7 @@
 enyo.kind({
 	name: "enyo.sample.FittableAppLayout4",
-	kind: "FittableColumns", 
-	classes: "enyo-fit", 
+	kind: "FittableColumns",
+	classes: "enyo-fit",
 	components: [
 		{kind: "FittableRows", classes: "fittable-sample-shadow4", style: "width: 30%; position: relative; z-index: 1;", components: [
 			{style: "height: 20%;"},

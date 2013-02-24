@@ -36,7 +36,7 @@ enyo.kind({
 		wrap: false,
 		//* Sets the arranger kind to be used for dynamic layout.
 		arrangerKind: "CardArranger",
-		//* By default, each panel will be sized to fit the Panels' width when 
+		//* By default, each panel will be sized to fit the Panels' width when
 		//* the screen size is narrow enough (less than 800px). Set to false
 		//* to avoid this behavior.
 		narrowFit: true
@@ -45,18 +45,18 @@ enyo.kind({
 		/**
 			Fires at the start of a panel transition, when _setIndex_ is called
 			and also during dragging.
-			
+
 			_inEvent.fromIndex_ contains the index of the old panel.
-			
+
 			_inEvent.toIndex_ contains the index of the new panel.
 		*/
 		onTransitionStart: "",
 		/**
 			Fires at the end of a panel transition, when _setIndex_ is called
 			and also during dragging.
-			
+
 			_inEvent.fromIndex_ contains the index of the old panel.
-			
+
 			_inEvent.toIndex_ contains the index of the new panel.
 		*/
 		onTransitionFinish: ""
@@ -78,7 +78,10 @@ enyo.kind({
 		this.arrangerKindChanged();
 		this.narrowFitChanged();
 		this.indexChanged();
-		this.setAttribute("onscroll", enyo.bubbler);
+	},
+	rendered: function() {
+		this.inherited(arguments);
+		enyo.makeBubble(this, "scroll");
 	},
 	domScroll: function(inSender, inEvent) {
 		if (this.hasNode()) {
@@ -99,7 +102,7 @@ enyo.kind({
 		this.addRemoveClass("enyo-panels-fit-narrow", this.narrowFit);
 	},
 	destroy: function() {
-		// When the entire panels is going away, take note so we don't try and do single-panel 
+		// When the entire panels is going away, take note so we don't try and do single-panel
 		// remove logic such as changing the index and reflowing when each panel is destroyed
 		this.destroying = true;
 		this.inherited(arguments);
@@ -113,7 +116,7 @@ enyo.kind({
 		}
 	},
 	isPanel: function() {
-		// designed to be overridden in kinds derived from Panels that have 
+		// designed to be overridden in kinds derived from Panels that have
 		// non-panel client controls
 		return true;
 	},
@@ -140,14 +143,16 @@ enyo.kind({
 		var p$ = this.getPanels();
 		//Constrain the index within the array of panels, needed if wrapping is enabled
 		var index = this.index % p$.length;
-		index < 0 ? (index += p$.length) : enyo.nop;
+		if (index < 0) {
+			index += p$.length;
+		}
 		return p$[index];
 	},
 	/**
-		Returns a reference to the <a href="#enyo.Animator">enyo.Animator</a> 
+		Returns a reference to the <a href="#enyo.Animator">enyo.Animator</a>
 		instance used to animate panel transitions. The Panels' animator can be used
 		to set the duration of panel transitions, e.g.:
-		
+
 			this.getAnimator().setDuration(1000);
 	*/
 	getAnimator: function() {
@@ -155,16 +160,16 @@ enyo.kind({
 	},
 	/**
 		Sets the active panel to the panel specified by the given index.
-		Note that if the _animate_ property is set to true, the active panel 
+		Note that if the _animate_ property is set to true, the active panel
 		will animate into view.
 	*/
 	setIndex: function(inIndex) {
-		// override setIndex so that indexChanged is called 
+		// override setIndex so that indexChanged is called
 		// whether this.index has actually changed or not
 		this.setPropertyValue("index", inIndex, "indexChanged");
 	},
 	/**
-		Sets the active panel to the panel specified by the given index. 
+		Sets the active panel to the panel specified by the given index.
 		Regardless of the value of the _animate_ property, the transition to the
 		next panel will not animate and will be immediate.
 	*/
@@ -290,7 +295,7 @@ enyo.kind({
 	dragfinishTransition: function(inEvent) {
 		this.verifyDragTransition(inEvent);
 		this.setIndex(this.toIndex);
-		// note: if we're still dragging, then we're at a transition boundary 
+		// note: if we're still dragging, then we're at a transition boundary
 		// and should fire the finish event
 		if (this.dragging) {
 			this.fireTransitionFinish();
@@ -420,4 +425,3 @@ enyo.kind({
 		}
 	}
 });
-

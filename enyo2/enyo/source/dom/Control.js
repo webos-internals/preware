@@ -450,7 +450,7 @@ enyo.kind({
 		// add css to enable hw-accelerated scrolling on non-Android platforms (ENYO-900, ENYO-901)
 		this.setupOverflowScrolling();
 		// generate our HTML
-		pn.innerHTML = this.generateHtml();
+		enyo.dom.setInnerHtml(pn, this.generateHtml());
 		// post-rendering tasks
 		if (this.generated) {
 			this.rendered();
@@ -715,7 +715,7 @@ enyo.kind({
 		if (this.generated) {
 			this.teardownChildren();
 		}
-		this.node.innerHTML = this.generateInnerHtml();
+		enyo.dom.setInnerHtml(this.node, this.generateInnerHtml());
 	},
 	renderStyles: function() {
 		if (this.hasNode()) {

@@ -33,32 +33,32 @@ enyo.kind({
 		{kind: "FittableRows", classes: "fittable-sample-boxable fittable-sample-small-test", components: [
 			{content: "A", fit: true},
 			{content: "B"},
-			{content: "C"},
+			{content: "C"}
 		]},
 		{kind: "FittableRows", classes: "fittable-sample-boxable fittable-sample-small-test", components: [
 			{content: "A"},
 			{content: "B", fit: true},
-			{content: "C"},
+			{content: "C"}
 		]},
 		{kind: "FittableRows", classes: "fittable-sample-boxable fittable-sample-small-test", components: [
 			{content: "A"},
 			{content: "B"},
-			{content: "C", fit: true},
+			{content: "C", fit: true}
 		]},
 		{kind: "FittableColumns", classes: "fittable-sample-boxable fittable-sample-small-test", components: [
 			{content: "A", fit: true},
 			{content: "B"},
-			{content: "C"},
+			{content: "C"}
 		]},
 		{kind: "FittableColumns", classes: "fittable-sample-boxable fittable-sample-small-test", components: [
 			{content: "A"},
 			{content: "B", fit: true},
-			{content: "C"},
+			{content: "C"}
 		]},
 		{style: "height: 200px;", kind: "FittableColumns", classes: "fittable-sample-boxable fittable-sample-small-test", components: [
 			{content: "A"},
 			{content: "B"},
-			{content: "C", fit: true},
+			{content: "C", fit: true}
 		]},
 		{classes: "fittable-sample-section", content: "Tests for noStretch: true"},
 		{kind: "FittableRows", classes: "fittable-sample-box fittable-sample-test", style: "height: 400px;", noStretch: true, components: [
@@ -79,6 +79,6 @@ enyo.kind({
 				{content: "4", classes: "fittable-sample-box fittable-sample-mlr"},
 				{content: "5", classes: "fittable-sample-box fittable-sample-mlr"}
 			]}
-		]},
+		]}
 	]
 });

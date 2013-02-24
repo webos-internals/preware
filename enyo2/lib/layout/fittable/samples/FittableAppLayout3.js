@@ -1,7 +1,7 @@
 enyo.kind({
 	name: "enyo.sample.FittableAppLayout3",
-	kind: "FittableColumns", 
-	classes: "enyo-fit", 
+	kind: "FittableColumns",
+	classes: "enyo-fit",
 	components: [
 		{kind: "FittableRows", fit: true, components: [
 			{fit: true, classes: "fittable-sample-fitting-color"},

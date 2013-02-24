@@ -62,11 +62,11 @@ enyo.kind({
 	},
 	updateIndex: function(inSender, inEvent) {
 		var index = this.trimWhitespace(this.$.carouselIndexInput.getValue());
-		if(index == "" || isNaN(index)) {
+		if(index === "" || isNaN(index)) {
 			//enyo.log("Numbers only please.")
 			return;
 		}
-		this.$.carousel.setIndex(parseInt(index));
+		this.$.carousel.setIndex(parseInt(index, 10));
 	},
 	trimWhitespace: function(inString) {
 		return inString.replace(/^\s+|\s+$/g,"");

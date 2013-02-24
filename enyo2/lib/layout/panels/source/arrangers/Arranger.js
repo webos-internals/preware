@@ -149,7 +149,7 @@ enyo.kind({
 				for (var j=0, kid; (kid=grands[j]); j++) {
 					enyo.dom.accelerate(kid, this.accelerated);
 				}
-			} 
+			}
 		}
 	},
 	// called during "rendered" phase

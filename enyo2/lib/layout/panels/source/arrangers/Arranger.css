@@ -11,19 +11,15 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 .enyo-arranger-fit > * {
-	/*
-	override any width/height set on panels
-	*/
+	/* override any width/height set on panels */
 	width: 100% !important;
 	height: 100% !important;
 	min-width: 0 !important;
-	max-width: auto !important;
 	min-height: 0 !important;
-	max-height: auto !important;
 }

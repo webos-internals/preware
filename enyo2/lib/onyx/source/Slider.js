@@ -2,13 +2,13 @@
 	_onyx.Slider_ is a control that presents a range of selection options in the
 	form of a horizontal slider with a control knob. The knob may be tapped and
 	dragged	to the desired location.
-	
+
 		{kind: "onyx.Slider", value: 30}
-	
+
 	_onChanging_ events are fired while the control knob is being dragged, and
 	an _onChange_ event is fired when the position is set, either by finishing a
 	drag or by tapping the bar.
-	
+
 	For more information, see the documentation on
 	<a href="https://github.com/enyojs/enyo/wiki/Progress-Indicators">Progress Indicators</a>
 	in the Enyo Developer Guide.
@@ -51,6 +51,11 @@ enyo.kind({
 	],
 	create: function() {
 		this.inherited(arguments);
+		//workaround for FirefoxOS which doesn't support :active:hover css selectors
+		if(enyo.platform.firefoxOS) {
+			this.moreComponents[2].ondown = "down";
+			this.moreComponents[2].onleave = "leave";
+		}
 		this.createComponents(this.moreComponents);
 		this.valueChanged();
 	},
@@ -99,6 +104,12 @@ enyo.kind({
 			this.animateTo(v);
 			return true;
 		}
+	},
+	down: function(inSender, inEvent) {
+		this.addClass("pressed");
+	},
+	leave: function(inSender, inEvent) {
+		this.removeClass("pressed");
 	},
 	//* @public
 	//* Animates to the given value.

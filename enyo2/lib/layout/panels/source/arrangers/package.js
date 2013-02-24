@@ -5,5 +5,6 @@ enyo.depends(
 	"CardSlideInArranger.js",
 	"CarouselArranger.js",
 	"CollapsingArranger.js",
+	"DockRightArranger.js",
 	"OtherArrangers.js"
 );

@@ -1,7 +1,7 @@
 enyo.kind({
 	name: "enyo.sample.FittableAppLayout1",
-	kind: "FittableRows", 
-	classes: "enyo-fit", 
+	kind: "FittableRows",
+	classes: "enyo-fit",
 	components: [
 		{kind: "onyx.Toolbar", components: [
 			{content: "Header"},
