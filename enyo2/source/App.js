@@ -19,8 +19,8 @@ enyo.kind({
 	kind: "FittableRows",
 	components: [
 		{kind: "onyx.Toolbar"},
-		{fit: true},
-		{kind: "GrabberToolbar"}
+		{fit: true, style: "background-image: url('assets/bg.png')"},
+		{kind: "onyx.Toolbar"}
 	]
 	
 });
