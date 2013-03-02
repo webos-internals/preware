@@ -130,7 +130,9 @@ enyo.kind({
 			{kind: "EmptyPanel"},
 			{kind: "FittableRows",
 			components: [
-				{kind: "onyx.Toolbar"},
+			{kind: "onyx.Toolbar", components:[
+				{style: "display: inline-block; position: absolute;", content: "Types"}
+			]},
 				{kind: "Scroller",
 				horizontal: "hidden",
 				classes: "enyo-fill",
@@ -139,7 +141,7 @@ enyo.kind({
 				fit: true,
 				components:[
 					{name: "TypeRepeater", kind: "Repeater", onSetupItem: "setupTypeItem", count: 0, components: [
-						{kind: "ListItem", content: "Type", ontap: "showCategoryList"}
+						{kind: "ListItem", content: "Type", ontap: "typeTapped"}
 					]}
 				]},
 				{kind: "GrabberToolbar"},
@@ -156,7 +158,9 @@ enyo.kind({
 			{kind: "EmptyPanel"},
 			{kind: "FittableRows",
 			components: [
-				{kind: "onyx.Toolbar"},
+				{kind: "onyx.Toolbar", components:[
+					{style: "display: inline-block; position: absolute;", content: "Categories"}
+				]},
 				{kind: "Scroller",
 				horizontal: "hidden",
 				classes: "enyo-fill",
@@ -165,13 +169,13 @@ enyo.kind({
 				fit: true,
 				components:[
 					{name: "CategoryRepeater", kind: "Repeater", onSetupItem: "setupCategoryItem", count: 0, components: [
-						{kind: "ListItem", content: "Category", ontap: "showPackageList"}
+						{kind: "ListItem", content: "Category", ontap: "categoryTapped"}
 					]}
 				]},
 				{kind: "GrabberToolbar"},
 			]}
-		]},
-		
+		]},	
+
 		//Packages
 		{name: "PackagePanels",
 		kind: "Panels",
@@ -182,7 +186,9 @@ enyo.kind({
 			{kind: "EmptyPanel"},
 			{kind: "FittableRows",
 			components: [
-				{kind: "onyx.Toolbar"},
+				{kind: "onyx.Toolbar", components:[
+					{style: "display: inline-block; position: absolute;", content: "Packages"}
+				]},
 				{kind: "Scroller",
 				horizontal: "hidden",
 				classes: "enyo-fill",
@@ -192,11 +198,100 @@ enyo.kind({
 				ontap: "showPackage",
 				components:[
 					{name: "PackageRepeater", kind: "Repeater", onSetupItem: "setupPackageItem", count: 0, components: [
-						{kind: "ListItem", content: "Package", icon: true}
+						{kind: "ListItem", content: "Package", icon: true, ontap: "packageTapped"}
 					]}
 				]},
 				{kind: "GrabberToolbar"},
 			]}
+		]},
+
+		//Package Display
+		{name: "PackageDisplayPanels",
+		kind: "Panels",
+		arrangerKind: "CardArranger",
+		draggable: false,
+		style: "width: 33.3%;",
+		components: [
+			{kind: "EmptyPanel"},
+			{kind: "FittableRows",
+			components: [
+				{kind: "onyx.Toolbar", components:[
+					{name: "PackageIcon", kind: "Image", style: "height: 100%; margin-right: 8px;", src: "icon.png"},
+					{name: "PackageTitle", style: "display: inline-block; position: absolute;", content: "Package"}
+				]},
+				{kind: "Scroller",
+				horizontal: "hidden",
+				classes: "enyo-fill",
+				touch: true,
+				fit: true,
+				ontap: "showPackage",
+				components:[
+					{style: "padding: 15px;", components: [
+						{kind: "onyx.Groupbox", components: [
+							{kind: "onyx.GroupboxHeader", content: "Description"},
+							{name: "PackageDescription",
+							style: "padding: 15px; color: white;",
+							allowHtml: true},
+
+							{kind: "onyx.GroupboxHeader", content: "Homepage"},
+							{name: "PackageHomepage",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "Maintainter"},
+							{name: "PackageMaintainer",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "Version"},
+							{name: "PackageVersion",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "Last Updated"},
+							{name: "PackageLastUpdated",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "Download Size"},
+							{name: "PackageDownloadSize",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "Installed Version"},
+							{name: "PackageInstalledVersion",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "Installed"},
+							{name: "PackageInstalledDate",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "Installed Size"},
+							{name: "PackageInstalledSize",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "ID"},
+							{name: "PackageID",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "License"},
+							{name: "PackageLicense",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "Type"},
+							{name: "PackageType",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "Category"},
+							{name: "PackageCategory",
+							style: "padding: 15px; color: white;"},
+
+							{kind: "onyx.GroupboxHeader", content: "Feed"},
+							{name: "PackageFeed",
+							style: "padding: 15px; color: white;"},
+						]},
+					]}
+				]},
+				{kind: "GrabberToolbar", components:[
+					{kind: "onyx.Button", content: "Install/Remove", disabled: true},
+					{kind: "onyx.Button", content: "Launch", disabled: true}
+				]},
+			]},
 		]},
 	],
 	//Handlers
@@ -223,6 +318,7 @@ enyo.kind({
 			this.$.CategoryPanels.addStyles("box-shadow: 0");
 			this.$.SubcategoryPanels.addStyles("box-shadow: 0");
 			this.$.PackagePanels.addStyles("box-shadow: 0");
+			this.$.PackageDisplayPanels.addStyles("box-shadow: 0");
 		}
 		else {
 			this.setArrangerKind("CollapsingArranger");
@@ -230,6 +326,7 @@ enyo.kind({
 			this.$.TypePanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
 			this.$.CategoryPanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
 			this.$.PackagePanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
+			this.$.PackageDisplayPanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
 		}
 	},
 	//Action Functions
@@ -241,7 +338,7 @@ enyo.kind({
 		this.$.TypePanels.setIndex(1);
 		this.setIndex(1);
 	},
-	showCategoryList: function(inSender) {
+	typeTapped: function(inSender) {
 		this.availableCategories = [];
 
 		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
@@ -257,7 +354,7 @@ enyo.kind({
 		this.$.CategoryPanels.setIndex(1);
 		this.setIndex(2);
 	},
-	showPackageList: function(inSender) {
+	categoryTapped: function(inSender) {
 		this.availablePackages = [];
 
 		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
@@ -273,8 +370,30 @@ enyo.kind({
 		this.$.PackagePanels.setIndex(1);
 		this.setIndex(3);
 	},
-	showPackage: function() {
-		//Stub for now
+	packageTapped: function(inSender) {
+		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
+			var package = preware.PackagesModel.packages[i];
+			if(package.title == inSender.$.ItemTitle.content) {
+				this.$.PackageDescription.setContent(package.description);
+				this.$.PackageHomepage.setContent(package.homepage);
+				this.$.PackageMaintainer.setContent(package.maintainer);
+				this.$.PackageVersion.setContent(package.version);
+				//this.$.PackageLastUpdated.setContent(package.version);
+				this.$.PackageDownloadSize.setContent(package.size);
+				//this.$.PackageInstalledVersion.setContent(package.version);
+				this.$.PackageInstalledDate.setContent(package.dateInstalled);
+				this.$.PackageInstalledSize.setContent(package.sizeInstalled);
+				//this.$.PackageID.setContent(package.name);
+				this.$.PackageLicense.setContent(package.license);
+				this.$.PackageType.setContent(package.type);
+				this.$.PackageCategory.setContent(package.category);
+				this.$.PackageFeed.setContent(package.feedString);
+				break;
+			}	
+		}
+
+		this.$.PackageDisplayPanels.setIndex(1);
+		this.setIndex(4);
 	},
 	//Unsorted Functions
 	versionTap: function(inSender, inEvent) {
