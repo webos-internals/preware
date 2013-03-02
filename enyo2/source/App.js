@@ -66,6 +66,9 @@ enyo.kind({
 	classes: "app-panels",
 	// required ipkgservice
 	ipkgServiceVersion: 14,
+	// filtered category/package lists
+	availableCategories: [],
+	availablePackages: [],
 	components:[
 		{kind: "Signals",
 		onPackagesStatusUpdate: "processStatusUpdate",
@@ -106,7 +109,7 @@ enyo.kind({
 				classes: "enyo-fill",
 				style: "background-image:url('assets/bg.png')",
 				touch: true,
-				ontap: "showCategoryList",
+				ontap: "showTypeList",
 				components:[
 					{kind: "ListItem", content: "Package Updates"},
 					{kind: "ListItem", content: "Available Packages"},
@@ -115,6 +118,32 @@ enyo.kind({
 				]},
 			]},
 			{kind: "onyx.Toolbar"}
+		]},
+		
+		//Types
+		{name: "TypePanels",
+		kind: "Panels",
+		arrangerKind: "CardArranger",
+		draggable: false,
+		style: "width: 33.3%;",
+		components: [
+			{kind: "EmptyPanel"},
+			{kind: "FittableRows",
+			components: [
+				{kind: "onyx.Toolbar"},
+				{kind: "Scroller",
+				horizontal: "hidden",
+				classes: "enyo-fill",
+				style: "background-image:url('assets/bg.png')",
+				touch: true,
+				fit: true,
+				components:[
+					{name: "TypeRepeater", kind: "Repeater", onSetupItem: "setupTypeItem", count: 0, components: [
+						{kind: "ListItem", content: "Type", ontap: "showCategoryList"}
+					]}
+				]},
+				{kind: "GrabberToolbar"},
+			]}
 		]},
 		
 		//Categories
@@ -134,34 +163,10 @@ enyo.kind({
 				style: "background-image:url('assets/bg.png')",
 				touch: true,
 				fit: true,
-				ontap: "showSubcatList",
 				components:[
-					{kind: "ListItem", content: "Categories"}
-				]},
-				{kind: "GrabberToolbar"},
-			]}
-		]},
-		
-		//Subcategories
-		{name: "SubcategoryPanels",
-		kind: "Panels",
-		arrangerKind: "CardArranger",
-		draggable: false,
-		style: "width: 33.3%;",
-		components: [
-			{kind: "EmptyPanel"},
-			{kind: "FittableRows",
-			components: [
-				{kind: "onyx.Toolbar"},
-				{kind: "Scroller",
-				horizontal: "hidden",
-				classes: "enyo-fill",
-				style: "background-image:url('assets/bg.png')",
-				touch: true,
-				fit: true,
-				ontap: "showPackageList",
-				components:[
-					{kind: "ListItem", content: "Subcategories"}
+					{name: "CategoryRepeater", kind: "Repeater", onSetupItem: "setupCategoryItem", count: 0, components: [
+						{kind: "ListItem", content: "Category", ontap: "showPackageList"}
+					]}
 				]},
 				{kind: "GrabberToolbar"},
 			]}
@@ -186,8 +191,8 @@ enyo.kind({
 				fit: true,
 				ontap: "showPackage",
 				components:[
-					{name: "CategoriesRepeater", kind: "Repeater", onSetupItem: "setupCategoryItem", count: 0, components: [
-						{kind: "ListItem", content: "Categories", icon: true}
+					{name: "PackageRepeater", kind: "Repeater", onSetupItem: "setupPackageItem", count: 0, components: [
+						{kind: "ListItem", content: "Package", icon: true}
 					]}
 				]},
 				{kind: "GrabberToolbar"},
@@ -222,8 +227,8 @@ enyo.kind({
 		else {
 			this.setArrangerKind("CollapsingArranger");
 			this.setDraggable(true);
+			this.$.TypePanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
 			this.$.CategoryPanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
-			this.$.SubcategoryPanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
 			this.$.PackagePanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
 		}
 	},
@@ -232,15 +237,39 @@ enyo.kind({
 		this.inherited(arguments);
 		this.$.SpinnerText.setContent(text);
 	},
-	showCategoryList: function() {
-		this.$.CategoryPanels.setIndex(1);
+	showTypeList: function() {
+		this.$.TypePanels.setIndex(1);
 		this.setIndex(1);
 	},
-	showSubcatList: function() {
-		this.$.SubcategoryPanels.setIndex(1);
+	showCategoryList: function(inSender) {
+		this.availableCategories = [];
+
+		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
+			var package = preware.PackagesModel.packages[i];
+			if(package.type == inSender.$.ItemTitle.content) {
+				if(this.availableCategories.indexOf(package.category) == -1) {
+					this.availableCategories.push(package.category);
+				}
+			}	
+		}
+
+		this.$.CategoryRepeater.setCount(this.availableCategories.length);
+		this.$.CategoryPanels.setIndex(1);
 		this.setIndex(2);
 	},
-	showPackageList: function() {
+	showPackageList: function(inSender) {
+		this.availablePackages = [];
+
+		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
+			var package = preware.PackagesModel.packages[i];
+			if(package.category == inSender.$.ItemTitle.content) {
+				if(this.availablePackages.indexOf(package.title) == -1) {
+					this.availablePackages.push(package.title);
+				}
+			}	
+		}
+
+		this.$.PackageRepeater.setCount(this.availablePackages.length);
 		this.$.PackagePanels.setIndex(1);
 		this.setIndex(3);
 	},
@@ -438,13 +467,23 @@ enyo.kind({
 			storedThis.$.ScrollerPanel.setIndex(1);
 		}, 500);
 
-		this.$.CategoriesRepeater.setCount(preware.PackagesModel.packages.length);
+		this.$.TypeRepeater.setCount(preware.PackagesModel.types.length);
+		this.$.CategoryRepeater.setCount(preware.PackagesModel.categories.length);
+		this.$.PackageRepeater.setCount(preware.PackagesModel.packages.length);
 	},
+	setupTypeItem: function(inSender, inEvent) {
+		inEvent.item.$.listItem.$.ItemTitle.setContent(preware.PackagesModel.types[inEvent.index]);	
+		return true;
+	},	
 	setupCategoryItem: function(inSender, inEvent) {
-		inEvent.item.$.listItem.$.ItemTitle.setContent(preware.PackagesModel.packages[inEvent.index].title);	
+		inEvent.item.$.listItem.$.ItemTitle.setContent(this.availableCategories[inEvent.index]);	
+		return true;
+	},
+	setupPackageItem: function(inSender, inEvent) {
+		inEvent.item.$.listItem.$.ItemTitle.setContent(this.availablePackages[inEvent.index]);	
 		//FIXME: This throws 'not allowed to load local resource' errors in the emulator
 		//	 How did the original Preware load icon images?
-		inEvent.item.$.listItem.$.ItemIcon.setSrc(preware.PackagesModel.packages[inEvent.index].icon);
+		//inEvent.item.$.listItem.$.ItemIcon.setSrc(preware.PackagesModel.packages[inEvent.index].icon);
 		return true;
 	}
 });
