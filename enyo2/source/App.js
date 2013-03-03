@@ -37,7 +37,7 @@ enyo.kind({
 		onmouseup: "released"
 	},
 	components:[
-		{name: "ItemIcon", kind: "Image", style: "display: none; height: 100%; margin-right: 8px;", src: "icon.png"},
+		{name: "ItemIcon", kind: "Image", style: "display: none; height: 100%; margin-right: 8px;"},
 		{name: "ItemTitle", style: "display: inline-block; position: absolute; margin-top: 6px;"}
 	],
 	create:	function() {
@@ -67,8 +67,11 @@ enyo.kind({
 	// required ipkgservice
 	ipkgServiceVersion: 14,
 	// filtered category/package lists
+	currentType: "",
 	availableCategories: [],
+	currentCategory: "",
 	availablePackages: [],
+	currentPackage: {},
 	components:[
 		{kind: "Signals",
 		onPackagesStatusUpdate: "processStatusUpdate",
@@ -216,7 +219,7 @@ enyo.kind({
 			{kind: "FittableRows",
 			components: [
 				{kind: "onyx.Toolbar", components:[
-					{name: "PackageIcon", kind: "Image", style: "height: 100%; margin-right: 8px;", src: "icon.png"},
+					{name: "PackageIcon", kind: "Image", style: "height: 100%; margin-right: 8px;"},
 					{name: "PackageTitle", style: "display: inline-block; position: absolute;", content: "Package"}
 				]},
 				{kind: "Scroller",
@@ -288,8 +291,10 @@ enyo.kind({
 					]}
 				]},
 				{kind: "GrabberToolbar", components:[
-					{kind: "onyx.Button", content: "Install/Remove", disabled: true},
-					{kind: "onyx.Button", content: "Launch", disabled: true}
+					{name: "InstallButton", kind: "onyx.Button", content: "Install", ontap: "installTapped"},
+					{name: "UpdateButton", kind: "onyx.Button", content: "Update", ontap: "updateTapped"},
+					{name: "RemoveButton", kind: "onyx.Button", content: "Remove", ontap: "removeTapped"},
+					{name: "LaunchButton", kind: "onyx.Button", content: "Launch", ontap: "launchTapped"}
 				]},
 			]},
 		]},
@@ -339,6 +344,7 @@ enyo.kind({
 		this.setIndex(1);
 	},
 	typeTapped: function(inSender) {
+		this.currentType = inSender.$.ItemTitle.content;
 		this.availableCategories = [];
 
 		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
@@ -355,13 +361,14 @@ enyo.kind({
 		this.setIndex(2);
 	},
 	categoryTapped: function(inSender) {
+		this.currentCategory = inSender.$.ItemTitle.content;
 		this.availablePackages = [];
 
 		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
 			var package = preware.PackagesModel.packages[i];
-			if(package.category == inSender.$.ItemTitle.content) {
-				if(this.availablePackages.indexOf(package.title) == -1) {
-					this.availablePackages.push(package.title);
+			if(package.type == this.currentType && package.category == this.currentCategory) {
+				if(this.availablePackages.indexOf(package) == -1) {
+					this.availablePackages.push(package);
 				}
 			}	
 		}
@@ -374,26 +381,48 @@ enyo.kind({
 		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
 			var package = preware.PackagesModel.packages[i];
 			if(package.title == inSender.$.ItemTitle.content) {
+				this.currentPackage = package;
+
+				this.$.PackageTitle.setContent(package.title);
+				this.$.PackageIcon.setSrc(package.icon);
 				this.$.PackageDescription.setContent(package.description);
 				this.$.PackageHomepage.setContent(package.homepage);
 				this.$.PackageMaintainer.setContent(package.maintainer);
 				this.$.PackageVersion.setContent(package.version);
-				//this.$.PackageLastUpdated.setContent(package.version);
+				this.$.PackageLastUpdated.setContent(package.date);
 				this.$.PackageDownloadSize.setContent(package.size);
-				//this.$.PackageInstalledVersion.setContent(package.version);
+				this.$.PackageInstalledVersion.setContent(package.versionInstalled);
 				this.$.PackageInstalledDate.setContent(package.dateInstalled);
 				this.$.PackageInstalledSize.setContent(package.sizeInstalled);
-				//this.$.PackageID.setContent(package.name);
+				this.$.PackageID.setContent(package.pkg);
 				this.$.PackageLicense.setContent(package.license);
 				this.$.PackageType.setContent(package.type);
 				this.$.PackageCategory.setContent(package.category);
 				this.$.PackageFeed.setContent(package.feedString);
+
+				this.$.InstallButton.setDisabled(package.isInstalled);
+				this.$.UpdateButton.setDisabled(!package.isInstalled || !package.hasUpdate);
+				this.$.RemoveButton.setDisabled(!package.isInstalled);
+				this.$.LaunchButton.setDisabled(!package.isInstalled);
+
 				break;
 			}	
 		}
 
 		this.$.PackageDisplayPanels.setIndex(1);
 		this.setIndex(4);
+	},
+	launchTapped: function() {
+		this.currentPackage.launch();
+	},
+	installTapped: function() {
+		this.currentPackage.doInstall(true);
+	},
+	updateTapped: function() {
+		this.currentPackage.doUpdate(true);
+	},
+	removeTapped: function() {
+		this.currentPackage.doRemove(true);
 	},
 	//Unsorted Functions
 	versionTap: function(inSender, inEvent) {
@@ -599,10 +628,14 @@ enyo.kind({
 		return true;
 	},
 	setupPackageItem: function(inSender, inEvent) {
-		inEvent.item.$.listItem.$.ItemTitle.setContent(this.availablePackages[inEvent.index]);	
-		//FIXME: This throws 'not allowed to load local resource' errors in the emulator
-		//	 How did the original Preware load icon images?
-		//inEvent.item.$.listItem.$.ItemIcon.setSrc(preware.PackagesModel.packages[inEvent.index].icon);
+		var package = this.availablePackages[inEvent.index];
+		if(package && package.title) {
+			enyo.log(package.title);
+			inEvent.item.$.listItem.$.ItemTitle.setContent(package.title);
+			//FIXME: This throws 'not allowed to load local resource' errors, how did Mojo get around it?
+			inEvent.item.$.listItem.$.ItemIcon.setSrc(package.icon);	
+		}
+
 		return true;
 	}
 });

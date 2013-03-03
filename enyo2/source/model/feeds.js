@@ -86,6 +86,7 @@ enyo.singleton({
 				});
 				
 				//send out feeds as event.
+				enyo.log("Loading finished, feeds: " + JSON.stringify(this.feeds));
 				this.doLoadFeedsFinished({feeds: this.feeds, success: true});
 			} //end of no error-case
 		} catch (e) {

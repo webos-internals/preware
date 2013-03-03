@@ -859,14 +859,14 @@ enyo.kind({
 
 	/* ------- below are for package actions -------- */
 	launch: function() {
+		enyo.log("Installed? " + this.isInstalled + " Type: " + this.type);
 		if (this.isInstalled && this.type === 'Application') {
-			navigator.Service.Request('palm://com.palm.applicationManager', 
-				{
+			enyo.log("Launching " + this.pkg);
+			var request = navigator.service.Request("palm://com.palm.applicationManager/",
+			{
 				method: 'launch',
-				parameters: 
-				{
-					id: this.pkg
-				}
+				parameters: {id: this.pkg},
+				//onSuccess: enyo.bind(this, "handleGetPreferencesResponse")
 			});
 		}
 	},
@@ -880,7 +880,7 @@ enyo.kind({
 				}
 			});
 	},
-	doInstall: function(multi, skipDeps) {
+	doInstall: function(skipDeps, multi) {
 		try {
 			
 			// check dependencies and do multi-install
@@ -912,7 +912,7 @@ enyo.kind({
 			enyo.error('packageModel#doInstall', e);
 		}
 	},
-	doUpdate: function(multi, skipDeps)	{
+	doUpdate: function(skipDeps, multi)	{
 		try {
 		
 			// check dependencies and do multi-install
@@ -978,7 +978,7 @@ enyo.kind({
 		}
 	},
 	
-	onInstall: function(multi, payload) {
+	onInstall: function(payload, multi) {
 		try {
 			// log payload for display
 			preware.IPKGService.logPayload(payload);
@@ -1010,13 +1010,12 @@ enyo.kind({
 						return;
 					}	else {
 						if (this.hasFlags('install')) { //TODO!
-							eyno.error("assistant.actionMessage not yet replaced.");
-						  //TODO: how to replace that?
-							//this.assistant.actionMessage(
-							//	msg + ':<br /><br />' + this.actionMessage('install'),
-							//	[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
-							//	this.actionFunction.bindAsEventListener(this, 'install')
-							//);
+							enyo.error("assistant.actionMessage not yet replaced, logging instead");
+							enyo.log(
+								msg + ':<br /><br />' + this.actionMessage('install'),
+								[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
+								this.actionFunction.bindAsEventListener(this, 'install')
+							);
 							return;
 						}	else {
 							// we run this anyways to get the rescan
@@ -1045,15 +1044,15 @@ enyo.kind({
 			}
 			
 			if (msgError) {
-				eyno.error("assistant.actionMessage not yet replaced.");
-				//TODO: this.assistant.actionMessage(
-				//	msg,
-				//	[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
-				//	this.errorLogFunction.bindAsEventListener(this)
-				//);
+				enyo.error("assistant.actionMessage not yet replaced, logging instead");
+				enyo.log(
+					msg,
+					[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
+					this.errorLogFunction.bindAsEventListener(this)
+				);
 			} else {
-				eyno.error("assistant.simpleMessage not yet replaced.");
-				//TODO: this.assistant.simpleMessage(msg);
+				enyo.error("assistant.simpleMessage not yet replaced, logging instead");
+				enyo.log(msg);
 			}
 			
 			//TODO:
@@ -1063,7 +1062,7 @@ enyo.kind({
 			enyo.error('packageModel#onInstall', e);
 		}
 	},
-	onUpdate: function(payload, multi)	{
+	onUpdate: function(multi, payload) {
 		try {
 			// log payload for display
 			preware.IPKGService.logPayload(payload);
@@ -1095,12 +1094,12 @@ enyo.kind({
 						return;
 					}	else {
 						if (this.hasFlags('update')) {
-							enyo.error("assistant.actionMessage not yet replaced.");
-							//TODO: this.assistant.actionMessage(
-							//	msg + ':<br /><br />' + this.actionMessage('update'),
-							//	[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
-							//	this.actionFunction.bindAsEventListener(this, 'update')
-							//);
+							enyo.error("assistant.actionMessage not yet replaced, logging instead");
+							enyo.log(
+								msg + ':<br /><br />' + this.actionMessage('update'),
+								[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
+								this.actionFunction.bindAsEventListener(this, 'update')
+							);
 							return;
 						}	else {
 							// we run this anyways to get the rescan
@@ -1130,15 +1129,15 @@ enyo.kind({
 			}
 			
 			if (msgError) {
-				enyo.error("assistant.actionMessage not yet replaced.");
-				//TODO: this.assistant.actionMessage(
-				//	msg,
-				//	[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
-				//	this.errorLogFunction.bindAsEventListener(this)
-				//);
+				enyo.error("assistant.actionMessage not yet replaced, logging instead");
+				enyo.log(
+					msg,
+					[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
+					this.errorLogFunction.bindAsEventListener(this)
+				);
 			} else {
-				enyo.error("assistant.simpleMessage not yet replaced.");
-				//TODO: this.assistant.simpleMessage(msg);
+				enyo.error("assistant.simpleMessage not yet replaced, logging instead");
+				enyo.log(msg);
 			}
 			
 			//TODO: this.assistant.endAction();
@@ -1147,8 +1146,139 @@ enyo.kind({
 			enyo.error('packageModel#onUpdate', e);
 		}
 	},
-	
-	
-	
-	//TODO: implement onInstall & onUpdate & onRemove! Remember to shift params.
+	onRemove: function(payload) {
+		try 
+		{
+			// log payload for display
+			preware.IPKGService.logPayload(payload);
+		
+			if (!payload) 
+			{
+				var msg = $L("Error Removing: Communication Error");
+				var msgError = true;
+			}
+			else
+			{
+				if (!payload.returnValue)
+				{
+					var msg = $L("Error Removing: No Further Information");
+					var msgError = true;
+				}
+				if (payload.stage == "failed")
+				{
+					var msg = $L("Error Removing: See IPKG Log");
+					var msgError = true;
+				}
+				else if (payload.stage == "status")
+				{
+					enyo.error("assistant.displayAction not yet replaced, logging instead");
+					enyo.log($L("Removing<br />") + payload.status);
+					return;
+				}
+				else if (payload.stage == "completed")
+				{
+					// update info
+					this.hasUpdate = false;
+					this.isInstalled = false;
+				
+					// cancel the subscription
+					//this.subscription.cancel();
+				
+					// message
+					var msg = this.type + $L(" removed");
+				
+					// do finishing stuff
+					if (this.hasFlags('remove')) 
+					{
+						//TODO: Hook into UI
+						enyo.error("assistant.actionMessage not yet replaced, logging instead");
+						enyo.log(
+							msg + ':<br /><br />' + this.actionMessage('remove'),
+							[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
+							this.actionFunction.bindAsEventListener(this, 'remove')
+						);
+						return;
+					}
+					else
+					{
+						// we run this anyways to get the rescan
+						this.runFlags('remove');
+					}
+				}
+				// we keep this around for services without flags that have a javarestart in their scripts
+				// of course, it might get here on accident, but thats a risk we'll have to take for now
+				else if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
+				{
+					// update info
+					//this.hasUpdate = false;
+					//this.isInstalled = false;
+				
+					// cancel the subscription
+					//this.subscription.cancel();
+				
+					// message
+					var msg = this.type + $L(" removal probably failed");
+					var msgError = true;
+				}
+				else return;
+			}
+		
+			if (msgError)
+			{
+				enyo.error("assistant.actionMessage not yet replaced, logging instead");
+				enyo.log(
+					msg,
+					[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
+					this.actionFunction.bindAsEventListener(this, 'remove')
+				);
+			}
+			else
+			{
+				enyo.error("assistant.simpleMessage not yet replaced, logging instead");
+				enyo.log(msg);
+			}
+		
+			//this.assistant.endAction();
+		}
+		catch (e) 
+		{
+			enyo.error(e, 'packageModel#onRemove');
+		}
+	},
+
+	hasFlags: function(type)
+	{
+		if (this.flags[type].RestartLuna || this.flags[type].RestartJava || this.flags[type].RestartDevice) 
+		{
+			return true;
+		}
+		return false;
+	},
+	runFlags: function(type)
+	{
+		try 
+		{
+			if ((this.flags[type].RestartJava && this.flags[type].RestartLuna) || this.flags[type].RestartDevice) 
+			{
+				this.subscription = IPKGService.restartdevice(function(){});
+			}
+			if (this.flags[type].RestartJava) 
+			{
+				this.subscription = IPKGService.restartjava(function(){});
+			}
+			if (this.flags[type].RestartLuna) 
+			{
+				this.subscription = IPKGService.restartluna(function(){});
+			}
+			// this is always ran...
+			if (!preware.PrefCookie.get().avoidBugs && type != 'remove')
+			{
+				this.subscription = IPKGService.rescan(function(){});
+			}
+		}
+		catch (e) 
+		{
+			enyo.error(e, 'packageModel#runFlags');
+		}
+	},
 });
