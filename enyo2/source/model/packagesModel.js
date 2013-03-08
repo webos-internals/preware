@@ -60,7 +60,7 @@ enyo.singleton({
 		if (obj.error === true) {
 			msg = "ERROR: ";
 		}
-		if (obj.msg != undefined) {
+		if (obj.msg !== undefined) {
 			msg += obj.msg;
 		}
 		if (obj.progress === true) {
@@ -281,19 +281,26 @@ enyo.singleton({
 		}
 
 		// load the package from the info
-		newPkg = new preware.PackageModel(infoObj);
+		//device.version looks like 3.0.5 SDK, cut away part after the space.
+		if (!this.deviceVersion) {
+			if (device.version.indexOf(" ") >= 0) {
+				this.deviceVersion = device.version.substring(0, device.version.indexOf(" "));
+		  } else {
+				this.deviceVersion = device.version;
+			}
+		}
+		//enyo.error("device.version: " + this.deviceVersion);
 		
-		//TODO: how to get the installed OS version?? :(
-		//I think device.version should replace Mojo.Environment.DeviceInfo.platformVersion, because we are using cordova now.
-		if (device && device.version && device.version.match(/^[0-9:.\-]+$/)) {
+		newPkg = new preware.PackageModel(infoObj);
+		if (this.deviceVersion && this.deviceVersion.match(/^[0-9:.\-]+$/)) {
 			// Filter out apps with a minimum webos version that is greater then current
-			if (this.versionNewer(device.version, newPkg.minWebOSVersion)) {
+			if (this.versionNewer(this.deviceVersion, newPkg.minWebOSVersion)) {
 				//alert('+ 2');
 				return;
 			}
 			
 			// Filter out apps with a maximum webos version that is less then current
-			if (this.versionNewer(newPkg.maxWebOSVersion, device.version)) {
+			if (this.versionNewer(newPkg.maxWebOSVersion, this.deviceVersion)) {
 				//alert('+ 3');
 				return;
 			}
@@ -303,16 +310,18 @@ enyo.singleton({
 		
 		//TODO: replaced Mojo.Environment.DeviceInfo.modelNameAscii with device.name. Test!
 		// Filter out apps with a specified devices that dont match the current
+		//enyo.error("DeviceName: " + device.name);
 		if (!preware.PrefCookie.get().ignoreDevices && newPkg.devices && newPkg.devices.length > 0 &&
 			!newPkg.devices.include(device.name)) {
 			//alert('+ 4');
+			//enyo.error("Ignoring package because of wrong device name...");
 			return;
 		}
 		
 		// Filter out paid apps if desired
 		if ((preware.PrefCookie.get().onlyShowFree) && (newPkg.price !== undefined) &&
 				(newPkg.price !== "0") && (newPkg.price !== "0.00")) {
-			//alert('+ 5');
+			//enyo.error("Ignoring package because of price tag...");
 			return;
 		}
 
@@ -320,6 +329,7 @@ enyo.singleton({
 		if ((preware.PrefCookie.get().onlyShowEnglish) &&
 			newPkg.languages && newPkg.languages.length &&
 			!newPkg.inLanguage("en")) {
+			//enyo.error("Ignoring package because of wrong language.");
 			//alert('+ 6');
 			return;
 		}
@@ -338,12 +348,12 @@ enyo.singleton({
 			
 			// save to temp reverse lookup list
 			this.packagesReversed[newPkg.pkg] = this.packages.length;
-
+			
 			return newPkg;
 		} else {
 			// run package update function of the old package with the new package
 			pkgUpd = this.packages[pkgNum].infoUpdate(newPkg);
-			if (pkgUpd !== false) {
+			if (pkgUpd) {
 				// if the new package is to replace the old one, do it
 				this.packages[pkgNum] = pkgUpd;
 				return pkgUpd;
@@ -354,7 +364,7 @@ enyo.singleton({
 	},
 	
 	//called from loadFeeds => infoResponse, i.e. connected to loading packages.
-	fixUnknown: function() {		
+	fixUnknown: function() {	
 		this.unknownCount = 0;
 		this.unknownFixed = 0;
 		this.unknown = [];

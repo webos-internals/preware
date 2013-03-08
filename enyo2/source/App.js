@@ -336,7 +336,8 @@ enyo.kind({
 	},
 	//Action Functions
 	log: function(text) {
-		this.inherited(arguments);
+		//this.inherited(arguments);
+		console.error(text);
 		this.$.SpinnerText.setContent(text);
 	},
 	showTypeList: function() {
@@ -555,7 +556,7 @@ enyo.kind({
 												 this.feeds[num].gzipped, this.feeds[num].name, this.feeds[num].url);
 	},
 	downloadFeedResponse: function(num, payload) {
-		if ((payload.returnValue === false) || (payload.stage === "failed")) {
+		if (!payload.returnValue || payload.stage === "failed") {
 			this.log(payload.errorText + '<br>' + payload.stdErr.join("<br>"));
 		} else if (payload.stage === "status") {
 			this.processStatusUpdate(this, {message: $L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name + "<br><br>" + payload.status});
@@ -580,7 +581,7 @@ enyo.kind({
 		this.processStatusUpdate(this, {message: $L("<strong>Loading Package Information</strong><br>")});
 		preware.FeedsModel.loadFeeds(this.parseFeeds.bind(this));
 	},
-	parseFeeds: function(feeds) {
+	parseFeeds: function(inSender, feeds) {
 		preware.PackagesModel.loadFeeds(feeds, this.onlyLoad); //TODO: how did old preware set/unset onlyload?
 	},
 	processStatusUpdate: function(inSender, inEvent) {
