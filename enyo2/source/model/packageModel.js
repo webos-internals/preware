@@ -15,7 +15,7 @@ enyo.kind({
 	//																 progress: true/false => show progress meter true/false
 	//																 progValue: [1-100]		=> progress value
 	//																 error: true/false		=> true if an error occured.
-	//														 }
+	// }
 	
 	doDisplayStatus: function(obj) {
 		var msg = "";
@@ -27,7 +27,8 @@ enyo.kind({
 			msg += " - Progress: " + obj.progValue;
 		}
 		console.error("STATUS UPDATE: " + msg);
-		enyo.Signals.send("onPackagesStatusUpdate", obj);
+		//TODO: Hook this up, commented out for now to avoid cluttering the log with 'undefined'
+		//enyo.Signals.send("onPackagesStatusUpdate", obj);
 	},
 		
 	// initialize function which loads all the data from the info object
@@ -97,7 +98,7 @@ enyo.kind({
 	infoUpdate: function(newPackage) {
 		try {
 			// check if its newer
-			var newer = preware.Packages.versionNewer(this.version, newPackage.version);
+			var newer = preware.PackagesModel.versionNewer(this.version, newPackage.version);
 			
 			if (!newPackage.isInstalled && !this.isInstalled && newer) {
 				// Package in multiple feeds, with different versions
@@ -882,7 +883,6 @@ enyo.kind({
 	},
 	doInstall: function(skipDeps, multi) {
 		try {
-			
 			// check dependencies and do multi-install
 			if (!skipDeps) {
 				this.doDisplayStatus({msg: $L("Checking Dependencies")});
@@ -902,9 +902,6 @@ enyo.kind({
 			} else {
 				this.doDisplayStatus({msg: $L("Downloading / Installing")});
 				
-				//TODO: what is that: this.assistant.startAction();
-				enyo.error("this.assistant.startAction() not yet replaced.");
-				
 				// call install service
 				preware.IPKGService.install(this.onInstall.bind(this), this.filename, this.location.replace(/ /g, "%20"));
 			}
@@ -914,7 +911,6 @@ enyo.kind({
 	},
 	doUpdate: function(skipDeps, multi)	{
 		try {
-		
 			// check dependencies and do multi-install
 			if (!skipDeps) {
 				this.doDisplayStatus({msg: $L("Checking Dependencies")});
@@ -938,10 +934,6 @@ enyo.kind({
 			}	else {
 				this.doDisplayStatus({msg: $L("Downloading / Updating")});
 
-				//TODO: replace!! :(
-				//this.assistant.startAction();
-				enyo.error("this.assistant.startAction() not yet replaced.");
-			
 				if (packages.can(this.type, 'updateAsReplace')) {
 					preware.IPKGService.replace(this.onUpdate.bind(this), this.pkg, this.filename, this.location.replace(/ /g, "%20"));
 					this.doDisplayStatus({msg: $L("Downloading / Replacing")});
@@ -967,9 +959,6 @@ enyo.kind({
 			
 			// start action
 			this.doDisplayStatus({msg: $L("Removing")});
-			//TODO: replace this with something..
-			//this.assistant.startAction();
-			enyo.error("this.assistant.startAction() not yet replaced.");
 			
 			// call remove service
 			preware.IPKGService.remove(this.onRemove.bind(this), this.pkg);
@@ -1054,10 +1043,6 @@ enyo.kind({
 				enyo.error("assistant.simpleMessage not yet replaced, logging instead");
 				enyo.log(msg);
 			}
-			
-			//TODO:
-			//this.assistant.endAction();
-			enyo.error("assistant.endAction not yet replaced");
 		} catch (e) {
 			enyo.error('packageModel#onInstall', e);
 		}
@@ -1281,4 +1266,46 @@ enyo.kind({
 			enyo.error(e, 'packageModel#runFlags');
 		}
 	},
+	errorLogFunction: function(value)
+	{
+		if (value == 'view-log')
+		{
+			enyo.log("pushScene not yet replaced, open IPKG Log here");
+			//this.assistant.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
+		}
+		return;
+	},
+	actionFunction: function(value, type)
+	{
+		if (value == 'ok') 
+		{
+			this.runFlags(type);
+		}
+		else
+		{
+			// we should still rescan...
+			if (!prefs.get().avoidBugs && type != 'remove') 
+			{
+				this.subscription = IPKGService.rescan(function(){});
+			}
+		}
+		return;
+	},
+	actionMessage: function(type)
+	{
+		var msg = '';
+		if (this.flags[type].RestartJava) 
+		{
+			msg += $L("<b>Java Restart Is Required</b><br /><i>Once you press Ok your device will lose network connection and be unresponsive until it is done restarting.</i><br />");
+		}
+		if (this.flags[type].RestartLuna) 
+		{
+			msg += $L("<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />");
+		}
+		if ((this.flags[type].RestartJava && this.flags[type].RestartLuna) || this.flags[type].RestartDevice) 
+		{
+			msg = $L("<b>Device Restart Is Required</b><br /><i>You will need to restart your device to be able to use the package that you just installed.</i><br />");
+		}
+		return msg;
+	}
 });

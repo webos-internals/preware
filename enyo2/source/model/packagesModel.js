@@ -308,13 +308,11 @@ enyo.singleton({
 			enyo.error("Could not get OS version, so packges did not get filtered.");
 		}
 		
-		//TODO: replaced Mojo.Environment.DeviceInfo.modelNameAscii with device.name. Test!
-		// Filter out apps with a specified devices that dont match the current
-		//enyo.error("DeviceName: " + device.name);
+		// Filter out apps that don't match the host device
 		if (!preware.PrefCookie.get().ignoreDevices && newPkg.devices && newPkg.devices.length > 0 &&
-			!newPkg.devices.include(device.name)) {
+			newPkg.devices.indexOf(device.name) == -1) {
 			//alert('+ 4');
-			//enyo.error("Ignoring package because of wrong device name...");
+			enyo.error("Ignoring package because of wrong device name...");
 			return;
 		}
 		
