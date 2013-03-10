@@ -1,0 +1,190 @@
+#!/bin/sh                                                                                       
+
+PID="org.webosinternals.preware"
+SID="org.webosinternals.ipkgservice"
+
+# Handle execution as pmPostInstall.script
+if [ -z "$IPKG_OFFLINE_ROOT" ]; then
+  IPKG_OFFLINE_ROOT=/media/cryptofs/apps
+  mount -o remount,rw /
+fi
+
+APPS=/media/cryptofs/apps
+
+[ -d $APPS ] || { echo "Requires webOS 1.3.5 or later" ; exit 1 ; }
+
+VERSION=`grep PRODUCT_VERSION_STRING /etc/palm-build-info | sed -e 's/.* webOS \([0-9.]*\).*/\1/'`
+
+# Remove the obsolete Package Manager Service
+if [ -f $APPS/usr/lib/ipkg/info/org.webosinternals.ipkgservice.prerm ] ; then
+  IPKG_OFFLINE_ROOT=$APPS sh $APPS/usr/lib/ipkg/info/org.webosinternals.ipkgservice.prerm || true
+fi
+/usr/bin/ipkg -o $APPS -force-depends remove org.webosinternals.ipkgservice || true
+
+# Remove the ipkgservice executable
+rm -f /var/usr/sbin/${SID}
+
+# Remove the dbus service
+rm -f /usr/share/dbus-1/system-services/${SID}.service /var/palm/system-services/${SID}.service
+
+# Remove the ls2 roles
+rm -f /usr/share/ls2/roles/prv/${SID}.json /var/palm/ls2/roles/prv/${SID}.json
+rm -f /usr/share/ls2/roles/pub/${SID}.json /var/palm/ls2/roles/pub/${SID}.json
+
+# Stop the service if running
+/sbin/stop ${SID} || true
+/usr/bin/killall -9 ${SID} || true
+
+# Remove the upstart script
+rm -f /etc/event.d/${SID} /var/palm/event.d/${SID}
+
+# Install the ipkgservice executable
+mkdir -p /var/usr/sbin/
+install -m 755 $APPS/usr/palm/applications/${PID}/bin/${SID} /var/usr/sbin/${SID}
+
+# Install the dbus service
+mkdir -p /var/palm/system-services
+cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.service /var/palm/system-services/${SID}.service
+
+# Install the ls2 roles
+mkdir -p /var/palm/ls2/roles/prv /var/palm/ls2/roles/pub
+cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /var/palm/ls2/roles/prv/${SID}.json
+cp $APPS/usr/palm/applications/${PID}/dbus/${SID}.json /var/palm/ls2/roles/pub/${SID}.json
+/usr/bin/ls-control scan-services || true
+
+# Install the upstart script
+mkdir -p /var/palm/event.d
+cp $APPS/usr/palm/applications/${PID}/upstart/${SID} /var/palm/event.d/${SID}
+
+# Start the service
+/sbin/start ${SID}
+
+# Create the ipkg config and database areas
+mkdir -p $APPS/etc/ipkg $APPS/usr/lib/ipkg/cache
+
+# Remove all list database cache files
+rm -f $APPS/usr/lib/ipkg/lists/*
+
+# Set up the architecture configuration file
+rm -f $APPS/etc/ipkg/arch.conf
+cp /etc/ipkg/arch.conf $APPS/etc/ipkg/arch.conf
+
+# Install optware feeds
+echo "src/gz optware http://ipkg.preware.org/feeds/optware/all" > $APPS/etc/ipkg/optware.conf
+echo "src/gz optware-`/bin/uname -m` http://ipkg.preware.org/feeds/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/optware.conf
+sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/optware.conf
+sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/optware.conf
+
+# Install precentral feeds
+echo "src/gz precentral http://ipkg.preware.org/feeds/precentral" > $APPS/etc/ipkg/precentral.conf
+echo "src/gz precentral-themes http://ipkg.preware.org/feeds/precentral-themes" > $APPS/etc/ipkg/precentral-themes.conf.new
+
+# Install prethemer feed
+echo "src/gz prethemer http://www.prethemer.com/feeds/preware/themes" > $APPS/etc/ipkg/prethemer.conf.new
+
+# Install clock-themes feed
+echo "src/gz clock-themes http://webos-clock-themer.googlecode.com/svn/trunk/WebOS%20Clock%20Theme%20Builder/feed" > $APPS/etc/ipkg/clock-themes.conf.new
+
+# Install webosinternals feeds
+echo "src/gz webosinternals http://ipkg.preware.org/feeds/webos-internals/all" > $APPS/etc/ipkg/webos-internals.conf
+echo "src/gz webosinternals-`/bin/uname -m` http://ipkg.preware.org/feeds/webos-internals/`/bin/uname -m`" >> $APPS/etc/ipkg/webos-internals.conf
+sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/webos-internals.conf
+sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/webos-internals.conf
+
+# Install webos-patches feed
+echo "src/gz webos-patches http://ipkg.preware.org/feeds/webos-patches/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-patches.conf
+
+# Install webos-kernels feed
+echo "src/gz webos-kernels http://ipkg.preware.org/feeds/webos-kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/webos-kernels.conf
+
+# Install woce feed
+echo "src/gz woce http://ipkg.preware.org/feeds/woce" > $APPS/etc/ipkg/woce.conf
+
+# Install the alpha testing feeds (disabled by default)
+
+if [ -f /var/preferences/org.webosinternals.preware/enable-alpha-feeds ] ; then
+
+  # Install alpha optware feeds
+  echo "src/gz alpha-optware http://ipkg.preware.org/alpha/optware/all" > $APPS/etc/ipkg/alpha-optware.conf.new
+  echo "src/gz alpha-optware-`/bin/uname -m` http://ipkg.preware.org/alpha/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/alpha-optware.conf.new
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/alpha-optware.conf.new
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/alpha-optware.conf.new
+
+  # Install alpha apps feeds
+  echo "src/gz alpha-apps http://ipkg.preware.org/alpha/apps/all" > $APPS/etc/ipkg/alpha-apps.conf.new
+  echo "src/gz alpha-apps-`/bin/uname -m` http://ipkg.preware.org/alpha/apps/`/bin/uname -m`" >> $APPS/etc/ipkg/alpha-apps.conf.new
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/alpha-apps.conf.new
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/alpha-apps.conf.new
+
+  # Install alpha patches feed
+  echo "src/gz alpha-patches http://ipkg.preware.org/alpha/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-patches.conf.new
+
+  # Install alpha kernels feed
+  echo "src/gz alpha-kernels http://ipkg.preware.org/alpha/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/alpha-kernels.conf.new
+
+  # Install alpha woce feed
+  echo "src/gz alpha-woce http://ipkg.preware.org/alpha/woce" > $APPS/etc/ipkg/alpha-woce.conf.new
+
+  # Remove the obsolete testing feeds
+  rm -f $APPS/etc/ipkg/webos-testing*.conf*
+  rm -f $APPS/etc/ipkg/optware-testing*.conf*
+  rm -f $APPS/etc/ipkg/webos-*-testing*.conf*
+
+fi
+
+# Install the beta testing feeds (disabled by default)
+
+if [ -f /var/preferences/org.webosinternals.preware/enable-beta-feeds ] ; then
+
+  # Install beta optware feeds
+  echo "src/gz beta-optware http://ipkg.preware.org/beta/optware/all" > $APPS/etc/ipkg/beta-optware.conf.new
+  echo "src/gz beta-optware-`/bin/uname -m` http://ipkg.preware.org/beta/optware/`/bin/uname -m`" >> $APPS/etc/ipkg/beta-optware.conf.new
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/beta-optware.conf.new
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/beta-optware.conf.new
+
+  # Install beta apps feeds
+  echo "src/gz beta-apps http://ipkg.preware.org/beta/apps/all" > $APPS/etc/ipkg/beta-apps.conf.new
+  echo "src/gz beta-apps-`/bin/uname -m` http://ipkg.preware.org/beta/apps/`/bin/uname -m`" >> $APPS/etc/ipkg/beta-apps.conf.new
+  sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/beta-apps.conf.new
+  sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/beta-apps.conf.new
+
+  # Install beta patches feed
+  echo "src/gz beta-patches http://ipkg.preware.org/beta/patches/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-patches.conf.new
+
+  # Install beta kernels feed
+  echo "src/gz beta-kernels http://ipkg.preware.org/beta/kernels/${VERSION:-unknown}" > $APPS/etc/ipkg/beta-kernels.conf.new
+
+  # Install beta woce feed
+  echo "src/gz beta-woce http://ipkg.preware.org/beta/woce" > $APPS/etc/ipkg/beta-woce.conf.new
+
+  # Remove the old testing feeds
+  rm -f $APPS/etc/ipkg/webos-testing*.conf*
+  rm -f $APPS/etc/ipkg/optware-testing*.conf*
+  rm -f $APPS/etc/ipkg/webos-*-testing*.conf*
+
+fi
+
+# Retain disabled status of existing feeds
+if [ "`ls $APPS/etc/ipkg/*.disabled`" ] ; then
+  for f in $APPS/etc/ipkg/*.disabled ; do
+    if [ -f $APPS/etc/ipkg/`basename $f .disabled` ] ; then
+      rm -f $f
+      mv $APPS/etc/ipkg/`basename $f .disabled` $f
+    fi
+  done
+fi
+
+# Assert disabled status of new feeds
+if [ "`ls $APPS/etc/ipkg/*.new`" ] ; then
+  for f in $APPS/etc/ipkg/*.new ; do
+    if [ -f $APPS/etc/ipkg/`basename $f .new` ] ; then
+      rm -f $APPS/etc/ipkg/`basename $f .new`
+      mv $f $APPS/etc/ipkg/`basename $f .new`
+    else
+      rm -f $APPS/etc/ipkg/`basename $f .new`.disabled
+      mv $f $APPS/etc/ipkg/`basename $f .new`.disabled
+    fi
+  done
+fi
+
+exit 0

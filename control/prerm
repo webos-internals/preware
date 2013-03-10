@@ -1,0 +1,43 @@
+#!/bin/sh
+
+PID="org.webosinternals.preware"
+SID="org.webosinternals.ipkgservice"
+
+# Handle execution as pmPreRemove.script
+if [ -z "$IPKG_OFFLINE_ROOT" ]; then
+  IPKG_OFFLINE_ROOT=/media/cryptofs/apps
+  mount -o remount,rw /
+fi
+
+APPS=/media/cryptofs/apps
+
+[ -d $APPS ] || { echo "Requires webOS 1.3.5 or later" ; exit 1 ; }
+
+# Only remove the service if neither Preware or Preware Alpha will remain
+if [ ! -f ${APPS}/usr/palm/applications/${PID}/appinfo.json -o \
+     ! -f ${APPS}/usr/palm/applications/${PID}-alpha/appinfo.json ] ; then
+
+  # Remove the ipkgservice executable
+  rm -f /var/usr/sbin/${SID}
+
+  # Remove the dbus service
+  rm -f /var/palm/system-services/${SID}.service
+
+  # Remove the ls2 roles
+  rm -f /usr/share/ls2/roles/prv/${SID}.json /var/palm/ls2/roles/prv/${SID}.json
+  rm -f /usr/share/ls2/roles/pub/${SID}.json /var/palm/ls2/roles/pub/${SID}.json
+
+  # Don't stop the service, because it is needed to remove the package
+  # /sbin/stop ${SID} || true
+  # /usr/bin/killall -9 ${SID} || true
+
+  # Remove the upstart script
+  rm -f /var/palm/event.d/${SID}
+
+  # Remove all list database cache files
+  rm -f $APPS/usr/lib/ipkg/lists/*
+  rm -f $APPS/usr/lib/ipkg/cache/*
+
+fi
+
+exit 0
