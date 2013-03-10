@@ -1,17 +1,3 @@
-packagesModel.prototype.can = function(type, condition)
-{
-	if (this.typeConditions[type])
-	{
-		if (this.typeConditions[type][condition]) return true;
-		else return false;
-	}
-	else
-	{
-		if (this.typeConditions['Unknown'][condition]) return true;
-		else return false;
-	}
-};
-
 packagesModel.prototype.getGroups = function(item)
 {
 	var returnArray = [];

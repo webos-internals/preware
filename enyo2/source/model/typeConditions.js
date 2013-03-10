@@ -100,5 +100,19 @@ enyo.singleton({
 	// unknown (used by actual unknown type, and any other type without values)
 	'Unknown': {},
 	// package (used by manual single-file installer)
-	'Package': {}
+	'Package': {},
+	// can function for checks
+	can: function(type, condition)
+	{
+		if (preware.typeConditions[type])
+		{
+			if (preware.typeConditions[type][condition]) return true;
+			else return false;
+		}
+		else
+		{
+			if (preware.typeConditions['Unknown'][condition]) return true;
+			else return false;
+		}
+	}
 });

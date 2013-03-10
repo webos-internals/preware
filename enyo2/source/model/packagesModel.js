@@ -42,11 +42,9 @@ enyo.singleton({
 	unknownCount: 0,
 	unknownFixed: 0,
 	
-	//typeConditions moved to own kind and file.
-		
 	//emited signals:
-	// onPackagesLoadStatusUpdate: { //emited during load to allow status output.
-	//																 msg: "some status message", 
+	// onPackagesStatusUpdate: { //emited during load to allow status output.
+	//																 message: "some status message", 
 	//																 progress: true/false => show progress meter true/false
 	//																 progValue: [1-100]		=> progress value
 	//																 error: true/false		=> true if an error occured.
@@ -93,7 +91,7 @@ enyo.singleton({
 			this.onlyLoad = onlyLoad;
 			
 			// set title and show progress
-			this.displayStatus({msg: $L("<strong>Loading Package Information</strong>"), progress: true, progValue: 0});
+			this.displayStatus({message: $L("<strong>Loading Package Information</strong>"), progress: true, progValue: 0});
 			
 			// initiate status request
 			this.infoStatusRequest();
@@ -106,7 +104,7 @@ enyo.singleton({
 	infoStatusRequest: function() {
 		// update display
 		this.displayStatus({
-			msg: $L("<strong>Loading Package Information</strong><br>Status"),
+			message: $L("<strong>Loading Package Information</strong><br>Status"),
 			progress: true,
 			progValue: Math.round((1/(this.feeds.length+1)) * 100)
 		});
@@ -119,7 +117,7 @@ enyo.singleton({
 	infoListRequest: function(num) {		
 		// update display
 		this.displayStatus({
-			msg: $L("<strong>Loading Package Information</strong><br>")
+			message: $L("<strong>Loading Package Information</strong><br>")
 			+ this.feeds[num],
 			progress: true,
 			progValue: Math.round(((num+2)/(this.feeds.length+1)) * 100)
@@ -144,7 +142,7 @@ enyo.singleton({
 				if (payload.errorText === "org.webosinternals.ipkgservice is not running.") {
 					this.displayStatus({
 						error: true,
-						msg: $L("The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your device and not launching Preware until you have a stable network connection available.")
+						message: $L("The Package Manager Service is not running. Did you remember to install it? If you did, first try restarting Preware, then try rebooting your device and not launching Preware until you have a stable network connection available.")
 					});
 					this.doneUpdating();
 					return;
@@ -205,7 +203,7 @@ enyo.singleton({
 			} else {
 				// we're done
 				this.displayStatus({
-					msg: $L("<strong>Done Loading!</strong>"),
+					message: $L("<strong>Done Loading!</strong>"),
 					progress: false,
 					progValue: 0
 				});
@@ -378,7 +376,7 @@ enyo.singleton({
 			
 			if (this.unknownCount > 0) {
 				this.displayStatus({
-					msg: $L("<strong>Scanning Unknown Packages</strong><br />")
+					message: $L("<strong>Scanning Unknown Packages</strong><br />")
 					+ this.packages[this.unknown[0]].pkg.substr(-32),
 					progress: true,
 					progValue: 0
@@ -396,11 +394,11 @@ enyo.singleton({
 		this.unknownFixed += 1;
 		
 		if (this.unknownFixed === this.unknownCount) {
-			this.displayStatus({msg: $L("<strong>Done Fixing!</strong>"), progress: false, progValue: 0});
+			this.displayStatus({message: $L("<strong>Done Fixing!</strong>"), progress: false, progValue: 0});
 			this.loadSaved();
 		} else {
 			this.displayStatus({
-				msg: $L("<strong>Scanning Unknown Packages</strong><br />")
+				message: $L("<strong>Scanning Unknown Packages</strong><br />")
 				+ this.packages[this.unknown[this.unknownFixed]].pkg.substr(-32),
 				progValue: Math.round((this.unknownFixed/this.unknownCount) * 100), progress: true
 			});
@@ -574,5 +572,5 @@ enyo.singleton({
 		} else {
 			return false;
 		}
-	}
+	},
 });

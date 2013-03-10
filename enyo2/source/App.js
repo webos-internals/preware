@@ -4,6 +4,29 @@
 //to reload changes on device: luna-send -n 1 palm://com.palm.applicationManager/rescan {}
 
 enyo.kind({
+	name: "Toast",
+	kind: "enyo.Slideable",
+	style: "position: absolute;\
+		bottom: 54px;\
+		width: 90%;\
+		margin-left: -45%;\
+		left: 50%;\
+		height: 33%;\
+		color: black;\
+		background-color: lightgrey;\
+		border: 1px grey;\
+		border-radius: 16px 16px 0 0;\
+		text-align: center;",
+	classes: "onyx-toolbar",
+	min: 0,
+	max: 100,
+	value: 100,
+	unit: "%",
+	axis: "v",
+	draggable: false,
+});
+
+enyo.kind({
 	name: "GrabberToolbar",
 	kind: "onyx.Toolbar",
 	components:[
@@ -61,7 +84,8 @@ enyo.kind({
 	name: "AppPanels",
 	kind: "Panels",
 	fit: true,
-	realtimeFit: true,
+	// Lags on old webkit
+	//realtimeFit: true,
 	arrangerKind: "CollapsingArranger",
 	classes: "app-panels",
 	// required ipkgservice
@@ -76,6 +100,9 @@ enyo.kind({
 		{kind: "Signals",
 		onPackagesStatusUpdate: "processStatusUpdate",
 		onPackagesLoadFinished: "doneLoading",
+		onPackageSimpleMessage: "processSimpleMessage",
+		onPackageProgressMessage: "processProgressMessage",
+		onPackageRefresh: "handlePackageRefresh",
 		ondeviceready: "handleDeviceReady"},
 		
 		//Menu
@@ -99,13 +126,17 @@ enyo.kind({
 			fit: true,
 			draggable: false,
 			components: [
-				{kind: "FittableRows",
-				style: "width: 100%; height: 100%; text-align: center;",
-				components:[
-					{kind: "onyx.Spinner"},
-					{name: "SpinnerText",
-					style: "color: white;",
-					allowHtml: true}
+				{style: "width: 100%; height: 100%; background-image: url('assets/bg.png');",
+				components: [
+					{kind: "FittableRows",
+					classes: "onyx-toolbar",
+					style: "width: 90%; height: 224px; margin: 10% 2.5% 2.5% 2.5%; text-align: center; border-radius: 16px;",
+					components:[
+						{kind: "onyx.Spinner"},
+						{name: "SpinnerText",
+						style: "color: white;",
+						allowHtml: true}
+					]},
 				]},
 				{kind: "Scroller",
 				horizontal: "hidden",
@@ -120,6 +151,7 @@ enyo.kind({
 					{kind: "ListItem", content: "List of Everything"}
 				]},
 			]},
+
 			{kind: "onyx.Toolbar"}
 		]},
 		
@@ -223,10 +255,9 @@ enyo.kind({
 					{name: "PackageTitle", style: "display: inline-block; position: absolute;", content: "Package"}
 				]},
 				{kind: "Scroller",
+				style: "position: absolute; top: 54px; bottom: 54px;",
 				horizontal: "hidden",
-				classes: "enyo-fill",
 				touch: true,
-				fit: true,
 				ontap: "showPackage",
 				components:[
 					{style: "padding: 15px;", components: [
@@ -288,9 +319,39 @@ enyo.kind({
 							{name: "PackageFeed",
 							style: "padding: 15px; color: white;"},
 						]},
-					]}
+					]},
 				]},
-				{kind: "GrabberToolbar", components:[
+				{name: "SimpleMessage",
+				kind: "Toast",
+				style: "height: 90px;",
+				components: [
+					{name: "SimpleMessageContent",
+					style: "display: block; font-size: 14pt; height: 32px;",
+					allowHtml: true,
+					content: "Message<br>I am a fish."},
+					{kind: "onyx.Button", style: "display: block; width: 100%; margin-top: 4px;", content: "Okay", ontap: "hideSimpleMessage"},
+				]},
+				{name: "ActionMessage",
+				kind: "Toast",
+				components: [
+					{name: "ActionMessageContent",
+					style: "display: block; font-size: 14pt; height: 46px;",
+					allowHtml: true,
+					content: "Message<br>I am a fish."},
+					{kind: "onyx.Button", style: "display: block; width: 100%; margin-top: 10px;", content: "Button 1", ontap: "hideActionMessage"},
+					{kind: "onyx.Button", style: "display: block; width: 100%; margin-top: 10px;",  content: "Button 2", ontap: "hideActionMessage"}
+				]},
+				{name: "ProgressMessage",
+				kind: "Toast",
+				style: "height: 256px;",
+				components: [
+					{name: "ProgressMessageContent",
+					style: "display: block; font-size: 14pt; height: 132px; margin-top: 8px;",
+					allowHtml: true,
+					content: "Message<br>I am a fish."},
+					{kind: "onyx.Spinner", classes: "onyx-light"}
+				]},
+				{kind: "GrabberToolbar", style: "position: absolute; bottom: 0; width: 100%;", components:[
 					{name: "InstallButton", kind: "onyx.Button", content: "Install", ontap: "installTapped"},
 					{name: "UpdateButton", kind: "onyx.Button", content: "Update", ontap: "updateTapped"},
 					{name: "RemoveButton", kind: "onyx.Button", content: "Remove", ontap: "removeTapped"},
@@ -333,6 +394,42 @@ enyo.kind({
 			this.$.PackagePanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
 			this.$.PackageDisplayPanels.addStyles("box-shadow: -4px 0px 4px rgba(0,0,0,0.3)");
 		}
+	},
+	displaySimpleMessage: function(inMessage) {
+		this.hideProgressMessage();
+		this.hideActionMessage();
+
+		this.$.SimpleMessageContent.setContent(inMessage);
+		if(this.$.SimpleMessage.value != this.$.SimpleMessage.min) {
+			this.$.SimpleMessage.animateToMin();
+		}
+	},
+	hideSimpleMessage: function() {
+		this.$.SimpleMessage.animateToMax();
+	},
+	displayProgressMessage: function(inEvent) {
+		this.hideSimpleMessage();
+		this.hideActionMessage();
+
+		this.$.ProgressMessageContent.setContent(inEvent.message);
+		if(this.$.ProgressMessage.value != this.$.ProgressMessage.min) {
+			this.$.ProgressMessage.animateToMin();
+		}
+	},
+	hideProgressMessage: function() {
+		this.$.ProgressMessage.animateToMax();
+	},
+	displayActionMessage: function(inEvent) {
+		this.hideSimpleMessage();
+		this.hideProgressMessage();
+
+		this.$.ActionMessageContent.setContent(inEvent.message);
+		if(this.$.ActionMessage.value != this.$.ActionMessage.min) {
+			this.$.ActionMessage.animateToMin();
+		}
+	},
+	hideActionMessage: function() {
+		this.$.ActionMessage.animateToMax();
 	},
 	//Action Functions
 	log: function(text) {
@@ -379,36 +476,8 @@ enyo.kind({
 		this.setIndex(3);
 	},
 	packageTapped: function(inSender) {
-		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
-			var package = preware.PackagesModel.packages[i];
-			if(package.title == inSender.$.ItemTitle.content) {
-				this.currentPackage = package;
-
-				this.$.PackageTitle.setContent(package.title);
-				this.$.PackageIcon.setSrc(package.icon);
-				this.$.PackageDescription.setContent(package.description);
-				this.$.PackageHomepage.setContent(package.homepage);
-				this.$.PackageMaintainer.setContent(package.maintainer);
-				this.$.PackageVersion.setContent(package.version);
-				this.$.PackageLastUpdated.setContent(package.date);
-				this.$.PackageDownloadSize.setContent(package.size);
-				this.$.PackageInstalledVersion.setContent(package.versionInstalled);
-				this.$.PackageInstalledDate.setContent(package.dateInstalled);
-				this.$.PackageInstalledSize.setContent(package.sizeInstalled);
-				this.$.PackageID.setContent(package.pkg);
-				this.$.PackageLicense.setContent(package.license);
-				this.$.PackageType.setContent(package.type);
-				this.$.PackageCategory.setContent(package.category);
-				this.$.PackageFeed.setContent(package.feedString);
-
-				this.$.InstallButton.setDisabled(package.isInstalled);
-				this.$.UpdateButton.setDisabled(!package.isInstalled || !package.hasUpdate);
-				this.$.RemoveButton.setDisabled(!package.isInstalled);
-				this.$.LaunchButton.setDisabled(!package.isInstalled);
-
-				break;
-			}	
-		}
+		this.updateCurrentPackage(inSender.$.ItemTitle.content);
+		this.refreshPackageDisplay();
 
 		this.$.PackageDisplayPanels.setIndex(1);
 		this.setIndex(4);
@@ -567,7 +636,7 @@ enyo.kind({
 				this.downloadFeedRequest(num);
 			} else {
 				// we're done
-				this.processStatusUpdate(this, {message: $L("<strong>Done Downoading!</strong>")});
+				this.processStatusUpdate(this, {message: $L("<strong>Done Downloading!</strong>")});
 				
 				// well updating looks to have finished, lets log the date:
 				preware.PrefCookie.put('lastUpdate', Math.round(new Date().getTime()/1000.0));
@@ -586,6 +655,12 @@ enyo.kind({
 	},
 	processStatusUpdate: function(inSender, inEvent) {
 		this.log(inEvent.message);
+	},
+	processSimpleMessage: function(inSender, inEvent) {
+		this.displaySimpleMessage(inEvent);
+	},
+	processProgressMessage: function(inSender, inEvent) {
+		this.displayProgressMessage(inEvent);
 	},
 	doneLoading: function() {
 		// so if we're inactive we know to push a scene when we return
@@ -620,6 +695,42 @@ enyo.kind({
 		this.$.CategoryRepeater.setCount(preware.PackagesModel.categories.length);
 		this.$.PackageRepeater.setCount(preware.PackagesModel.packages.length);
 	},
+	handlePackageRefresh: function() {
+		this.updateCurrentPackage(this.currentPackage.title);
+		this.refreshPackageDisplay();
+	},
+	updateCurrentPackage: function(inTitle) {
+		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
+			var package = preware.PackagesModel.packages[i];
+			if(package.title == inTitle) {
+				this.currentPackage = package;
+				break;
+			}	
+		}
+	},
+	refreshPackageDisplay: function() {
+		this.$.PackageTitle.setContent(this.currentPackage.title);
+		this.$.PackageIcon.setSrc(this.currentPackage.icon);
+		this.$.PackageDescription.setContent(this.currentPackage.description);
+		this.$.PackageHomepage.setContent(this.currentPackage.homepage);
+		this.$.PackageMaintainer.setContent(this.currentPackage.maintainer);
+		this.$.PackageVersion.setContent(this.currentPackage.version);
+		this.$.PackageLastUpdated.setContent(this.currentPackage.date);
+		this.$.PackageDownloadSize.setContent(this.currentPackage.size);
+		this.$.PackageInstalledVersion.setContent(this.currentPackage.versionInstalled);
+		this.$.PackageInstalledDate.setContent(this.currentPackage.dateInstalled);
+		this.$.PackageInstalledSize.setContent(this.currentPackage.sizeInstalled);
+		this.$.PackageID.setContent(this.currentPackage.pkg);
+		this.$.PackageLicense.setContent(this.currentPackage.license);
+		this.$.PackageType.setContent(this.currentPackage.type);
+		this.$.PackageCategory.setContent(this.currentPackage.category);
+		this.$.PackageFeed.setContent(this.currentPackage.feedString);
+
+		this.$.InstallButton.setDisabled(this.currentPackage.isInstalled);
+		this.$.UpdateButton.setDisabled(!this.currentPackage.isInstalled || !this.currentPackage.hasUpdate);
+		this.$.RemoveButton.setDisabled(!this.currentPackage.isInstalled);
+		this.$.LaunchButton.setDisabled(!this.currentPackage.isInstalled);
+	},
 	setupTypeItem: function(inSender, inEvent) {
 		inEvent.item.$.listItem.$.ItemTitle.setContent(preware.PackagesModel.types[inEvent.index]);	
 		return true;
@@ -631,9 +742,7 @@ enyo.kind({
 	setupPackageItem: function(inSender, inEvent) {
 		var package = this.availablePackages[inEvent.index];
 		if(package && package.title) {
-			enyo.log(package.title);
 			inEvent.item.$.listItem.$.ItemTitle.setContent(package.title);
-			//FIXME: This throws 'not allowed to load local resource' errors, how did Mojo get around it?
 			inEvent.item.$.listItem.$.ItemIcon.setSrc(package.icon);	
 		}
 
