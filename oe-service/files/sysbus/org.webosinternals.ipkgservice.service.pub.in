@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.webosinternals.ipkgservice
+Exec=@WEBOS_INSTALL_SBINDIR@/org.webosinternals.ipkgservice
