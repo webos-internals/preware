@@ -23,6 +23,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
+#include <json.h>
+
 #include "luna_service.h"
 #include "luna_methods.h"
 
@@ -288,7 +290,7 @@ static bool appinstaller(char *message) {
     sprintf(message, "%s", status);
 
     // Terminate the command early if there is an install failure.
-    if (!strcmp(status, "FAILED_IPKG_INSTALL")) {
+    if (!strcmp(status, "FAILED_OPKG_INSTALL")) {
       return false;
     }
 
@@ -603,7 +605,7 @@ bool set_auth_params_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 }
 
 //
-// Get the list of ipkg configuration files, and return them and their contents.
+// Get the list of opkg configuration files, and return them and their contents.
 //
 bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
@@ -622,7 +624,7 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   bool error = false;
 
   // Initialise the command to read the list of config files.
-  strcpy(command, "/bin/ls -1 /media/cryptofs/apps/etc/ipkg/ 2>&1");
+  strcpy(command, "/bin/ls -1 /media/cryptofs/apps/etc/opkg/ 2>&1");
 
   // Start execution of the command to list the config files.
   FILE *fp = popen(command, "r");
@@ -677,7 +679,7 @@ bool get_configs_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     strcat(buffer, ", ");
 
     // Initialise the command to read the contents of the file.
-    strcpy(command, "/bin/cat /media/cryptofs/apps/etc/ipkg/");
+    strcpy(command, "/bin/cat /media/cryptofs/apps/etc/opkg/");
     strcat(command, filename);
     strcat(command, " 2>&1");
 
@@ -737,7 +739,7 @@ void *update_thread(void *arg) {
   LSMessage *message = (LSMessage *)arg;
 
   // Store the command, so it can be used in the error report if necessary
-  strcpy(command, "/usr/bin/ipkg -o /media/cryptofs/apps update 2>&1");
+  strcpy(command, "/usr/bin/opkg -o /media/cryptofs/apps update 2>&1");
 
   // Initialise the output buffer
   strcpy(run_command_buffer, "{\"stdOut\": [");
@@ -758,7 +760,7 @@ void *update_thread(void *arg) {
   }
  
   // Create the cache directory
-  strcpy(command, "/bin/mkdir -p /media/cryptofs/apps/usr/lib/ipkg/cache 2>&1");
+  strcpy(command, "/bin/mkdir -p /media/cryptofs/apps/var/lib/opkg/cache 2>&1");
   strcpy(run_command_buffer, "[");
   if (!run_command(command, message, passthrough)) {
     strcat(run_command_buffer, "]");
@@ -768,7 +770,7 @@ void *update_thread(void *arg) {
   }
  
   // Remove any existing cache files
-  strcpy(command, "/bin/rm -f /media/cryptofs/apps/usr/lib/ipkg/cache/* 2>&1");
+  strcpy(command, "/bin/rm -f /media/cryptofs/apps/var/lib/opkg/cache/* 2>&1");
   strcpy(run_command_buffer, "[");
   if (!run_command(command, message, passthrough)) {
     strcat(run_command_buffer, "]");
@@ -779,7 +781,7 @@ void *update_thread(void *arg) {
  
   // Determine if any feeds were updated
   bool anyfeeds = false;
-  DIR *dp = opendir ("/media/cryptofs/apps/usr/lib/ipkg/lists/");
+  DIR *dp = opendir ("/media/cryptofs/apps/var/lib/opkg/lists/");
   if (dp) {
     struct dirent *ep;
     while (ep = readdir (dp)) {
@@ -792,7 +794,7 @@ void *update_thread(void *arg) {
 
   if (anyfeeds) {
     // Move package feed lists files over to the cache
-    strcpy(command, "/bin/mv /media/cryptofs/apps/usr/lib/ipkg/lists/* /media/cryptofs/apps/usr/lib/ipkg/cache/ 2>&1");
+    strcpy(command, "/bin/mv /media/cryptofs/apps/var/lib/opkg/lists/* /media/cryptofs/apps/var/lib/opkg/cache/ 2>&1");
     strcpy(run_command_buffer, "[");
     if (!run_command(command, message, passthrough)) {
       strcat(run_command_buffer, "]");
@@ -821,7 +823,7 @@ void *update_thread(void *arg) {
 }
 
 //
-// Run ipkg update to download all enabled feeds.
+// Run opkg update to download all enabled feeds.
 // Note that the package lists are retrieved separately, this just does the download.
 // The package lists are moved to a cache sibling directory to avoid any possible
 // interaction with installations via the App Catalog and ApplicationInstallerUtility.
@@ -928,7 +930,7 @@ bool get_list_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
     return true;
   }
 
-  strcpy(filename, "/media/cryptofs/apps/usr/lib/ipkg/cache/");
+  strcpy(filename, "/media/cryptofs/apps/var/lib/opkg/cache/");
   strcat(filename, id->child->text);
 
   return read_file(message, filename);
@@ -966,7 +968,7 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
 			&lserror)) goto error;
   }
 
-  dir = g_dir_open("/media/cryptofs/apps/usr/lib/ipkg/cache", 0, NULL);
+  dir = g_dir_open("/media/cryptofs/apps/var/lib/opkg/cache", 0, NULL);
 
   if (!dir) {
     if (!LSMessageRespond(message,
@@ -976,7 +978,7 @@ bool get_package_info_method(LSHandle *lshandle, LSMessage *message, void *ctx) 
 
   while (name = g_dir_read_name(dir)) {
     int i = 0;
-    asprintf(&filename, "/media/cryptofs/apps/usr/lib/ipkg/cache/%s", name);
+    asprintf(&filename, "/media/cryptofs/apps/var/lib/opkg/cache/%s", name);
     ret = g_file_get_contents(filename, &contents, &length, NULL);
 
     packages = g_strsplit(contents, "\nPackage: ", -1);
@@ -1058,7 +1060,7 @@ bool get_control_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
 			&lserror)) goto error;
   }
 
-  strcpy(filename, "/media/cryptofs/apps/usr/lib/ipkg/info/");
+  strcpy(filename, "/media/cryptofs/apps/var/lib/opkg/info/");
   strcat(filename, id->child->text);
   strcat(filename, ".control");
 
@@ -1075,7 +1077,7 @@ bool get_status_file_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
-  return read_file(message, "/media/cryptofs/apps/usr/lib/ipkg/status");
+  return read_file(message, "/media/cryptofs/apps/var/lib/opkg/status");
 
  error:
   LSErrorPrint(&lserror, stderr);
@@ -1247,12 +1249,12 @@ bool set_config_state_method(LSHandle* lshandle, LSMessage *message, void *ctx) 
   char command[MAXLINLEN];
   if (enabled) {
     snprintf(command, MAXLINLEN,
-	     "mv /media/cryptofs/apps/etc/ipkg/%s.disabled /media/cryptofs/apps/etc/ipkg/%s 2>&1",
+	     "mv /media/cryptofs/apps/etc/opkg/%s.disabled /media/cryptofs/apps/etc/opkg/%s 2>&1",
 	     config, config);
   }
   else {
     snprintf(command, MAXLINLEN,
-	     "mv /media/cryptofs/apps/etc/ipkg/%s /media/cryptofs/apps/etc/ipkg/%s.disabled 2>&1",
+	     "mv /media/cryptofs/apps/etc/opkg/%s /media/cryptofs/apps/etc/opkg/%s.disabled 2>&1",
 	     config, config);
   }
 
@@ -1335,7 +1337,7 @@ bool add_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
   char command[MAXLINLEN];
   snprintf(command, MAXLINLEN,
-	   "echo \"%s %s %s\" > /media/cryptofs/apps/etc/ipkg/%s 2>&1",
+	   "echo \"%s %s %s\" > /media/cryptofs/apps/etc/opkg/%s 2>&1",
 	   gzip?"src/gz":"src", name, url, config);
 
   strcpy(run_command_buffer, "{\"stdOut\": [");
@@ -1393,7 +1395,7 @@ bool delete_config_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
 
   char command[MAXLINLEN];
   snprintf(command, MAXLINLEN,
-	   "/bin/rm -f /media/cryptofs/apps/etc/ipkg/%s /media/cryptofs/apps/etc/ipkg/%s.disabled 2>&1",
+	   "/bin/rm -f /media/cryptofs/apps/etc/opkg/%s /media/cryptofs/apps/etc/opkg/%s.disabled 2>&1",
 	   config, config);
 
   strcpy(run_command_buffer, "{\"stdOut\": [");
@@ -1422,7 +1424,7 @@ bool do_download(LSMessage *message, bool gzipped, char *feed, char *url) {
   char command[MAXLINLEN];
 
   char pathname[MAXNAMLEN];
-  sprintf(pathname, "/media/cryptofs/apps/usr/lib/ipkg/cache/%s", feed);
+  sprintf(pathname, "/media/cryptofs/apps/var/lib/opkg/cache/%s", feed);
 
   char headers[MAXLINLEN];
 
@@ -1590,7 +1592,7 @@ bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
     installFilter = appinstaller;
   }
   else {
-    installCommand = "/usr/bin/ipkg -o /media/cryptofs/apps -force-overwrite install %s 2>&1";
+    installCommand = "/usr/bin/opkg -o /media/cryptofs/apps -force-overwrite install %s 2>&1";
     installFilter = passthrough;
   }
 
@@ -1681,7 +1683,7 @@ bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
     return true;
   }
 
-  /* Check for an ipkg prerm script, and install it */
+  /* Check for an opkg prerm script, and install it */
 
   char prerm[MAXLINLEN];
   sprintf(prerm, "/media/cryptofs/apps/.scripts/%s/pmPreRemove.script", package);
@@ -1689,8 +1691,8 @@ bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
   // Does the package already have a pmPreRemove script?
   if (!(!stat(prerm, &info) && info.st_size)) {
 
-    // If not, then copy any ipkg prerm script into that spot
-    sprintf(prerm, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.prerm", package);
+    // If not, then copy any opkg prerm script into that spot
+    sprintf(prerm, "/media/cryptofs/apps/var/lib/opkg/info/%s.prerm", package);
     if (!stat(prerm, &info)) {
 
       snprintf(command, MAXLINLEN,
@@ -1723,7 +1725,7 @@ bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
     }
   }
  
-  /* Check for an ipkg postinst script, and run it */
+  /* Check for an opkg postinst script, and run it */
 
   char postinst[MAXLINLEN];
   sprintf(postinst, "/media/cryptofs/apps/.scripts/%s/pmPostInstall.script", package);
@@ -1731,14 +1733,14 @@ bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
   // Has the service already executed a postinst script?
   if (!useSvc || stat(postinst, &info) || !info.st_size) {
 
-    // If not, then execute the ipkg postinst script
-    sprintf(postinst, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.postinst", package);
+    // If not, then execute the opkg postinst script
+    sprintf(postinst, "/media/cryptofs/apps/var/lib/opkg/info/%s.postinst", package);
     if (!stat(postinst, &info)) {
 
       (void)system("/bin/mount -o remount,rw /");
 
       snprintf(command, MAXLINLEN,
-	       "IPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", postinst);
+	       "OPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", postinst);
       
       strcpy(run_command_buffer, "{\"stdOut\": [");
       if (run_command(command, message, passthrough)) {
@@ -1759,7 +1761,7 @@ bool do_install(LSMessage *message, char *filename, char *url, bool useSvc) {
 
   if (!installed) {
     snprintf(command, MAXLINLEN,
-	     "/usr/bin/ipkg -o /media/cryptofs/apps remove %s 2>&1", package);
+	     "/usr/bin/opkg -o /media/cryptofs/apps remove %s 2>&1", package);
     
     strcpy(run_command_buffer, "{\"stdOut\": [");
     if (run_command(command, message, appinstaller)) {
@@ -1814,16 +1816,16 @@ bool do_remove(LSMessage *message, char *package, bool replace, bool *removed) {
 
   struct stat info;
 
-  // Check for an ipkg prerm script
+  // Check for an opkg prerm script
   char prerm[MAXLINLEN];
-  sprintf(prerm, "/media/cryptofs/apps/usr/lib/ipkg/info/%s.prerm", package);
+  sprintf(prerm, "/media/cryptofs/apps/var/lib/opkg/info/%s.prerm", package);
 
   if (!stat(prerm, &info)) {
 
     (void)system("/bin/mount -o remount,rw /");
 
     snprintf(command, MAXLINLEN,
-	     "IPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", prerm);
+	     "OPKG_OFFLINE_ROOT=/media/cryptofs/apps /bin/sh %s 2>&1", prerm);
       
     strcpy(run_command_buffer, "{\"stdOut\": [");
     if (run_command(command, message, passthrough)) {
@@ -1848,7 +1850,7 @@ bool do_remove(LSMessage *message, char *package, bool replace, bool *removed) {
   }
   else {
     snprintf(command, MAXLINLEN,
-	     "/usr/bin/ipkg -o /media/cryptofs/apps remove %s 2>&1", package);
+	     "/usr/bin/opkg -o /media/cryptofs/apps remove %s 2>&1", package);
   }
 
 
@@ -1862,7 +1864,7 @@ bool do_remove(LSMessage *message, char *package, bool replace, bool *removed) {
     strcat(run_command_buffer, "]");
     *removed = false;
     if (!report_command_failure(message, command, run_command_buffer+11, "\"stage\": \"failed\"")) goto end;
-    // %%% Should check for whether the application directory has been removed, or run ipkg list_installed %%%
+    // %%% Should check for whether the application directory has been removed, or run opkg list_installed %%%
     // Assume that it hasn't been removed properly (don't change *removed)
     return true;
   }
@@ -1960,7 +1962,7 @@ bool appinstaller_install_method(LSHandle* lshandle, LSMessage *message, void *c
   return false;
 }
 
-void *ipkg_install_thread(void *arg) {
+void *opkg_install_thread(void *arg) {
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -2004,7 +2006,7 @@ void *ipkg_install_thread(void *arg) {
   goto end;
 }
 
-bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+bool opkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -2015,7 +2017,7 @@ bool ipkg_install_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   // Report that the update operaton has begun
   if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"begin\"}", &lserror)) goto error;
 
-  pthread_create(&tid, NULL, ipkg_install_thread, (void *)message);
+  pthread_create(&tid, NULL, opkg_install_thread, (void *)message);
 
   return true;
  error:
@@ -2077,7 +2079,7 @@ bool remove_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   return false;
 }
 
-void *ipkg_replace_thread(void *arg) {
+void *opkg_replace_thread(void *arg) {
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -2137,7 +2139,7 @@ void *ipkg_replace_thread(void *arg) {
   goto end;
 }
 
-bool ipkg_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
+bool opkg_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   LSError lserror;
   LSErrorInit(&lserror);
 
@@ -2148,7 +2150,7 @@ bool ipkg_replace_method(LSHandle* lshandle, LSMessage *message, void *ctx) {
   // Report that the update operaton has begun
   if (!LSMessageRespond(message, "{\"returnValue\": true, \"stage\": \"begin\"}", &lserror)) goto error;
 
-  pthread_create(&tid, NULL, ipkg_replace_thread, (void *)message);
+  pthread_create(&tid, NULL, opkg_replace_thread, (void *)message);
 
   return true;
  error:
@@ -2615,13 +2617,13 @@ LSMethod luna_methods[] = {
 
   { "extractControl",	extract_control_method },
 
-  { "install",		ipkg_install_method },
+  { "install",		opkg_install_method },
   { "installSvc",	appinstaller_install_method },
-  { "installCli",	ipkg_install_method },
+  { "installCli",	opkg_install_method },
 
-  { "replace",		ipkg_replace_method },
+  { "replace",		opkg_replace_method },
   { "replaceSvc",	appinstaller_replace_method },
-  { "replaceCli",	ipkg_replace_method },
+  { "replaceCli",	opkg_replace_method },
 
   { "remove",		remove_method },
 
