@@ -2,31 +2,23 @@
  * information on package standard is:
  * http://www.webos-internals.org/wiki/Packaging_Standards
  */
-/*global enyo, preware, IPKGService, navigator */
+/*global enyo, preware, IPKGService, navigator, isNumeric, trim, $L */
  
 enyo.kind({
 	name: "preware.PackageModel",
 	kind: "enyo.Control",
-	subscription: false, // for when we're doing a subscription of some service TODO: this won't work.
-	assistant: false, // for storing an assistant when we get one for certain functions TODO: this won't work..
 		
 	// onPackageProgressMessage: { //emitted during install to allow status output.
-	// 	message: "some status message", 
-	// 	progress: true/false => show progress meter true/false
-	// 	progValue: [1-100]		=> progress value
+	//	message: "some status message", 
+	//	progress: true/false => show progress meter true/false
+	//	progValue: [1-100]		=> progress value
 	//	error: true/false		=> true if an error occured.
-	// }
+	//	}
+	// onBackendSimpleMessage: { msg: text message } //emitted at the end of operations.
+	// onPackageRefresh: {} // emitted at operations that require UI to reload package information.
 	
-	doSimpleMessage: function(obj) {
-		var msg = "";
-		if (obj.error) {
-			msg = "ERROR: ";
-		}
-		msg += obj.msg;
-		if (obj.progress) {
-			msg += " - Progress: " + obj.progValue;
-		}
-		enyo.Signals.send("onPackageSimpleMessage", obj);
+	doSimpleMessage: function(msg) {
+		enyo.Signals.send("onBackendSimpleMessage", msg);
 	},
 	doProgressMessage: function(obj) {
 		var msg = "";
@@ -101,7 +93,7 @@ enyo.kind({
 				this.type = 'Unknown';
 			}
 		} catch (e) {
-			enyo.error('PackageModel#create', e);
+			console.error('error in packageModel#create: ' + e);
 		}
 	},
 	
@@ -165,7 +157,7 @@ enyo.kind({
 			// this.infoLoadFromPkg(newPackage);
 			return false;
 		} catch (e) {
-			enyo.error('PackageModel#infoUpdate', e);
+			console.error('error in packageModel#infoUpdate: ' + e);
 		}
 	},
 	
@@ -219,7 +211,7 @@ enyo.kind({
 					//alert('parsing source '+this.pkg);
 					sourceJson = JSON.parse(info.Source.replace(/\\'/g, "'")); //"
 				} catch (e) {
-					enyo.error('PackageModel#infoLoad#parse(' + this.pkg + '): ' + info.Source, e);
+					console.error('error in packageModel#infoLoad#parse(' + this.pkg + '): ' + info.Source, e);
 					sourceJson = {};
 				}
 
@@ -252,7 +244,7 @@ enyo.kind({
 
 				if (!this.price && sourceJson.Price) {
 					this.price = sourceJson.Price;
-					preware.Packages.hasPrices = true;
+					preware.PackagesModel.hasPrices = true;
 				}
 
 				if (sourceJson.MinWebOSVersion) {
@@ -357,7 +349,7 @@ enyo.kind({
 			}		
 
 		} catch (error) {
-			enyo.error('PackageModel#infoLoad', error);
+			console.error('error in packageModel#infoLoad: ' + error);
 		}
 	},
 	
@@ -460,7 +452,7 @@ enyo.kind({
 			this.flags.remove.RestartJava			= this.flags.remove.RestartJava			|| pkg.flags.remove.RestartJava;
 			this.flags.remove.RestartDevice		= this.flags.remove.RestartDevice		|| pkg.flags.remove.RestartDevice;
 		} catch (e) {
-			enyo.error('PackageModel#infoLoadFromPkg (' + this.pkg + ')', e);
+			console.error('error in packageModel#infoLoadFromPkg (' + this.pkg + '): ' + e);
 		}
 	},
 	
@@ -531,14 +523,14 @@ enyo.kind({
 			//alert('info.Source: ' + info.Source);
 
 		} catch (e) {
-			enyo.error('PackageModel#infoSave', e);
+			console.error('error in packageModel#infoSave: ' + e);
 		}
 		
 		return info;
 	},
 	
 	loadAppinfoFile: function(callback) {
-		this.subscription = preware.IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bind(this, callback), this.pkg);
+		preware.IPKGService.getAppinfoFile(this.loadAppinfoFileResponse.bind(this, callback), this.pkg);
 	},
 	
 	loadAppinfoFileResponse: function(callback, payload) {
@@ -565,7 +557,7 @@ enyo.kind({
 					appInfo = JSON.parse(this.rawData);
 				} catch (e1) {
 					//alert("error in appinfo "+this.pkg);
-					enyo.error('PackageModel#loadAppinfoFileResponse#parse' + this.rawData, e1);
+					console.error('error in packageModel#loadAppinfoFileResponse#parse' + this.rawData, e1);
 				}
 		
 				if ((!this.type || this.type === '' || this.type === 'Unknown') && this.title === 'This is a webOS application.') {
@@ -596,7 +588,7 @@ enyo.kind({
 	},
 	
 	loadControlFile: function(callback) {
-		this.subscription = preware.IPKGService.getControlFile(this.loadControlFileResponse.bind(this, callback), this.pkg);
+		preware.IPKGService.getControlFile(this.loadControlFileResponse.bind(this, callback), this.pkg);
 	},
 	loadControlFileResponse: function(callback, payload) {
 		if (payload.returnValue === false) {
@@ -646,7 +638,7 @@ enyo.kind({
 				}
 				catch (e) {
 					//alert("error in control "+this.pkg);
-					enyo.error('PackageModel#loadControlFileResponse#infoLoad' + this.rawData, e);
+					console.error('error in packageModel#loadControlFileResponse#infoLoad' + this.rawData, e);
 				}
 			}
 
@@ -695,18 +687,18 @@ enyo.kind({
 		if (this.depends.length > 0) {
 			for (d = 0; d < this.depends.length; d += 1) {
 			
-				if (preware.Packages.packages.length > 0) {
-					for (p = 0; p < preware.Packages.packages.length; p += 1) {
-						if (preware.Packages.packages[p].pkg === this.depends[d].pkg) {
-							//alert(preware.Packages.packages[p].title);
+				if (preware.PackagesModel.packages.length > 0) {
+					for (p = 0; p < preware.PackagesModel.packages.length; p += 1) {
+						if (preware.PackagesModel.packages[p].pkg === this.depends[d].pkg) {
+							//alert(preware.PackagesModel.packages[p].title);
 							//for (var t in this.depends[d]) alert(t + ': ' + this.depends[d][t]);
 							
 							if (!justNeeded) {
 								returnArray.push(p);
 							} else { // if we want just whats needed, check for updates
-								if (preware.Packages.packages[p].isInstalled) {
+								if (preware.PackagesModel.packages[p].isInstalled) {
 									// if it has an update, it's a dependency
-									if (preware.Packages.packages[p].hasUpdate) {
+									if (preware.PackagesModel.packages[p].hasUpdate) {
 										returnArray.push(p);
 									}
 								} else { // if its not installed then we'll assume we need
@@ -764,7 +756,7 @@ enyo.kind({
 			for (p = 0; p < depTest.length; p += 1) {
 				returnArray.push({d:depth, id:depTest[p]});
 
-				recTest = preware.Packages.packages[depTest[p]].getDependenciesRecursiveFunction(justNeeded, depth+1);
+				recTest = preware.PackagesModel.packages[depTest[p]].getDependenciesRecursiveFunction(justNeeded, depth+1);
 				if (recTest.length > 0) {
 					for (r = 0; r < recTest.length; r += 1) {
 						returnArray.push({d:recTest[r].d, id:recTest[r].id});
@@ -779,16 +771,16 @@ enyo.kind({
 		var packageArray = [],
 			returnArray = [], p, d;
 			
-		for (p = 0; p < preware.Packages.packages.length; p += 1) {
+		for (p = 0; p < preware.PackagesModel.packages.length; p += 1) {
 			// this is for real
-			for (d = 0; d < preware.Packages.packages[p].depends.length; d += 1) {
-				if (preware.Packages.packages[p].depends[d].pkg === this.pkg) {
-					//alert(preware.Packages.packages[p].title);
+			for (d = 0; d < preware.PackagesModel.packages[p].depends.length; d += 1) {
+				if (preware.PackagesModel.packages[p].depends[d].pkg === this.pkg) {
+					//alert(preware.PackagesModel.packages[p].title);
 					
 					if (!justInstalled) {
 						packageArray.push(p);
 					} else {
-						if (preware.Packages.packages[p].isInstalled) {
+						if (preware.PackagesModel.packages[p].isInstalled) {
 							packageArray.push(p);
 						}
 					}
@@ -798,12 +790,12 @@ enyo.kind({
 
 		if (packageArray.length > 0 && installedFirst) {
 			for (p = 0; p < packageArray.length; p += 1) {
-				if (preware.Packages.packages[packageArray[p]].isInstalled) {
+				if (preware.PackagesModel.packages[packageArray[p]].isInstalled) {
 					returnArray.push(packageArray[p]);
 				}
 			}
 			for (p = 0; p < packageArray.length; p += 1) {
-				if (!preware.Packages.packages[packageArray[p]].isInstalled) {
+				if (!preware.PackagesModel.packages[packageArray[p]].isInstalled) {
 					returnArray.push(packageArray[p]);
 				}
 			}
@@ -871,10 +863,10 @@ enyo.kind({
 	/* ------- below are for package actions -------- */
 	launch: function() {
 		if (this.isInstalled && this.type === 'Application') {
-			var request = navigator.service.Request("palm://com.palm.applicationManager/",
+			navigator.service.Request("palm://com.palm.applicationManager/",
 			{
 				method: 'launch',
-				parameters: {id: this.pkg},
+				parameters: {id: this.pkg}
 				//onSuccess: enyo.bind(this, "handleGetPreferencesResponse")
 			});
 		}
@@ -889,6 +881,8 @@ enyo.kind({
 				}
 			});
 	},
+	
+	//multi is piped through from packagesModel.doMultiInstall.
 	doInstall: function(skipDeps, multi) {
 		try {
 			// check dependencies and do multi-install
@@ -896,25 +890,18 @@ enyo.kind({
 				this.doProgressMessage({message: $L("Checking Dependencies")});
 				var deps = this.getDependenciesRecursive(true); // true to get "just needed" packages
 				if (deps.length > 0) {
-					preware.PackagesModel.checkMultiInstall(this, deps); //TODO!
+					preware.PackagesModel.checkMultiInstall(this, deps);
 					return;
 				}
 			}
 			
 			// start action
-			if (multi !== undefined) {
-				this.doProgressMessage({message: $L("Downloading / Installing<br />") + this.title});
+			this.doProgressMessage({message: $L("Downloading / Installing<br />") + this.title});
 				
-				// call install service
-				preware.IPKGService.install(this.onInstall.bind(this, multi), this.filename, this.location.replace(/ /g, "%20"));
-			} else {
-				this.doProgressMessage({message: $L("Downloading / Installing")});
-				
-				// call install service
-				preware.IPKGService.install(this.onInstall.bind(this), this.filename, this.location.replace(/ /g, "%20"));
-			}
+			// call install service
+			preware.IPKGService.install(this.onInstall.bind(this, multi), this.filename, this.location.replace(/ /g, "%20"));
 		} catch (e) {
-			enyo.error('packageModel#doInstall', e);
+			console.error('error in packageModel#doInstall: ' + e);
 		}
 	},
 	doUpdate: function(skipDeps, multi)	{
@@ -930,28 +917,16 @@ enyo.kind({
 			}
 		
 			// start action
-			if (multi !== undefined) {
-				this.doProgressMessage({message: $L("Downloading / Updating<br />") + this.title});
+			this.doProgressMessage({message: $L("Downloading / Updating") + this.title});
 
-				if (preware.typeConditions.can(this.type, 'updateAsReplace')) { //TODO!
-					preware.IPKGService.replace(this.onUpdate.bind(this, multi), this.pkg, this.filename, this.location.replace(/ /g, "%20"));
-					this.doProgressMessage({message: 'Downloading / Replacing<br />' + this.title});
-				} else {
-					preware.IPKGService.install(this.onUpdate.bind(this, multi), this.filename, this.location.replace(/ /g, "%20"));
-				}
-			}
-			else {
-				this.doProgressMessage({message: $L("Downloading / Updating")});
-
-				if (preware.typeConditions.can(this.type, 'updateAsReplace')) {
-					preware.IPKGService.replace(this.onUpdate.bind(this), this.pkg, this.filename, this.location.replace(/ /g, "%20"));
-					this.doProgressMessage({message: $L("Downloading / Replacing")});
-				} else {
-					preware.IPKGService.install(this.onUpdate.bind(this), this.filename, this.location.replace(/ /g, "%20"));
-				}
+			if (preware.typeConditions.can(this.type, 'updateAsReplace')) { 
+				preware.IPKGService.replace(this.onUpdate.bind(this, multi), this.pkg, this.filename, this.location.replace(/ /g, "%20"));
+				this.doProgressMessage({message: 'Downloading / Replacing<br />' + this.title});
+			} else {
+				preware.IPKGService.install(this.onUpdate.bind(this, multi), this.filename, this.location.replace(/ /g, "%20"));
 			}
 		} catch (e) {
-			enyo.error('packageModel#doUpdate', e);
+			console.error('error in packageModel#doUpdate: ' + e);
 		}
 	},
 	doRemove: function(skipDeps) {
@@ -961,7 +936,7 @@ enyo.kind({
 				this.doProgressMessage({message: $L("Checking Dependencies")});
 				var deps = this.getDependent(true); // true to get "just installed" packages
 				if (deps.length > 0) {
-					preware.PackagesModel.checkMultiRemove(this, deps, assistant); //TODO!
+					preware.PackagesModel.checkMultiRemove(this, deps);
 					return;
 				}
 			}
@@ -972,49 +947,49 @@ enyo.kind({
 			// call remove service
 			preware.IPKGService.remove(this.onRemove.bind(this), this.pkg);
 		} catch (e) {
-			enyo.error('packageModel#doRemove', e);
+			console.error('error in packageModel#doRemove: ' + e);
 		}
 	},
 	
-	onInstall: function(payload, multi) {
+	onInstall: function(multi, payload) {
+		var msg, msgError;
 		try {
 			// log payload for display
 			preware.IPKGService.logPayload(payload);
 			
 			if (!payload) {
-				var msg = $L("Error Installing: Communication Error");
-				var msgError = true;
+				msg = $L("Error Installing: Communication Error");
+				msgError = true;
 			}	else {
 				if (!payload.returnValue) {
-					var msg = $L("Error Installing: No Further Information");
-					var msgError = true;
+					msg = $L("Error Installing: No Further Information");
+					msgError = true;
 				}
-				if (payload.stage == "failed") {
-					var msg = $L("Error Installing: See IPKG Log");
-					var msgError = true;
-				}	else if (payload.stage == "status") {
+				if (payload.stage === "failed") {
+					msg = $L("Error Installing: See IPKG Log");
+					msgError = true;
+				}	else if (payload.stage === "status") {
 					this.doProgressMessage({message: $L("Downloading / Installing<br />") + payload.status});
 					return;
-				} else if (payload.stage == "completed") {
+				} else if (payload.stage === "completed") {
 					// update info
 					this.isInstalled = true;
 										
 					// message
-					var msg = this.type + $L(" installed");
-
+					msg = this.type + $L(" installed");
 					enyo.Signals.send("onPackageRefresh");
 					
 					// do finishing stuff
 					if (multi !== undefined) {
-						preware.PackagesModel.doMultiInstall(multi+1); //TODO!
+						preware.PackagesModel.doMultiInstall(multi+1);
 						return;
 					}	else {
 						if (this.hasFlags('install')) { //TODO!
-							enyo.error("assistant.actionMessage not yet replaced, logging instead");
+							console.error("assistant.actionMessage not yet replaced, logging instead");
 							enyo.log(
-								msg + ':<br /><br />' + this.actionMessage('install'),
-								[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
-								this.actionFunction.bindAsEventListener(this, 'install')
+								msg + ':<br /><br />' + this.actionMessage('install')
+								//[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
+								//this.actionFunction.bind(this, 'install')
 							);
 							return;
 						}	else {
@@ -1031,8 +1006,8 @@ enyo.kind({
 					this.isInstalled = true;
 					
 					// message
-					var msg = this.type + $L(" installed");
-					var msgError = true;
+					msg = this.type + $L(" installed");
+					msgError = true;
 					
 					if (multi !== undefined) {
 						preware.PackagesModel.doMultiInstall(multi + 1);
@@ -1044,7 +1019,7 @@ enyo.kind({
 			}
 			
 			if (msgError) {
-				enyo.error("assistant.actionMessage not yet replaced, logging instead");
+				console.error("assistant.actionMessage not yet replaced, logging instead");
 				enyo.log(
 					msg,
 					[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
@@ -1054,34 +1029,35 @@ enyo.kind({
 				this.doSimpleMessage(msg);
 			}
 		} catch (e) {
-			enyo.error('packageModel#onInstall', e);
+			console.error('error in packageModel#onInstall: ' + e);
 		}
 	},
-	onUpdate: function(payload, multi) {
+	onUpdate: function(multi, payload) {
+		var msg, msgError;
 		try {
 			// log payload for display
 			preware.IPKGService.logPayload(payload);
 			
 			if (!payload) {
-				var msg = $L("Error Updating: Communication Error");
-				var msgError = true;
+				msg = $L("Error Updating: Communication Error");
+				msgError = true;
 			} else {
 				if (!payload.returnValue) {
-					var msg = $L("Error Updating: No Further Information");
-					var msgError = true;
+					msg = $L("Error Updating: No Further Information");
+					msgError = true;
 				}
-				if (payload.stage == "failed") {
-					var msg = $L("Error Updating: See IPKG Log");
-					var msgError = true;
-				} else if (payload.stage == "status") {
+				if (payload.stage === "failed") {
+					msg = $L("Error Updating: See IPKG Log");
+					msgError = true;
+				} else if (payload.stage === "status") {
 					this.doProgressMessage({message: $L("Downloading / Updating<br />") + payload.status});
 					return;
-				} else if (payload.stage == "completed") {
+				} else if (payload.stage === "completed") {
 					// update info
 					this.hasUpdate = false;
 										
 					// message
-					var msg = this.type + $L(" updated");
+					msg = this.type + $L(" updated");
 
 					enyo.Signals.send("onPackageRefresh");
 					
@@ -1091,11 +1067,11 @@ enyo.kind({
 						return;
 					}	else {
 						if (this.hasFlags('update')) {
-							enyo.error("assistant.actionMessage not yet replaced, logging instead");
+							console.error("assistant.actionMessage not yet replaced, logging instead");
 							enyo.log(
-								msg + ':<br /><br />' + this.actionMessage('update'),
-								[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
-								this.actionFunction.bindAsEventListener(this, 'update')
+								msg + ':<br /><br />' + this.actionMessage('update')
+								//[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
+								//this.actionFunction.bind(this, 'update')
 							);
 							return;
 						}	else {
@@ -1112,8 +1088,8 @@ enyo.kind({
 					this.hasUpdate = false;
 										
 					// message
-					var msg = this.type + $L(" updated");
-					var msgError = true;
+					msg = this.type + $L(" updated");
+					msgError = true;
 					
 					if (multi !== undefined) {
 						preware.PackagesModel.doMultiInstall(multi + 1);
@@ -1126,21 +1102,22 @@ enyo.kind({
 			}
 			
 			if (msgError) {
-				enyo.error("assistant.actionMessage not yet replaced, logging instead");
+				console.error("assistant.actionMessage not yet replaced, logging instead");
 				enyo.log(
-					msg,
-					[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
-					this.errorLogFunction.bindAsEventListener(this)
+					msg
+					//[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
+					//this.errorLogFunction.bindAsEventListener(this)
 				);
 			} else {
 				this.doSimpleMessage(msg);
 			}
 		}
 		catch (e) {
-			enyo.error('packageModel#onUpdate', e);
+			console.error('error in packageModel#onUpdate: ' + e);
 		}
 	},
 	onRemove: function(payload) {
+		var msg, msgError;
 		try 
 		{
 			// log payload for display
@@ -1148,28 +1125,28 @@ enyo.kind({
 		
 			if (!payload) 
 			{
-				var msg = $L("Error Removing: Communication Error");
-				var msgError = true;
+				msg = $L("Error Removing: Communication Error");
+				msgError = true;
 			}
 			else
 			{
 				if (!payload.returnValue)
 				{
-					var msg = $L("Error Removing: No Further Information");
-					var msgError = true;
+					msg = $L("Error Removing: No Further Information");
+					msgError = true;
 				}
-				if (payload.stage == "failed")
+				if (payload.stage === "failed")
 				{
-					var msg = $L("Error Removing: See IPKG Log");
-					var msgError = true;
+					msg = $L("Error Removing: See IPKG Log");
+					msgError = true;
 				}
-				else if (payload.stage == "status")
+				else if (payload.stage === "status")
 				{
-					enyo.error("assistant.displayAction not yet replaced, logging instead");
+					console.error("assistant.displayAction not yet replaced, logging instead");
 					enyo.log($L("Removing<br />") + payload.status);
 					return;
 				}
-				else if (payload.stage == "completed")
+				else if (payload.stage === "completed")
 				{
 					// update info
 					this.hasUpdate = false;
@@ -1178,17 +1155,17 @@ enyo.kind({
 					enyo.Signals.send("onPackageRefresh");
 				
 					// message
-					var msg = this.type + $L(" removed");
+					msg = this.type + $L(" removed");
 				
 					// do finishing stuff
 					if (this.hasFlags('remove')) 
 					{
 						//TODO: Hook into UI
-						enyo.error("assistant.actionMessage not yet replaced, logging instead");
+						console.error("assistant.actionMessage not yet replaced, logging instead");
 						enyo.log(
-							msg + ':<br /><br />' + this.actionMessage('remove'),
-							[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
-							this.actionFunction.bindAsEventListener(this, 'remove')
+							msg + ':<br /><br />' + this.actionMessage('remove')
+							//[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
+							//this.actionFunction.bind(this, 'remove')
 						);
 						return;
 					}
@@ -1200,29 +1177,26 @@ enyo.kind({
 				}
 				// we keep this around for services without flags that have a javarestart in their scripts
 				// of course, it might get here on accident, but thats a risk we'll have to take for now
-				else if (payload.errorText == "org.webosinternals.ipkgservice is not running.")
-				{
+				else if (payload.errorText === "org.webosinternals.ipkgservice is not running.") {
 					// update info
 					//this.hasUpdate = false;
 					//this.isInstalled = false;
-				
-					// cancel the subscription
-					//this.subscription.cancel();
-				
+								
 					// message
-					var msg = this.type + $L(" removal probably failed");
-					var msgError = true;
+					msg = this.type + $L(" removal probably failed");
+					msgError = true;
+				} else {
+				  return;
 				}
-				else return;
 			}
 		
 			if (msgError)
 			{
-				enyo.error("assistant.actionMessage not yet replaced, logging instead");
+				console.error("assistant.actionMessage not yet replaced, logging instead");
 				enyo.log(
-					msg,
-					[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
-					this.actionFunction.bindAsEventListener(this, 'remove')
+					msg, msgError
+					//[{label:$L("Ok"), value:'ok'}, {label:$L("IPKG Log"), value:'view-log'}],
+					//this.actionFunction.bind(this, 'remove')
 				);
 			}
 			else
@@ -1232,7 +1206,7 @@ enyo.kind({
 		}
 		catch (e) 
 		{
-			enyo.error(e, 'packageModel#onRemove');
+			console.error(e, 'packageModel#onRemove');
 		}
 	},
 
@@ -1250,48 +1224,48 @@ enyo.kind({
 		{
 			if ((this.flags[type].RestartJava && this.flags[type].RestartLuna) || this.flags[type].RestartDevice) 
 			{
-				this.subscription = IPKGService.restartdevice(function(){});
+				IPKGService.restartdevice(function(){});
 			}
 			if (this.flags[type].RestartJava) 
 			{
-				this.subscription = IPKGService.restartjava(function(){});
+				IPKGService.restartjava(function(){});
 			}
 			if (this.flags[type].RestartLuna) 
 			{
-				this.subscription = IPKGService.restartluna(function(){});
+				IPKGService.restartluna(function(){});
 			}
 			// this is always ran...
-			if (!preware.PrefCookie.get().avoidBugs && type != 'remove')
+			if (!preware.PrefCookie.get().avoidBugs && type !== 'remove')
 			{
-				this.subscription = IPKGService.rescan(function(){});
+				IPKGService.rescan(function(){});
 			}
 		}
 		catch (e) 
 		{
-			enyo.error(e, 'packageModel#runFlags');
+			console.error(e, 'packageModel#runFlags');
 		}
 	},
 	errorLogFunction: function(value)
 	{
-		if (value == 'view-log')
+		if (value === 'view-log')
 		{
 			enyo.log("pushScene not yet replaced, open IPKG Log here");
 			//this.assistant.controller.stageController.pushScene({name: 'ipkg-log', disableSceneScroller: true});
 		}
 		return;
 	},
-	actionFunction: function(value, type)
+	actionFunction: function(type, value)
 	{
-		if (value == 'ok') 
+		if (value === 'ok') 
 		{
 			this.runFlags(type);
 		}
 		else
 		{
 			// we should still rescan...
-			if (!prefs.get().avoidBugs && type != 'remove') 
+			if (!preware.PrefCookie.get().avoidBugs && type !== 'remove') 
 			{
-				this.subscription = IPKGService.rescan(function(){});
+				IPKGService.rescan(function(){});
 			}
 		}
 		return;

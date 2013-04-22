@@ -7,10 +7,6 @@ enyo.singleton({
 	/*events: {
 		onLoadFeedsFinished: "" //inEvent will have feeds with array of feeds, succes with true/false, message: string
 	},*/
-	log: function(msg) {
-		enyo.error(msg);
-		this.owner.log(msg);
-	},
 	doLoadFeedsFinished: function(data) {
 		if (this.callback) {
 			this.callback({}, data.feeds);
@@ -22,11 +18,11 @@ enyo.singleton({
 			// clear out our current data (incase this is a re-update)
 			this.feeds = [];
 
-			this.log("calling list configs");
+			//console.error("calling list configs");
 			// init feed loading
 			this.subscription = preware.IPKGService.list_configs(this.onConfigs.bind(this));
 		} catch (e) {
-			enyo.error("feedsModel#loadFeeds", e);
+			console.error("feedsModel#loadFeeds: " + e);
 		}
 	},
 	getFeedUrl: function(name) {
@@ -40,9 +36,10 @@ enyo.singleton({
 		}
 		return false;
 	},
+	
 	onConfigs: function(payload) {
 		var x, c, tmpSplit1, tmpSplit2, feedObj;
-		this.log("configs returned: " + JSON.stringify(payload));
+		//console.error("configs returned: " + JSON.stringify(payload));
 		try {
 			if (!payload) {
 				// i dont know if this will ever happen, but hey, it might
@@ -86,11 +83,11 @@ enyo.singleton({
 				});
 				
 				//send out feeds as event.
-				enyo.log("Loading finished, feeds: " + JSON.stringify(this.feeds));
+				console.error("Loading finished, feeds: " + JSON.stringify(this.feeds));
 				this.doLoadFeedsFinished({feeds: this.feeds, success: true});
 			} //end of no error-case
 		} catch (e) {
-			enyo.error("feedsModel#onFeeds", e);
+			console.error("feedsModel#onConfigs: " + e);
 			this.doLoadFeedsFinished({success: false, message: e });
 		}
 	}

@@ -1,9 +1,7 @@
-/*global enyo, preware, IPKGService, $L, device */
+/*global enyo, preware, IPKGService, $L, device, navigator, Mojo */
 
 enyo.singleton({
 	name: "preware.PackagesModel",
-	// for storing assistants when we get one for certain functions, TODO: those won't work anymore..
-	assistant: false,
 	onlyLoad: false, //moved here from updateAssistant.
 	// for storing action information when we're in a multi-action
 	multiPkg: false,
@@ -37,19 +35,18 @@ enyo.singleton({
 	stagedPkgs: false,
 	
 	// we'll need these for the subscription based calls
-	subscription: false,
 	rawData: '',
 	unknownCount: 0,
 	unknownFixed: 0,
 	
 	//emited signals:
-	// onPackagesStatusUpdate: { //emited during load to allow status output.
+	// onPackagesStatusUpdate: { //emitted during load to allow status output.
 	//																 message: "some status message", 
 	//																 progress: true/false => show progress meter true/false
 	//																 progValue: [1-100]		=> progress value
 	//																 error: true/false		=> true if an error occured.
 	//														 }
-	// onPackagesLoadFinished: {} //emited when loading is finished.
+	// onPackagesLoadFinished: {} //emitted when loading is finished.
 		
 	//methods:
 	//this replaces link to updateAssistant with a signal.
@@ -65,6 +62,9 @@ enyo.singleton({
 			msg += " - Progress: " + obj.progValue;
 		}
 		enyo.Signals.send("onPackagesStatusUpdate", {message: msg});
+	},
+	doSimpleMessage: function(msg) {
+		enyo.Signals.send("onBackendSimpleMessage", msg);
 	},
 	
 	doneUpdating: function() {
@@ -96,7 +96,7 @@ enyo.singleton({
 			// initiate status request
 			this.infoStatusRequest();
 		} catch (e) {
-			enyo.error('packagesModel#loadFeeds', e);
+			console.error('error in packagesModel#loadFeeds: ' + e);
 		}
 	},
 	
@@ -110,7 +110,7 @@ enyo.singleton({
 		});
 
 		// request the rawdata
-		this.subscription = preware.IPKGService.getStatusFile(this.infoResponse.bind(this, -1));
+		preware.IPKGService.getStatusFile(this.infoResponse.bind(this, -1));
 	},
 	
 	//request more package information from IPKGService, i.e. next feed.
@@ -125,7 +125,7 @@ enyo.singleton({
 		this.feedNum += 1;
 	
 		// subscribe to new feed
-		this.subscription = preware.IPKGService.getListFile(this.infoResponse.bind(this, num), this.feeds[num]);
+		preware.IPKGService.getListFile(this.infoResponse.bind(this, num), this.feeds[num]);
 	},
 	
 	//parses the response from the IPKGService.
@@ -193,7 +193,7 @@ enyo.singleton({
 				}
 			}
 		} catch (e) {
-			enyo.error('packagesModel#infoResponse', e);
+			console.error('error in packagesModel#infoResponse: ' + e);
 		}
 		
 		if (doneLoading) {
@@ -265,7 +265,7 @@ enyo.singleton({
 				}
 			}
 		} catch (e) {
-			enyo.error('packagesModel#parsePackages', e);
+			console.error('error in packagesModel#parsePackages: ' + e);
 		}
 	},
 	
@@ -287,7 +287,7 @@ enyo.singleton({
 				this.deviceVersion = device.version;
 			}
 		}
-		//enyo.error("device.version: " + this.deviceVersion);
+		//console.error("device.version: " + this.deviceVersion);
 		
 		newPkg = new preware.PackageModel(infoObj);
 		if (this.deviceVersion && this.deviceVersion.match(/^[0-9:.\-]+$/)) {
@@ -303,21 +303,21 @@ enyo.singleton({
 				return;
 			}
 		} else {
-			enyo.error("Could not get OS version, so packges did not get filtered.");
+			console.error("Could not get OS version, so packges did not get filtered.");
 		}
 		
 		// Filter out apps that don't match the host device
 		if (!preware.PrefCookie.get().ignoreDevices && newPkg.devices && newPkg.devices.length > 0 &&
-			newPkg.devices.indexOf(device.name) == -1) {
+			newPkg.devices.indexOf(device.name) === -1) {
 			//alert('+ 4');
-			enyo.error("Ignoring package because of wrong device name...");
+			console.error("Ignoring package because of wrong device name...");
 			return;
 		}
 		
 		// Filter out paid apps if desired
 		if ((preware.PrefCookie.get().onlyShowFree) && (newPkg.price !== undefined) &&
 				(newPkg.price !== "0") && (newPkg.price !== "0.00")) {
-			//enyo.error("Ignoring package because of price tag...");
+			//console.error("Ignoring package because of price tag...");
 			return;
 		}
 
@@ -325,7 +325,7 @@ enyo.singleton({
 		if ((preware.PrefCookie.get().onlyShowEnglish) &&
 			newPkg.languages && newPkg.languages.length &&
 			!newPkg.inLanguage("en")) {
-			//enyo.error("Ignoring package because of wrong language.");
+			//console.error("Ignoring package because of wrong language.");
 			//alert('+ 6');
 			return;
 		}
@@ -412,7 +412,7 @@ enyo.singleton({
 	},
 	
 	doneLoading: function() {
-		var p, f, i, justTypeObjs, sortLowerCase, plattformMajor;
+		var p, f, i, justTypeObjs, sortLowerCase;
 		try {			
 			// feeds are no longer dirty and packages are no longer soiled
 			this.dirtyFeeds = false;
@@ -469,7 +469,7 @@ enyo.singleton({
 				}
 			}
 		} catch (e) {
-			enyo.error('packagesModel#doneLoading', e);
+			console.error('error in packagesModel#doneLoading: ' + e);
 		}
 		
 		sortLowerCase = function(a, b) {
@@ -516,6 +516,277 @@ enyo.singleton({
 		this.doneUpdating();
 	},
 	
+	//============================= multi package operations
+	//checks restart flags from multiple packages.
+	getMultiFlags: function() {
+		try {
+			var mFlags = {RestartLuna: false, RestartJava: false, RestartDevice: false}, tmpType, d,
+				checkFlags = function (flags) {
+					if (flags.RestartLuna)	{
+						mFlags.RestartLuna = true;
+					}
+					if (flags.RestartJava)	{
+						mFlags.RestartJava = true;
+					}
+					if (flags.RestartDevice)	{
+						mFlags.RestartDevice = true;
+					}
+				};
+			
+			// check base package first if there is one
+			if (this.multiPkg) {
+				if (this.multiPkg.isInstalled) {
+					tmpType = 'update';
+				} else {
+					tmpType = 'install';
+				}
+				checkFlags(this.multiPkg.flags[tmpType]);
+			}
+
+			// check all deps
+			for (d = 0; d < this.multiPkgs.length; d += 1) {
+				if (this.packages[this.multiPkgs[d]].isInstalled)	{
+					tmpType = 'update';
+				} else {
+					tmpType = 'install';
+				}
+				checkFlags(this.packages[this.multiPkgs[d]].flags[tmpType]);
+			}
+		
+			// return them
+			return mFlags;
+		} catch (e) {
+			console.error('error in packagesModel#getMultiFlags: ' + e);
+		}	
+	},
+	
+	//asks user if it should install multiple packages. If so, calls testMultiInstall.
+	checkMultiInstall: function(pkg, pkgs) {
+		try {		
+			this.multiPkg	= pkg;
+			this.multiPkgs	= pkgs;
+			this.multiFlags	= this.getMultiFlags();
+		
+			// see what they want to do:
+			//TODO!!! 
+			//this.assistant.actionMessage(
+				//$L("This package depends on <b>") + this.multiPkgs.length + $L("</b> other package") + (this.multiPkgs.length>1?'s':'') + $L(" to be installed or updated."),
+			//[
+				//{label:$L("Install / Update ") + (this.multiPkgs.length>1?$L("Them"):$L("It")), value:'ok'},
+				//{label:$L("View ") + (this.multiPkgs.length>1?$L("Them"):$L("It")), value:'view'},
+				//{label:$L("Cancel"), value:'cancel'}
+			//],
+			//this.testMultiInstall.bindAsEventListener(this)
+			//);
+			this.testMultiInstall("ok");
+		} catch (e) {
+			console.error('error in packagesModel#checkMultiInstall: ' + e);
+		}
+	},
+	
+	//this was used to react to the question towards the user and either install or show the packages to be installed.
+	testMultiInstall: function(value) {
+		switch(value) {
+		case 'ok':
+			//this.assistant.displayAction($L("Installing / Updating"));
+			//this.assistant.startAction();
+			console.error("MultiPkg: " + this.multiPkg.pkg);
+			console.error("Pushing: " + this.packagesReversed[this.multiPkg.pkg]-1);
+			this.multiPkgs.push(this.packagesReversed[this.multiPkg.pkg]-1); //add package with dependencies to be list of packages to be installed as last one.
+			this.doMultiInstall(0);
+			break;
+		
+		case 'view': //TODO!!!! 
+			//this.assistant.controller.stageController.pushScene('pkg-connected', 'install', this.multiPkg, this.multiPkgs);
+			this.multiPkg	= false;
+			this.multiPkgs = false;
+			this.multiFlags	= false;
+			break;
+		}
+		return;
+	},
+	
+	doMultiInstall: function(number) {
+		var pkg = this.packages[this.multiPkgs[number]];
+		console.error("in doMultiInstall, number: " + number);
+		try {
+			// call install for dependencies
+			if (number < this.multiPkgs.length) {
+				console.error("package: " + JSON.stringify(this.multiPkgs[number]));
+				if (pkg) {
+					console.error("packages List: " + pkg.title + " appcat: " + pkg.appCatalog + " installed: " + pkg.isInstalled);
+				} else {
+					console.error("Package not in pkg list??");
+				}
+				//package is from appCatalog (?)
+				if (pkg.appCatalog && preware.PrefCookie.get().useTuckerbox) {
+					this.doMyApps = true;
+					this.doMultiInstall(number+1);
+				} else if (pkg.isInstalled) {
+					if (!pkg.location) {
+						console.error('No location');
+						// see note above about this skipping if the type can't be updated
+						this.doMultiInstall(number+1);
+					} else if (preware.typeConditions.can(pkg.type, 'update')) {
+						pkg.doUpdate(true, number);
+					} else {
+						// it can't be updated, so we will just skip it
+						// we should probably message or something that this has been skipped
+						// or really, we should notify the user before we even get this far
+						this.doMultiInstall(number+1);
+					}
+				} else {
+					if (!pkg.location) {
+						console.error('No location');
+						// see note above about this skipping if the type can't be updated
+						this.doMultiInstall(number+1);
+					} else {
+						pkg.doInstall(true, number);
+					}
+				}
+			} else { // end actions!
+				console.error("Last app installed. Ending actions.");
+				if (this.doMyApps) {
+					console.error("Trying to launch software manager.");
+					this.dirtyFeeds = true;
+					if (Mojo && Mojo.Environment && Mojo.Environment.DeviceInfo && Mojo.Environment.DeviceInfo.platformVersionMajor === 1) {
+						navigator.Service.Request('palm://com.palm.applicationManager', 
+						{
+							method: 'launch',
+							parameters: 
+							{
+								id: "com.palm.app.findapps",
+								params: { myapps: '' }
+							}
+						});
+					} else {
+						navigator.Service.Request('palm://com.palm.applicationManager', {
+								method: 'launch',
+								parameters: 
+								{
+									id: "com.palm.app.swmanager",
+									params: { launchType: "updates" }
+								}
+							});
+					}
+				}
+
+				if (this.multiFlags.RestartLuna || this.multiFlags.RestartJava || this.multiFlags.RestartDevice) {
+					console.error("assistant.actionMessage not yet replaced, logging instead");
+					console.error(
+						$L("Packages installed:<br /><br />") + this.multiActionMessage(this.multiFlags)
+						//[{label:$L("Ok"), value:'ok'}, {label:$L("Later"), value:'skip'}],
+						//this.multiActionFunction.bindAsEventListener(this, this.multiFlags)
+					);
+					return;
+				}	else {
+					// we run this anyways to get the rescan
+					this.multiRunFlags(this.multiFlags);
+				}
+				this.doSimpleMessage($L("Packages installed"));
+				this.multiPkg	= false;
+				this.multiPkgs	= false;
+				this.multiFlags	= false;
+				this.doMyApps		= false;
+			}
+		} catch (e) {
+			console.error('error in packagesModel#doMultiInstall: ' + e);
+		}
+	},
+	
+	checkMultiRemove: function(pkg, pkgs) {
+		var i, msg;
+		try {
+			this.multiPkg	= pkg;
+			this.multiPkgs	= pkgs;
+			this.multiFlags	= this.getMultiFlags();
+		
+			//did not find a replacement for interpolate, yet.. what?
+			//var localizedText=$L("This package has <b>#{num}</b> other installed #{package} that #{depend} on it. <br /><br />Removing this package may cause #{them} to no longer function.").interpolate({num: this.multiPkgs.length, package: (this.multiPkgs.length>1 ? $L("packages") : $L("package")), depend: (this.multiPkgs.length>1 ? $L("depend") : $L("depends")), them: (this.multiPkgs.length>1 ? $L("them") : $L("it"))})
+
+			// see what they want to do:
+			//this.assistant.actionMessage(
+			//	localizedText,
+			//	[
+					// uncomment to allow removing of itself
+					//{label:$L('Remove Anyways'), value:'ok'},
+			//		{label:$L("View ") + (this.multiPkgs.length>1?$L("Them"):$L("It")), value:'view'},
+			//		{label:$L("Cancel"), value:'cancel'}
+			//	],
+			//	this.testMultiRemove.bind(this)
+			//);
+			msg = $L("This package has other installed packages that depend on it. Can't remove it. Depending packages: ");
+			for (i = 0; i < this.multiPkgs.length; i += 1) {
+				msg += this.packages[this.multiPkgs[i]].title;
+				if (i !== this.multiPkgs.length - 1) {
+					msg += ", ";
+				}
+			}
+			this.doSimpleMessage(msg);
+			this.testMultiRemove("cancel");
+		} catch (e) {
+			console.error('packagesModel#checkMultiRemove: ' + e);
+		}
+	},
+	
+	testMultiRemove: function(value) {
+		switch(value) {
+			case 'ok':
+				this.multiPkg.doRemove(true);
+				this.multiPkg	= false;
+				this.multiPkgs	= false;
+				this.multiFlags	= false;
+				break;
+			case 'view':
+				console.error("View not yet implemented...");
+				//this.assistant.controller.stageController.pushScene('pkg-connected', 'remove', this.multiPkg, this.multiPkgs);
+				this.multiPkg	= false;
+				this.multiPkgs	= false;
+				this.multiFlags	= false;
+				break;
+		}
+		return;
+	},
+	
+	//utility function to generate install messages
+	multiActionMessage: function(flags) {
+		try {
+			var msg = '';
+			if (flags.RestartJava) {
+				msg = $L("<b>Java Restart Is Required</b><br /><i>Once you press Ok your device will lose network connection and be unresponsive until it is done restarting.</i><br />");
+			}
+			if (flags.RestartLuna) {
+				msg = $L("<b>Luna Restart Is Required</b><br /><i>Once you press Ok all your open applications will be closed while luna restarts.</i><br />");
+			}
+			if ((flags.RestartLuna && flags.RestartJava) || flags.RestartDevice) {
+				msg = $L("<b>Device Restart Is Required</b><br /><i>You will need to restart your device to be able to use the packages that were just installed.</i><br />");
+			}
+			return msg;
+		} catch (e) {
+			console.error('error in packagesModel#multiActionMessage: ' + e);
+		}
+	},
+	
+	//called in the end of an action. Triggers restarts and so on and also a rescann.
+	multiRunFlags: function(flags) {
+		try {
+			if ((flags.RestartLuna && flags.RestartJava) || flags.RestartDevice) {
+				IPKGService.restartdevice(function(){});
+			}
+			if (flags.RestartJava && !flags.RestartLuna) {
+				IPKGService.restartjava(function(){});
+			}
+			if (flags.RestartLuna && !flags.RestartJava) {
+				IPKGService.restartluna(function(){});
+			}
+			// this is always ran...
+			if (!preware.PrefCookie.get().avoidBugs) {
+				IPKGService.rescan(function(){});
+			}
+		} catch (e) {
+			console.error('packagesModel#multiRunFlags: ' + e);
+		}
+	},
 	
 	// Utility stuff if following.
 	versionNewer: function(one, two) {

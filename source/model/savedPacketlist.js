@@ -5,7 +5,7 @@
 enyo.singleton({
 	name: "preware.SavedPacketlist",
 	load: function(callback) {
-		enyo.error("preware.SavedPacketlist.load is only a stub.");
+		console.error("preware.SavedPacketlist.load is only a stub.");
 		/*
 		try {
 			this.doDisplayStatus({msg: $L("<strong>Reading Saved Package List</strong>")});
@@ -31,7 +31,7 @@ enyo.singleton({
 	},
 	
 	save: function(callback) {
-		enyo.error("preware.SavedPacketlist.save is only a stub");
+		console.error("preware.SavedPacketlist.save is only a stub");
 		
 		//see below in the commented	code how the list was created earlier.
 		

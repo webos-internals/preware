@@ -100,7 +100,7 @@ enyo.kind({
 		{kind: "Signals",
 		onPackagesStatusUpdate: "processStatusUpdate",
 		onPackagesLoadFinished: "doneLoading",
-		onPackageSimpleMessage: "processSimpleMessage",
+		onBackendSimpleMessage: "processSimpleMessage",
 		onPackageProgressMessage: "processProgressMessage",
 		onPackageRefresh: "handlePackageRefresh",
 		ondeviceready: "handleDeviceReady"},
@@ -486,13 +486,13 @@ enyo.kind({
 		this.currentPackage.launch();
 	},
 	installTapped: function() {
-		this.currentPackage.doInstall(true);
+		this.currentPackage.doInstall();
 	},
 	updateTapped: function() {
-		this.currentPackage.doUpdate(true);
+		this.currentPackage.doUpdate();
 	},
 	removeTapped: function() {
-		this.currentPackage.doRemove(true);
+		this.currentPackage.doRemove();
 	},
 	//Unsorted Functions
 	versionTap: function(inSender, inEvent) {
@@ -554,7 +554,7 @@ enyo.kind({
 		});
 	},
 	onConnectionFailure: function(response) {
-			console.log("Failure, response="+JSON.stringify(response));
+			this.log("Failure, response="+JSON.stringify(response));
 	},
 	onConnection: function(response) {
 		var hasNet = false;
@@ -604,8 +604,7 @@ enyo.kind({
 			}
 		}
 		catch (e) {
-			enyo.error("feedsModel#loadFeeds", e);
-			this.log("Exception Caught: " + e);
+			console.error("app#onVersionCheck: " + e);
 		}
 	},
 	downLoadFeeds: function(inSender, inEvent) {

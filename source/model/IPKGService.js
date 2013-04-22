@@ -11,7 +11,7 @@ enyo.singleton({
 		}
 	},
 	generalFailure: function(callback, inError) {
-		enyo.error("IPKGService#generalFailure", inError);
+		console.error("IPKGService#generalFailure: " + inError);
 		if (callback) {
 			callback(inError);
 		}

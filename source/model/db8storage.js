@@ -46,25 +46,25 @@ enyo.singleton({
 	deleteAll: function(callback) {
 		//this.$.deleteAllData.call({query: {from: preware2Domain + ".justType:1"}});
 		//TODO: remove this, if DbService is implemented!!!
-		enyo.error("db8storage.deleteAll is only a stub.");
+		console.error("db8storage.deleteAll is only a stub.");
 		this.callback = callback;
 	},
 	deleteAllSuccess: function(inSender, inResponse) {
-		enyo.log("Delete all success.");
+		console.error("Delete all success.");
 		if (this.callback) {
 			this.callback({success: true});
 		}
 	},
 	deleteAllFailure: function(inSender, inError, inRequest) {
-		enyo.error("delete all failure: ", inError);
+		console.error("delete all failure: " + inError);
 		if (this.callback) {
 			this.callback({success: false});
 		}
 	},
 	dbSuccess: function(inSender, inRequest) {
-		enyo.log("DB8 operation " + JSON.stringify(inRequest) + " success.");
+		console.error("DB8 operation " + JSON.stringify(inRequest) + " success.");
 	},
 	dbFailure: function(inSender, inError, inRequest) {
-		enyo.error("db8Failure: ", inError);
+		console.error("db8Failure: " + inError);
 	}
 });

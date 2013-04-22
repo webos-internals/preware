@@ -60,7 +60,7 @@ enyo.singleton({
 			}
 			return this.prefs;
 		} catch (e) {
-			enyo.error('preferenceCookie#get', e);
+			console.error('preferenceCookie#get: ' + e);
 		}
 	},
 	getAllValues: function() {
@@ -88,7 +88,7 @@ enyo.singleton({
 				this.setAllValues();
 			}
 		} catch (e) {
-			enyo.error('preferenceCookie#put', e);
+			console.error('preferenceCookie#put: ' + e);
 		}
 	},
 	setAllValues: function() {
