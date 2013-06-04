@@ -1,0 +1,14 @@
+/* portions of this code were obtained/inspired by the Enyo 1 AppInfo CSS */
+
+.enyo-appmenu {
+  z-index: 120;
+  position: fixed;
+  font-size: 18px;
+  color: white;
+  top: -2px;
+  left: 0px;
+  min-width: 210px;
+}
+.enyo-appmenu .enyo-item {
+  padding: 10px;
+}

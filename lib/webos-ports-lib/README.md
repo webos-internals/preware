@@ -1,3 +1,5 @@
+*STUFF RIPPED FROM webos-ports-lib THAT WAS NOT IN webos-lib*
+
 #webos-ports-lib
 
 *A selection of additional enyo2 kinds to aid development for Open webOS*
@@ -100,3 +102,30 @@ This is an enyo2 reimagining of the progress indicator from the webOS 2.x Browse
      buttonTapped: function(inSender, inEvent) {
 	this.$.FooOrb.setValue(this.$.FooOrb.value + 100);
      },
+
+##CrossAppUI
+
+Ported from the non-published set of Enyo 1 APIs to Enyo2, CrossAppUI takes a 'path' parameter (the HTML file to open) and displays it inside your application.
+The child application can pass stringified JSON prefixed with 'enyoCrossAppResult=' up to the CrossAppUI via the 'message' event (window scope). CrossAppUI will strip off the prefix, parse it into an object and fire onResult. This is intended to be used as a base class for app-in-app kinds, such as FilePicker (see below).
+
+NOTE: Under webOS 3.x, this will only work with certain palm applications such as FilePicker and System Updates. Awaiting confirmation for Open webOS.
+
+**message Event Example:**
+     "enyoCrossAppResult={\"result\":[{\"fullPath\":\"/path/to/selected/file.foo\",\"iconPath\":\"/var/luna/extractfs//path/to/selected/file.foo:0:0:\",\"attachmentType\":\"image\",\"dbId\":\"++ILuOICkjNDQaUP\"}]}"
+
+**Corresponding onResult Output:**
+     {"fullPath":"/path/to/selected/file.foo","iconPath":"/var/luna/extractfs//path/to/selected/file.foo:0:0:","attachmentType":"image","dbId":"++ILuOICkjNDQaUP"}
+
+**Example:**
+
+     {kind:"CrossAppUI", style: "width: 100%; height: 100%;", path: "/path/to/app/html.html", onResult: "handleResult"}
+
+##FilePicker
+
+Ported across from Enyo 1, this is a CrossAppUI kind that points to the built-in webOS filepicker. The onPickFile event is called when the file is chosen.
+
+**onPickFile Output:**
+     {"fullPath":"/path/to/selected/file.foo","iconPath":"/var/luna/extractfs//path/to/selected/file.foo:0:0:","attachmentType":"image","dbId":"++ILuOICkjNDQaUP"}
+
+**Example:**
+     {name: "ImagePicker", kind: "FilePicker", fileType:["image"], onPickFile: "selectedImageFile"}
