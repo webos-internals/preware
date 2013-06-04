@@ -93,6 +93,7 @@ enyo.kind({
 	// filtered category/package lists
 	currentType: "",
 	availableCategories: [],
+	packageFilter: -1, //filter for all = 0, available (i.e. not installed) = 1, only installed = 2, only updatable = 3
 	currentCategory: "",
 	availablePackages: [],
 	currentPackage: {},
@@ -143,12 +144,11 @@ enyo.kind({
 				classes: "enyo-fill",
 				style: "background-image:url('assets/bg.png')",
 				touch: true,
-				ontap: "showTypeList",
 				components:[
-					{kind: "ListItem", content: "Package Updates"},
-					{kind: "ListItem", content: "Available Packages"},
-					{kind: "ListItem", content: "Installed Packages"},
-					{kind: "ListItem", content: "List of Everything"}
+					{kind: "ListItem", content: "Package Updates", ontap: "showUpdatablePackages" },
+					{kind: "ListItem", content: "Available Packages", ontap: "showAvailableTypeList" },
+					{kind: "ListItem", content: "Installed Packages", ontap: "showInstalledPackages" },
+					{kind: "ListItem", content: "List of Everything", ontap: "showTypeList" }
 				]},
 			]},
 
@@ -367,12 +367,12 @@ enyo.kind({
 			this.log("No PalmServiceBridge found.");
 			this.$.ScrollerPanel.setIndex(1);
 		} else {
-			this.log("PalmServiceBridge found.");
+			this.log("PalmServiceBridge found. 2");
 		}
 	},
 	handleDeviceReady: function(inSender, inEvent) {
-		this.log("device.version: " + device && device.version);
-		this.log("device.name: " + device && device.name);
+		this.log("device.version: " + device ? device.version : "undefined");
+		this.log("device.name: " + device ? device.name : "undefined");
 		
 		this.startLoadFeeds();
 	},
@@ -437,7 +437,61 @@ enyo.kind({
 		console.error(text);
 		this.$.SpinnerText.setContent(text);
 	},
+	sortPackageList: function() {
+		this.availablePackages.sort(function(a, b) {
+					var strA, strB;
+					if (a.title && b.title) {
+						strA = a.title.toLowerCase();
+						strB = b.title.toLowerCase();
+						return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
+					} else {
+						return -1;
+					}
+		});
+	},
 	showTypeList: function() {
+		this.packageFilter = 0;
+		this.$.TypePanels.setIndex(1);
+		this.setIndex(1);
+	},
+	showUpdatablePackages: function () {
+		this.packageFilter = 3;
+		this.availablePackages = [];
+		
+		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
+			var package = preware.PackagesModel.packages[i];
+			if(package.hasUpdate) {
+				if(this.availablePackages.indexOf(package) == -1) {
+					this.availablePackages.push(package);
+				}
+			}
+		}
+		this.sortPackageList();
+		
+		this.$.PackageRepeater.setCount(this.availablePackages.length);
+		this.$.PackagePanels.setIndex(1);
+		this.setIndex(3);
+	},
+	showInstalledPackages: function() {
+		this.packageFilter = 2;
+		this.availablePackages = [];
+		
+		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
+			var package = preware.PackagesModel.packages[i];
+			if(package.isInstalled) {
+				if(this.availablePackages.indexOf(package) == -1) {
+					this.availablePackages.push(package);
+				}
+			}
+		}
+		this.sortPackageList();
+		
+		this.$.PackageRepeater.setCount(this.availablePackages.length);
+		this.$.PackagePanels.setIndex(1);
+		this.setIndex(3);
+	},
+	showAvailableTypeList: function() {
+		this.packageFilter = 1;
 		this.$.TypePanels.setIndex(1);
 		this.setIndex(1);
 	},
@@ -447,12 +501,18 @@ enyo.kind({
 
 		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
 			var package = preware.PackagesModel.packages[i];
+			if((this.packageFilter === 1 && package.isInstalled) 
+			    || (this.packageFilter === 2 && !package.isInstalled)
+				|| (this.packageFilter === 3 && !package.hasUpdate)) {
+				continue;
+			}
 			if(package.type == inSender.$.ItemTitle.content) {
 				if(this.availableCategories.indexOf(package.category) == -1) {
 					this.availableCategories.push(package.category);
 				}
 			}	
 		}
+		this.availableCategories.sort();
 
 		this.$.CategoryRepeater.setCount(this.availableCategories.length);
 		this.$.CategoryPanels.setIndex(1);
@@ -464,12 +524,18 @@ enyo.kind({
 
 		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
 			var package = preware.PackagesModel.packages[i];
+			if((this.packageFilter === 1 && package.isInstalled) 
+			    || (this.packageFilter === 2 && !package.isInstalled)
+				|| (this.packageFilter === 3 && !package.hasUpdate)) {
+				continue;
+			}
 			if(package.type == this.currentType && package.category == this.currentCategory) {
 				if(this.availablePackages.indexOf(package) == -1) {
 					this.availablePackages.push(package);
 				}
 			}	
 		}
+		this.sortPackageList();
 
 		this.$.PackageRepeater.setCount(this.availablePackages.length);
 		this.$.PackagePanels.setIndex(1);
@@ -544,17 +610,22 @@ enyo.kind({
 		this.log("Requesting Machine Name");
 	},
 	onDeviceType: function(inEvent) {
-		// start by checking the internet connection
-		this.log("Requesting Connection Status");
+		if (preware.PrefCookie.get().updateInterval === 'launch') { //TODO: add support for daily, ask (now it's launch and manual only).
+			// start by checking the internet connection
+			this.log("Requesting Connection Status");
 		
-		navigator.service.Request("palm://com.palm.connectionmanager",{
-			method: "getstatus",
-			onSuccess: this.onConnection.bind(this),
-			onFailure: this.onConnectionFailure.bind(this)
-		});
+			navigator.service.Request("palm://com.palm.connectionmanager",{
+				method: "getstatus",
+				onSuccess: this.onConnection.bind(this),
+				onFailure: this.onConnectionFailure.bind(this)
+			});
+		} else {
+			this.loadFeeds();
+		}
 	},
 	onConnectionFailure: function(response) {
-			this.log("Failure, response="+JSON.stringify(response));
+		this.log("ConnectionStatus Failure, response="+JSON.stringify(response));
+		this.loadFeeds();
 	},
 	onConnection: function(response) {
 		var hasNet = false;
@@ -567,8 +638,7 @@ enyo.kind({
 		this.log("Run Version Check");
 		preware.IPKGService.version(this.onVersionCheck.bind(this, hasNet));
 	},
-	onVersionCheck: function(hasNet, payload)
-	{
+	onVersionCheck: function(hasNet, payload) {
 		this.log("Version Check Returned: " + JSON.stringify(payload));
 		try
 		{
@@ -764,6 +834,7 @@ enyo.kind({
 	//Handlers
 	handleBackGesture: function(inSender, inEvent) {
 		this.$.AppPanels.setIndex(0);
+		inEvent.preventDefault();
 	},
 	handleCoreNaviDragStart: function(inSender, inEvent) {
 		this.$.AppPanels.dragstartTransition(this.$.AppPanels.draggable === false ? this.reverseDrag(inEvent) : inEvent);
