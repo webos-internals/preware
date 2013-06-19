@@ -6,5 +6,10 @@ enyo.depends(
 	"$lib/webos-ports-lib",
 	"App.css",
 	"App.js",
+	"AppPanels.js",
+	"EmptyPanel.js",
+	"GrabberToolbar.js",
+	"ListItem.js",
+	"Toast.js",
 	"model"
 );
