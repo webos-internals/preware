@@ -13,7 +13,16 @@ enyo.kind({
 		onCoreNaviDrag: "handleCoreNaviDrag",
 		onCoreNaviDragFinish: "handleCoreNaviDragFinish"},
 		{name: "AppPanels", kind: "AppPanels", fit: true},
-		{kind: "CoreNavi", fingerTracking: true}
+		{kind: "CoreNavi", fingerTracking: true},
+		{name: "SettingsDialog", kind: "SettingsDialog"},
+		{name: "ManageFeedsDialog", kind: "ManageFeedsDialog"},
+		{kind:"AppMenu", //onSelect: "appMenuItemSelected", 
+			components: [
+				//{ content:"Install Package", ontap: "showInstallDialog" },
+				{ content: $L("Preferences"), ontap: "showSettingsDialog" },
+				{ content: $L("Manage Feeds"), ontap: "showManageFeedsDialog" }
+			]
+		}	
 	],
 	//Handlers
 	handleBackGesture: function(inSender, inEvent) {
@@ -28,6 +37,12 @@ enyo.kind({
 	},
 	handleCoreNaviDragFinish: function(inSender, inEvent) {
 		this.$.AppPanels.dragfinishTransition(this.$.AppPanels.draggable === false ? this.reverseDrag(inEvent) : inEvent);
+	},
+	showSettingsDialog: function(inSender, inEvent) {
+		this.$.SettingsDialog.show();
+	},
+	showManageFeedsDialog: function(inSender, inEvent) {
+		this.$.ManageFeedsDialog.show();
 	},
 	//Utility Functions
 	reverseDrag: function(inEvent) {
