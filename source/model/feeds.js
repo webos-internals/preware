@@ -3,24 +3,20 @@
 enyo.singleton({
 	name: "preware.FeedsModel",
 	feeds: [], // for storing all the feed information
-	subscription: false, // we'll need these for the subscription based methods
 	/*events: {
 		onLoadFeedsFinished: "" //inEvent will have feeds with array of feeds, succes with true/false, message: string
 	},*/
 	doLoadFeedsFinished: function(data) {
-		if (this.callback) {
-			this.callback({}, data.feeds);
-		}
+		enyo.Signals.send("onLoadFeedsFinished", data);
 	},
-	loadFeeds: function(callback) {
-		this.callback = callback;
+	loadFeeds: function() {
 		try {
 			// clear out our current data (incase this is a re-update)
 			this.feeds = [];
 
 			//console.error("calling list configs");
 			// init feed loading
-			this.subscription = preware.IPKGService.list_configs(this.onConfigs.bind(this));
+			preware.IPKGService.list_configs(this.onConfigs.bind(this));
 		} catch (e) {
 			console.error("feedsModel#loadFeeds: " + e);
 		}

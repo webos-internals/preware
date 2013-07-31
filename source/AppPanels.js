@@ -1,3 +1,4 @@
+/*global enyo, navigator, window, device, console, preware, $L, setTimeout*/
 
 enyo.kind({
 	name: "AppPanels",
@@ -12,19 +13,28 @@ enyo.kind({
 	// filtered category/package lists
 	currentType: "",
 	availableCategories: [],
-	packageFilter: -1, //filter for all = 0, available (i.e. not installed) = 1, only installed = 2, only updatable = 3
+	packageFilters: {//filter for all = 0, available (i.e. not installed) = 1, only installed = 2, only updatable = 3
+		all: 0,
+		available: 1,
+		installed: 2,
+		updatable: 3
+	},
+	currentPackageFilter: -1,
 	currentCategory: "",
 	availablePackages: [],
 	currentPackage: {},
-	components:[
-		{kind: "Signals",
-		onPackagesStatusUpdate: "processStatusUpdate",
-		onPackagesLoadFinished: "doneLoading",
-		onBackendSimpleMessage: "processSimpleMessage",
-		onPackageProgressMessage: "processProgressMessage",
-		onPackageRefresh: "handlePackageRefresh",
-		ondeviceready: "handleDeviceReady"},
-		
+	components: [
+		{
+			kind: "Signals",
+			onPackagesStatusUpdate: "processStatusUpdate",
+			onPackagesLoadFinished: "doneLoading",
+			onLoadFeedsFinished: "parseFeeds",
+			onBackendSimpleMessage: "processSimpleMessage",
+			onPackageProgressMessage: "processProgressMessage",
+			onPackageRefresh: "handlePackageRefresh",
+			ondeviceready: "handleDeviceReady"
+		},
+
 		//Menu
 		{name: "MenuPanel",
 		layoutKind: "FittableRowsLayout",
@@ -56,7 +66,7 @@ enyo.kind({
 						{name: "SpinnerText",
 						style: "color: white;",
 						allowHtml: true}
-					]},
+					]}
 				]},
 				{kind: "Scroller",
 				horizontal: "hidden",
@@ -68,7 +78,7 @@ enyo.kind({
 					{kind: "ListItem", content: "Available Packages", ontap: "showAvailableTypeList" },
 					{kind: "ListItem", content: "Installed Packages", ontap: "showInstalledPackages" },
 					{kind: "ListItem", content: "List of Everything", ontap: "showListOfEverything" }
-				]},
+				]}
 			]},
 
 			{kind: "onyx.Toolbar"}
@@ -98,7 +108,7 @@ enyo.kind({
 						{kind: "ListItem", content: "Type", ontap: "typeTapped"}
 					]}
 				]},
-				{kind: "GrabberToolbar"},
+				{kind: "GrabberToolbar"}
 			]}
 		]},
 		
@@ -126,7 +136,7 @@ enyo.kind({
 						{kind: "ListItem", content: "Category", ontap: "categoryTapped"}
 					]}
 				]},
-				{kind: "GrabberToolbar"},
+				{kind: "GrabberToolbar"}
 			]}
 		]},	
 
@@ -155,7 +165,7 @@ enyo.kind({
 						{kind: "ListItem", content: "Package", icon: true, ontap: "packageTapped"}
 					]}
 				]},
-				{kind: "GrabberToolbar"},
+				{kind: "GrabberToolbar"}
 			]}
 		]},
 
@@ -236,9 +246,9 @@ enyo.kind({
 
 							{kind: "onyx.GroupboxHeader", content: "Feed"},
 							{name: "PackageFeed",
-							style: "padding: 15px; color: white;"},
-						]},
-					]},
+							style: "padding: 15px; color: white;"}
+						]}
+					]}
 				]},
 				{name: "SimpleMessage",
 				kind: "Toast",
@@ -248,7 +258,7 @@ enyo.kind({
 					style: "display: block; font-size: 14pt; height: 32px;",
 					allowHtml: true,
 					content: "Message<br>I am a fish."},
-					{kind: "onyx.Button", style: "display: block; width: 100%; margin-top: 4px;", content: "Okay", ontap: "hideSimpleMessage"},
+					{kind: "onyx.Button", style: "display: block; width: 100%; margin-top: 4px;", content: "Okay", ontap: "hideSimpleMessage"}
 				]},
 				{name: "ActionMessage",
 				kind: "Toast",
@@ -275,9 +285,9 @@ enyo.kind({
 					{name: "UpdateButton", kind: "onyx.Button", content: "Update", ontap: "updateTapped"},
 					{name: "RemoveButton", kind: "onyx.Button", content: "Remove", ontap: "removeTapped"},
 					{name: "LaunchButton", kind: "onyx.Button", content: "Launch", ontap: "launchTapped"}
-				]},
-			]},
-		]},
+				]}
+			]}
+		]}
 	],
 	//Handlers
 	create: function(inSender, inEvent) {
@@ -301,7 +311,6 @@ enyo.kind({
 			this.setArrangerKind("CoreNaviArranger");
 			this.setDraggable(false);
 			this.$.CategoryPanels.addStyles("box-shadow: 0");
-			this.$.SubcategoryPanels.addStyles("box-shadow: 0");
 			this.$.PackagePanels.addStyles("box-shadow: 0");
 			this.$.PackageDisplayPanels.addStyles("box-shadow: 0");
 		}
@@ -319,7 +328,7 @@ enyo.kind({
 		this.hideActionMessage();
 
 		this.$.SimpleMessageContent.setContent(inMessage);
-		if(this.$.SimpleMessage.value != this.$.SimpleMessage.min) {
+		if(this.$.SimpleMessage.value !== this.$.SimpleMessage.min) {
 			this.$.SimpleMessage.animateToMin();
 		}
 	},
@@ -331,7 +340,7 @@ enyo.kind({
 		this.hideActionMessage();
 
 		this.$.ProgressMessageContent.setContent(inEvent.message);
-		if(this.$.ProgressMessage.value != this.$.ProgressMessage.min) {
+		if(this.$.ProgressMessage.value !== this.$.ProgressMessage.min) {
 			this.$.ProgressMessage.animateToMin();
 		}
 	},
@@ -343,7 +352,7 @@ enyo.kind({
 		this.hideProgressMessage();
 
 		this.$.ActionMessageContent.setContent(inEvent.message);
-		if(this.$.ActionMessage.value != this.$.ActionMessage.min) {
+		if(this.$.ActionMessage.value !== this.$.ActionMessage.min) {
 			this.$.ActionMessage.animateToMin();
 		}
 	},
@@ -371,20 +380,19 @@ enyo.kind({
 							strB = b[field];
 						}
 						return ((strA < strB) ? -1 : ((strA > strB) ? 1 : 0));
-					} else {
-						return -1;
 					}
+					return -1;
 		});
 	},
 	showListOfEverything: function() {
-		var i;
-		this.packageFilter = 0;
+		var i, pkg;
+		this.currentPackageFilter = this.packageFilters.all;
 		this.availablePackages = [];
 		
-		for(i = 0; i < preware.PackagesModel.packages.length; i++) {
-			var package = preware.PackagesModel.packages[i];
-			if(this.availablePackages.indexOf(package) == -1) {
-				this.availablePackages.push(package);
+		for(i = 0; i < preware.PackagesModel.packages.length; i += 1) {
+			pkg = preware.PackagesModel.packages[i];
+			if(this.availablePackages.indexOf(pkg) === -1) {
+				this.availablePackages.push(pkg);
 			}
 		}
 		this.sortPackageList("date");
@@ -394,15 +402,15 @@ enyo.kind({
 		this.setIndex(3);
 	},
 	showUpdatablePackages: function () {
-		var i;
-		this.packageFilter = 3;
+		var i, pkg;
+		this.currentPackageFilter = this.packageFilters.updatable;
 		this.availablePackages = [];
 		
-		for(i = 0; i < preware.PackagesModel.packages.length; i++) {
-			var package = preware.PackagesModel.packages[i];
-			if(package.hasUpdate) {
-				if(this.availablePackages.indexOf(package) == -1) {
-					this.availablePackages.push(package);
+		for(i = 0; i < preware.PackagesModel.packages.length; i += 1) {
+			pkg = preware.PackagesModel.packages[i];
+			if(pkg.hasUpdate) {
+				if(this.availablePackages.indexOf(pkg) === -1) {
+					this.availablePackages.push(pkg);
 				}
 			}
 		}
@@ -413,15 +421,15 @@ enyo.kind({
 		this.setIndex(3);
 	},
 	showInstalledPackages: function() {
-		var i;
-		this.packageFilter = 2;
+		var i, pkg;
+		this.currentPackageFilter = this.packageFilters.installed;
 		this.availablePackages = [];
 		
-		for(i = 0; i < preware.PackagesModel.packages.length; i++) {
-			var package = preware.PackagesModel.packages[i];
-			if(package.isInstalled) {
-				if(this.availablePackages.indexOf(package) == -1) {
-					this.availablePackages.push(package);
+		for(i = 0; i < preware.PackagesModel.packages.length; i += 1) {
+			pkg = preware.PackagesModel.packages[i];
+			if(pkg.isInstalled) {
+				if(this.availablePackages.indexOf(pkg) === -1) {
+					this.availablePackages.push(pkg);
 				}
 			}
 		}
@@ -432,25 +440,25 @@ enyo.kind({
 		this.setIndex(3);
 	},
 	showAvailableTypeList: function() {
-		this.packageFilter = 1;
+		this.currentPackageFilter = this.packageFilters.available;
 		this.$.TypePanels.setIndex(1);
 		this.setIndex(1);
 	},
 	typeTapped: function(inSender) {
-		var i;
+		var i, pkg;
 		this.currentType = inSender.$.ItemTitle.content;
 		this.availableCategories = [];
 
-		for(i = 0; i < preware.PackagesModel.packages.length; i++) {
-			var package = preware.PackagesModel.packages[i];
-			if((this.packageFilter === 1 && package.isInstalled) 
-			    || (this.packageFilter === 2 && !package.isInstalled)
-				|| (this.packageFilter === 3 && !package.hasUpdate)) {
+		for(i = 0; i < preware.PackagesModel.packages.length; i += 1) {
+			pkg = preware.PackagesModel.packages[i];
+			if((this.currentPackageFilter === this.packageFilters.available && pkg.isInstalled) 
+				|| (this.currentPackageFilter === this.packageFilters.installed && !pkg.isInstalled)
+				|| (this.currentPackageFilter === this.packageFilters.updatable && !pkg.hasUpdate)) {
 				continue;
 			}
-			if(package.type == inSender.$.ItemTitle.content) {
-				if(this.availableCategories.indexOf(package.category) == -1) {
-					this.availableCategories.push(package.category);
+			if(pkg.type === inSender.$.ItemTitle.content) {
+				if(this.availableCategories.indexOf(pkg.category) === -1) {
+					this.availableCategories.push(pkg.category);
 				}
 			}	
 		}
@@ -461,19 +469,20 @@ enyo.kind({
 		this.setIndex(2);
 	},
 	categoryTapped: function(inSender) {
+		var i, pkg;
 		this.currentCategory = inSender.$.ItemTitle.content;
 		this.availablePackages = [];
 
-		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
-			var package = preware.PackagesModel.packages[i];
-			if((this.packageFilter === 1 && package.isInstalled) 
-			    || (this.packageFilter === 2 && !package.isInstalled)
-				|| (this.packageFilter === 3 && !package.hasUpdate)) {
+		for(i = 0; i < preware.PackagesModel.packages.length; i += 1) {
+			pkg = preware.PackagesModel.packages[i];
+			if((this.currentPackageFilter === this.packageFilters.available && pkg.isInstalled) 
+				|| (this.currentPackageFilter === this.packageFilters.installed && !pkg.isInstalled)
+				|| (this.currentPackageFilter === this.packageFilters.updatable && !pkg.hasUpdate)) {
 				continue;
 			}
-			if(package.type == this.currentType && package.category == this.currentCategory) {
-				if(this.availablePackages.indexOf(package) == -1) {
-					this.availablePackages.push(package);
+			if(pkg.type === this.currentType && pkg.category === this.currentCategory) {
+				if(this.availablePackages.indexOf(pkg) === -1) {
+					this.availablePackages.push(pkg);
 				}
 			}	
 		}
@@ -552,7 +561,7 @@ enyo.kind({
 		this.log("Requesting Machine Name");
 	},
 	onDeviceType: function(inEvent) {
-		if (preware.PrefCookie.get().updateInterval === 'launch') { //TODO: add support for daily, ask (now it's launch and manual only).
+		if (false && preware.PrefCookie.get().updateInterval === 'launch') { //TODO: add support for daily, ask (now it's launch and manual only).
 			// start by checking the internet connection
 			this.log("Requesting Connection Status");
 		
@@ -633,7 +642,7 @@ enyo.kind({
 	
 		// subscribe to new feed
 		preware.IPKGService.downloadFeed(this.downloadFeedResponse.bind(this, num),
-												 this.feeds[num].gzipped, this.feeds[num].name, this.feeds[num].url);
+										this.feeds[num].gzipped, this.feeds[num].name, this.feeds[num].url);
 	},
 	downloadFeedResponse: function(num, payload) {
 		if (!payload.returnValue || payload.stage === "failed") {
@@ -659,10 +668,10 @@ enyo.kind({
 	loadFeeds: function(){	
 		// lets call the function to update the global list of pkgs
 		this.processStatusUpdate(this, {message: $L("<strong>Loading Package Information</strong><br>")});
-		preware.FeedsModel.loadFeeds(this.parseFeeds.bind(this));
+		preware.FeedsModel.loadFeeds();
 	},
-	parseFeeds: function(inSender, feeds) {
-		preware.PackagesModel.loadFeeds(feeds, this.onlyLoad); //TODO: how did old preware set/unset onlyload?
+	parseFeeds: function(inSender, inEvent) {
+		preware.PackagesModel.loadFeeds(inEvent.feeds, this.onlyLoad); //TODO: how did old preware set/unset onlyload?
 	},
 	processStatusUpdate: function(inSender, inEvent) {
 		this.log(inEvent.message);
@@ -711,10 +720,11 @@ enyo.kind({
 		this.refreshPackageDisplay();
 	},
 	updateCurrentPackage: function(inTitle) {
-		for(var i = 0; i < preware.PackagesModel.packages.length; i++) {
-			var package = preware.PackagesModel.packages[i];
-			if(package.title == inTitle) {
-				this.currentPackage = package;
+		var i, pkg;
+		for(i = 0; i < preware.PackagesModel.packages.length; i += 1) {
+			pkg = preware.PackagesModel.packages[i];
+			if(pkg.title === inTitle) {
+				this.currentPackage = pkg;
 				break;
 			}	
 		}
@@ -751,10 +761,10 @@ enyo.kind({
 		return true;
 	},
 	setupPackageItem: function(inSender, inEvent) {
-		var package = this.availablePackages[inEvent.index];
-		if(package && package.title) {
-			inEvent.item.$.listItem.$.ItemTitle.setContent(package.title);
-			inEvent.item.$.listItem.$.ItemIcon.setSrc(package.icon);	
+		var pkg = this.availablePackages[inEvent.index];
+		if(pkg && pkg.title) {
+			inEvent.item.$.listItem.$.ItemTitle.setContent(pkg.title);
+			inEvent.item.$.listItem.$.ItemIcon.setSrc(pkg.icon);	
 		}
 
 		return true;
