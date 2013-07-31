@@ -80,7 +80,7 @@ enyo.singleton({
 	},
 	put: function(obj, value) {
 		try {
-			if (value) {
+			if (value !== undefined) {
 				this.prefs[obj] = value;
 				enyo.setCookie(obj, value); //take a shortcut here.
 			} else {
