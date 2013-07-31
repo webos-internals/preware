@@ -91,6 +91,13 @@ isNumeric = function(val)
 	return true;
 };
 
+convertStringToBool = function (str) {
+	if (typeof str === "string") {
+		return (str.toLowerCase() === "true");
+	} else { //if not a string just compare it to true.. ;)
+		return (str == true);
+	}
+};
 
 // Local Variables:
 // tab-width: 4
