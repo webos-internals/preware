@@ -326,7 +326,7 @@ enyo.kind({
 		
 			// check blacklist
 			blacklist = preware.PrefCookie.get().blackList;
-			if (!this.blacklisted && blacklist.length > 0 && !this.isInstalled && !this.isInSavedList) {
+			if (!this.blacklisted && blacklist && blacklist.length > 0 && !this.isInstalled && !this.isInSavedList) {
 				for (b = 0; b < blacklist.length; b += 1) {
 					if (!this.blacklisted) {
 						if (blacklist[b].field === 'title' && this.title && this.title.toLowerCase().include(blacklist[b].search.toLowerCase())) {
