@@ -561,7 +561,7 @@ enyo.kind({
 		this.log("Requesting Machine Name");
 	},
 	onDeviceType: function(inEvent) {
-		if (false && preware.PrefCookie.get().updateInterval === 'launch') { //TODO: add support for daily, ask (now it's launch and manual only).
+		if (preware.PrefCookie.get().updateInterval === 'launch') { //TODO: add support for daily, ask (now it's launch and manual only).
 			// start by checking the internet connection
 			this.log("Requesting Connection Status");
 		
