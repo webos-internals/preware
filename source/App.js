@@ -15,7 +15,7 @@ enyo.kind({
 			onCoreNaviDrag: "handleCoreNaviDrag",
 			onCoreNaviDragFinish: "handleCoreNaviDragFinish"
 		},
-		{name: "AppPanels", kind: "AppPanels", fit: true},
+		{name: "AppPanels", kind: "AppPanels", fit: true, onSettings: "showSettingsDialog", onManageFeeds: "showManageFeedsDialog"},
 		{kind: "CoreNavi", fingerTracking: true},
 		{name: "SettingsDialog", kind: "SettingsDialog"},
 		{name: "ManageFeedsDialog", kind: "ManageFeedsDialog"},
@@ -43,6 +43,7 @@ enyo.kind({
 		this.$.AppPanels.dragfinishTransition(this.$.AppPanels.draggable === false ? this.reverseDrag(inEvent) : inEvent);
 	},
 	showSettingsDialog: function (inSender, inEvent) {
+		this.$.SettingsDialog.updateValues();
 		this.$.SettingsDialog.show();
 	},
 	showManageFeedsDialog: function (inSender, inEvent) {

@@ -1,5 +1,5 @@
 /*jslint sloppy: true, continue:true */
-/*global enyo, navigator, window, device, console, preware, $L, setTimeout*/
+/*global enyo, navigator, window, device, console, preware, $L, setTimeout, UpdateFeeds */
 
 enyo.kind({
 	name: "AppPanels",
@@ -24,12 +24,17 @@ enyo.kind({
 	currentCategory: "",
 	availablePackages: [],
 	currentPackage: {},
+	
+	//used to propagate settings events, until we have some app menu.
+	events: {
+		onSettings: "",
+		onManageFeeds: ""
+	},
 	components: [
 		{
 			kind: "Signals",
 			onPackagesStatusUpdate: "processStatusUpdate",
-			onPackagesLoadFinished: "doneLoading",
-			onLoadFeedsFinished: "parseFeeds",
+			onUpdateFeedsFinished: "doneLoading",
 			onBackendSimpleMessage: "processSimpleMessage",
 			onPackageProgressMessage: "processProgressMessage",
 			onPackageRefresh: "handlePackageRefresh",
@@ -89,7 +94,10 @@ enyo.kind({
 								{kind: "ListItem", content: "Package Updates", ontap: "showUpdatablePackages" },
 								{kind: "ListItem", content: "Available Packages", ontap: "showAvailableTypeList" },
 								{kind: "ListItem", content: "Installed Packages", ontap: "showInstalledPackages" },
-								{kind: "ListItem", content: "List of Everything", ontap: "showListOfEverything" }
+								{kind: "ListItem", content: "List of Everything", ontap: "showListOfEverything" },
+								{kind: "ListItem", content: "Settings", ontap: "doSettings" },
+								//{kind: "ListItem", content: "Manage Feeds", ontap: "doManageFeeds" },
+								{kind: "ListItem", content: "Reload Package List", ontap: "reloadTapped" }
 							]
 						}
 					]
@@ -105,6 +113,7 @@ enyo.kind({
 			arrangerKind: "CardArranger",
 			draggable: false,
 			style: "width: 33.3%;",
+			showing: false,
 			components: [
 				{kind: "EmptyPanel"},
 				{
@@ -139,6 +148,7 @@ enyo.kind({
 			arrangerKind: "CardArranger",
 			draggable: false,
 			style: "width: 33.3%;",
+			showing: false,
 			components: [
 				{kind: "EmptyPanel"},
 				{kind: "FittableRows",
@@ -336,18 +346,13 @@ enyo.kind({
 	//Handlers
 	create: function (inSender, inEvent) {
 		this.inherited(arguments);
-		if (window.PalmServiceBridge === undefined) {
-			this.log("No PalmServiceBridge found.");
-			this.$.ScrollerPanel.setIndex(1);
-		} else {
-			this.log("PalmServiceBridge found. 2");
-		}
 	},
 	handleDeviceReady: function (inSender, inEvent) {
-		this.log("device.version: " + device ? device.version : "undefined");
-		this.log("device.name: " + device ? device.name : "undefined");
-		
-		this.startLoadFeeds();
+		UpdateFeeds.startUpdateFeeds();
+	},
+	reloadTapped: function (inSender, inEvent) {
+		UpdateFeeds.startUpdateFeeds();
+		this.$.ScrollerPanel.setIndex(0);
 	},
 	reflow: function (inSender) {
 		this.inherited(arguments);
@@ -427,6 +432,11 @@ enyo.kind({
 			return -1;
 		});
 	},
+	showTypeAndCategoriesPanels: function (show) {
+		this.$.TypePanels.setShowing(show);
+		this.$.CategoryPanels.setShowing(show);
+		this.render();
+	},
 	showListOfEverything: function () {
 		var i, pkg;
 		this.currentPackageFilter = this.packageFilters.all;
@@ -442,6 +452,7 @@ enyo.kind({
 		
 		this.$.PackageRepeater.setCount(this.availablePackages.length);
 		this.$.PackagePanels.setIndex(1);
+		this.showTypeAndCategoriesPanels(false);
 		this.setIndex(3);
 	},
 	showUpdatablePackages: function () {
@@ -461,6 +472,7 @@ enyo.kind({
 		
 		this.$.PackageRepeater.setCount(this.availablePackages.length);
 		this.$.PackagePanels.setIndex(1);
+		this.showTypeAndCategoriesPanels(false);
 		this.setIndex(3);
 	},
 	showInstalledPackages: function () {
@@ -480,11 +492,15 @@ enyo.kind({
 		
 		this.$.PackageRepeater.setCount(this.availablePackages.length);
 		this.$.PackagePanels.setIndex(1);
+		this.showTypeAndCategoriesPanels(false);
 		this.setIndex(3);
 	},
 	showAvailableTypeList: function () {
 		this.currentPackageFilter = this.packageFilters.available;
 		this.$.TypePanels.setIndex(1);
+		this.$.CategoryPanels.setIndex(0);
+		this.$.PackagePanels.setIndex(0);
+		this.showTypeAndCategoriesPanels(true);
 		this.setIndex(1);
 	},
 	typeTapped: function (inSender) {
@@ -509,6 +525,8 @@ enyo.kind({
 
 		this.$.CategoryRepeater.setCount(this.availableCategories.length);
 		this.$.CategoryPanels.setIndex(1);
+		this.$.PackagePanels.setIndex(0);
+		this.showTypeAndCategoriesPanels(true);
 		this.setIndex(2);
 	},
 	categoryTapped: function (inSender) {
@@ -554,164 +572,6 @@ enyo.kind({
 	removeTapped: function () {
 		this.currentPackage.doRemove();
 	},
-	//Unsorted Functions
-	versionTap: function (inSender, inEvent) {
-		preware.IPKGService.version(this.gotVersion.bind(this));
-		this.log("Getting Version");
-	},
-	gotVersion: function (version) {
-		this.log("Version: " + JSON.stringify(version) + "<br>");
-	},
-	machineName: function () {
-		preware.IPKGService.getMachineName(this.gotMachineName.bind(this));
-		this.log("Requesting Machine Name");
-	},
-	gotMachineName: function (machineName) {
-		this.log("Got Machine Name: " + machineName + " (" + JSON.stringify(machineName) + ")");
-	},
-	startLoadFeeds: function () {
-		this.log("Start Loading Feeds");
-		preware.DeviceProfile.getDeviceProfile(this.gotDeviceProfile.bind(this), false);
-	},
-	gotDeviceProfile: function (inSender, inEvent) {
-		this.log("Got Device Profile: " + (inEvent ? inEvent.success : ""));
-		if (!inEvent.success || !inEvent.deviceProfile) {
-			this.log("Failed to get device profile.");
-			preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
-			this.log("Requesting Machine Name.");
-		} else {
-			this.log("Got deviceProfile: " + JSON.stringify(inEvent.deviceProfile));
-			this.deviceProfile = inEvent.deviceProfile;
-			preware.PalmProfile.getPalmProfile(this.gotPalmProfile.bind(this), false);
-		}
-	},
-	gotPalmProfile: function (inSender, inEvent) {
-		if (!inEvent.success || !inEvent.palmProfile) {
-			this.log("failed to get palm profile");
-			preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
-			this.log("Requesting Machine Name");
-		} else {
-			this.log("Got palmProfile.");
-			this.palmProfile = inEvent.palmProfile;
-			preware.IPKGService.setAuthParams(this.authParamsSet.bind(this),
-					this.deviceProfile.deviceId,
-					this.palmProfile.token);
-		}
-	},
-	authParamsSet: function (inResponse) {
-		this.log("Got authParams: " + JSON.stringify(inResponse));
-		preware.IPKGService.getMachineName(this.onDeviceType.bind(this));
-		this.log("Requesting Machine Name");
-	},
-	onDeviceType: function (inEvent) {
-		if (preware.PrefCookie.get().updateInterval === 'launch') { //TODO: add support for daily, ask (now it's launch and manual only).
-			// start by checking the internet connection
-			this.log("Requesting Connection Status");
-		
-			navigator.service.Request("palm://com.palm.connectionmanager", {
-				method: "getstatus",
-				onSuccess: this.onConnection.bind(this),
-				onFailure: this.onConnectionFailure.bind(this)
-			});
-		} else {
-			this.loadFeeds();
-		}
-	},
-	onConnectionFailure: function (response) {
-		this.log("ConnectionStatus Failure, response=" + JSON.stringify(response));
-		this.loadFeeds();
-	},
-	onConnection: function (response) {
-		var hasNet = false;
-		if (response && response.returnValue === true && (response.isInternetConnectionAvailable === true || response.wifi.state === "connected")) {
-			hasNet = true;
-		}
-		this.log("Got Connection Status. Connection: " + hasNet);
-		//this.log("Response: " + JSON.stringify(response));
-		// run version check
-		this.log("Run Version Check");
-		preware.IPKGService.version(this.onVersionCheck.bind(this, hasNet));
-	},
-	onVersionCheck: function (hasNet, payload) {
-		this.log("Version Check Returned: " + JSON.stringify(payload));
-		try {
-			// log payload for display
-			preware.IPKGService.logPayload(payload, 'VersionCheck');
-
-			if (!payload) {
-				// i dont know if this will ever happen, but hey, it might
-				this.log($L("Cannot access the service. First try restarting Preware, or reboot your device and try again."));
-			} else if (payload.errorCode !== undefined) {
-				if (payload.errorText === "org.webosinternals.ipkgservice is not running.") {
-					this.log($L("The service is not running. First try restarting Preware, or reboot your device and try again."));
-				} else {
-					this.log(payload.errorText);
-				}
-			} else {
-				if (payload.apiVersion && payload.apiVersion < this.ipkgServiceVersion) {
-					// this is if this version is too old for the version number stuff
-					this.log($L("The service version is too old. First try rebooting your device, or reinstall Preware and try again."));
-				} else {
-					if (hasNet && !this.onlyLoad) {
-						// initiate update if we have a connection
-						this.log("start to download feeds");
-						preware.FeedsModel.loadFeeds(this.downLoadFeeds.bind(this));
-						this.log("...");
-					} else {
-						// if not, go right to loading the pkg info
-						this.loadFeeds();
-					}
-				}
-			}
-		} catch (e) {
-			console.error("app#onVersionCheck: " + e);
-		}
-	},
-	downLoadFeeds: function (inSender, inEvent) {
-		this.log("loaded feeds: " + JSON.stringify(inEvent));
-		this.feeds = inEvent;
-		
-		if (this.feeds.length) {
-			this.downloadFeedRequest(0);
-		}
-	},
-	downloadFeedRequest: function (num) {
-		// update display
-		this.processStatusUpdate(this, {message: $L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name});
-	
-		// subscribe to new feed
-		preware.IPKGService.downloadFeed(this.downloadFeedResponse.bind(this, num),
-										this.feeds[num].gzipped, this.feeds[num].name, this.feeds[num].url);
-	},
-	downloadFeedResponse: function (num, payload) {
-		if (!payload.returnValue || payload.stage === "failed") {
-			this.log(payload.errorText + '<br>' + payload.stdErr.join("<br>"));
-		} else if (payload.stage === "status") {
-			this.processStatusUpdate(this, {message: $L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name + "<br><br>" + payload.status});
-		} else if (payload.stage === "completed") {
-			num = num + 1;
-			if (num < this.feeds.length) {
-				// start next
-				this.downloadFeedRequest(num);
-			} else {
-				// we're done
-				this.processStatusUpdate(this, {message: $L("<strong>Done Downloading!</strong>")});
-				
-				// well updating looks to have finished, lets log the date:
-				preware.PrefCookie.put('lastUpdate', Math.round(new Date().getTime() / 1000.0));
-				
-				this.loadFeeds();
-			}
-		}
-	},
-	loadFeeds: function () {
-		// lets call the function to update the global list of pkgs
-		this.processStatusUpdate(this, {message: $L("<strong>Loading Package Information</strong><br>")});
-		preware.FeedsModel.loadFeeds();
-	},
-	parseFeeds: function (inSender, inEvent) {
-		preware.PackagesModel.loadFeeds(inEvent.feeds, this.onlyLoad); //TODO: how did old preware set/unset onlyload?
-	},
 	processStatusUpdate: function (inSender, inEvent) {
 		this.log(inEvent.message);
 	},
@@ -721,7 +581,8 @@ enyo.kind({
 	processProgressMessage: function (inSender, inEvent) {
 		this.displayProgressMessage(inEvent);
 	},
-	doneLoading: function () {
+	doneLoading: function (inSender, inEvent) {
+		this.log("Done loading, num Packages: " + preware.PackagesModel.packages.length);
 		// so if we're inactive we know to push a scene when we return
 		//this.isLoading = false;
 	

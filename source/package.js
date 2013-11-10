@@ -13,5 +13,6 @@ enyo.depends(
 	"ManageFeedsDialog.js",
 	"SettingsDialog.js",
 	"Toast.js",
+	"UpdateFeeds.js",
 	"model"
 );
