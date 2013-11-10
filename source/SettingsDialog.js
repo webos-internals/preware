@@ -1,4 +1,5 @@
-/*global enyo, onyx, preware, $L */
+/*jslint sloppy: true */
+/*global enyo, onyx, preware, $L, formatDate, convertStringToBool */
 //shows a dialog that allows the user to change settings.
 
 //TODO: check if these settings really have an effect... ;)
@@ -39,22 +40,22 @@ enyo.kind({
 				]},
 				{kind: "enyo.FittableColumns", components: [
 					{tag: "div", content: $L("Scan unknown packages"), fit: true},
-					{kind:"onyx.ToggleButton", name: "scanUnknownToggle", onChange: "scanUnknownChanged"}
+					{kind: "onyx.ToggleButton", name: "scanUnknownToggle", onChange: "scanUnknownChanged"}
 				]},
 				{kind: "enyo.FittableColumns", components: [
 					{tag: "div", content: $L("Check .ipk association"), fit: true},
-					{kind:"onyx.ToggleButton", name: "checkIPKAssociationToggle", onChange: "checkIPKAssociationChanged"}
+					{kind: "onyx.ToggleButton", name: "checkIPKAssociationToggle", onChange: "checkIPKAssociationChanged"}
 				]}
 			]}, //end of startup group
 			{kind: "onyx.Groupbox", components: [
 				{kind: "onyx.GroupboxHeader", content: $L("Actions")},
 				{kind: "enyo.FittableColumns", components: [
 					{tag: "div", content: $L("Use App Tuckerbox"), fit: true},
-					{kind:"onyx.ToggleButton", name: "useTuckerboxToggle", onChange: "useTuckerboxChanged"}
+					{kind: "onyx.ToggleButton", name: "useTuckerboxToggle", onChange: "useTuckerboxChanged"}
 				]},
 				{kind: "enyo.FittableColumns", components: [
 					{tag: "div", content: $L("Ignore device compat."), fit: true},
-					{kind:"onyx.ToggleButton", name: "ignoreDeviceCompatToggle", onChange: "ignoreDeviceCompatChanged"}
+					{kind: "onyx.ToggleButton", name: "ignoreDeviceCompatToggle", onChange: "ignoreDeviceCompatChanged"}
 				]}
 			]}, //end of action group
 			// we don't really do that on the 'main scene'. Maybe we will never.
@@ -69,24 +70,24 @@ enyo.kind({
 				{kind: "onyx.GroupboxHeader", content: $L("Package display")}, //formerly list scene
 				{kind: "enyo.FittableColumns", components: [
 					{tag: "div", content: $L("Search Descriptions"), fit: true},
-					{kind:"onyx.ToggleButton", name: "searchDescriptionsToggle", onChange: "searchDescriptionsChanged"}
+					{kind: "onyx.ToggleButton", name: "searchDescriptionsToggle", onChange: "searchDescriptionsChanged"}
 				]},
 				{kind: "enyo.FittableColumns", components: [
 					{tag: "div", content: $L("Default sort"), fit: true},
 					{kind: "onyx.PickerDecorator", onSelect: "sortPolicySelected", components: [
 						{},
 						{kind: "onyx.Picker", name: "sortPolicyPicker", style: "width: 200px;", components: [
-							{content: $L("Category Default"), value:'default', active: true},
-							{content: $L("Alphabetically"), value:'alpha'},
-							{content: $L("Last Updated"), value:'date'},
-							{content: $L("Price"), value:'price'}
+							{content: $L("Category Default"), value: 'default', active: true},
+							{content: $L("Alphabetically"), value: 'alpha'},
+							{content: $L("Last Updated"), value: 'date'},
+							{content: $L("Price"), value: 'price'}
 						]}
 					]}
 				]},
 				//we don't have a second row, right? Omitted that config.
 				{kind: "enyo.FittableColumns", components: [
 					{tag: "div", content: $L("Installed is available"), fit: true},
-					{kind:"onyx.ToggleButton", name: "installedIsAvailableToggle", onChange: "installIsAvailableChanged"}
+					{kind: "onyx.ToggleButton", name: "installedIsAvailableToggle", onChange: "installIsAvailableChanged"}
 				]}
 			]}, //end of list scene group
 			{kind: "onyx.Button", style: "margin:5px;font-size:24px;float:center;", content: $L("Close"), ontap: "closePopup"}
