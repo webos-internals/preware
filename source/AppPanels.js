@@ -351,7 +351,7 @@ enyo.kind({
 		UpdateFeeds.startUpdateFeeds();
 	},
 	reloadTapped: function (inSender, inEvent) {
-		UpdateFeeds.startUpdateFeeds();
+		UpdateFeeds.startUpdateFeeds(true);
 		this.$.ScrollerPanel.setIndex(0);
 	},
 	reflow: function (inSender) {

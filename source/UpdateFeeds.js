@@ -1,5 +1,5 @@
 /*jslint sloppy: true, continue:true */
-/*global enyo, navigator, window, device, console, preware, $L, setInterval, clearInterval */
+/*global enyo, navigator, window, device, console, preware, $L, setInterval, clearInterval, setTimeout */
 
 enyo.singleton({
 	name: "UpdateFeeds",
@@ -76,7 +76,7 @@ enyo.singleton({
 	//IPKGService.setAuthParams. This probably is necessary for 
 	//App Catalog apps...?
 	//If that does not work, we just get the machine name and are done.
-	startUpdateFeeds: function () {
+	startUpdateFeeds: function (force) {
 		if (window.PalmServiceBridge === undefined) {
 			this.log("No PalmServiceBridge found.");
 		} else {
@@ -85,6 +85,48 @@ enyo.singleton({
 		
 		this.log("device.version: " + (device ? device.version : "undefined"));
 		this.log("device.name: " + (device ? device.name : "undefined"));
+		
+		this.log("================== 17");
+		
+		switch (preware.PrefCookie.get().updateInterval) {
+		case "launch":
+			this.onlyLoad = false;
+			break;
+		case "manual":
+			this.onlyLoad = true;
+			break;
+		case "daily":
+			var lastUpdate = preware.PrefCookie.get().lastUpdate,
+				dateLastUpdate,
+				dateNow = new Date();
+			if (lastUpdate === 0 || lastUpdate === "0") {
+				this.onlyLoad = false;
+			} else {
+				dateLastUpdate = new Date(lastUpdate * 1000);
+				if (dateLastUpdate.getYear() === dateNow.getYear()
+						&& dateLastUpdate.getMonth() === dateNow.getMonth()
+						&& dateLastUpdate.getDate() === dateNow.getDate()) {
+					console.error("Already updated feeds today, don't do it again. Dates: " + dateLastUpdate + " and " + dateNow);
+					this.onlyLoad = true;
+				} else {
+					console.error("Not updated feeds today, do it again. Dates: " + dateLastUpdate + " and " + dateNow);
+					this.onlyLoad = false;
+				}
+			}
+			break;
+		case "ask":
+			console.error("Ask not yet implemented! Falling back to manual.");
+			this.onlyLoad = true;
+			break;
+		default:
+			this.onlyLoad = true;
+			break;
+		}
+		
+		if (force) {
+			console.error("Forced to download, will download anyway.");
+			this.onlyLoad = false;
+		}
 		
 		this.log("Start Loading Feeds");
 		this.downloaded = false;
@@ -126,43 +168,6 @@ enyo.singleton({
 	onDeviceType: function (inResponse) {
 		this.log("Got machine name: " + JSON.stringify(inResponse));
 		
-		this.log("================== 17");
-		
-		switch (preware.PrefCookie.get().updateInterval) {
-		case "launch":
-			this.onlyLoad = false;
-			break;
-		case "manual":
-			this.onlyLoad = true;
-			break;
-		case "daily":
-			var lastUpdate = preware.PrefCookie.get().lastUpdate,
-				dateLastUpdate,
-				dateNow = new Date();
-			if (lastUpdate === 0 || lastUpdate === "0") {
-				this.onlyLoad = false;
-			} else {
-				dateLastUpdate = new Date(lastUpdate * 1000);
-				if (dateLastUpdate.getYear() === dateNow.getYear()
-						&& dateLastUpdate.getMonth() === dateNow.getMonth()
-						&& dateLastUpdate.getDate() === dateNow.getDate()) {
-					console.error("Already updated feeds today, don't do it again. Dates: " + dateLastUpdate + " and " + dateNow);
-					this.onlyLoad = true;
-				} else {
-					console.error("Not updated feeds today, do it again. Dates: " + dateLastUpdate + " and " + dateNow);
-					this.onlyLoad = false;
-				}
-			}
-			break;
-		case "ask":
-			console.error("Ask not yet implemented! Falling back to manual.");
-			this.onlyLoad = true;
-			break;
-		default:
-			this.onlyLoad = true;
-			break;
-		}
-			
 		if (!this.onlyLoad) {
 			// start by checking the internet connection
 			this.log("Requesting Connection Status");
@@ -251,29 +256,40 @@ enyo.singleton({
 		console.error("Startet timeout check with id " + this.timeouts[num]);
 	},
 	downloadFeedResponse: function (num, payload) {
+		function goToNextFeed(obj) {
+			clearInterval(obj.timeouts[num]);
+			num = num + 1;
+			if (num < obj.feeds.length) {
+				// start next
+				obj.downloadFeedRequest(num);
+			} else {
+				// we're done
+				var msg = "<strong>" + $L("Done Downloading!") + "</strong>";
+				if (obj.error) {
+					msg += "<br>" + $L("Some feeds failed to download.");
+					setTimeout(obj.loadFeeds.bind(obj), 5000);
+				} else {
+					// well updating looks to have finished, lets log the date:
+					console.error("Putting " + Math.round(Date.now() / 1000) + " as lastUpdate");
+					preware.PrefCookie.put('lastUpdate', Math.round(Date.now() / 1000));
+					obj.loadFeeds();
+				}
+				enyo.Signals.send("onPackagesStatusUpdate", {message: msg});
+					
+				obj.downloaded = true;
+			}
+		}
+		
 		this.log("DownloadFeedResponse: " + num + ", payload: " + JSON.stringify(payload));
 		if (!payload.returnValue || payload.stage === "failed") {
-			this.log(payload.errorText + '<br>' + payload.stdErr.join("<br>"));
-			clearInterval(this.timeouts[num]);
+			this.log(payload.errorText + '<br>' + (payload.stdErr ? payload.stdErr.join("<br>") : ""));
+			this.error = true;
+			
+			goToNextFeed(this);
 		} else if (payload.stage === "status") {
 			enyo.Signals.send("onPackagesStatusUpdate", {message: $L("<strong>Downloading Feed Information</strong><br>") + this.feeds[num].name + "<br><br>" + payload.status});
 		} else if (payload.stage === "completed") {
-			clearInterval(this.timeouts[num]);
-			num = num + 1;
-			if (num < this.feeds.length) {
-				// start next
-				this.downloadFeedRequest(num);
-			} else {
-				// we're done
-				enyo.Signals.send("onPackagesStatusUpdate", {message: $L("<strong>Done Downloading!</strong>")});
-				
-				// well updating looks to have finished, lets log the date:
-				console.error("Putting " + Math.round(Date.now() / 1000) + " as lastUpdate");
-				preware.PrefCookie.put('lastUpdate', Math.round(Date.now() / 1000));
-				
-				this.downloaded = true;
-				this.loadFeeds();
-			}
+			goToNextFeed(this);
 		}
 	},
 	loadFeeds: function () {
