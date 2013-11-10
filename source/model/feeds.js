@@ -1,4 +1,5 @@
-/*global enyo, preware, $L */
+/*jslint sloppy: true */
+/*global enyo, preware, $L, console */
 
 enyo.singleton({
 	name: "preware.FeedsModel",
@@ -6,10 +7,10 @@ enyo.singleton({
 	/*events: {
 		onLoadFeedsFinished: "" //inEvent will have feeds with array of feeds, succes with true/false, message: string
 	},*/
-	doLoadFeedsFinished: function(data) {
+	doLoadFeedsFinished: function (data) {
 		enyo.Signals.send("onLoadFeedsFinished", data);
 	},
-	loadFeeds: function() {
+	loadFeeds: function () {
 		try {
 			// clear out our current data (incase this is a re-update)
 			this.feeds = [];
@@ -21,7 +22,7 @@ enyo.singleton({
 			console.error("feedsModel#loadFeeds: " + e);
 		}
 	},
-	getFeedUrl: function(name) {
+	getFeedUrl: function (name) {
 		var f;
 		if (name && this.feeds.length > 0) {
 			for (f = 0; f <= this.feeds.length; f += 1) {
@@ -33,9 +34,9 @@ enyo.singleton({
 		return false;
 	},
 	
-	onConfigs: function(payload) {
+	onConfigs: function (payload) {
 		var x, c, tmpSplit1, tmpSplit2, feedObj;
-		//console.error("configs returned: " + JSON.stringify(payload));
+		console.error("configs returned: " + JSON.stringify(payload));
 		try {
 			if (!payload) {
 				// i dont know if this will ever happen, but hey, it might
@@ -71,7 +72,7 @@ enyo.singleton({
 				} //end of for
 				
 				// sort them
-				this.feeds.sort(function(a, b) {
+				this.feeds.sort(function (a, b) {
 					if (a.name && b.name) {
 						return ((a.name < b.name) ? -1 : ((a.name > b.name) ? 1 : 0));
 					}

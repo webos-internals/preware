@@ -1,4 +1,5 @@
-/*global enyo, preware, IPKGService, $L, device, navigator, Mojo */
+/*jslint sloppy: true, regexp: true, nomen: true */
+/*global enyo, preware, IPKGService, $L, device, navigator, Mojo, console */
 
 enyo.singleton({
 	name: "preware.PackagesModel",
@@ -50,7 +51,7 @@ enyo.singleton({
 		
 	//methods:
 	//this replaces link to updateAssistant with a signal.
-	displayStatus: function(obj) {
+	displayStatus: function (obj) {
 		var msg = "";
 		if (obj.error === true) {
 			msg = "ERROR: ";
@@ -63,16 +64,16 @@ enyo.singleton({
 		}
 		enyo.Signals.send("onPackagesStatusUpdate", {message: msg});
 	},
-	doSimpleMessage: function(msg) {
+	doSimpleMessage: function (msg) {
 		enyo.Signals.send("onBackendSimpleMessage", msg);
 	},
 	
-	doneUpdating: function() {
+	doneUpdating: function () {
 		enyo.Signals.send("onPackagesLoadFinished", {});
 	},
 	
 	//called to parse feeds.
-	loadFeeds: function(feeds, onlyLoad) {
+	loadFeeds: function (feeds, onlyLoad) {
 		var i;
 		try {
 			// clear out our current data (incase this is a re-update)
@@ -101,12 +102,12 @@ enyo.singleton({
 	},
 	
 	//request package information from IPGKService.
-	infoStatusRequest: function() {
+	infoStatusRequest: function () {
 		// update display
 		this.displayStatus({
 			message: $L("<strong>Loading Package Information</strong><br>Status"),
 			progress: true,
-			progValue: Math.round((1/(this.feeds.length+1)) * 100)
+			progValue: Math.round((1 / (this.feeds.length + 1)) * 100)
 		});
 
 		// request the rawdata
@@ -114,13 +115,12 @@ enyo.singleton({
 	},
 	
 	//request more package information from IPKGService, i.e. next feed.
-	infoListRequest: function(num) {		
+	infoListRequest: function (num) {
 		// update display
 		this.displayStatus({
-			message: $L("<strong>Loading Package Information</strong><br>")
-			+ this.feeds[num],
+			message: $L("<strong>Loading Package Information</strong><br>") + this.feeds[num],
 			progress: true,
-			progValue: Math.round(((num+2)/(this.feeds.length+1)) * 100)
+			progValue: Math.round(((num + 2) / (this.feeds.length + 1)) * 100)
 		});
 		this.feedNum += 1;
 	
@@ -129,7 +129,7 @@ enyo.singleton({
 	},
 	
 	//parses the response from the IPKGService.
-	infoResponse: function(num, payload) {
+	infoResponse: function (num, payload) {
 		var doneLoading = false, position;
 		
 		try {
@@ -217,7 +217,7 @@ enyo.singleton({
 	},
 	
 	//parses package data received from IPKGService.
-	parsePackages: function(rawData, url) {
+	parsePackages: function (rawData, url) {
 		var test, lineRegExp, curPkg, x, match;
 		try {
 			if (rawData) {
@@ -230,8 +230,7 @@ enyo.singleton({
 					match = lineRegExp.exec(test[x]);
 					if (match) {
 						if (match[1] === 'Package' && !curPkg) {
-							curPkg = 
-							{
+							curPkg = {
 								Size: 0,
 								Status: '',
 								Architecture: '',
@@ -269,7 +268,7 @@ enyo.singleton({
 		}
 	},
 	
-	loadPackage: function(infoObj, url) {
+	loadPackage: function (infoObj, url) {
 		var newPkg, pkgNum, pkgUpd;
 		// Skip packages that are in the status file, but are not actually installed
 		if (infoObj.Status &&
@@ -283,7 +282,7 @@ enyo.singleton({
 		if (!this.deviceVersion) {
 			if (device.version.indexOf(" ") >= 0) {
 				this.deviceVersion = device.version.substring(0, device.version.indexOf(" "));
-		  } else {
+			} else {
 				this.deviceVersion = device.version;
 			}
 		}
@@ -308,7 +307,7 @@ enyo.singleton({
 		
 		// Filter out apps that don't match the host device
 		if (!preware.PrefCookie.get().ignoreDevices && newPkg.devices && newPkg.devices.length > 0 &&
-			newPkg.devices.indexOf(device.name) === -1) {
+				newPkg.devices.indexOf(device.name) === -1) {
 			//alert('+ 4');
 			console.error("Ignoring package because of wrong device name...");
 			return;
@@ -323,8 +322,8 @@ enyo.singleton({
 
 		// Filter out non-english apps if desired
 		if ((preware.PrefCookie.get().onlyShowEnglish) &&
-			newPkg.languages && newPkg.languages.length &&
-			!newPkg.inLanguage("en")) {
+				newPkg.languages && newPkg.languages.length &&
+				!newPkg.inLanguage("en")) {
 			//console.error("Ignoring package because of wrong language.");
 			//alert('+ 6');
 			return;
@@ -360,7 +359,7 @@ enyo.singleton({
 	},
 	
 	//called from loadFeeds => infoResponse, i.e. connected to loading packages.
-	fixUnknown: function() {	
+	fixUnknown: function () {
 		this.unknownCount = 0;
 		this.unknownFixed = 0;
 		this.unknown = [];
@@ -377,7 +376,7 @@ enyo.singleton({
 			if (this.unknownCount > 0) {
 				this.displayStatus({
 					message: $L("<strong>Scanning Unknown Packages</strong><br />")
-					+ this.packages[this.unknown[0]].pkg.substr(-32),
+						+ this.packages[this.unknown[0]].pkg.substr(-32),
 					progress: true,
 					progValue: 0
 				});
@@ -390,7 +389,7 @@ enyo.singleton({
 		}
 	},
 	
-	fixUnknownDone: function() {
+	fixUnknownDone: function () {
 		this.unknownFixed += 1;
 		
 		if (this.unknownFixed === this.unknownCount) {
@@ -399,21 +398,22 @@ enyo.singleton({
 		} else {
 			this.displayStatus({
 				message: $L("<strong>Scanning Unknown Packages</strong><br />")
-				+ this.packages[this.unknown[this.unknownFixed]].pkg.substr(-32),
-				progValue: Math.round((this.unknownFixed/this.unknownCount) * 100), progress: true
+					+ this.packages[this.unknown[this.unknownFixed]].pkg.substr(-32),
+				progValue: Math.round((this.unknownFixed / this.unknownCount) * 100),
+				progress: true
 			});
 			this.packages[this.unknown[this.unknownFixed]].loadAppinfoFile(this.fixUnknownDone.bind(this));
 		}
 	},
 	
 	//the all paths from loadFeeds lead here
-	loadSaved: function() {
+	loadSaved: function () {
 		preware.SavedPacketlist.load(this.doneLoading.bind(this));
 	},
 	
-	doneLoading: function() {
+	doneLoading: function () {
 		var p, f, i, justTypeObjs, sortLowerCase;
-		try {			
+		try {
 			// feeds are no longer dirty and packages are no longer soiled
 			this.dirtyFeeds = false;
 			this.soiledPackages = false;
@@ -429,7 +429,7 @@ enyo.singleton({
 			
 			// sort the packages
 			if (this.packages.length > 0) {
-				this.packages.sort(function(a, b) {
+				this.packages.sort(function (a, b) {
 					var strA, strB;
 					if (a.title && b.title) {
 						strA = a.title.toLowerCase();
@@ -472,7 +472,7 @@ enyo.singleton({
 			console.error('error in packagesModel#doneLoading: ' + e);
 		}
 		
-		sortLowerCase = function(a, b) {
+		sortLowerCase = function (a, b) {
 			var strA, strB;
 			// this needs to be lowercase for sorting.
 			if (a && b) {
@@ -500,14 +500,14 @@ enyo.singleton({
 		}
 		
 		//check against plattform major gone here.. thing about something in the db8Storage wrapper..
-		if(this.onlyLoad === false) { 
+		if (this.onlyLoad === false) {
 			justTypeObjs = [];
 			for (i = 0; i < this.packages.length; i += 1) {
 				if (this.packages[i].blacklisted === false) {
 					justTypeObjs.push({_kind: "org.webosinternals.preware.justType:1", id: this.packages[i].pkg, display: this.packages[i].title, secondary: this.packages[i].type + " - " + this.packages[i].category});
 				}
 			}
-			preware.db8Storage.deleteAll(function() {
+			preware.db8Storage.deleteAll(function () {
 				preware.db8Storage.putArray(justTypeObjs);
 			});
 		}
@@ -518,17 +518,17 @@ enyo.singleton({
 	
 	//============================= multi package operations
 	//checks restart flags from multiple packages.
-	getMultiFlags: function() {
+	getMultiFlags: function () {
 		try {
 			var mFlags = {RestartLuna: false, RestartJava: false, RestartDevice: false}, tmpType, d,
 				checkFlags = function (flags) {
-					if (flags.RestartLuna)	{
+					if (flags.RestartLuna) {
 						mFlags.RestartLuna = true;
 					}
-					if (flags.RestartJava)	{
+					if (flags.RestartJava) {
 						mFlags.RestartJava = true;
 					}
-					if (flags.RestartDevice)	{
+					if (flags.RestartDevice) {
 						mFlags.RestartDevice = true;
 					}
 				};
@@ -545,7 +545,7 @@ enyo.singleton({
 
 			// check all deps
 			for (d = 0; d < this.multiPkgs.length; d += 1) {
-				if (this.packages[this.multiPkgs[d]].isInstalled)	{
+				if (this.packages[this.multiPkgs[d]].isInstalled) {
 					tmpType = 'update';
 				} else {
 					tmpType = 'install';
@@ -557,12 +557,12 @@ enyo.singleton({
 			return mFlags;
 		} catch (e) {
 			console.error('error in packagesModel#getMultiFlags: ' + e);
-		}	
+		}
 	},
 	
 	//asks user if it should install multiple packages. If so, calls testMultiInstall.
-	checkMultiInstall: function(pkg, pkgs) {
-		try {		
+	checkMultiInstall: function (pkg, pkgs) {
+		try {
 			this.multiPkg	= pkg;
 			this.multiPkgs	= pkgs;
 			this.multiFlags	= this.getMultiFlags();
@@ -585,14 +585,14 @@ enyo.singleton({
 	},
 	
 	//this was used to react to the question towards the user and either install or show the packages to be installed.
-	testMultiInstall: function(value) {
-		switch(value) {
+	testMultiInstall: function (value) {
+		switch (value) {
 		case 'ok':
 			//this.assistant.displayAction($L("Installing / Updating"));
 			//this.assistant.startAction();
 			console.error("MultiPkg: " + this.multiPkg.pkg);
-			console.error("Pushing: " + this.packagesReversed[this.multiPkg.pkg]-1);
-			this.multiPkgs.push(this.packagesReversed[this.multiPkg.pkg]-1); //add package with dependencies to be list of packages to be installed as last one.
+			console.error("Pushing: " + this.packagesReversed[this.multiPkg.pkg] - 1);
+			this.multiPkgs.push(this.packagesReversed[this.multiPkg.pkg] - 1); //add package with dependencies to be list of packages to be installed as last one.
 			this.doMultiInstall(0);
 			break;
 		
@@ -606,7 +606,7 @@ enyo.singleton({
 		return;
 	},
 	
-	doMultiInstall: function(number) {
+	doMultiInstall: function (number) {
 		var pkg = this.packages[this.multiPkgs[number]];
 		console.error("in doMultiInstall, number: " + number);
 		try {
@@ -621,25 +621,25 @@ enyo.singleton({
 				//package is from appCatalog (?)
 				if (pkg.appCatalog && preware.PrefCookie.get().useTuckerbox) {
 					this.doMyApps = true;
-					this.doMultiInstall(number+1);
+					this.doMultiInstall(number + 1);
 				} else if (pkg.isInstalled) {
 					if (!pkg.location) {
 						console.error('No location');
 						// see note above about this skipping if the type can't be updated
-						this.doMultiInstall(number+1);
+						this.doMultiInstall(number + 1);
 					} else if (preware.typeConditions.can(pkg.type, 'update')) {
 						pkg.doUpdate(true, number);
 					} else {
 						// it can't be updated, so we will just skip it
 						// we should probably message or something that this has been skipped
 						// or really, we should notify the user before we even get this far
-						this.doMultiInstall(number+1);
+						this.doMultiInstall(number + 1);
 					}
 				} else {
 					if (!pkg.location) {
 						console.error('No location');
 						// see note above about this skipping if the type can't be updated
-						this.doMultiInstall(number+1);
+						this.doMultiInstall(number + 1);
 					} else {
 						pkg.doInstall(true, number);
 					}
@@ -650,24 +650,21 @@ enyo.singleton({
 					console.error("Trying to launch software manager.");
 					this.dirtyFeeds = true;
 					if (Mojo && Mojo.Environment && Mojo.Environment.DeviceInfo && Mojo.Environment.DeviceInfo.platformVersionMajor === 1) {
-						navigator.Service.Request('palm://com.palm.applicationManager', 
-						{
+						navigator.Service.Request('palm://com.palm.applicationManager', {
 							method: 'launch',
-							parameters: 
-							{
+							parameters: {
 								id: "com.palm.app.findapps",
 								params: { myapps: '' }
 							}
 						});
 					} else {
 						navigator.Service.Request('palm://com.palm.applicationManager', {
-								method: 'launch',
-								parameters: 
-								{
-									id: "com.palm.app.swmanager",
-									params: { launchType: "updates" }
-								}
-							});
+							method: 'launch',
+							parameters: {
+								id: "com.palm.app.swmanager",
+								params: { launchType: "updates" }
+							}
+						});
 					}
 				}
 
@@ -679,7 +676,7 @@ enyo.singleton({
 						//this.multiActionFunction.bindAsEventListener(this, this.multiFlags)
 					);
 					return;
-				}	else {
+				} else {
 					// we run this anyways to get the rescan
 					this.multiRunFlags(this.multiFlags);
 				}
@@ -694,7 +691,7 @@ enyo.singleton({
 		}
 	},
 	
-	checkMultiRemove: function(pkg, pkgs) {
+	checkMultiRemove: function (pkg, pkgs) {
 		var i, msg;
 		try {
 			this.multiPkg	= pkg;
@@ -729,27 +726,27 @@ enyo.singleton({
 		}
 	},
 	
-	testMultiRemove: function(value) {
-		switch(value) {
-			case 'ok':
-				this.multiPkg.doRemove(true);
-				this.multiPkg	= false;
-				this.multiPkgs	= false;
-				this.multiFlags	= false;
-				break;
-			case 'view':
-				console.error("View not yet implemented...");
-				//this.assistant.controller.stageController.pushScene('pkg-connected', 'remove', this.multiPkg, this.multiPkgs);
-				this.multiPkg	= false;
-				this.multiPkgs	= false;
-				this.multiFlags	= false;
-				break;
+	testMultiRemove: function (value) {
+		switch (value) {
+		case 'ok':
+			this.multiPkg.doRemove(true);
+			this.multiPkg	= false;
+			this.multiPkgs	= false;
+			this.multiFlags	= false;
+			break;
+		case 'view':
+			console.error("View not yet implemented...");
+			//this.assistant.controller.stageController.pushScene('pkg-connected', 'remove', this.multiPkg, this.multiPkgs);
+			this.multiPkg	= false;
+			this.multiPkgs	= false;
+			this.multiFlags	= false;
+			break;
 		}
 		return;
 	},
 	
 	//utility function to generate install messages
-	multiActionMessage: function(flags) {
+	multiActionMessage: function (flags) {
 		try {
 			var msg = '';
 			if (flags.RestartJava) {
@@ -768,20 +765,20 @@ enyo.singleton({
 	},
 	
 	//called in the end of an action. Triggers restarts and so on and also a rescann.
-	multiRunFlags: function(flags) {
+	multiRunFlags: function (flags) {
 		try {
 			if ((flags.RestartLuna && flags.RestartJava) || flags.RestartDevice) {
-				IPKGService.restartdevice(function(){});
+				IPKGService.restartdevice(function () {});
 			}
 			if (flags.RestartJava && !flags.RestartLuna) {
-				IPKGService.restartjava(function(){});
+				IPKGService.restartjava(function () {});
 			}
 			if (flags.RestartLuna && !flags.RestartJava) {
-				IPKGService.restartluna(function(){});
+				IPKGService.restartluna(function () {});
 			}
 			// this is always ran...
 			if (!preware.PrefCookie.get().avoidBugs) {
-				IPKGService.rescan(function(){});
+				IPKGService.rescan(function () {});
 			}
 		} catch (e) {
 			console.error('packagesModel#multiRunFlags: ' + e);
@@ -789,7 +786,7 @@ enyo.singleton({
 	},
 	
 	// Utility stuff if following.
-	versionNewer: function(one, two) {
+	versionNewer: function (one, two) {
 		if (!one) {
 			return true;
 		}
@@ -800,13 +797,20 @@ enyo.singleton({
 		// if one >= two returns false
 		// if one < two returns true
 		var e1 = one.split(':'),
-				e2 = two.split(':'),
-				v1 = e1[e1.length > 1 ? 1 : 0].split('.'),
-				v2 = e2[e2.length > 1 ? 1 : 0].split('.'),
-				diff, j, prefix1, prefix2, i1 = [], i2 = [],
-				last, suffix1, suffix2;
+			e2 = two.split(':'),
+			v1 = e1[e1.length > 1 ? 1 : 0].split('.'),
+			v2 = e2[e2.length > 1 ? 1 : 0].split('.'),
+			diff,
+			j,
+			prefix1,
+			prefix2,
+			i1 = [],
+			i2 = [],
+			last,
+			suffix1,
+			suffix2;
 
-		if(e1.length > 1 || e2.length > 1) {
+		if (e1.length > 1 || e2.length > 1) {
 			prefix1 = e1.length > 1 ? parseInt(e1[0], 10) : 0;
 			prefix2 = e2.length > 1 ? parseInt(e2[0], 10) : 0;
 			diff = prefix2 - prefix1;
@@ -816,32 +820,32 @@ enyo.singleton({
 		}
 
 		last = v1.length > v2.length ? v1.length : v2.length;		//	use the larger buffer
-		for(j = 0; j < last; j += 1) {
+		for (j = 0; j < last; j += 1) {
 			i1[j] = v1.length > j ? parseInt(v1[j], 10) : 0;
 			i2[j] = v2.length > j ? parseInt(v2[j], 10) : 0;
 		}
 		suffix1 = v1.length > 0 ? v1[v1.length - 1].split('-') : [];
 		suffix2 = v2.length > 0 ? v2[v2.length - 1].split('-') : [];
-		if(suffix1.length > 1 || suffix2.length > 1) {
+		if (suffix1.length > 1 || suffix2.length > 1) {
 			last += 1;		//	we're using one more digit
 			i1[j] = (suffix1.length > 1) ? parseInt(suffix1[1], 10) : 0;
 			i2[j] = (suffix2.length > 1) ? parseInt(suffix2[1], 10) : 0;
 		}
-		for(j = 0; j < last; j += 1) {
+		for (j = 0; j < last; j += 1) {
 			diff = i2[j] - i1[j];
-			if(diff !== 0) {
+			if (diff !== 0) {
 				return (diff > 0) ? true : false;
 			}
 		}
 		return false;
 	},
 	
-	packageInList: function(pkg) {
+	packageInList: function (pkg) {
 		var pkgNum = this.packagesReversed[pkg];
 		if (pkgNum !== undefined) {
-			return pkgNum-1;
+			return pkgNum - 1;
 		} else {
 			return false;
 		}
-	},
+	}
 });
