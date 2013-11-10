@@ -1,28 +1,36 @@
+/*jslint sloppy: true */
+/*global $L*/
+
 // formats a timestamp to a readable date
-formatDate = function(date)
-{
-	var toReturn = '';
-	if (date)
-	{
-		var dateObj = new Date(date * 1000);
-		var pm = false;
+var formatDate = function (date) {
+	var toReturn = '', dateObj, pm;
+	if (date) {
+		dateObj = new Date(date * 1000);
+		pm = false;
 		
 		toReturn += (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '/' + String(dateObj.getFullYear()).substring(2) + ' ';
 		
-		if (dateObj.getHours() > 12) pm = true;
-		
-		if (!pm)
-		{
-			if (dateObj.getHours() < 1) toReturn += '12';
-			if (dateObj.getHours() > 0) toReturn += dateObj.getHours();
-			toReturn += ':';
-			if (dateObj.getMinutes() < 10) toReturn += '0'
-			toReturn += dateObj.getMinutes() + ' AM';
+		if (dateObj.getHours() > 12) {
+			pm = true;
 		}
-		else
-		{
+		
+		if (!pm) {
+			if (dateObj.getHours() < 1) {
+				toReturn += '12';
+			}
+			if (dateObj.getHours() > 0) {
+				toReturn += dateObj.getHours();
+			}
+			toReturn += ':';
+			if (dateObj.getMinutes() < 10) {
+				toReturn += '0';
+			}
+			toReturn += dateObj.getMinutes() + ' AM';
+		} else {
 			toReturn += (dateObj.getHours() - 12) + ':';
-			if (dateObj.getMinutes() < 10) toReturn += '0'
+			if (dateObj.getMinutes() < 10) {
+				toReturn += '0';
+			}
 			toReturn += dateObj.getMinutes() + ' PM';
 		}
 	}
@@ -30,18 +38,15 @@ formatDate = function(date)
 };
 
 // condences bytes to a better rate
-formatSize = function(size)
-{
-	var toReturn = size + $L(" B");
-	var formatSize = size;
+var formatSize = function (size) {
+	var toReturn = size + $L(" B"),
+		formatSize = size;
 	
-	if (formatSize > 1024)
-	{
+	if (formatSize > 1024) {
 		formatSize = (Math.round((formatSize / 1024) * 100) / 100);
 		toReturn = formatSize + $L(" KB");
 	}
-	if (formatSize > 1024)
-	{
+	if (formatSize > 1024) {
 		formatSize = (Math.round((formatSize / 1024) * 100) / 100);
 		toReturn = formatSize + $L(" MB");
 	}
@@ -52,46 +57,41 @@ formatSize = function(size)
 };
 
 // formats a url to something that can be a link
-getDomain = function(url)
-{
-	var r = new RegExp("^(?:http(?:s)?://)?([^/]+)");
-	var match = url.match(r);
-	if (match) 
-	{
-		var stripped = match[1].replace(/www./, '');
+var getDomain = function (url) {
+	var r = new RegExp("^(?:http(?:s)?://)?([^/]+)"),
+		match = url.match(r),
+		stripped;
+	
+	if (match) {
+		stripped = match[1].replace(/www\./, '');
 		return stripped;
 	}
 	return 'Link';
 };
 
 // removeAuth function
-removeAuth = function(str)
-{
+var removeAuth = function (str) {
 	return str
-	.replace(new RegExp('http://[^@/]+@','gm'), 'http://')
-	.replace(new RegExp('https://[^@/]+@','gm'), 'https://')
-	.replace(new RegExp('-H "Device-Id: [^"]+" ','gm'), "")
-	.replace(new RegExp('-H "Auth-Token: [^"]+" ','gm'), "")
-	;
+		.replace(new RegExp('http://[^@/]+@', 'gm'), 'http://')
+		.replace(new RegExp('https://[^@/]+@', 'gm'), 'https://')
+		.replace(new RegExp('-H "Device-Id: [^"]+" ', 'gm'), "")
+		.replace(new RegExp('-H "Auth-Token: [^"]+" ', 'gm'), "");
 };
 
 // trim function
-trim = function(str)
-{
+var trim = function (str) {
 	return str.replace(/^\s*/, "").replace(/\s*$/, "");
 };
 
 // tells you if val is "numeric"
-isNumeric = function(val)
-{
-	if (isNaN(parseFloat(val)))
-	{
+var isNumeric = function (val) {
+	if (isNaN(parseFloat(val))) {
 		return false;
 	}
 	return true;
 };
 
-convertStringToBool = function (str) {
+var convertStringToBool = function (str) {
 	if (typeof str === "string") {
 		return (str.toLowerCase() === "true");
 	} else { //if not a string just compare it to true.. ;)
