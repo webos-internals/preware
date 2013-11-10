@@ -1,11 +1,12 @@
-/*global enyo, preware */
+/*jslint sloppy: true */
+/*global enyo, preware, console */
 
 enyo.singleton({
 	name: "preware.PrefCookie",
 	published: {
 		prefs: false
 	},
-	get: function(reload) {
+	get: function (reload) {
 		try {
 			if (!this.prefs || reload) {
 				//setup our default preferences
@@ -63,27 +64,37 @@ enyo.singleton({
 			console.error('preferenceCookie#get: ' + e);
 		}
 	},
-	getAllValues: function() {
+	getAllValues: function () {
 		var field, value;
+		console.error("====================== Trying to read cookie.");
 		if (enyo.getCookie("preware-cookie-set")) {
 			for (field in this.prefs) {
 				if (this.prefs.hasOwnProperty(field)) {
 					value = enyo.getCookie(field);
+					console.error("COOKIE, READ: " + field + " = " + value);
 					if (value !== undefined) {
 						this.prefs[field] = value;
 					}
 				}
 			}
 		} else {
+			console.error("COULD NOT GET COOKIE!!!");
 			this.setAllValues();
 		}
 	},
-	put: function(obj, value) {
+	put: function (obj, value) {
 		try {
+			if (!this.prefs) {
+				this.get();
+			}
+			
 			if (value !== undefined) {
+				console.error("Setting single value " + obj + " = " + value);
 				this.prefs[obj] = value;
 				enyo.setCookie(obj, value); //take a shortcut here.
+				enyo.setCookie("preware-cookie-set", true);
 			} else {
+				console.error("Setting all values.");
 				this.prefs = obj;
 				this.setAllValues();
 			}
@@ -91,7 +102,7 @@ enyo.singleton({
 			console.error('preferenceCookie#put: ' + e);
 		}
 	},
-	setAllValues: function() {
+	setAllValues: function () {
 		var field;
 		for (field in this.prefs) {
 			if (this.prefs.hasOwnProperty(field)) {
@@ -107,11 +118,11 @@ enyo.singleton({
 	name: "preware.VersionCookie",
 	isFirst: false,
 	isNew: false,
-	init: function() {
+	init: function () {
 		var version;
 		this.cookie = false;
 		this.isFirst = false;
-		this.isNew = false;			 
+		this.isNew = false;
 		
 		version = enyo.getCookie("version");
 		if (version) {
@@ -131,10 +142,10 @@ enyo.singleton({
 			enyo.log("VersionCookie: First run.");
 		}
 	},
-	showStartupScene: function() {
+	showStartupScene: function () {
 		if (this.isNew || this.isFirst) {
 			return true;
-		} 
+		}
 		return false;
 	}
 });
