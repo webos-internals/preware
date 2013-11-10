@@ -1,3 +1,7 @@
 src/ipkgservice
 *.ipk
 *.o
+enyo2/deploy
+enyo2/build
+enyo2/phonegap*
+cordova.js

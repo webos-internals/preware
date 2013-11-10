@@ -1,15 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-    <title>Preware</title>
-    <meta name="viewport" content="height=device-height" />
-    <script src="/usr/palm/frameworks/mojo/mojo.js" x-mojo-version="1" type="text/javascript" />
-	<link href="stylesheets/preware.css" media="screen" rel="stylesheet" type="text/css" />
-	<link href="stylesheets/theme-appcat.css" media="screen" rel="stylesheet" type="text/css" />
-	<link href="stylesheets/preware-device.css" media="screen" rel="stylesheet" type="text/css" />
-</head>
-<body>
-</body>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>Preware 2.0</title>
+		<link rel="shortcut icon" href="assets/favicon.ico"/>
+		<!-- -->
+		<meta http-equiv="Content-Type" content="text/html; charset=utf8"/>
+		<meta name="apple-mobile-web-app-capable" content="yes"/>
+		<meta name="viewport" content="height=device-height, user-scalable=no"/>
+		<!-- css -->
+		<link href="build/enyo.css" rel="stylesheet"/>
+		<link href="build/app.css" rel="stylesheet"/>
+		<!-- js -->
+		<script src="/usr/palm/frameworks/cordova/cordova.js"></script>
+		<script src="build/enyo.js"></script>
+		<script src="build/app.js"></script>
+	</head>
+	<body class="enyo-unselectable">
+		<script>
+        		new App().renderInto(document.body);
+		</script>
+	</body>
 </html>
