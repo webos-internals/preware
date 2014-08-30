@@ -299,7 +299,7 @@ ConfigsAssistant.prototype.newConfButton = function()
 		{
 		    title:				$L("Custom Feed"),
 			allowHTMLMessage:	true,
-		    message:			$L("You may not add alpha testing feeds here. See http://testing.preware.org/"),
+		    message:			$L("You may not add alpha testing feeds here. See http://testing.preware.net/"),
 		    choices:			[{label:$L("Ok"), value:'ok'}],
 		});
 		this.controller.get('newButton').mojo.deactivate();
@@ -310,7 +310,7 @@ ConfigsAssistant.prototype.newConfButton = function()
 		{
 		    title:				$L("Custom Feed"),
 			allowHTMLMessage:	true,
-		    message:			$L("You may not add beta testing feeds here. See http://testing.preware.org/"),
+		    message:			$L("You may not add beta testing feeds here. See http://testing.preware.net/"),
 		    choices:			[{label:$L("Ok"), value:'ok'}],
 		});
 		this.controller.get('newButton').mojo.deactivate();
@@ -322,7 +322,7 @@ ConfigsAssistant.prototype.newConfButton = function()
 		{
 		    title:				$L("Custom Feed"),
 			allowHTMLMessage:	true,
-		    message:			$L("The instructions you are following are obsolete. See http://testing.preware.org/"),
+		    message:			$L("The instructions you are following are obsolete. See http://testing.preware.net/"),
 		    choices:			[{label:$L("Ok"), value:'ok'}],
 		});
 		this.controller.get('newButton').mojo.deactivate();
@@ -333,7 +333,7 @@ ConfigsAssistant.prototype.newConfButton = function()
 		{
 		    title:				$L("Custom Feed"),
 			allowHTMLMessage:	true,
-		    message:			$L("The instructions you are following are obsolete. See http://testing.preware.org/"),
+		    message:			$L("The instructions you are following are obsolete. See http://testing.preware.net/"),
 		    choices:			[{label:$L("Ok"), value:'ok'}],
 		});
 		this.controller.get('newButton').mojo.deactivate();
