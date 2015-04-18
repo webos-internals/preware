@@ -10,6 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+	 {	 version: '1.9.14', log: [ 'Added and enabled PivotCE Preware feed'] },
 	 {	 version: '1.9.13', log: [ 'Moved package feeds to ipkg.preware.net',
                                    'Updated birthday icon to remove the year number' ] },
 	 {	 version: '1.9.12', log: [ 'Added support for WebOS Community Edition (WOCE) feeds by the WebOS Ports team from WebOS Internals' ] },
