@@ -79,6 +79,9 @@ sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/optware.conf
 echo "src/gz precentral http://ipkg.preware.net/feeds/precentral" > $APPS/etc/ipkg/precentral.conf
 echo "src/gz precentral-themes http://ipkg.preware.net/feeds/precentral-themes" > $APPS/etc/ipkg/precentral-themes.conf.new
 
+# Install PivotCE feeds
+echo "src/gz pivotce http://feed.pivotce.com" > $APPS/etc/ipkg/pivotce.conf
+
 # Install prethemer feed
 echo "src/gz prethemer http://www.prethemer.com/feeds/preware/themes" > $APPS/etc/ipkg/prethemer.conf.new
 
