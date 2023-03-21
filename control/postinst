@@ -75,8 +75,11 @@ echo "src/gz optware-`/bin/uname -m` http://ipkg.preware.net/feeds/optware/`/bin
 sed -i -e 's|armv7l|armv7|g' $APPS/etc/ipkg/optware.conf
 sed -i -e 's|armv6l|armv6|g' $APPS/etc/ipkg/optware.conf
 
-# Install precentral feeds
-echo "src/gz precentral http://ipkg.preware.net/feeds/precentral" > $APPS/etc/ipkg/precentral.conf
+# Install WOSA feeds
+echo "src/gz precentral http://weboslives.eu/feeds/wosa" > $APPS/etc/ipkg/wosa.conf
+
+# Install precentral feeds (updated with backup location hosted on weboslives.eu)
+echo "src/gz precentral http://weboslives.eu/feeds/precentral" > $APPS/etc/ipkg/precentral.conf
 echo "src/gz precentral-themes http://ipkg.preware.net/feeds/precentral-themes" > $APPS/etc/ipkg/precentral-themes.conf.new
 
 # Install PivotCE feeds
