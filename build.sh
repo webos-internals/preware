@@ -2,9 +2,9 @@
 APPID=org.webosinternals.preware
 READY=1
 mkdir -p ./bin
-[ ! -f /keys/cert.pem ] && echo "cert.pem does not exist!" && READY=0
-[ ! -f /keys/pubkey.pem ] && echo "pubkey.pem does not exist!" && READY=0
-[ ! -f /keys/signature.sha1 ] && echo "signature.sha1 does not exist!" && READY=0
+[ ! -f keys/cert.pem ] && echo "cert.pem does not exist!" && READY=0
+[ ! -f keys/pubkey.pem ] && echo "pubkey.pem does not exist!" && READY=0
+[ ! -f keys/signature.sha1 ] && echo "signature.sha1 does not exist!" && READY=0
 if [ "$READY" -lt "1" ]; then
     echo
     echo "Signing keys were not found, this build will NOT run properly on a webOS device"
