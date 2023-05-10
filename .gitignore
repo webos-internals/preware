@@ -7,7 +7,6 @@ src/ipkgservice
 tags
 nppBackup
 .DS_Store
-bin/*
 cert.pem
 pubkey.pem
 signature.sha1
