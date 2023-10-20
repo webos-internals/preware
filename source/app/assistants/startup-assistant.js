@@ -10,6 +10,8 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
+     {	 version: '1.9.15', log: [ 'Move PreCentral feed to backup server', 
+	 							   'Add App Museum feed (disabled by default)'] },
 	 {	 version: '1.9.14', log: [ 'Added and enabled PivotCE Preware feed'] },
 	 {	 version: '1.9.13', log: [ 'Moved package feeds to ipkg.preware.net',
                                    'Updated birthday icon to remove the year number' ] },
