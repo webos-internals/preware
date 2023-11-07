@@ -412,7 +412,7 @@ UpdateAssistant.prototype.downloadFeedResponse = function(payload, num)
 		}
 		else {
 			// we're done
-			this.displayAction($L("<strong>Done Downoading!</strong>"));
+			this.displayAction($L("<strong>Done Downloading!</strong>"));
 			this.setProgress(0);
 			this.hideProgress();
 			
