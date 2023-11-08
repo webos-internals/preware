@@ -10,7 +10,7 @@ function StartupAssistant(changelog)
     // on new version start
     this.newMessages =
 	[
-	 {	 version: '1.9.16', log: [ 'Support Intel targets (emulator)', 
+	 {	 version: '1.9.16', log: [ 'Restore support for Intel targets (emulator)', 
 		'Updated Italian translations (courtesy of David20Craft)'] },
      {	 version: '1.9.15', log: [ 'Move PreCentral feed to backup server', 
 	 							   'Add App Museum feed (disabled by default)'] },
