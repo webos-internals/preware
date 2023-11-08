@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 APPID=org.webosinternals.preware
 READY=1
 mkdir -p ./bin
@@ -11,20 +11,41 @@ if [ "$READY" -lt "1" ]; then
     echo "To make a working build, extract the signing keys from a previous official build"
     echo
 fi
-echo "building preware..."
+
+useBin=arm
+for arg in "$@"; do
+    if [ "$arg" = 'i686' ]; then
+        useBin=i686
+    fi
+done
+
+echo "building preware for $useBin..."
+rm ./source/bin/org.webosinternals.ipkgservice
+cp ./source/bin/org.webosinternals.ipkgservice.$useBin ./source/bin/org.webosinternals.ipkgservice
 
 # Bundle everything into a palm package
-palm-package source/. -o ./bin
-echo
+palm-package source/. -o ./bin --exclude=*.arm --exclude=*.i686
+# Find what was just made
+unset -v ipk
+for file in "./bin"/*.ipk; do
+    [[ $file -nt $ipk ]] && ipk=$file
+done
+if [ -z "${ipk:-}" ]; then 
+    echo "build failed, palm-package did not produce a deployable ipk"
+    exit
+fi
 
 # Inject extra files
 echo "adding install files..."
-ar qv ./bin/${APPID}*.ipk source/pmPostInstall.script
-ar qv ./bin/${APPID}*.ipk source/pmPreRemove.script
-ar qv ./bin/${APPID}*.ipk keys/cert.pem
-ar qv ./bin/${APPID}*.ipk keys/pubkey.pem
-ar qv ./bin/${APPID}*.ipk keys/signature.sha1
-
+ar qv $ipk source/pmPostInstall.script
+ar qv $ipk source/pmPreRemove.script
+ar qv $ipk keys/cert.pem
+ar qv $ipk keys/pubkey.pem
+ar qv $ipk keys/signature.sha1
+mv $ipk ${ipk%_all.ipk}_$useBin.ipk
+for file in "./bin"/*.ipk; do
+    [[ $file -nt $ipk ]] && ipk=$file
+done
 echo
-echo "output ready at ./bin"
+echo "output ready at $ipk"
 
