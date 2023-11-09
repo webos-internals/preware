@@ -20,7 +20,7 @@ for arg in "$@"; do
 done
 
 echo "building preware for $useBin..."
-rm ./source/bin/org.webosinternals.ipkgservice
+rm ./source/bin/org.webosinternals.ipkgservice >/dev/null 2>&1
 cp ./source/bin/org.webosinternals.ipkgservice.$useBin ./source/bin/org.webosinternals.ipkgservice
 
 # Bundle everything into a palm package
