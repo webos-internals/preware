@@ -1,9 +1,5 @@
 Preware is a webOS on-device homebrew installer.
 
-# webOS Archive Fork
-
-This fork refactors the project to allow us to update and build Preware 1.x without the legacy build infrastructure. For LuneOS, see [Preware 2](https://github.com/webOS-ports/preware).
-
 ## Building
 
 The `build.sh` script should do (or at least, suggest) everything you need -- except for signing keys...
