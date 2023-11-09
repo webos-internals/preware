@@ -6,3 +6,8 @@ src/ipkgservice
 *.o
 tags
 nppBackup
+.DS_Store
+cert.pem
+pubkey.pem
+signature.sha1
+org.webosinternals.ipkgservice

@@ -1,8 +1,8 @@
 {
 	"title": "Preware",
 	"id": "org.webosinternals.preware",
-	"version": "1.9.14",
-	"release_date":	"18-April-2015",
+	"version": "1.9.16",
+	"release_date":	"20-October-2023",
 	"vendor": "WebOS Internals",
 	"vendor_email":	"support@webos-internals.org",
 	"vendor_url": "http://www.webos-internals.org/wiki/Application:Preware",
@@ -22,7 +22,7 @@
 			"launchParam":"viewPackage",
 			"launchParamDbField":"id",
 			"displayFields":["display","secondary"],
-			"dbQuery":{"from":"org.webosinternals.preware.justType:1","where":[{"prop":"display","op":"?","val":"", "collate": "primary"}], "limit":20} 
-		}                                                
+			"dbQuery":{"from":"org.webosinternals.preware.justType:1","where":[{"prop":"display","op":"?","val":"", "collate": "primary"}], "limit":20}
+		}
 	}
 }
