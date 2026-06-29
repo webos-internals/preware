@@ -111,6 +111,9 @@ echo "src/gz webos-kernels http://ipkg.preware.net/feeds/webos-kernels/${VERSION
 # Install woce feed
 echo "src/gz woce http://ipkg.preware.net/feeds/woce" > $APPS/etc/ipkg/woce.conf
 
+# Install modernize feed (webOS Archive modernization stack: TLS 1.2/1.3, root certs, QupZilla, webOS CE)
+echo "src/gz modernize http://stacks.webosarchive.org/feeds/modernize/ipkgs" > $APPS/etc/ipkg/modernize.conf
+
 # Install the alpha testing feeds (disabled by default)
 
 if [ -f /var/preferences/org.webosinternals.preware/enable-alpha-feeds ] ; then
