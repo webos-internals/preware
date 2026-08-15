@@ -318,17 +318,30 @@ packagesModel.prototype.parsePackages = function(rawData, url)
 	{
 		if (rawData) 
 		{
-			var test = rawData.split(/\n/);
-			var lineRegExp = new RegExp(/[\s]*([^:]*):[\s]*(.*)[\s]*$/);
+			var test = rawData.split("\n");
 			var curPkg = false;
-			
-			for (var x = 0; x < test.length; x++) 
+
+			for (var x = 0; x < test.length; x++)
 			{
-			
-				var match = lineRegExp.exec(test[x]);
-				if (match) 
+				// This used to run a regular expression over every line, which
+				// with a megabyte of feed lists is tens of thousands of matches.
+				// Splitting on the first colon by hand does the same job:
+				// the old pattern was /[\s]*([^:]*):[\s]*(.*)[\s]*$/, so the name
+				// is whatever precedes the first colon with leading blanks
+				// dropped, and the value is the rest with leading blanks dropped.
+				var line = test[x];
+				var colon = line.indexOf(':');
+				if (colon > -1)
 				{
-					if (match[1] == 'Package' && !curPkg) 
+					var s = 0;
+					while (s < colon && (line.charAt(s) == ' ' || line.charAt(s) == '\t' || line.charAt(s) == '\r')) s++;
+					var name = line.substring(s, colon);
+
+					var v = colon + 1;
+					while (v < line.length && (line.charAt(v) == ' ' || line.charAt(v) == '\t')) v++;
+					var value = line.substring(v);
+
+					if (name == 'Package' && !curPkg)
 					{
 						curPkg = 
 						{
@@ -348,14 +361,14 @@ packagesModel.prototype.parsePackages = function(rawData, url)
 							Source: ''
 						};
 					}
-					if (match[1] && match[2]) 
+					if (name && value)
 					{
-						curPkg[match[1]] = match[2];
+						curPkg[name] = value;
 					}
 				}
 				else
 				{
-					if (curPkg) 
+					if (curPkg)
 					{
 						this.loadPackage(curPkg, url);
 						curPkg = false;
@@ -543,8 +556,18 @@ packagesModel.prototype.fixUnknown = function()
 		if (this.unknownCount > 0) 
 		{
 			this.updateAssistant.showProgress();
-			this.updateAssistant.displayAction($L("<strong>Scanning Unknown Packages</strong><br />") + this.packages[this.unknown[0]].pkg.substr(-32));
-			this.packages[this.unknown[0]].loadAppinfoFile(this.fixUnknownDone.bind(this));
+			this.updateAssistant.displayAction($L("<strong>Scanning Unknown Packages</strong><br />") + this.unknownFixed + $L(" of ") + this.unknownCount);
+
+			// Each package is a separate round trip to the service to read its
+			// appinfo, and possibly a second one for its control file. Waiting
+			// for each before asking for the next leaves us idle for most of it,
+			// so keep several in flight at once.
+			this.unknownNext = 0;
+			var starting = Math.min(this.maxParallelUnknown, this.unknownCount);
+			for (var u = 0; u < starting; u++)
+			{
+				this.scanNextUnknown();
+			}
 		}
 		else
 		{
@@ -556,13 +579,29 @@ packagesModel.prototype.fixUnknown = function()
 		this.loadSaved();
 	}
 };
+// how many unknown packages we scan at the same time
+packagesModel.prototype.maxParallelUnknown = 6;
+
+packagesModel.prototype.scanNextUnknown = function()
+{
+	if (this.unknownNext >= this.unknownCount) return;
+	var next = this.unknownNext++;
+	this.packages[this.unknown[next]].loadAppinfoFile(this.fixUnknownDone.bind(this));
+};
+
 packagesModel.prototype.fixUnknownDone = function()
 {
 	this.unknownFixed++;
-	//	this.updateAssistant.displayAction($L("<strong>Fixing Unknown Packages</strong><br />") + this.unknownFixed + ' of ' + this.unknownCount);
 	this.updateAssistant.setProgress(Math.round((this.unknownFixed/this.unknownCount) * 100));
-	
-	if (this.unknownFixed == this.unknownCount)
+
+	// only redraw the count now and then; rewriting it for every package costs
+	// more than the scanning does
+	if ((this.unknownFixed % 10) == 0)
+	{
+		this.updateAssistant.displayAction($L("<strong>Scanning Unknown Packages</strong><br />") + this.unknownFixed + $L(" of ") + this.unknownCount);
+	}
+
+	if (this.unknownFixed >= this.unknownCount)
 	{
 		this.updateAssistant.displayAction($L("<strong>Done Fixing!</strong>"));
 		this.updateAssistant.hideProgress();
@@ -570,8 +609,8 @@ packagesModel.prototype.fixUnknownDone = function()
 	}
 	else
 	{
-		this.updateAssistant.displayAction($L("<strong>Scanning Unknown Packages</strong><br />") + this.packages[this.unknown[this.unknownFixed]].pkg.substr(-32));
-		this.packages[this.unknown[this.unknownFixed]].loadAppinfoFile(this.fixUnknownDone.bind(this));
+		// this slot is free now, so start whichever package is next in line
+		this.scanNextUnknown();
 	}
 };
 
