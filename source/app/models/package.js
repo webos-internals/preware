@@ -207,7 +207,13 @@ packageModel.prototype.infoLoad = function(info)
 			try
 			{
 				//alert('parsing source '+this.pkg);
-				var sourceJson = JSON.parse(info.Source.replace(/\\'/g, "'")); //"
+				// The replace is only needed for the rare feed entry that has an
+				// escaped quote in it, but it scans and copies the whole string
+				// every time. Across a full load that is a megabyte of copying
+				// to fix up a handful of packages, so only do it when it applies.
+				var sourceText = info.Source;
+				if (sourceText.indexOf("\\'") > -1) sourceText = sourceText.replace(/\\'/g, "'"); //"
+				var sourceJson = JSON.parse(sourceText);
 			}
 			catch (e) 
 			{
