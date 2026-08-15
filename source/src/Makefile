@@ -1,20 +1,27 @@
 VERSION=unknown
 
+# STAGING_DIR and CC can both be set from the environment, for building
+# outside of the original /srv/preware build tree.  See tools/build-service.sh,
+# which stages the dependencies and sets both.
 ifdef DEVICE
 # Device build
-STAGING_DIR=/srv/preware/build/staging/armv7
+STAGING_DIR ?= /srv/preware/build/staging/armv7
+ifeq ($(origin CC),default)
 ifeq ($(shell uname -s),Darwin)
 CC=/opt/PalmPDK/arm-gcc/bin/arm-none-linux-gnueabi-gcc
 else
 CC=/srv/preware/build/toolchain/cs07q3armel/build/arm-2007q3/bin/arm-none-linux-gnueabi-gcc
 endif
+endif
 else
 # Emulator build
-STAGING_DIR=/srv/preware/build/staging/i686
+STAGING_DIR ?= /srv/preware/build/staging/i686
+ifeq ($(origin CC),default)
 ifeq ($(shell uname -s),Darwin)
 CC=/opt/PalmPDK/i686-gcc/bin/i686-nptl-linux-gnu-gcc --sysroot=/opt/PalmPDK/i686-gcc/sys-root
 else
 CC=/srv/preware/build/toolchain/i686-unknown-linux-gnu/build/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-gcc
+endif
 endif
 endif
 

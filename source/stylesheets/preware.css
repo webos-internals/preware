@@ -130,6 +130,25 @@ body.palm-dark .add-item .title
 	margin-left: -85px;
 	color: #666;
 	font-size: 16px;
+	/* this text is rewritten constantly while feeds download, and without this
+	   a stray touch leaves part of it selected and highlighted */
+	-webkit-user-select: none;
+}
+/* One feed name and one status line, each on its own line and each a fixed
+   height, so the block is always the same size no matter how many feeds are
+   downloading. Without this the text grows downwards into the progress bar. */
+.update #spinner #spinnerStatus .feeds,
+.update #spinner #spinnerStatus .status
+{
+	height: 20px;
+	line-height: 20px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+.update #spinner #spinnerStatus .status
+{
+	margin-top: 8px;
 }
 .update #spinner #spinnerStatus .text
 {
@@ -143,7 +162,9 @@ body.palm-dark .update #spinner #spinnerStatus
 }
 .update .progress
 {
-	margin-top: 42px;
+	/* The status text above overflows the spinner's own box, so this margin has
+	   to clear all four lines of it, otherwise the text runs into this pill. */
+	margin-top: 100px;
 	height: 15px;
 	width: 114px;
 	margin-left: auto;
